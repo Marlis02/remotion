@@ -1,0 +1,32 @@
+schema: audio-profile/1
+
+deliverySampleRate: 48000         # FACT r2 §7.5: у Remotion по умолчанию 48000
+codec: aac
+bitrateKbps: 192
+
+resampler:
+  engine: soxr
+  precision: 28
+  # Ресемплинг музыки — ОДИН РАЗ на ingest, не на миксе (ADR-0010 §9):
+  # тогда микс — сложение целых сэмплов, и версия ресемплера не влияет на выход сборки.
+
+loudness:
+  targetLufs: -14                 # целевая громкость: «публикуемый» обязан быть числом, а не словом
+  truePeakDb: -1.0
+
+crossfadeSamples: 72              # 3 мс при 24 кГц, внутри уже отведённого интервала (T7)
+
+takeAcceptance:                   # пороги приёмки дубля (ADR-0010 §1), уточняются в SP-2
+  minUniqueTimestampRatio: 0.35
+  maxEqualRun: 24
+  maxRetries: 2                   # после них — падение сборки, деления чанка НЕ происходит (M12)
+
+# Заполняется калибровкой алигнера на tts:mock@1 (находка C6, SP-2).
+# Пока полка неизвестна, AC5-b измеряет сумму «ошибка провайдера ⊕ ошибка прибора».
+alignerNoiseFloor:
+  p50: null
+  p95: null
+  max: null
+
+# Измеряется в SP-5 (фикстура «вспышка + щелчок»).
+avOffsetCompensationSamples: 0

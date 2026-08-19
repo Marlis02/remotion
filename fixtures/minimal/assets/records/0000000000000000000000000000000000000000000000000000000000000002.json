@@ -1,0 +1,29 @@
+{
+  "derivedFrom": null,
+  "intrinsic": {
+    "height": 4000,
+    "width": 3000
+  },
+  "kind": "image",
+  "provenance": {
+    "c2paManifestBlob": null,
+    "origin": {
+      "retrievedAt": "2026-08-19T00:00:00Z",
+      "sourceUrl": null
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "reproduction": {
+      "attributionRequired": false,
+      "status": "own"
+    },
+    "sourceSnapshot": null,
+    "work": {
+      "note": "страница учётной книги, снимок автора",
+      "status": "own"
+    }
+  },
+  "schema": "asset-record/1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000002"
+}

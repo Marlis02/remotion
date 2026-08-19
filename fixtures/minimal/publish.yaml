@@ -1,0 +1,29 @@
+schema: publish/1
+
+# Единственный вход BLOCK-правил Policy Guard (находка C7). Введён ДО заморозки формата:
+# после первого ролика это была бы миграция project/1 плюс новое семейство файлов.
+# В MVP реально проверяются домены D и E (+PG-C3); остальные поля заведены заранее.
+
+title: "Чего ждали в порту"
+
+# {{attributions}} заполняет компилятор из provenance ассетов — это делает PG-D5 (BLOCK) исполнимым.
+descriptionTemplate: |
+  Короткая история о портовых складах и о том, сколько стоит ожидание.
+
+  Источники и лицензии:
+  {{attributions}}
+
+topic: history                    # PG-A5/A6
+voiceRole: narrator               # PG-A5: трёхфакторный чек AI-персоны
+madeForKids: false                # PG-A8
+
+disclosure:                       # PG-C1/C2/C3
+  syntheticVoice: true
+  aiImagery: false
+  aiMusic: false
+
+# URL законны здесь и запрещены только в прозе (ADR-0002 §3):
+# без этой оговорки нормативный линт конфликтовал с обязательным PG-A1.
+sources:
+  - { url: "https://example.org/archive/harbour-ledgers", appliesTo: "sc:intro" }
+  - { url: "https://example.org/archive/keeper-notes", appliesTo: "sc:turn" }

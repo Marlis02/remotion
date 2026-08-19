@@ -1,0 +1,36 @@
+schema: render-profile/1
+profileId: final
+
+# ТОЛЬКО НАМЕРЕНИЕ (M9). Версии Remotion/Chrome/ffmpeg, bundleHash, checksum шрифтов
+# и hostClass здесь отсутствуют: они вычисляются на каждой сборке и входят в ключ
+# ровно один раз, как engineFingerprint (ADR-0006 §3).
+pixelProfile:
+  gl: swangle                     # angle использует GPU «when available» ⇒ зависимость от машины
+  imageFormat: jpeg
+  jpegQuality: 90
+  scale: 1
+  colorSpace: bt709
+  pixelFormat: yuv420p
+  codec: h264
+  crf: 18
+  gopSize: 30
+
+  # Полная строка энкодера (находка C5): framemd5 не защищает от недетерминизма энкодера,
+  # потому что кодек lossy — разный битстрим даёт разные декодированные кадры.
+  encoder:
+    threads: 4                    # число, никогда auto
+    preset: medium
+    tune: none
+    rcLookahead: 40
+    aqMode: 1
+    psy: 1
+    bitexact: true                # -fflags +bitexact -flags:v +bitexact
+
+executionProfile:
+  concurrency: 4
+  offthreadVideoCacheSizeInBytes: 536870912    # дефолты Remotion запрещены: по половине RAM каждый
+  mediaCacheSizeInBytes: 536870912
+  offthreadVideoThreads: 2
+  disallowParallelEncoding: false
+  chapterParallelism: 1           # в v1 константа, а не настройка
+  segmentTimeoutMs: 900000

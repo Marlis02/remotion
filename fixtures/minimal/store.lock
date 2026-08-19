@@ -1,0 +1,9 @@
+schema: store-lock/1
+
+# sha256 → {size, kind, origin, replicas}. Что ОБЯЗАНО лежать в .store.
+# Инвариант M8: для kind: voice|snapshot реплик ≥ 2 — иначе потеря невосстановима
+# (FACT r1 §2.3: повторная генерация даёт другое аудио).
+# lastVerifiedAt пустой ⇒ первый же vpe build потребует `vpe store verify`.
+
+lastVerifiedAt: null
+entries: []

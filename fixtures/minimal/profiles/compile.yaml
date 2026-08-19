@@ -1,0 +1,37 @@
+schema: compile-profile/1
+
+# ЧАСТЬ ПРОИЗВЕДЕНИЯ. Только намерение человека — вычисляемых полей здесь нет (M9).
+fps: { num: 30, den: 1 }
+width: 1080
+height: 1920
+projectSampleRate: 24000
+templateRegistryVersion: "1"
+
+safeAreas:
+  top: 180        # px, зона интерфейса YouTube Shorts
+  bottom: 320
+  left: 60
+  right: 60
+
+# Дефолтная тишина движка (ADR-0003 T8, находка C4).
+# Без этих трёх чисел единственным источником тишины был бы [pause:],
+# которого в LLM-драфте не бывает ⇒ ни одного кандидата на разрез ⇒ 1 сегмент на ролик.
+# Инвариант корректности: defaultSceneGapSamples > 0.
+# 24000 сэмплов/с ⇒ 180 мс = 4320, 320 мс = 7680, 600 мс = 14400.
+defaultParagraphGapSamples: 4320
+defaultSceneGapSamples: 7680
+defaultChapterGapSamples: 14400
+
+# Слишком мелкие сегменты — это оверхед старта процесса и Chrome (M10).
+# Компилятор объединяет соседние, пока длина меньше порога, и печатает,
+# сколько кандидатов на разрез отклонил по этой причине.
+minSegmentDurationFrames: 45      # 1.5 с при 30 fps
+
+# ADR-0003 T9: движок сам добавляет к хронометражу Σδ и Σgap,
+# а Short длиннее минуты с claimed-музыкой теряет монетизацию (FACT r3 §3.3, PG-E1 BLOCK).
+maxDurationFrames: 1800           # 60 с
+
+captions:
+  tokensPerGroupMin: 2
+  tokensPerGroupMax: 4
+  minGroupDurationFrames: 6       # группы не сдвигаются; минимум — за счёт числа токенов (M6)

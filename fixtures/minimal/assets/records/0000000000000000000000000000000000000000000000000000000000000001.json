@@ -1,0 +1,18 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+  "kind": "image",
+  "intrinsic": { "width": 4000, "height": 2670 },
+  "derivedFrom": null,
+  "provenance": {
+    "work":        { "status": "public-domain", "note": "снимок 1890-х, срок охраны истёк" },
+    "reproduction":{ "status": "cc-by-4.0", "attributionRequired": true,
+                     "attributionText": "City Archive / CC BY 4.0" },
+    "recording":   { "status": "n/a" },
+    "origin": { "sourceUrl": "https://example.org/archive/harbour-1890",
+                "retrievedAt": "2026-08-19T00:00:00Z" },
+    "sourceSnapshot": { "sha256": "00000000000000000000000000000000000000000000000000000000000000a1",
+                        "capturedAt": "2026-08-19T00:00:00Z" },
+    "c2paManifestBlob": null
+  }
+}

@@ -1,0 +1,60 @@
+schema: direction/1
+
+# Вся параметрика живёт здесь; проза остаётся прозой (ADR-0002).
+# at/until — ТОЛЬКО якоря b:/sc:/ch:/r:. Ссылок на w: здесь нет и быть не может
+# (правило ADR-0004 §2, охраняется тестом A1 из docs/invariants.md).
+#
+# Записи для [img: …] здесь НЕ перечислены: их порождает компилятор,
+# привязывая к неявным битам b:img-harbour-1, b:img-ledger-1, b:img-sea-1 (M1).
+# recordId — 4 случайных байта, выданные CLI; вход seed'а (ADR-0007 §1).
+
+records:
+  - recordId: "a3f19c2b"
+    at: { kind: anchor, anchor: "sc:intro" }
+    until: { kind: anchor, anchor: "b:reveal" }
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    params:
+      from: { scale: 1.00, x: 0.0, y: 0.0 }
+      to: { scale: 1.12, x: 0.03, y: -0.02 }
+      easing: "inOutCubic"        # из закрытого реестра: только полиномиальные формы (ADR-0007 §3)
+
+  - recordId: "7b20de44"
+    at: { kind: anchor, anchor: "b:reveal" }
+    track: effect
+    z: 20
+    template: "flash@1"
+    params:
+      strengthPct: 35
+      durationSamples: 4800       # Duration абсолютна и разрешена (V1 запрещает абсолютную
+                                  # форму только у kind: anchor)
+
+  - recordId: "c81a05f7"
+    at: { kind: anchor, anchor: "sc:turn" }
+    until: { kind: anchor, anchor: "ch:main" }      # until на scope-якоре = его конец
+    track: music
+    z: 0
+    template: "bed@1"
+    params:
+      asset: "pad-loop"
+      inPoint: { kind: mediaTime, asset: "pad-loop", offsetSamples: 96000 }
+      gainDb: -18
+      duckUnderSpeechDb: -6
+
+  - recordId: "5d6e1130"
+    at: { kind: anchor, anchor: "b:count" }
+    track: visual
+    z: 15
+    template: "still@1"
+    params:
+      asset: "ledger"
+      fit: cover
+
+  - recordId: "e40b7a92"
+    at: { kind: anchor, anchor: "b:close" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    params:
+      style: "bold"

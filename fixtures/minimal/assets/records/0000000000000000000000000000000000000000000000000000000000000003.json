@@ -1,0 +1,29 @@
+{
+  "derivedFrom": null,
+  "intrinsic": {
+    "height": 2250,
+    "width": 4000
+  },
+  "kind": "image",
+  "provenance": {
+    "c2paManifestBlob": null,
+    "origin": {
+      "retrievedAt": "2026-08-19T00:00:00Z",
+      "sourceUrl": null
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "reproduction": {
+      "attributionRequired": false,
+      "status": "own"
+    },
+    "sourceSnapshot": null,
+    "work": {
+      "note": "море, снимок автора",
+      "status": "own"
+    }
+  },
+  "schema": "asset-record/1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000003"
+}

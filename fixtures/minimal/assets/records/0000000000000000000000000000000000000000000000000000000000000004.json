@@ -1,0 +1,29 @@
+{
+  "derivedFrom": null,
+  "intrinsic": {
+    "durationSamples": 2880000,
+    "sampleRate": 24000
+  },
+  "kind": "audio",
+  "provenance": {
+    "c2paManifestBlob": null,
+    "origin": {
+      "retrievedAt": "2026-08-19T00:00:00Z",
+      "sourceUrl": null
+    },
+    "recording": {
+      "status": "own"
+    },
+    "reproduction": {
+      "attributionRequired": false,
+      "status": "own"
+    },
+    "sourceSnapshot": null,
+    "work": {
+      "note": "музыкальная подложка",
+      "status": "own"
+    }
+  },
+  "schema": "asset-record/1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000004"
+}

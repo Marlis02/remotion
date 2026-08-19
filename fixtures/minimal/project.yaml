@@ -1,0 +1,35 @@
+schema: project/1
+
+id: minimal
+channelId: demo-channel
+
+# Геометрия времени — часть ПРОИЗВЕДЕНИЯ (ADR-0006): смена этих величин меняет IR.
+fps: { num: 30, den: 1 }
+width: 1080
+height: 1920
+
+# Источник истины физического времени (ADR-0003 T1, «Разделение sampleRate»).
+# 24000 — нативная частота pcm_24000, доступная без Pro (FACT r1 §0.6).
+projectSampleRate: 24000
+
+# Коммитится и входит в иерархию seed'ов (ADR-0007 §1).
+seedRoot: 305419896
+
+profiles:
+  compile: profiles/compile.yaml
+  render: profiles/render.final.yaml
+  renderAc4: profiles/render.ac4.yaml
+  audio: profiles/audio.yaml
+
+voice:
+  providerId: "tts:mock@1"     # фикстуры используют только mock (ADR-0010 §7)
+  modelId: "mock-1"
+  voiceId: "mock-voice-a"
+  seed: 7
+  binderId: "provider-timestamps@1"
+
+# .store живёт ВНЕ дерева проекта: git clean -xdf не должен уносить
+# единственную копию невоспроизводимого аудио (ADR-0005 §8a, M8).
+store:
+  path: "~/.vpe/store"
+  remotes: ["local-dir", "rclone:backup"]   # реплик ≥ 2 для kind: voice|snapshot
