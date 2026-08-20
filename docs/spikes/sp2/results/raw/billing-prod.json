@@ -1,0 +1,204 @@
+{
+  "schema": "sp2b-billing/1",
+  "question": "почему списание провайдера не равно числу отправленных code points на тарифе Creator",
+  "sources": [
+    "GET /v1/user/subscription (character_count)",
+    "GET /v1/usage/character-stats (сумма по временному окну)"
+  ],
+  "tier": "creator",
+  "perBlock": [
+    {
+      "block": 1,
+      "calls": 28,
+      "windowFrom": "2026-08-20T21:07:02.951Z",
+      "windowTo": "2026-08-20T21:07:35.578Z",
+      "sentCodePoints": 1212,
+      "sentUtf16": 1215,
+      "billed": 668,
+      "ratio": 0.5512
+    },
+    {
+      "block": 3,
+      "calls": 5,
+      "windowFrom": "2026-08-20T21:08:06.249Z",
+      "windowTo": "2026-08-20T21:08:13.959Z",
+      "sentCodePoints": 221,
+      "sentUtf16": 221,
+      "billed": 121,
+      "ratio": 0.5475
+    },
+    {
+      "block": 4,
+      "calls": 1,
+      "windowFrom": "2026-08-20T21:12:41.325Z",
+      "windowTo": "2026-08-20T21:13:08.270Z",
+      "sentCodePoints": 2689,
+      "sentUtf16": 2689,
+      "billed": 1479,
+      "ratio": 0.55
+    }
+  ],
+  "totals": {
+    "sentCodePoints": 4122,
+    "billed": 2268,
+    "ratio": 0.55022,
+    "subscriptionCharacterCount": 2268
+  },
+  "subscriptionMatchesUsageStats": true,
+  "hypotheses": [
+    {
+      "formula": "round покалльно, множитель 1",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 1",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 1",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 1",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 1",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 1",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round от суммы блока, множитель 1",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 0.5",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 0.5",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.5",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.5",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.5",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.5",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round от суммы блока, множитель 0.5",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 0.55",
+      "unit": "code points",
+      "matchesAllGroups": true
+    },
+    {
+      "formula": "round покалльно, множитель 0.55",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.55",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.55",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.55",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.55",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round от суммы блока, множитель 0.55",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 0.6",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round покалльно, множитель 0.6",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.6",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "floor покалльно, множитель 0.6",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.6",
+      "unit": "code points",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "ceil покалльно, множитель 0.6",
+      "unit": "UTF-16 units",
+      "matchesAllGroups": false
+    },
+    {
+      "formula": "round от суммы блока, множитель 0.6",
+      "unit": "code points",
+      "matchesAllGroups": false
+    }
+  ],
+  "verdict": "списание = round покалльно, множитель 0.55, единица — code points",
+  "winners": [
+    {
+      "formula": "round покалльно, множитель 0.55",
+      "unit": "code points",
+      "matchesAllGroups": true
+    }
+  ],
+  "sp2ForComparison": {
+    "sent": 5222,
+    "billed": 5222,
+    "tier": "free",
+    "ratio": 1
+  }
+}

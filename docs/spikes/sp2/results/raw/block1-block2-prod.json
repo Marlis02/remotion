@@ -1,0 +1,3859 @@
+{
+  "schema": "sp2b-block1/1",
+  "blocks": [
+    1,
+    2
+  ],
+  "voice": "Michael C. Vincent - Confident, Expressive",
+  "voiceMode": "env",
+  "comparedWith": null,
+  "calls": 28,
+  "chargedTotal": 1215,
+  "u4_identity": {
+    "alignmentIdentical": 28,
+    "total": 28,
+    "failures": [],
+    "lengthsMatchAll": true,
+    "monotonicAll": true
+  },
+  "u4_unit": {
+    "verdict": "code points",
+    "matchesUtf16": 26,
+    "matchesCodePoints": 28,
+    "matchesGraphemes": 26,
+    "discriminating": [
+      {
+        "id": "b1-21-cafe-nfd-prod",
+        "trap": "café",
+        "alignmentCharactersLength": 45,
+        "inputUtf16Length": 45,
+        "inputCodePoints": 45,
+        "inputGraphemes": 44,
+        "matches": [
+          "utf16",
+          "codePoints"
+        ],
+        "multiUnitElements": []
+      },
+      {
+        "id": "b1-23-emoji-prod",
+        "trap": "🚢 ahead",
+        "alignmentCharactersLength": 42,
+        "inputUtf16Length": 43,
+        "inputCodePoints": 42,
+        "inputGraphemes": 42,
+        "matches": [
+          "codePoints",
+          "graphemes"
+        ],
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "🚢",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F6A2"
+          }
+        ]
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "trap": "👍🏽 ok",
+        "alignmentCharactersLength": 45,
+        "inputUtf16Length": 47,
+        "inputCodePoints": 45,
+        "inputGraphemes": 44,
+        "matches": [
+          "codePoints"
+        ],
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "👍",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F44D"
+          },
+          {
+            "i": 1,
+            "c": "🏽",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F3FD"
+          }
+        ]
+      }
+    ]
+  },
+  "u16_normalization": {
+    "rawIdenticalToInput": 0,
+    "onlyPaddingDiffers": 20,
+    "total": 28,
+    "paddingShape": [
+      "1/1"
+    ],
+    "rewrites": [
+      {
+        "id": "b1-12-apos-typ-prod",
+        "trap": "it’s",
+        "diff": {
+          "firstDivergenceCodePointIndex": 24,
+          "lengthCodePoints": {
+            "input": 41,
+            "alignment": 41
+          },
+          "inputAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"’\"(U+2019)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ],
+          "alignmentAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"'\"(U+0027)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      {
+        "id": "b1-15-emdash-prod",
+        "trap": "word — word",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"—\"(U+2014)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)"
+          ]
+        }
+      },
+      {
+        "id": "b1-16-endash-prod",
+        "trap": "word – word",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"–\"(U+2013)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ]
+        }
+      },
+      {
+        "id": "b1-17-curly-prod",
+        "trap": "“quoted”",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 44,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"“\"(U+201C)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"”\"(U+201D)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ],
+          "alignmentAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"\\\"\"(U+0022)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"\\\"\"(U+0022)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ]
+        }
+      },
+      {
+        "id": "b1-18-ellipsis1-prod",
+        "trap": "wait…",
+        "diff": {
+          "firstDivergenceCodePointIndex": 22,
+          "lengthCodePoints": {
+            "input": 43,
+            "alignment": 45
+          },
+          "inputAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"…\"(U+2026)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"s\"(U+0073)"
+          ],
+          "alignmentAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)"
+          ]
+        }
+      },
+      {
+        "id": "b1-22-nbsp-prod",
+        "trap": "5 %",
+        "diff": {
+          "firstDivergenceCodePointIndex": 14,
+          "lengthCodePoints": {
+            "input": 39,
+            "alignment": 39
+          },
+          "inputAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+00A0)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ],
+          "alignmentAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+0020)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ]
+        }
+      },
+      {
+        "id": "b1-23-emoji-prod",
+        "trap": "🚢 ahead",
+        "diff": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 40
+          },
+          "inputAround": [
+            "\"🚢\"(U+1F6A2)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)"
+          ],
+          "alignmentAround": [
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "trap": "👍🏽 ok",
+        "diff": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 45,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\"👍\"(U+1F44D)",
+            "\"🏽\"(U+1F3FD)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)"
+          ],
+          "alignmentAround": [
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)"
+          ]
+        }
+      }
+    ],
+    "perClass": [
+      {
+        "id": "b1-01-dr-prod",
+        "class": "F1",
+        "trap": "Dr. Smith",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-03-year-prod",
+        "class": "F2",
+        "trap": "in 1793",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-04-ord3-prod",
+        "class": "F3",
+        "trap": "the 3rd of May",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-05-ord21-prod",
+        "class": "F3",
+        "trap": "21st century",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-06-money-prod",
+        "class": "F4",
+        "trap": "$5",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-07-percent-prod",
+        "class": "F5",
+        "trap": "5%",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-25-thousands-prod",
+        "class": "num",
+        "trap": "1,000,000",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-26-decimal-prod",
+        "class": "num",
+        "trap": "3.14",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-28-date-prod",
+        "class": "U16",
+        "trap": "03/04",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      }
+    ]
+  },
+  "t7_leadin_tail": {
+    "startZeroCount": 28,
+    "leadInMs": {
+      "n": 28,
+      "min": 0,
+      "p25": 0,
+      "median": 0,
+      "p75": 0,
+      "p95": 0,
+      "max": 0,
+      "mean": 0,
+      "stdev": 0
+    },
+    "tailMs": {
+      "n": 28,
+      "min": -0.5,
+      "p25": -0.375,
+      "median": 0.020999999999999998,
+      "p75": 0.292,
+      "p95": 0.417,
+      "max": 0.417,
+      "mean": -0.008893,
+      "stdev": 0.344674
+    },
+    "tailResidualOkAll": false,
+    "overshootSamples": [
+      {
+        "id": "b1-01-dr-prod",
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-02-st-prod",
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-04-ord3-prod",
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-05-ord21-prod",
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-06-money-prod",
+        "tailSamples": -1
+      },
+      {
+        "id": "b1-07-percent-prod",
+        "tailSamples": -4
+      },
+      {
+        "id": "b1-08-no7-prod",
+        "tailSamples": -4
+      },
+      {
+        "id": "b1-09-eg-prod",
+        "tailSamples": -10
+      },
+      {
+        "id": "b1-10-ie-prod",
+        "tailSamples": -9
+      },
+      {
+        "id": "b1-17-curly-prod",
+        "tailSamples": -9
+      },
+      {
+        "id": "b1-21-cafe-nfd-prod",
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "tailSamples": -9
+      },
+      {
+        "id": "b1-28-date-prod",
+        "tailSamples": -1
+      }
+    ],
+    "perString": [
+      {
+        "id": "b1-01-dr-prod",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-02-st-prod",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-03-year-prod",
+        "leadInMs": 0,
+        "tailMs": 0.42,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "audioMs": 3529.4
+      },
+      {
+        "id": "b1-04-ord3-prod",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-05-ord21-prod",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-06-money-prod",
+        "leadInMs": 0,
+        "tailMs": -0.04,
+        "leadInSamples": 0,
+        "tailSamples": -1,
+        "audioMs": 2740
+      },
+      {
+        "id": "b1-07-percent-prod",
+        "leadInMs": 0,
+        "tailMs": -0.17,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "audioMs": 2832.8
+      },
+      {
+        "id": "b1-08-no7-prod",
+        "leadInMs": 0,
+        "tailMs": -0.17,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "audioMs": 2832.8
+      },
+      {
+        "id": "b1-09-eg-prod",
+        "leadInMs": 0,
+        "tailMs": -0.42,
+        "leadInSamples": 0,
+        "tailSamples": -10,
+        "audioMs": 3018.6
+      },
+      {
+        "id": "b1-10-ie-prod",
+        "leadInMs": 0,
+        "tailMs": -0.38,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "audioMs": 2600.6
+      },
+      {
+        "id": "b1-11-apos-str-prod",
+        "leadInMs": 0,
+        "tailMs": 0.42,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "audioMs": 2368.4
+      },
+      {
+        "id": "b1-12-apos-typ-prod",
+        "leadInMs": 0,
+        "tailMs": 0.42,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "audioMs": 2368.4
+      },
+      {
+        "id": "b1-13-dont-prod",
+        "leadInMs": 0,
+        "tailMs": 0.17,
+        "leadInSamples": 0,
+        "tailSamples": 4,
+        "audioMs": 1811.2
+      },
+      {
+        "id": "b1-14-hyphen-prod",
+        "leadInMs": 0,
+        "tailMs": 0,
+        "leadInSamples": 0,
+        "tailSamples": 0,
+        "audioMs": 2322
+      },
+      {
+        "id": "b1-15-emdash-prod",
+        "leadInMs": 0,
+        "tailMs": 0.29,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "audioMs": 2879.3
+      },
+      {
+        "id": "b1-16-endash-prod",
+        "leadInMs": 0,
+        "tailMs": 0.38,
+        "leadInSamples": 0,
+        "tailSamples": 9,
+        "audioMs": 2786.4
+      },
+      {
+        "id": "b1-17-curly-prod",
+        "leadInMs": 0,
+        "tailMs": -0.38,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "audioMs": 2600.6
+      },
+      {
+        "id": "b1-18-ellipsis1-prod",
+        "leadInMs": 0,
+        "tailMs": 0.29,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "audioMs": 2879.3
+      },
+      {
+        "id": "b1-19-ellipsis3-prod",
+        "leadInMs": 0,
+        "tailMs": 0.29,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "audioMs": 2879.3
+      },
+      {
+        "id": "b1-20-cafe-nfc-prod",
+        "leadInMs": 0,
+        "tailMs": 0.21,
+        "leadInSamples": 0,
+        "tailSamples": 5,
+        "audioMs": 2554.2
+      },
+      {
+        "id": "b1-21-cafe-nfd-prod",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-22-nbsp-prod",
+        "leadInMs": 0,
+        "tailMs": 0.29,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "audioMs": 2879.3
+      },
+      {
+        "id": "b1-23-emoji-prod",
+        "leadInMs": 0,
+        "tailMs": 0.42,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "audioMs": 2368.4
+      },
+      {
+        "id": "b1-24-url-prod",
+        "leadInMs": 0,
+        "tailMs": 0.25,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "audioMs": 4458.3
+      },
+      {
+        "id": "b1-25-thousands-prod",
+        "leadInMs": 0,
+        "tailMs": 0.04,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "audioMs": 3065
+      },
+      {
+        "id": "b1-26-decimal-prod",
+        "leadInMs": 0,
+        "tailMs": 0.33,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "audioMs": 3204.3
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "leadInMs": 0,
+        "tailMs": -0.38,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "audioMs": 2600.6
+      },
+      {
+        "id": "b1-28-date-prod",
+        "leadInMs": 0,
+        "tailMs": -0.04,
+        "leadInSamples": 0,
+        "tailSamples": -1,
+        "audioMs": 3901
+      }
+    ]
+  },
+  "charDurations": {
+    "firstCharMs": {
+      "n": 28,
+      "min": 35,
+      "p25": 93,
+      "median": 93,
+      "p75": 104,
+      "p95": 116,
+      "max": 163,
+      "mean": 95.321429,
+      "stdev": 21.140776
+    },
+    "lastCharMs": {
+      "n": 28,
+      "min": 163,
+      "p25": 255,
+      "median": 279,
+      "p75": 314,
+      "p95": 360,
+      "max": 372,
+      "mean": 280.678571,
+      "stdev": 51.993168
+    },
+    "perString": [
+      {
+        "id": "b1-01-dr-prod",
+        "firstCharMs": 116,
+        "lastCharMs": 163,
+        "firstChar": "D",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-02-st-prod",
+        "firstCharMs": 104,
+        "lastCharMs": 302,
+        "firstChar": "S",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-03-year-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 220,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-04-ord3-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 302,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-05-ord21-prod",
+        "firstCharMs": 81,
+        "lastCharMs": 360,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-06-money-prod",
+        "firstCharMs": 81,
+        "lastCharMs": 348,
+        "firstChar": "A",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-07-percent-prod",
+        "firstCharMs": 81,
+        "lastCharMs": 325,
+        "firstChar": "O",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-08-no7-prod",
+        "firstCharMs": 104,
+        "lastCharMs": 198,
+        "firstChar": "W",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-09-eg-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 372,
+        "firstChar": "S",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-10-ie-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 244,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-11-apos-str-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 255,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-12-apos-typ-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 255,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-13-dont-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 220,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-14-hyphen-prod",
+        "firstCharMs": 116,
+        "lastCharMs": 279,
+        "firstChar": "H",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-15-emdash-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 255,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-16-endash-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 255,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-17-curly-prod",
+        "firstCharMs": 116,
+        "lastCharMs": 279,
+        "firstChar": "H",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-18-ellipsis1-prod",
+        "firstCharMs": 104,
+        "lastCharMs": 290,
+        "firstChar": "H",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-19-ellipsis3-prod",
+        "firstCharMs": 104,
+        "lastCharMs": 290,
+        "firstChar": "H",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-20-cafe-nfc-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 278,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-21-cafe-nfd-prod",
+        "firstCharMs": 163,
+        "lastCharMs": 256,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-22-nbsp-prod",
+        "firstCharMs": 116,
+        "lastCharMs": 290,
+        "firstChar": "D",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-23-emoji-prod",
+        "firstCharMs": 58,
+        "lastCharMs": 278,
+        "firstChar": "🚢",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-24-url-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 348,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-25-thousands-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 325,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-26-decimal-prod",
+        "firstCharMs": 81,
+        "lastCharMs": 360,
+        "firstChar": "T",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "firstCharMs": 35,
+        "lastCharMs": 198,
+        "firstChar": "👍",
+        "lastChar": "."
+      },
+      {
+        "id": "b1-28-date-prod",
+        "firstCharMs": 93,
+        "lastCharMs": 314,
+        "firstChar": "T",
+        "lastChar": "."
+      }
+    ]
+  },
+  "speedCharsPerSecond": {
+    "n": 28,
+    "min": 10.767,
+    "p25": 14.587,
+    "median": 15.964,
+    "p75": 16.919,
+    "p95": 17.311,
+    "max": 19.325,
+    "mean": 15.651286,
+    "stdev": 1.827838
+  },
+  "health": {
+    "uniqueTimestampRatio": {
+      "n": 28,
+      "min": 0.9556,
+      "p25": 1,
+      "median": 1,
+      "p75": 1,
+      "p95": 1,
+      "max": 1,
+      "mean": 0.997564,
+      "stdev": 0.009203
+    },
+    "maxEqualRun": {
+      "n": 28,
+      "min": 1,
+      "p25": 1,
+      "median": 1,
+      "p75": 1,
+      "p95": 1,
+      "max": 3,
+      "mean": 1.107143,
+      "stdev": 0.408769
+    },
+    "ratioBelowOne": [
+      {
+        "id": "b1-23-emoji-prod",
+        "trap": "🚢 ahead",
+        "ratio": 0.9762,
+        "maxEqualRun": 2
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "trap": "👍🏽 ok",
+        "ratio": 0.9556,
+        "maxEqualRun": 3
+      }
+    ],
+    "perString": [
+      {
+        "id": "b1-01-dr-prod",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-02-st-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-03-year-prod",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-04-ord3-prod",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-05-ord21-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-06-money-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-07-percent-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-08-no7-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-09-eg-prod",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-10-ie-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-11-apos-str-prod",
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-12-apos-typ-prod",
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-13-dont-prod",
+        "n": 35,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-14-hyphen-prod",
+        "n": 38,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-15-emdash-prod",
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-16-endash-prod",
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-17-curly-prod",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-18-ellipsis1-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-19-ellipsis3-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-20-cafe-nfc-prod",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-21-cafe-nfd-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-22-nbsp-prod",
+        "n": 39,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-23-emoji-prod",
+        "n": 42,
+        "uniqueTimestampRatio": 0.9762,
+        "maxEqualRun": 2
+      },
+      {
+        "id": "b1-24-url-prod",
+        "n": 48,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-25-thousands-prod",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-26-decimal-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-27-emoji-tone-prod",
+        "n": 45,
+        "uniqueTimestampRatio": 0.9556,
+        "maxEqualRun": 3
+      },
+      {
+        "id": "b1-28-date-prod",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      }
+    ]
+  },
+  "vsDaniel": {
+    "note": "те же 28 строк, те же параметры, отличается только voice_id",
+    "daniel": {
+      "voice": null,
+      "leadInMs": {
+        "n": 28,
+        "min": 0,
+        "p25": 0,
+        "median": 0,
+        "p75": 0,
+        "p95": 0,
+        "max": 0,
+        "mean": 0,
+        "stdev": 0
+      },
+      "tailMs": {
+        "n": 28,
+        "min": -0.5,
+        "p25": -0.25,
+        "median": 0.041999999999999996,
+        "p75": 0.208,
+        "p95": 0.333,
+        "max": 0.375,
+        "mean": -0.016357,
+        "stdev": 0.267345
+      },
+      "firstCharMs": {
+        "n": 28,
+        "min": 46,
+        "p25": 93,
+        "median": 93,
+        "p75": 104,
+        "p95": 116,
+        "max": 128,
+        "mean": 96.178571,
+        "stdev": 15.147026
+      },
+      "lastCharMs": {
+        "n": 28,
+        "min": 278,
+        "p25": 302,
+        "median": 337,
+        "p75": 360,
+        "p95": 383,
+        "max": 395,
+        "mean": 335.035714,
+        "stdev": 33.718882
+      },
+      "speedCharsPerSecond": {
+        "n": 28,
+        "min": 8.403,
+        "p25": 12.266,
+        "median": 14.199,
+        "p75": 15.14,
+        "p95": 16.15,
+        "max": 17.527,
+        "mean": 13.791036,
+        "stdev": 1.965025
+      },
+      "startZeroCount": 28,
+      "total": 28
+    },
+    "perStringDuration": [
+      {
+        "id": "b1-01-dr",
+        "chars": 46,
+        "michaelSeconds": 2.693,
+        "danielSeconds": 3.483,
+        "deltaMs": -789.5
+      },
+      {
+        "id": "b1-02-st",
+        "chars": 43,
+        "michaelSeconds": 2.693,
+        "danielSeconds": 2.926,
+        "deltaMs": -232.2
+      },
+      {
+        "id": "b1-03-year",
+        "chars": 46,
+        "michaelSeconds": 3.529,
+        "danielSeconds": 4.04,
+        "deltaMs": -510.9
+      },
+      {
+        "id": "b1-04-ord3",
+        "chars": 44,
+        "michaelSeconds": 2.693,
+        "danielSeconds": 3.251,
+        "deltaMs": -557.3
+      },
+      {
+        "id": "b1-05-ord21",
+        "chars": 43,
+        "michaelSeconds": 2.693,
+        "danielSeconds": 2.833,
+        "deltaMs": -139.3
+      },
+      {
+        "id": "b1-06-money",
+        "chars": 45,
+        "michaelSeconds": 2.74,
+        "danielSeconds": 3.204,
+        "deltaMs": -464.4
+      },
+      {
+        "id": "b1-07-percent",
+        "chars": 43,
+        "michaelSeconds": 2.833,
+        "danielSeconds": 3.622,
+        "deltaMs": -789.5
+      },
+      {
+        "id": "b1-08-no7",
+        "chars": 45,
+        "michaelSeconds": 2.833,
+        "danielSeconds": 3.065,
+        "deltaMs": -232.2
+      },
+      {
+        "id": "b1-09-eg",
+        "chars": 46,
+        "michaelSeconds": 3.019,
+        "danielSeconds": 3.297,
+        "deltaMs": -278.7
+      },
+      {
+        "id": "b1-10-ie",
+        "chars": 43,
+        "michaelSeconds": 2.601,
+        "danielSeconds": 3.158,
+        "deltaMs": -557.3
+      },
+      {
+        "id": "b1-11-apos-str",
+        "chars": 41,
+        "michaelSeconds": 2.368,
+        "danielSeconds": 2.693,
+        "deltaMs": -325.1
+      },
+      {
+        "id": "b1-12-apos-typ",
+        "chars": 41,
+        "michaelSeconds": 2.368,
+        "danielSeconds": 2.693,
+        "deltaMs": -325.1
+      },
+      {
+        "id": "b1-13-dont",
+        "chars": 35,
+        "michaelSeconds": 1.811,
+        "danielSeconds": 1.997,
+        "deltaMs": -185.8
+      },
+      {
+        "id": "b1-14-hyphen",
+        "chars": 38,
+        "michaelSeconds": 2.322,
+        "danielSeconds": 2.554,
+        "deltaMs": -232.2
+      },
+      {
+        "id": "b1-15-emdash",
+        "chars": 42,
+        "michaelSeconds": 2.879,
+        "danielSeconds": 3.297,
+        "deltaMs": -418
+      },
+      {
+        "id": "b1-16-endash",
+        "chars": 42,
+        "michaelSeconds": 2.786,
+        "danielSeconds": 3.065,
+        "deltaMs": -278.7
+      },
+      {
+        "id": "b1-17-curly",
+        "chars": 44,
+        "michaelSeconds": 2.601,
+        "danielSeconds": 3.065,
+        "deltaMs": -464.4
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "chars": 43,
+        "michaelSeconds": 2.879,
+        "danielSeconds": 2.926,
+        "deltaMs": -46.4
+      },
+      {
+        "id": "b1-19-ellipsis3",
+        "chars": 45,
+        "michaelSeconds": 2.879,
+        "danielSeconds": 2.926,
+        "deltaMs": -46.4
+      },
+      {
+        "id": "b1-20-cafe-nfc",
+        "chars": 44,
+        "michaelSeconds": 2.554,
+        "danielSeconds": 3.065,
+        "deltaMs": -510.8
+      },
+      {
+        "id": "b1-21-cafe-nfd",
+        "chars": 45,
+        "michaelSeconds": 2.693,
+        "danielSeconds": 2.786,
+        "deltaMs": -92.9
+      },
+      {
+        "id": "b1-22-nbsp",
+        "chars": 39,
+        "michaelSeconds": 2.879,
+        "danielSeconds": 3.39,
+        "deltaMs": -510.8
+      },
+      {
+        "id": "b1-23-emoji",
+        "chars": 42,
+        "michaelSeconds": 2.368,
+        "danielSeconds": 2.508,
+        "deltaMs": -139.3
+      },
+      {
+        "id": "b1-24-url",
+        "chars": 48,
+        "michaelSeconds": 4.458,
+        "danielSeconds": 5.712,
+        "deltaMs": -1253.9
+      },
+      {
+        "id": "b1-25-thousands",
+        "chars": 43,
+        "michaelSeconds": 3.065,
+        "danielSeconds": 3.854,
+        "deltaMs": -789.5
+      },
+      {
+        "id": "b1-26-decimal",
+        "chars": 45,
+        "michaelSeconds": 3.204,
+        "danielSeconds": 3.669,
+        "deltaMs": -464.4
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "chars": 45,
+        "michaelSeconds": 2.601,
+        "danielSeconds": 2.972,
+        "deltaMs": -371.5
+      },
+      {
+        "id": "b1-28-date",
+        "chars": 46,
+        "michaelSeconds": 3.901,
+        "danielSeconds": 4.365,
+        "deltaMs": -464.4
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "b1-01-dr-prod",
+      "baseId": "b1-01-dr",
+      "f": "F1",
+      "trap": "Dr. Smith",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "Dr. Smith arrived long before the tide turned.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "6aa82077e94d43f53a78e3e4d30ee4fd0387d8ebeed366c1f59f0ecc01052853",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Dr. Smith arrived long before the tide turned.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Dr. Smith arrived long before the tide turned. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Dr. Smith arrived long b",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-02-st-prod",
+      "baseId": "b1-02-st",
+      "f": "F1",
+      "trap": "St. Mary",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "St. Mary stands above the old harbour road.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "aeaff0728fa56ce6508d474b32deb50afb0850b708e09b7d52552835a79adb46",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "St. Mary stands above the old harbour road.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " St. Mary stands above the old harbour road. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "St. Mary stands above th",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-03-year-prod",
+      "baseId": "b1-03-year",
+      "f": "F2",
+      "trap": "in 1793",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The harbour was built in 1793 and never moved.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "dc46b95d1f1d3706842afb45517fd4931dba22a9405cd447a2b283c4a5dca2c5",
+        "numSamples": 84706,
+        "durationSeconds": 3.5294166666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The harbour was built in 1793 and never moved.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The harbour was built in 1793 and never moved. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The harbour was built in",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.529,
+        "audioDurationSeconds": 3.529417,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000417,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-04-ord3-prod",
+      "baseId": "b1-04-ord3",
+      "f": "F3",
+      "trap": "the 3rd of May",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "They sailed on the 3rd of May and came home.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "8a620a9e25bd04134f08f03194d6d837447f107c5d25060aa69d1b584695679c",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They sailed on the 3rd of May and came home.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They sailed on the 3rd of May and came home. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They sailed on the 3rd o",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-05-ord21-prod",
+      "baseId": "b1-05-ord21",
+      "f": "F3",
+      "trap": "21st century",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The 21st century found the warehouse empty.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "5736c76760f0d4d27d9bf1a47cdcde139dca5ef5d8cb948c54162dc6a0c935c0",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The 21st century found the warehouse empty.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The 21st century found the warehouse empty. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The 21st century found t",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-06-money-prod",
+      "baseId": "b1-06-money",
+      "f": "F4",
+      "trap": "$5",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "A berth cost $5 a night in those old ledgers.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "55396572786fa5754ff1b68d524f94eeb272e85ff8119f384b5f250f4e1117a7",
+        "numSamples": 65759,
+        "durationSeconds": 2.7399583333333335
+      },
+      "alignment": {
+        "present": true,
+        "joined": "A berth cost $5 a night in those old ledgers.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " A berth cost $5 a night in those old ledgers. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "A berth cost $5 a night ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.74,
+        "audioDurationSeconds": 2.739958,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000042,
+        "leadInSamples": 0,
+        "tailSamples": -1,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-07-percent-prod",
+      "baseId": "b1-07-percent",
+      "f": "F5",
+      "trap": "5%",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "Only 5% of the cargo ever reached the town.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "4e20de400aca19fbba1c6ccbcdd7102a1863e404716675124d6a9574e6a706ed",
+        "numSamples": 67988,
+        "durationSeconds": 2.8328333333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Only 5% of the cargo ever reached the town.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Only 5% of the cargo ever reached the town. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Only 5% of the cargo eve",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.833,
+        "audioDurationSeconds": 2.832833,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000167,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-08-no7-prod",
+      "baseId": "b1-08-no7",
+      "f": "F1",
+      "trap": "No. 7",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "Warehouse No. 7 kept the longest list of all.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "dc38c0189fd55d8f4ef5281f81908fe15b9f00009bf3effbaf3e6647dda64db5",
+        "numSamples": 67988,
+        "durationSeconds": 2.8328333333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Warehouse No. 7 kept the longest list of all.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Warehouse No. 7 kept the longest list of all. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Warehouse No. 7 kept the",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.833,
+        "audioDurationSeconds": 2.832833,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000167,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-09-eg-prod",
+      "baseId": "b1-09-eg",
+      "f": "F6",
+      "trap": "e.g. this",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "Some goods, e.g. this crate, waited for years.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "87a99b1362921c8afbc5aa8c3a887d24128c81621ccdad5c06df37778c9c097e",
+        "numSamples": 72446,
+        "durationSeconds": 3.0185833333333334
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Some goods, e.g. this crate, waited for years.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Some goods, e.g. this crate, waited for years. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Some goods, e.g. this cr",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.019,
+        "audioDurationSeconds": 3.018583,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000417,
+        "leadInSamples": 0,
+        "tailSamples": -10,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-10-ie-prod",
+      "baseId": "b1-10-ie",
+      "f": "F6",
+      "trap": "i.e. that",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The word means waiting, i.e. that patience.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "0183012b9ea8a9128d12f387c89a0e11c939ab7c21de168f255d8b4004346cd4",
+        "numSamples": 62415,
+        "durationSeconds": 2.600625
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The word means waiting, i.e. that patience.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The word means waiting, i.e. that patience. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The word means waiting, ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.601,
+        "audioDurationSeconds": 2.600625,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000375,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-11-apos-str-prod",
+      "baseId": "b1-11-apos-str",
+      "f": "F7",
+      "trap": "it's",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The keeper wrote that it's a quiet trade.",
+      "inputChars": 41,
+      "charged": 41,
+      "audio": {
+        "sha256": "6208d5bf2cf8fdaf2c7514d238d5624b3c71142ede40d70d26aba96ff396e119",
+        "numSamples": 56842,
+        "durationSeconds": 2.3684166666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The keeper wrote that it's a quiet trade.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 41,
+          "inputUtf16Length": 41,
+          "inputCodePoints": 41,
+          "inputGraphemes": 41,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The keeper wrote that it's a quiet trade. ",
+        "length": 43
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 41,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The keeper wrote that it",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.368,
+        "audioDurationSeconds": 2.368417,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000417,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-12-apos-typ-prod",
+      "baseId": "b1-12-apos-typ",
+      "f": "F8",
+      "trap": "it’s",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The keeper wrote that it’s a quiet trade.",
+      "inputChars": 41,
+      "charged": 41,
+      "audio": {
+        "sha256": "6208d5bf2cf8fdaf2c7514d238d5624b3c71142ede40d70d26aba96ff396e119",
+        "numSamples": 56842,
+        "durationSeconds": 2.3684166666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The keeper wrote that it’s a quiet trade.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 41,
+          "inputUtf16Length": 41,
+          "inputCodePoints": 41,
+          "inputGraphemes": 41,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The keeper wrote that it's a quiet trade. ",
+        "length": 43
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 24,
+          "lengthCodePoints": {
+            "input": 41,
+            "alignment": 41
+          },
+          "inputAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"’\"(U+2019)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ],
+          "alignmentAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"'\"(U+0027)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 41,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The keeper wrote that it",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.368,
+        "audioDurationSeconds": 2.368417,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000417,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-13-dont-prod",
+      "baseId": "b1-13-dont",
+      "f": "F7",
+      "trap": "don't",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "They don't count the days any more.",
+      "inputChars": 35,
+      "charged": 35,
+      "audio": {
+        "sha256": "0672f0f3ef0b83b2949d0bc93e3e9f73241bdd7ea8709c97816b64175104c27d",
+        "numSamples": 43468,
+        "durationSeconds": 1.8111666666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They don't count the days any more.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 35,
+          "inputUtf16Length": 35,
+          "inputCodePoints": 35,
+          "inputGraphemes": 35,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They don't count the days any more. ",
+        "length": 37
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 35,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 35,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They don't count the day",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 1.811,
+        "audioDurationSeconds": 1.811167,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000167,
+        "leadInSamples": 0,
+        "tailSamples": 4,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-14-hyphen-prod",
+      "baseId": "b1-14-hyphen",
+      "f": "F9",
+      "trap": "co-founder",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "His co-founder kept the second ledger.",
+      "inputChars": 38,
+      "charged": 38,
+      "audio": {
+        "sha256": "0ae917097ce9be103708ea71c6c6fd6db12192b0dddbedd16c6ee63d55982eb9",
+        "numSamples": 55728,
+        "durationSeconds": 2.322
+      },
+      "alignment": {
+        "present": true,
+        "joined": "His co-founder kept the second ledger.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 38,
+          "inputUtf16Length": 38,
+          "inputCodePoints": 38,
+          "inputGraphemes": 38,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " His co-founder kept the second ledger. ",
+        "length": 40
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 38,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 38,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "His co-founder kept the ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.322,
+        "audioDurationSeconds": 2.322,
+        "leadInSeconds": 0,
+        "tailSeconds": 0,
+        "leadInSamples": 0,
+        "tailSamples": 0,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-15-emdash-prod",
+      "baseId": "b1-15-emdash",
+      "f": "F10",
+      "trap": "word — word",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The dock — the long one — held four ships.",
+      "inputChars": 42,
+      "charged": 42,
+      "audio": {
+        "sha256": "6eb134728e77160704f3962f44e8fb948f7acc07a83b530989e71068f50d353a",
+        "numSamples": 69103,
+        "durationSeconds": 2.8792916666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The dock — the long one — held four ships.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 42,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The dock -- the long one -- held four ships. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"—\"(U+2014)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": false,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 42,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The dock — the long one ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.879,
+        "audioDurationSeconds": 2.879292,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000292,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-16-endash-prod",
+      "baseId": "b1-16-endash",
+      "f": "F10",
+      "trap": "word – word",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The dock – the long one – held four ships.",
+      "inputChars": 42,
+      "charged": 42,
+      "audio": {
+        "sha256": "1c639a3ba41b548b01ddb65a9e724ad27e980cf3575fa7477ca422c7cf77173f",
+        "numSamples": 66873,
+        "durationSeconds": 2.786375
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The dock – the long one – held four ships.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 42,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The dock - the long one - held four ships. ",
+        "length": 44
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"–\"(U+2013)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": false,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 42,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The dock – the long one ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.786,
+        "audioDurationSeconds": 2.786375,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000375,
+        "leadInSamples": 0,
+        "tailSamples": 9,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-17-curly-prod",
+      "baseId": "b1-17-curly",
+      "f": "F11",
+      "trap": "“quoted”",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "He wrote “quoted” in the margin of the page.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "8c93ab92636ffd333bed0df34714335d540b3f5691b6cf75d4f58f620eba9189",
+        "numSamples": 62415,
+        "durationSeconds": 2.600625
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He wrote “quoted” in the margin of the page.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He wrote \"quoted\" in the margin of the page. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 44,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"“\"(U+201C)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"”\"(U+201D)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ],
+          "alignmentAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"\\\"\"(U+0022)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"\\\"\"(U+0022)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He wrote “quoted” in the",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.601,
+        "audioDurationSeconds": 2.600625,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000375,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-18-ellipsis1-prod",
+      "baseId": "b1-18-ellipsis1",
+      "f": "F12",
+      "trap": "wait…",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "He would only say wait… and close the book.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "a6c3d72de767fff89aef57c2de07a18b131f5019b2158ddf7a3129a4f3295e85",
+        "numSamples": 69103,
+        "durationSeconds": 2.8792916666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He would only say wait… and close the book.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He would only say wait... and close the book. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 22,
+          "lengthCodePoints": {
+            "input": 43,
+            "alignment": 45
+          },
+          "inputAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"…\"(U+2026)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"s\"(U+0073)"
+          ],
+          "alignmentAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He would only say wait… ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.879,
+        "audioDurationSeconds": 2.879292,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000292,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-19-ellipsis3-prod",
+      "baseId": "b1-19-ellipsis3",
+      "f": "F12",
+      "trap": "wait...",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "He would only say wait... and close the book.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "a6c3d72de767fff89aef57c2de07a18b131f5019b2158ddf7a3129a4f3295e85",
+        "numSamples": 69103,
+        "durationSeconds": 2.8792916666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He would only say wait... and close the book.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He would only say wait... and close the book. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He would only say wait..",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.879,
+        "audioDurationSeconds": 2.879292,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000292,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-20-cafe-nfc-prod",
+      "baseId": "b1-20-cafe-nfc",
+      "f": "F16",
+      "trap": "café",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "They drank at a café near the customs house.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "6dc66cb42d1d95dba6cff5430a3896d932a7f78027f676903e79d76b13881663",
+        "numSamples": 61301,
+        "durationSeconds": 2.5542083333333334
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They drank at a café near the customs house.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They drank at a café near the customs house. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They drank at a café nea",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.554,
+        "audioDurationSeconds": 2.554208,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000208,
+        "leadInSamples": 0,
+        "tailSamples": 5,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-21-cafe-nfd-prod",
+      "baseId": "b1-21-cafe-nfd",
+      "f": "F16",
+      "trap": "café",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "They drank at a café near the customs house.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "02c7d1807674d027e47efe0a8f092a08261e2c5efa43e4a2d73def1040ddc87d",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They drank at a café near the customs house.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They drank at a café near the customs house. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They drank at a café ne",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-22-nbsp-prod",
+      "baseId": "b1-22-nbsp",
+      "f": "F15",
+      "trap": "5 %",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "Duty came to 5 % of the declared value.",
+      "inputChars": 39,
+      "charged": 39,
+      "audio": {
+        "sha256": "620f7b69de1ee7e1a9f5bead2c1b1705a06b25fe30c402c33b3508265b8f562c",
+        "numSamples": 69103,
+        "durationSeconds": 2.8792916666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Duty came to 5 % of the declared value.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 39,
+          "inputUtf16Length": 39,
+          "inputCodePoints": 39,
+          "inputGraphemes": 39,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Duty came to 5 % of the declared value. ",
+        "length": 41
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 14,
+          "lengthCodePoints": {
+            "input": 39,
+            "alignment": 39
+          },
+          "inputAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+00A0)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ],
+          "alignmentAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+0020)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 39,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 39,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Duty came to 5 % of the ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.879,
+        "audioDurationSeconds": 2.879292,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000292,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-23-emoji-prod",
+      "baseId": "b1-23-emoji",
+      "f": "F13",
+      "trap": "🚢 ahead",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "🚢 ahead of the tide, the pilot called out.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "2eb30794a28663c2ec4d666d0f08db38500d2c985de58e8d355c49b67f4002f7",
+        "numSamples": 56842,
+        "durationSeconds": 2.3684166666666666
+      },
+      "alignment": {
+        "present": true,
+        "joined": "🚢 ahead of the tide, the pilot called out.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "🚢",
+            "utf16": 2,
+            "codePoints": 1
+          }
+        ]
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " ahead of the tide, the pilot called out. ",
+        "length": 42
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 40
+          },
+          "inputAround": [
+            "\"🚢\"(U+1F6A2)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)"
+          ],
+          "alignmentAround": [
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 0.9762,
+        "uniqueStarts": 41,
+        "maxEqualRun": 2,
+        "maxEqualRunStartIndex": 1,
+        "maxEqualRunContext": "🚢 ahead of the tide, the ",
+        "maxEqualRunCharOffset": 2,
+        "firstStart": 0,
+        "lastEnd": 2.368,
+        "audioDurationSeconds": 2.368417,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000417,
+        "leadInSamples": 0,
+        "tailSamples": 10,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-24-url-prod",
+      "baseId": "b1-24-url",
+      "f": "F14",
+      "trap": "https://example.org/a",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The record lives at https://example.org/a today.",
+      "inputChars": 48,
+      "charged": 48,
+      "audio": {
+        "sha256": "ee41a2a3e23bdbfbdd57f256d6ac28603396a2a1b22ea5600a3325173c598014",
+        "numSamples": 106998,
+        "durationSeconds": 4.45825
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The record lives at https://example.org/a today.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 48,
+          "inputUtf16Length": 48,
+          "inputCodePoints": 48,
+          "inputGraphemes": 48,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The record lives at https://example.org/a today. ",
+        "length": 50
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 48,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 48,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The record lives at http",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 4.458,
+        "audioDurationSeconds": 4.45825,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.00025,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-25-thousands-prod",
+      "baseId": "b1-25-thousands",
+      "f": "num",
+      "trap": "1,000,000",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The archive holds 1,000,000 entries in all.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "f543047b594d75f3e5c36fa586c36aee0ef3eff8d3d007593dfdfec16e00e454",
+        "numSamples": 73561,
+        "durationSeconds": 3.0650416666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The archive holds 1,000,000 entries in all.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The archive holds 1,000,000 entries in all. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The archive holds 1,000,",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.065,
+        "audioDurationSeconds": 3.065042,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000042,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-26-decimal-prod",
+      "baseId": "b1-26-decimal",
+      "f": "num",
+      "trap": "3.14",
+      "added": false,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The rate settled at 3.14 for the whole month.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "8540896f2886a3fd5b36beb8efd5ffa9d7c6e304f9a1c49d27ecaaefee96e042",
+        "numSamples": 76904,
+        "durationSeconds": 3.2043333333333335
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The rate settled at 3.14 for the whole month.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The rate settled at 3.14 for the whole month. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The rate settled at 3.14",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.204,
+        "audioDurationSeconds": 3.204333,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000333,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-27-emoji-tone-prod",
+      "baseId": "b1-27-emoji-tone",
+      "f": "F13",
+      "trap": "👍🏽 ok",
+      "added": true,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "👍🏽 ok said the mate, and the rope went slack.",
+      "inputChars": 47,
+      "charged": 47,
+      "audio": {
+        "sha256": "8cb7e4b6e35c5fb8f3e002db056babb949ecbf1e5593c360f02b15ac16df25e9",
+        "numSamples": 62415,
+        "durationSeconds": 2.600625
+      },
+      "alignment": {
+        "present": true,
+        "joined": "👍🏽 ok said the mate, and the rope went slack.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 47,
+          "inputCodePoints": 45,
+          "inputGraphemes": 44,
+          "matches": [
+            "codePoints"
+          ]
+        },
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "👍",
+            "utf16": 2,
+            "codePoints": 1
+          },
+          {
+            "i": 1,
+            "c": "🏽",
+            "utf16": 2,
+            "codePoints": 1
+          }
+        ]
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " ok said the mate, and the rope went slack. ",
+        "length": 44
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 45,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\"👍\"(U+1F44D)",
+            "\"🏽\"(U+1F3FD)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)"
+          ],
+          "alignmentAround": [
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 0.9556,
+        "uniqueStarts": 43,
+        "maxEqualRun": 3,
+        "maxEqualRunStartIndex": 1,
+        "maxEqualRunContext": "👍🏽 ok said the mate, and ",
+        "maxEqualRunCharOffset": 2,
+        "firstStart": 0,
+        "lastEnd": 2.601,
+        "audioDurationSeconds": 2.600625,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000375,
+        "leadInSamples": 0,
+        "tailSamples": -9,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-28-date-prod",
+      "baseId": "b1-28-date",
+      "f": "U16",
+      "trap": "03/04",
+      "added": true,
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "input": "The entry is dated 03/04 in the old even hand.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "b1c7469e824c7a4a427cd648298a93905c407ad5a2c64224e8389c5dee2e56c1",
+        "numSamples": 93623,
+        "durationSeconds": 3.9009583333333335
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The entry is dated 03/04 in the old even hand.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The entry is dated 03/04 in the old even hand. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The entry is dated 03/04",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.901,
+        "audioDurationSeconds": 3.900958,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000042,
+        "leadInSamples": 0,
+        "tailSamples": -1,
+        "tailResidualOk": false
+      }
+    }
+  ]
+}

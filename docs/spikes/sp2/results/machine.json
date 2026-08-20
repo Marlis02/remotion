@@ -116,5 +116,196 @@
     ],
     "evidence": "HTTP 401 unauthorized на POST /v1/pronunciation-dictionaries/add-from-rules",
     "blocks": "блок 7 (словарь с alias, C1)"
+  },
+  "snapshot_sp2b": {
+    "schema": "sp2b-machine/1",
+    "capturedAt": "2026-08-20T21:04:31.980Z",
+    "spike": {
+      "task": "SP-2b — досъёмка на боевом голосе и закрытие долгов 1 и 4",
+      "budgetChars": 5000,
+      "unit": "code points (измерено в SP-2: списание = сумма code points отправленных строк)",
+      "ttsParams": {
+        "output_format": "pcm_24000",
+        "model_id": "eleven_multilingual_v2",
+        "apply_text_normalization": "off",
+        "seed": 20260821,
+        "voice_settings": {
+          "stability": 0.5,
+          "similarity_boost": 0.75,
+          "style": 0,
+          "speed": 1
+        }
+      },
+      "endpoint": "POST /v1/text-to-speech/{voice_id}/with-timestamps?output_format=pcm_24000",
+      "note": "параметры платных вызовов идентичны SP-2; единственное отличие — voice_id"
+    },
+    "account": {
+      "tier": "creator",
+      "status": "active",
+      "characterLimit": 125173,
+      "characterCount": 0,
+      "charactersRemaining": 125173,
+      "canExtendCharacterLimit": false,
+      "allowedToExtend": false,
+      "maxCharacterLimitExtension": 0,
+      "nextResetUnixMs": 1789936547000,
+      "voiceLimit": 30,
+      "currency": "usd",
+      "billingPeriod": "monthly_period",
+      "planTierAtGeneration": "creator"
+    },
+    "voice": {
+      "name": "Michael C. Vincent - Confident, Expressive",
+      "category": "professional",
+      "sharingStatus": "copied",
+      "labels": {
+        "use_case": "narrative_story",
+        "age": "middle_aged",
+        "language": "en",
+        "descriptive": "confident",
+        "gender": "male",
+        "accent": "american"
+      },
+      "highQualityBaseModelIds": [
+        "eleven_turbo_v2",
+        "eleven_turbo_v2_5",
+        "eleven_multilingual_v2",
+        "eleven_multilingual_sts_v2",
+        "eleven_flash_v2",
+        "eleven_flash_v2_5"
+      ],
+      "idRecorded": false,
+      "source": "process.env.ELEVENLABS_VOICE_ID",
+      "mode": "env"
+    },
+    "model": {
+      "modelId": "eleven_multilingual_v2",
+      "name": "Eleven Multilingual v2",
+      "maxCharactersFreeUser": 10000,
+      "maxCharactersSubscribedUser": 10000,
+      "tokenCostFactor": 1,
+      "languages": 29
+    },
+    "allModelIds": [
+      "eleven_v3",
+      "eleven_v3_conversational",
+      "eleven_multilingual_v2",
+      "eleven_flash_v2_5",
+      "eleven_turbo_v2_5",
+      "eleven_turbo_v2",
+      "eleven_flash_v2",
+      "eleven_english_sts_v2",
+      "eleven_multilingual_sts_v2"
+    ],
+    "user": {
+      "subscriptionTier": "creator",
+      "isNewUser": true,
+      "canUseDelayedPaymentMethods": false
+    },
+    "gate": {
+      "tierIsCreator": true,
+      "voiceUsableExpected": true,
+      "verdict": "можно тратить кредиты"
+    },
+    "notes": [
+      "Второй снимок. Первый (Free, Daniel) лежит в корне этого файла и не изменён.",
+      "Ни ключ, ни ELEVENLABS_VOICE_ID здесь не записаны: только имя голоса из GET /v1/voices/{id}.",
+      "characterCount — на момент снимка, ДО первого платного вызова SP-2b.",
+      "Итог расхода сверен с провайдером: character_count 0 → 2268.",
+      "Итог расхода сверен с провайдером: character_count 0 → 2268."
+    ],
+    "spend": {
+      "budgetChars": 5000,
+      "unit": "code points",
+      "accountedByCodePoints": 4122,
+      "accountedByUtf16": 4125,
+      "providerCharacterCountStart": 0,
+      "providerCharacterCountEnd": 2268,
+      "providerBilled": 2268,
+      "paidCallsOk": 34,
+      "paidCallsFailed": 0,
+      "failedCalls": [],
+      "remainingOfBudget": 878,
+      "accountCharactersRemaining": 122905,
+      "sentEqualsBilled": false,
+      "billingRate": 0.55022,
+      "billingFormula": "round(codePoints × 0.55) покалльно; единица — code points (raw/billing-prod.json)",
+      "byBlock": [
+        {
+          "block": 1,
+          "calls": 28,
+          "codePoints": 1212,
+          "billed": 668
+        },
+        {
+          "block": 3,
+          "calls": 5,
+          "codePoints": 221,
+          "billed": 121
+        },
+        {
+          "block": 4,
+          "calls": 1,
+          "codePoints": 2689,
+          "billed": 1479
+        }
+      ]
+    },
+    "keyPermissions": {
+      "missing": [
+        "pronunciation_dictionaries_write",
+        "pronunciation_dictionaries_read"
+      ],
+      "evidence": "HTTP 401 на POST /v1/pronunciation-dictionaries/add-from-rules и на GET /v1/pronunciation-dictionaries",
+      "blocks": "блок 7 (словарь с alias, C1) — долг 1 остаётся открытым",
+      "note": "право не появилось вопреки условию задания; тариф здесь ни при чём (сравни: 402 paid_plan_required на голосе в SP-2)"
+    },
+    "debts": {
+      "closed": [
+        {
+          "n": 4,
+          "what": "здоровье alignment выше 1514 символов",
+          "how": "ступень 2689 симв. / 155.4 с",
+          "file": "raw/block4-health-2700-prod.json"
+        },
+        {
+          "n": 5,
+          "what": "замеры на боевом голосе",
+          "how": "блоки 1, 2, 3 пересняты на Michael C. Vincent",
+          "files": [
+            "raw/block1-block2-prod.json",
+            "raw/block2-acoustic-prod.json",
+            "raw/block3-pause-prod.json"
+          ]
+        }
+      ],
+      "stillOpen": [
+        {
+          "n": 1,
+          "what": "блок 7 — charIdentity при alias-словаре (C1)",
+          "why": "HTTP 401, у ключа нет прав на словари"
+        },
+        {
+          "n": 2,
+          "what": "калибровка alignerNoiseFloor (U14)"
+        },
+        {
+          "n": 3,
+          "what": "сравнение off vs auto"
+        },
+        {
+          "n": 6,
+          "what": "слуховая оценка шва (U5) — на Daniel; на боевом голосе ≈900 кредитов, отдельным решением"
+        },
+        {
+          "n": 7,
+          "what": "доля токенов под линтом на живом LLM-драфте"
+        },
+        {
+          "n": 8,
+          "what": "поведение при alignment: null"
+        }
+      ]
+    }
   }
 }

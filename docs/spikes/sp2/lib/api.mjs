@@ -30,9 +30,11 @@ if (!KEY || !VOICE) {
 let ACTIVE_VOICE = VOICE;
 let ACTIVE_VOICE_NAME = null;
 export const activeVoice = () => ({ name: ACTIVE_VOICE_NAME, isFromEnv: ACTIVE_VOICE === VOICE,
+  mode: ACTIVE_VOICE === VOICE ? 'env' : 'premade',
   // id премейд-голоса НЕ секрет (он публичен в документации ElevenLabs) и
   // записывается ради воспроизводимости; id из .env не записывается никогда.
   publicId: ACTIVE_VOICE === VOICE ? null : ACTIVE_VOICE });
+export const activeVoiceMode = () => (ACTIVE_VOICE === VOICE ? 'env' : 'premade');
 
 /** Переключить спайк на premade-голос, найденный ПО ИМЕНИ. .env не читается и не меняется. */
 export async function usePremadeVoice(namePrefix) {
@@ -42,6 +44,21 @@ export async function usePremadeVoice(namePrefix) {
   ACTIVE_VOICE = v.voice_id;
   ACTIVE_VOICE_NAME = v.name;
   return { name: v.name, publicId: v.voice_id, category: v.category };
+}
+
+/**
+ * SP-2b: переключить спайк на БОЕВОЙ голос из process.env.ELEVENLABS_VOICE_ID.
+ * Это дефолтное состояние ACTIVE_VOICE; функция нужна ради ИМЕНИ голоса —
+ * оно приватно для модуля, а задание требует писать его в каждый raw/*.json.
+ * .env не читается скриптом: значение приходит через --env-file в process.env.
+ */
+export async function useEnvVoice() {
+  const v = await get(`/v1/voices/${VOICE}`);
+  ACTIVE_VOICE = VOICE;
+  ACTIVE_VOICE_NAME = v.name;
+  // publicId: null — боевой id не записывается никуда, ни в raw/, ни в machine.json.
+  return { name: v.name, publicId: null, category: v.category,
+           sharingStatus: v.sharing?.status ?? null, mode: 'env' };
 }
 
 // Любая строка, уходящая в лог или в файл, проходит через это.
@@ -158,6 +175,7 @@ export async function tts(name, { text, previousText, nextText, dictionaryLocato
   const rec = {
     name, ts: new Date(t0).toISOString(), ms,
     voice: ACTIVE_VOICE_NAME,
+    voiceMode: ACTIVE_VOICE === VOICE ? 'env' : 'premade',
     inputChars: text.length,
     inputCodePoints: [...text].length,
     previousTextChars: previousText ? previousText.length : 0,
@@ -199,6 +217,7 @@ export async function tts(name, { text, previousText, nextText, dictionaryLocato
     schema: 'sp2-take/1',
     name,
     voice: ACTIVE_VOICE_NAME,
+    voiceMode: ACTIVE_VOICE === VOICE ? 'env' : 'premade',
     request: {
       endpoint: `POST /v1/text-to-speech/{voice_id}/with-timestamps?output_format=${TTS_PARAMS.output_format}`,
       body: { text, ...(previousText != null ? { previous_text: previousText } : {}),

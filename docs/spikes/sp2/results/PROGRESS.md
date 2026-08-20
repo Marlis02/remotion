@@ -183,3 +183,117 @@
 
 Блок 6: PCM ПОБАЙТОВО СОВПАЛ; alignment совпал; длина PCM одинакова.
 
+
+## Досъёмка SP-2b
+
+# PROGRESS — SP-2b: досъёмка на боевом голосе и закрытие долгов · старт 2026-08-20T21:02Z
+
+План: 7 шагов — разведка → код (режим голоса + prod-обвязка) → блок 1+2 (1212) → блок 3 (221) →
+блок 7 / долг 1 (76) → ЖДУ ВЛАДЕЛЬЦА → долг 4 (~2700) → отчёты.
+Бюджет: **5000 кредитов** (code points). Смета согласована владельцем: 1212 + 221 + 76 + ~2700 ≈ 4209.
+Голос: боевой из `ELEVENLABS_VOICE_ID`, режим `env`; имя пишется в каждую строку, id — нигде.
+Время в строках — UTC.
+
+- `21:02:52` [1/7] разведка начата (0 кредитов): subscription, voices/{id}, models — ожидаю ~1 мин
+- `21:04:32` [1/7] разведка готова за ~2 мин — tier **creator** (было free), `character_limit` **125173** (факт, не предположение), `character_count` **0** (счётчик сброшен сменой плана); голос **Michael C. Vincent - Confident, Expressive**, `category: professional`, `sharing.status: copied` — доступен; `max_characters_request_subscribed_user` = 10000 (чанк 2700 проходит). Ворота: можно тратить. Снимок — `results/machine.json` → `snapshot_sp2b`; расход 0/5000
+- `21:05:00` [2/7] код начат (0 кредитов): режим голоса `--voice=env|premade` в `lib/voice.mjs`, новый `lib/prod.mjs` (бюджет 5000, скоуп по суффиксу `-prod`), новые prod-скрипты
+
+## SP-2b блок 1 + 2 — тождество, единица массива, лид-ин/хвост на боевом голосе
+
+План: 28 вызовов, 1212 code points. Голос: **Michael C. Vincent - Confident, Expressive** (professional, режим env). Блок 2 считается из этих же ответов бесплатно.
+
+- `21:07:05` [1/28] b1-01-dr-prod (F1) — 46 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 46/5000
+- `21:07:06` [2/28] b1-02-st-prod (F1) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 89/5000
+- `21:07:07` [3/28] b1-03-year-prod (F2) — 46 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 135/5000
+- `21:07:08` [4/28] b1-04-ord3-prod (F3) — 44 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 179/5000
+- `21:07:09` [5/28] b1-05-ord21-prod (F3) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 222/5000
+- `21:07:10` [6/28] b1-06-money-prod (F4) — 45 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 267/5000
+- `21:07:11` [7/28] b1-07-percent-prod (F5) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 310/5000
+- `21:07:13` [8/28] b1-08-no7-prod (F1) — 45 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 355/5000
+- `21:07:14` [9/28] b1-09-eg-prod (F6) — 46 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 401/5000
+- `21:07:15` [10/28] b1-10-ie-prod (F6) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 444/5000
+- `21:07:16` [11/28] b1-11-apos-str-prod (F7) — 41 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 485/5000
+- `21:07:17` [12/28] b1-12-apos-typ-prod (F8) — 41 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 526/5000
+- `21:07:18` [13/28] b1-13-dont-prod (F7) — 35 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 561/5000
+- `21:07:19` [14/28] b1-14-hyphen-prod (F9) — 38 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 599/5000
+- `21:07:20` [15/28] b1-15-emdash-prod (F10) — 42 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 641/5000
+- `21:07:21` [16/28] b1-16-endash-prod (F10) — 42 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 683/5000
+- `21:07:22` [17/28] b1-17-curly-prod (F11) — 44 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 727/5000
+- `21:07:23` [18/28] b1-18-ellipsis1-prod (F12) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 770/5000
+- `21:07:24` [19/28] b1-19-ellipsis3-prod (F12) — 45 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 815/5000
+- `21:07:25` [20/28] b1-20-cafe-nfc-prod (F16) — 44 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 859/5000
+- `21:07:27` [21/28] b1-21-cafe-nfd-prod (F16) — 45 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 904/5000
+- `21:07:28` [22/28] b1-22-nbsp-prod (F15) — 39 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 943/5000
+- `21:07:29` [23/28] b1-23-emoji-prod (F13) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 985/5000
+- `21:07:30` [24/28] b1-24-url-prod (F14) — 48 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1033/5000
+- `21:07:31` [25/28] b1-25-thousands-prod (num) — 43 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1076/5000
+- `21:07:32` [26/28] b1-26-decimal-prod (num) — 45 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1121/5000
+- `21:07:33` [27/28] b1-27-emoji-tone-prod (F13) — 47 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1166/5000
+- `21:07:34` [28/28] b1-28-date-prod (U16) — 46 симв. отправлено · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1212/5000
+
+Блок 1 на боевом голосе снят: 28 строк. Израсходовано 1212/5000. Разбор — analyze1-prod.mjs + acoustic-prod.mjs (бесплатно).
+
+- `21:07:34` [3/7] блок 1 готов за ~2 мин — 28 вызовов, `charIdentity` **28/28**, единица массива **code points** (28/28, различают те же 3 строки), `normalized` отличается только паддингом у 20/28, переписываний 8, `start[0]=0` **28/28**; израсходовано **1212/5000**
+- `21:08:10` [3/7] разбор блока 1 + 2 (бесплатно): первый символ медиана **93 мс** (35–163), последний **279 мс** (163–372), скорость **15.96 симв/с**; `end[last] > numSamples` у **13/28**; `uniqueTimestampRatio` 1.000 кроме двух строк с эмодзи (0.9762 / 0.9556) — файл `raw/block1-block2-prod.json`; израсходовано 1212/5000
+- `21:08:30` [3/7] акустика (бесплатно, метод не менялся: окно 10 мс, −45 dBFS): лид-ин медиана **95 мс** (10–180) против Daniel 100 мс (40–110); хвост медиана **296.4 мс** (163.5–414.3) против Daniel 310.4 — файл `raw/block2-acoustic-prod.json`; израсходовано 1212/5000
+
+## SP-2b блок 3 — куда падает межпредложенческая пауза (D10 п.6) на боевом голосе
+
+План: 5 вызовов, 221 code points. Голос: **Michael C. Vincent - Confident, Expressive** (режим env).
+
+- `21:08:08` [1/5] b3-1-period-prod — 44 симв., разделитель ". Then" · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1256/5000
+- `21:08:09` [2/5] b3-2-emdash-prod — 45 симв., разделитель " — then" · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1301/5000
+- `21:08:10` [3/5] b3-3-comma-prod — 44 симв., разделитель ", then" · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1345/5000
+- `21:08:11` [4/5] b3-4-ellipsis-prod — 44 симв., разделитель "… then" · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1389/5000
+- `21:08:12` [5/5] b3-5-semi-prod — 44 симв., разделитель "; then" · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1433/5000
+
+Блок 3 на боевом голосе снят. Израсходовано 1433/5000. Разбор — analyze3-prod.mjs (бесплатно).
+
+- `21:09:06` [4/7] блок 3 готов — 5 вызовов, 221 симв.; пауза целиком на знаке и пробелах (сумма сходится), соседние буквы её не забирают; НО ранжирование по знакам другое: `.`/`,`/`;` = 301/301/302 мс (у Daniel 499/453/476), `…` 418, `—` 430 (у Daniel 673 и 557) — файл `raw/block3-pause-prod.json`; израсходовано **1433/5000**
+- `21:09:06` [5/7] блок 7 (долг 1) начат — создание словаря, 1 платный вызов (76), удаление и контроль 404
+
+## SP-2b блок 7 — словарь произношения с alias (C1, долг 1)
+
+План: 1 платный вызов (76 code points) + бесплатные create/delete/get. Голос: **Michael C. Vincent - Confident, Expressive** (режим env). Правило: {"string_to_replace":"NASA","type":"alias","alias":"N A S A"}.
+
+- `21:09:07` словарь СОЗДАТЬ НЕ УДАЛОСЬ: HTTP 401 — {"detail":{"type":"authentication_error","code":"unauthorized","message":"The API key you used is missing the permission pronunciation_dictionaries_write to execute this operation.","status":"missing_ · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1433/5000
+
+Блок 7 (долг 1) завершён. замер не выполнен. Уборка: null, GET после удаления: —. Израсходовано 1433/5000.
+
+
+## SP-2b блок 7 — словарь произношения с alias (C1, долг 1)
+
+План: 1 платный вызов (76 code points) + бесплатные create/delete/get. Голос: **Michael C. Vincent - Confident, Expressive** (режим env). Правило: {"string_to_replace":"NASA","type":"alias","alias":"N A S A"}.
+
+- `21:09:30` право pronunciation_dictionaries_read: НЕТ (GET списка → HTTP 401) · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1433/5000
+- `21:09:30` словарь СОЗДАТЬ НЕ УДАЛОСЬ: HTTP 401 — {"detail":{"type":"authentication_error","code":"unauthorized","message":"The API key you used is missing the permission pronunciation_dictionaries_write to execute this operation.","status":"missing_ · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 1433/5000
+
+Блок 7 (долг 1) завершён. замер не выполнен. Уборка: null, GET после удаления: —. Израсходовано 1433/5000.
+
+- `21:10:10` [5/7] блок 7 (долг 1) — **ОШИБКА: HTTP 401**, у ключа нет ни `pronunciation_dictionaries_write`, ни `..._read` (GET списка тоже 401). Списано 0. C1 остаётся UNKNOWN — файл `raw/block7-dictionary-prod.json`; израсходовано 1433/5000
+- `21:10:10` [6/7] **ЖДУ ВЛАДЕЛЬЦА**: (1) долг 4 — ступень 2689 code points, после неё расход 4122/5000, нужен «ок»; (2) право ключа на словари не появилось — решить, чинить сейчас или оставить долгом
+- `21:12:41` [6/7] владелец: долг 4 — «ок»; ключ на словари проверяет отдельно. Долг 4 начат — 1 вызов, 2689 code points, ожидаю ~40-60 с
+
+## SP-2b блок 4 (долг 4) — здоровье alignment на ступени ~2700 символов
+
+План: 1 вызов, 2689 code points (39 предложений: 22 из block4.mjs + 17 дописанных в том же стиле). Голос: **Michael C. Vincent - Confident, Expressive** (режим env).
+
+- `21:13:07` b4-2700-prod — 2689 симв. отправлено, 25.0 с ожидания · голос **Michael C. Vincent - Confident, Expressive** (режим env) · израсходовано 4122/5000
+
+Долг 4: ступень 2689 симв. / 155.388 с — uniqueTimestampRatio 1, maxEqualRun 1, charIdentity ДА, деградация НЕ найдена. Израсходовано 4122/5000.
+
+- `21:26:25` [7/7] долг 4 закрыт — 2689 симв. / 155.4 с, ratio 1.000, maxEqualRun 1, charIdentity ДА, деградации нет; израсходовано **4122/5000**
+- `21:26:25` [7/7] сверка расхода: провайдер списал **2268** при отправленных **4122** code points. Разобрано бесплатно через `GET /v1/usage/character-stats` по окнам блоков: списание = round(code points × **0.55**) покалльно, единица — code points (UTF-16 не подходит: 670 против 668). На Free было ×1.00. Файл `raw/billing-prod.json`
+- `21:31:44` [7/7] отчёты: `findings.md` (раздел «Досъёмка SP-2b», таблицы U и Долги), `decisions.md` (п. 17–25), `summary.md`, `voice-and-tier.md` (врезка), `README.md`, `machine.json` (`snapshot_sp2b`) — готово
+**Итог:** досъёмка на боевом голосе выполнена: блоки 1, 2, 3 пересняты, долг 4 закрыт (2689 симв. / 155.4 с, ratio 1.000).
+Долг 1 (словарь) закрыть не удалось — у ключа нет прав на словари (401 и на write, и на read).
+Структура alignment голосом не определяется; все миллисекунды разошлись; ранжирование пауз по знакам не переносится.
+Расход: отправлено 4122 code points, списано **2268** из бюджета 5000 (ставка Creator — round(cp × 0.55) покалльно).
+Детали — `docs/spikes/sp2/results/findings.md`, раздел «Досъёмка SP-2b: боевой голос».
+
+*Пометка к журналу (append-only, старые строки не правятся).* Имя голоса и режим стоят в каждой
+строке, которую писал скрипт платного вызова (`lib/prod.mjs` → `line()`), — это все 34 замера.
+Строки, написанные руками (разведка, код, остановки `ЖДУ ВЛАДЕЛЬЦА`, сводки шагов и отчёты),
+пометки не несут: они относятся не к вызову, а к ходу работы. Голос во всей досъёмке один —
+**Michael C. Vincent - Confident, Expressive**, режим `env`; он же записан в каждый
+`results/raw/*-prod.json` (34 из 34) и в `machine.json` → `snapshot_sp2b`.

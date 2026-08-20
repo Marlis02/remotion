@@ -1,0 +1,561 @@
+{
+  "schema": "sp2b-voice-independence/1",
+  "question": "построчная проверка таблицы voice-and-tier.md §4.1 «что НЕ зависит от голоса» на боевом голосе",
+  "voices": {
+    "daniel": "Daniel - Steady Broadcaster",
+    "michael": "Michael C. Vincent - Confident, Expressive"
+  },
+  "strings": 28,
+  "summary": {
+    "confirmed": 8,
+    "refuted": 2,
+    "notRemeasured": 2
+  },
+  "checks": [
+    {
+      "row": "alignment.characters.join('') === input",
+      "verdict": "confirmed",
+      "evidence": "Daniel 28/28, Michael 28/28",
+      "detail": null
+    },
+    {
+      "row": "массив alignment приходит в code points",
+      "verdict": "confirmed",
+      "evidence": "все 28 строк совпали с числом code points; три различающие строки дали тот же ответ, что на Daniel",
+      "detail": [
+        {
+          "id": "b1-21-cafe-nfd",
+          "utf16": 45,
+          "codePoints": 45,
+          "graphemes": 44,
+          "michaelArray": 45,
+          "danielArray": 45
+        },
+        {
+          "id": "b1-23-emoji",
+          "utf16": 43,
+          "codePoints": 42,
+          "graphemes": 42,
+          "michaelArray": 42,
+          "danielArray": 42
+        },
+        {
+          "id": "b1-27-emoji-tone",
+          "utf16": 47,
+          "codePoints": 45,
+          "graphemes": 44,
+          "michaelArray": 45,
+          "danielArray": 45
+        }
+      ]
+    },
+    {
+      "row": "единица тарификации — code points (не UTF-16 units)",
+      "verdict": "confirmed",
+      "evidence": "списание = round покалльно, множитель 0.55, единица — code points; по UTF-16 units формула не сходится",
+      "detail": null
+    },
+    {
+      "row": "списано = сумме отправленных code points (равенство из SP-2)",
+      "verdict": "refuted",
+      "evidence": "отправлено 4122, списано 2268 (отношение 0.55022); на Free в SP-2 отношение было 1 — ставка зависит от тарифа, а не от голоса",
+      "detail": null
+    },
+    {
+      "row": "previous_text / next_text не тарифицируются",
+      "verdict": "not-remeasured",
+      "evidence": "блок 5 на боевом голосе не снимался (задание, шаг 6): свойство биллинга, голоса не касается",
+      "detail": null
+    },
+    {
+      "row": "normalized_alignment переписывает типографику (’→', —→--, …→..., NBSP→пробел, эмодзи выбрасывает)",
+      "verdict": "confirmed",
+      "evidence": "normalized_alignment совпал с Daniel побайтово на 28/28 строк; переписано 8 строк, форма паддинга 1/1",
+      "detail": []
+    },
+    {
+      "row": "при off не переписываются числа, годы, порядковые, $, %, даты, сокращения с точкой",
+      "verdict": "confirmed",
+      "evidence": "9/9 числовых классов дословны в обоих доменах",
+      "detail": [
+        {
+          "id": "b1-01-dr",
+          "trap": "Dr. Smith",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-03-year",
+          "trap": "in 1793",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-04-ord3",
+          "trap": "the 3rd of May",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-05-ord21",
+          "trap": "21st century",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-06-money",
+          "trap": "$5",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-07-percent",
+          "trap": "5%",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-25-thousands",
+          "trap": "1,000,000",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-26-decimal",
+          "trap": "3.14",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        },
+        {
+          "id": "b1-28-date",
+          "trap": "03/04",
+          "alignmentVerbatim": true,
+          "normalizedVerbatim": true,
+          "normalizedEqualsInput": true
+        }
+      ]
+    },
+    {
+      "row": "деградации uniqueTimestampRatio нет до 1514 симв. / 113 с",
+      "verdict": "confirmed",
+      "evidence": "на Michael проверено ВЫШЕ: 2689 симв. / 155.388 с — ratio 1, maxEqualRun 1",
+      "detail": null
+    },
+    {
+      "row": "пауза ложится на знак и пробел, соседние буквы её не забирают",
+      "verdict": "confirmed",
+      "evidence": "знак+пробел = вся пауза на 5/5 вариантах; буква до [93,81,93,93,93] мс, после [59,35,35,35,35] мс",
+      "detail": null
+    },
+    {
+      "row": "ранжирование пауз по знакам (, < ; < . < — < …) — управляющий рычаг для автора",
+      "verdict": "refuted",
+      "evidence": "порядок Daniel [\", then\",\"; then\",\". Then\",\" — then\",\"… then\"] против Michael [\". Then\",\", then\",\"; then\",\"… then\",\" — then\"]; разброс Daniel 220 мс, Michael 129 мс",
+      "detail": [
+        {
+          "sep": ". Then",
+          "danielMs": 499,
+          "michaelMs": 301,
+          "deltaMs": -198
+        },
+        {
+          "sep": " — then",
+          "danielMs": 557,
+          "michaelMs": 430,
+          "deltaMs": -127
+        },
+        {
+          "sep": ", then",
+          "danielMs": 453,
+          "michaelMs": 301,
+          "deltaMs": -152
+        },
+        {
+          "sep": "… then",
+          "danielMs": 673,
+          "michaelMs": 418,
+          "deltaMs": -255
+        },
+        {
+          "sep": "; then",
+          "danielMs": 476,
+          "michaelMs": 302,
+          "deltaMs": -174
+        }
+      ]
+    },
+    {
+      "row": "тишина в начале приписана первому символу, в конце — последнему",
+      "verdict": "confirmed",
+      "evidence": "start[0] = 0 у 28/28; первый символ несёт медианные 93 мс, последний — 279 мс",
+      "detail": null
+    },
+    {
+      "row": "одинаковый seed даёт побайтово одинаковый PCM (3/3)",
+      "verdict": "not-remeasured",
+      "evidence": "блок 6 на боевом голосе не снимался (задание, шаг 6): 192 кредита, свойство инфраструктуры модели",
+      "detail": null
+    }
+  ],
+  "t7Assert": {
+    "rule": "end[last] <= numSamples (ADR-0003 T7)",
+    "michaelViolations": 13,
+    "danielViolations": 12,
+    "michaelWorstOvershootSamples": -12,
+    "danielWorstOvershootSamples": -12,
+    "perString": [
+      {
+        "id": "b1-01-dr",
+        "michaelTailSamples": -12,
+        "danielTailSamples": 0
+      },
+      {
+        "id": "b1-02-st",
+        "michaelTailSamples": -12,
+        "danielTailSamples": -7
+      },
+      {
+        "id": "b1-03-year",
+        "michaelTailSamples": 10,
+        "danielTailSamples": 7
+      },
+      {
+        "id": "b1-04-ord3",
+        "michaelTailSamples": -12,
+        "danielTailSamples": -5
+      },
+      {
+        "id": "b1-05-ord21",
+        "michaelTailSamples": -12,
+        "danielTailSamples": -4
+      },
+      {
+        "id": "b1-06-money",
+        "michaelTailSamples": -1,
+        "danielTailSamples": 8
+      },
+      {
+        "id": "b1-07-percent",
+        "michaelTailSamples": -4,
+        "danielTailSamples": 8
+      },
+      {
+        "id": "b1-08-no7",
+        "michaelTailSamples": -4,
+        "danielTailSamples": 1
+      },
+      {
+        "id": "b1-09-eg",
+        "michaelTailSamples": -10,
+        "danielTailSamples": 6
+      },
+      {
+        "id": "b1-10-ie",
+        "michaelTailSamples": -9,
+        "danielTailSamples": -2
+      },
+      {
+        "id": "b1-11-apos-str",
+        "michaelTailSamples": 10,
+        "danielTailSamples": -12
+      },
+      {
+        "id": "b1-12-apos-typ",
+        "michaelTailSamples": 10,
+        "danielTailSamples": -12
+      },
+      {
+        "id": "b1-13-dont",
+        "michaelTailSamples": 4,
+        "danielTailSamples": -2
+      },
+      {
+        "id": "b1-14-hyphen",
+        "michaelTailSamples": 0,
+        "danielTailSamples": 5
+      },
+      {
+        "id": "b1-15-emdash",
+        "michaelTailSamples": 7,
+        "danielTailSamples": 6
+      },
+      {
+        "id": "b1-16-endash",
+        "michaelTailSamples": 9,
+        "danielTailSamples": 1
+      },
+      {
+        "id": "b1-17-curly",
+        "michaelTailSamples": -9,
+        "danielTailSamples": 1
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "michaelTailSamples": 7,
+        "danielTailSamples": -7
+      },
+      {
+        "id": "b1-19-ellipsis3",
+        "michaelTailSamples": 7,
+        "danielTailSamples": -7
+      },
+      {
+        "id": "b1-20-cafe-nfc",
+        "michaelTailSamples": 5,
+        "danielTailSamples": 1
+      },
+      {
+        "id": "b1-21-cafe-nfd",
+        "michaelTailSamples": -12,
+        "danielTailSamples": 9
+      },
+      {
+        "id": "b1-22-nbsp",
+        "michaelTailSamples": 7,
+        "danielTailSamples": 3
+      },
+      {
+        "id": "b1-23-emoji",
+        "michaelTailSamples": 10,
+        "danielTailSamples": -6
+      },
+      {
+        "id": "b1-24-url",
+        "michaelTailSamples": 6,
+        "danielTailSamples": 3
+      },
+      {
+        "id": "b1-25-thousands",
+        "michaelTailSamples": 1,
+        "danielTailSamples": -12
+      },
+      {
+        "id": "b1-26-decimal",
+        "michaelTailSamples": 8,
+        "danielTailSamples": -6
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "michaelTailSamples": -9,
+        "danielTailSamples": 4
+      },
+      {
+        "id": "b1-28-date",
+        "michaelTailSamples": -1,
+        "danielTailSamples": 8
+      }
+    ]
+  },
+  "billing": {
+    "schema": "sp2b-billing/1",
+    "question": "почему списание провайдера не равно числу отправленных code points на тарифе Creator",
+    "sources": [
+      "GET /v1/user/subscription (character_count)",
+      "GET /v1/usage/character-stats (сумма по временному окну)"
+    ],
+    "tier": "creator",
+    "perBlock": [
+      {
+        "block": 1,
+        "calls": 28,
+        "windowFrom": "2026-08-20T21:07:02.951Z",
+        "windowTo": "2026-08-20T21:07:35.578Z",
+        "sentCodePoints": 1212,
+        "sentUtf16": 1215,
+        "billed": 668,
+        "ratio": 0.5512
+      },
+      {
+        "block": 3,
+        "calls": 5,
+        "windowFrom": "2026-08-20T21:08:06.249Z",
+        "windowTo": "2026-08-20T21:08:13.959Z",
+        "sentCodePoints": 221,
+        "sentUtf16": 221,
+        "billed": 121,
+        "ratio": 0.5475
+      },
+      {
+        "block": 4,
+        "calls": 1,
+        "windowFrom": "2026-08-20T21:12:41.325Z",
+        "windowTo": "2026-08-20T21:13:08.270Z",
+        "sentCodePoints": 2689,
+        "sentUtf16": 2689,
+        "billed": 1479,
+        "ratio": 0.55
+      }
+    ],
+    "totals": {
+      "sentCodePoints": 4122,
+      "billed": 2268,
+      "ratio": 0.55022,
+      "subscriptionCharacterCount": 2268
+    },
+    "subscriptionMatchesUsageStats": true,
+    "hypotheses": [
+      {
+        "formula": "round покалльно, множитель 1",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 1",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 1",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 1",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 1",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 1",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round от суммы блока, множитель 1",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 0.5",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 0.5",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.5",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.5",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.5",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.5",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round от суммы блока, множитель 0.5",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 0.55",
+        "unit": "code points",
+        "matchesAllGroups": true
+      },
+      {
+        "formula": "round покалльно, множитель 0.55",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.55",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.55",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.55",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.55",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round от суммы блока, множитель 0.55",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 0.6",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round покалльно, множитель 0.6",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.6",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "floor покалльно, множитель 0.6",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.6",
+        "unit": "code points",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "ceil покалльно, множитель 0.6",
+        "unit": "UTF-16 units",
+        "matchesAllGroups": false
+      },
+      {
+        "formula": "round от суммы блока, множитель 0.6",
+        "unit": "code points",
+        "matchesAllGroups": false
+      }
+    ],
+    "verdict": "списание = round покалльно, множитель 0.55, единица — code points",
+    "winners": [
+      {
+        "formula": "round покалльно, множитель 0.55",
+        "unit": "code points",
+        "matchesAllGroups": true
+      }
+    ],
+    "sp2ForComparison": {
+      "sent": 5222,
+      "billed": 5222,
+      "tier": "free",
+      "ratio": 1
+    }
+  }
+}

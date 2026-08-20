@@ -1,0 +1,380 @@
+{
+  "schema": "sp2b-acoustic/1",
+  "block": 2,
+  "voice": "Michael C. Vincent - Confident, Expressive",
+  "method": {
+    "windowSamples": 240,
+    "windowMs": 10,
+    "silenceThresholdDbfs": -45,
+    "note": "RMS по неперекрывающимся окнам 10 мс; лид-ин = до первого окна выше порога, хвост = после последнего",
+    "sameAs": "acoustic.mjs (SP-2) — метод не менялся, иначе числа несравнимы"
+  },
+  "leadInMs": {
+    "n": 28,
+    "min": 10,
+    "p25": 50,
+    "median": 95,
+    "p75": 100,
+    "p95": 110,
+    "max": 180,
+    "mean": 82.5,
+    "stdev": 37.189188
+  },
+  "tailMs": {
+    "n": 28,
+    "min": 163.5,
+    "p25": 261.17,
+    "median": 296.395,
+    "p75": 318.42,
+    "p95": 378.25,
+    "max": 414.33,
+    "mean": 287.7775,
+    "stdev": 60.202855
+  },
+  "leadInSamples": {
+    "n": 28,
+    "min": 240,
+    "p25": 1200,
+    "median": 2280,
+    "p75": 2400,
+    "p95": 2640,
+    "max": 4320,
+    "mean": 1980,
+    "stdev": 892.540515
+  },
+  "tailSamples": {
+    "n": 28,
+    "min": 3924,
+    "p25": 6268,
+    "median": 7113.5,
+    "p75": 7642,
+    "p95": 9078,
+    "max": 9944,
+    "mean": 6906.642857,
+    "stdev": 1444.888236
+  },
+  "peakDbfs": {
+    "n": 28,
+    "min": -9.39,
+    "p25": -8.65,
+    "median": -7.475,
+    "p75": -6.5,
+    "p95": -4.41,
+    "max": -3.64,
+    "mean": -7.301429,
+    "stdev": 1.605726
+  },
+  "vsDaniel": {
+    "leadInMs": {
+      "n": 28,
+      "min": 40,
+      "p25": 70,
+      "median": 100,
+      "p75": 100,
+      "p95": 110,
+      "max": 110,
+      "mean": 87.5,
+      "stdev": 22.300705
+    },
+    "tailMs": {
+      "n": 28,
+      "min": 245.04,
+      "p25": 287.75,
+      "median": 310.375,
+      "p75": 342.83,
+      "p95": 368.75,
+      "max": 392.33,
+      "mean": 314.233929,
+      "stdev": 38.705756
+    },
+    "method": {
+      "windowSamples": 240,
+      "windowMs": 10,
+      "silenceThresholdDbfs": -45,
+      "note": "RMS по неперекрывающимся окнам 10 мс; лид-ин = до первого окна выше порога, хвост = после последнего"
+    },
+    "rows": 28
+  },
+  "rows": [
+    {
+      "id": "b1-01-dr-prod",
+      "numSamples": 64644,
+      "leadInSamples": 1680,
+      "leadInMs": 70,
+      "tailSamples": 3924,
+      "tailMs": 163.5,
+      "peakDbfs": -6.81,
+      "allSilent": false
+    },
+    {
+      "id": "b1-02-st-prod",
+      "numSamples": 64644,
+      "leadInSamples": 480,
+      "leadInMs": 20,
+      "tailSamples": 7284,
+      "tailMs": 303.5,
+      "peakDbfs": -9.36,
+      "allSilent": false
+    },
+    {
+      "id": "b1-03-year-prod",
+      "numSamples": 84706,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 5506,
+      "tailMs": 229.42,
+      "peakDbfs": -5.4,
+      "allSilent": false
+    },
+    {
+      "id": "b1-04-ord3-prod",
+      "numSamples": 64644,
+      "leadInSamples": 2640,
+      "leadInMs": 110,
+      "tailSamples": 7044,
+      "tailMs": 293.5,
+      "peakDbfs": -7.19,
+      "allSilent": false
+    },
+    {
+      "id": "b1-05-ord21-prod",
+      "numSamples": 64644,
+      "leadInSamples": 2160,
+      "leadInMs": 90,
+      "tailSamples": 8964,
+      "tailMs": 373.5,
+      "peakDbfs": -8.84,
+      "allSilent": false
+    },
+    {
+      "id": "b1-06-money-prod",
+      "numSamples": 65759,
+      "leadInSamples": 720,
+      "leadInMs": 30,
+      "tailSamples": 7199,
+      "tailMs": 299.96,
+      "peakDbfs": -4.41,
+      "allSilent": false
+    },
+    {
+      "id": "b1-07-percent-prod",
+      "numSamples": 67988,
+      "leadInSamples": 720,
+      "leadInMs": 30,
+      "tailSamples": 7988,
+      "tailMs": 332.83,
+      "peakDbfs": -8.78,
+      "allSilent": false
+    },
+    {
+      "id": "b1-08-no7-prod",
+      "numSamples": 67988,
+      "leadInSamples": 1680,
+      "leadInMs": 70,
+      "tailSamples": 4868,
+      "tailMs": 202.83,
+      "peakDbfs": -8.04,
+      "allSilent": false
+    },
+    {
+      "id": "b1-09-eg-prod",
+      "numSamples": 72446,
+      "leadInSamples": 240,
+      "leadInMs": 10,
+      "tailSamples": 6926,
+      "tailMs": 288.58,
+      "peakDbfs": -7.05,
+      "allSilent": false
+    },
+    {
+      "id": "b1-10-ie-prod",
+      "numSamples": 62415,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 6495,
+      "tailMs": 270.63,
+      "peakDbfs": -6.5,
+      "allSilent": false
+    },
+    {
+      "id": "b1-11-apos-str-prod",
+      "numSamples": 56842,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 7642,
+      "tailMs": 318.42,
+      "peakDbfs": -9.39,
+      "allSilent": false
+    },
+    {
+      "id": "b1-12-apos-typ-prod",
+      "numSamples": 56842,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 7642,
+      "tailMs": 318.42,
+      "peakDbfs": -9.39,
+      "allSilent": false
+    },
+    {
+      "id": "b1-13-dont-prod",
+      "numSamples": 43468,
+      "leadInSamples": 2640,
+      "leadInMs": 110,
+      "tailSamples": 6268,
+      "tailMs": 261.17,
+      "peakDbfs": -7,
+      "allSilent": false
+    },
+    {
+      "id": "b1-14-hyphen-prod",
+      "numSamples": 55728,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 6288,
+      "tailMs": 262,
+      "peakDbfs": -9.28,
+      "allSilent": false
+    },
+    {
+      "id": "b1-15-emdash-prod",
+      "numSamples": 69103,
+      "leadInSamples": 2160,
+      "leadInMs": 90,
+      "tailSamples": 4783,
+      "tailMs": 199.29,
+      "peakDbfs": -8.36,
+      "allSilent": false
+    },
+    {
+      "id": "b1-16-endash-prod",
+      "numSamples": 66873,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 4713,
+      "tailMs": 196.38,
+      "peakDbfs": -8.65,
+      "allSilent": false
+    },
+    {
+      "id": "b1-17-curly-prod",
+      "numSamples": 62415,
+      "leadInSamples": 2160,
+      "leadInMs": 90,
+      "tailSamples": 7455,
+      "tailMs": 310.63,
+      "peakDbfs": -5.36,
+      "allSilent": false
+    },
+    {
+      "id": "b1-18-ellipsis1-prod",
+      "numSamples": 69103,
+      "leadInSamples": 2640,
+      "leadInMs": 110,
+      "tailSamples": 7183,
+      "tailMs": 299.29,
+      "peakDbfs": -8.54,
+      "allSilent": false
+    },
+    {
+      "id": "b1-19-ellipsis3-prod",
+      "numSamples": 69103,
+      "leadInSamples": 2640,
+      "leadInMs": 110,
+      "tailSamples": 7183,
+      "tailMs": 299.29,
+      "peakDbfs": -8.54,
+      "allSilent": false
+    },
+    {
+      "id": "b1-20-cafe-nfc-prod",
+      "numSamples": 61301,
+      "leadInSamples": 2640,
+      "leadInMs": 110,
+      "tailSamples": 6821,
+      "tailMs": 284.21,
+      "peakDbfs": -7.27,
+      "allSilent": false
+    },
+    {
+      "id": "b1-21-cafe-nfd-prod",
+      "numSamples": 64644,
+      "leadInSamples": 4320,
+      "leadInMs": 180,
+      "tailSamples": 6564,
+      "tailMs": 273.5,
+      "peakDbfs": -7.68,
+      "allSilent": false
+    },
+    {
+      "id": "b1-22-nbsp-prod",
+      "numSamples": 69103,
+      "leadInSamples": 480,
+      "leadInMs": 20,
+      "tailSamples": 9103,
+      "tailMs": 379.29,
+      "peakDbfs": -7.81,
+      "allSilent": false
+    },
+    {
+      "id": "b1-23-emoji-prod",
+      "numSamples": 56842,
+      "leadInSamples": 1200,
+      "leadInMs": 50,
+      "tailSamples": 6442,
+      "tailMs": 268.42,
+      "peakDbfs": -4.25,
+      "allSilent": false
+    },
+    {
+      "id": "b1-24-url-prod",
+      "numSamples": 106998,
+      "leadInSamples": 2160,
+      "leadInMs": 90,
+      "tailSamples": 9078,
+      "tailMs": 378.25,
+      "peakDbfs": -3.64,
+      "allSilent": false
+    },
+    {
+      "id": "b1-25-thousands-prod",
+      "numSamples": 73561,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 7801,
+      "tailMs": 325.04,
+      "peakDbfs": -6.63,
+      "allSilent": false
+    },
+    {
+      "id": "b1-26-decimal-prod",
+      "numSamples": 76904,
+      "leadInSamples": 2160,
+      "leadInMs": 90,
+      "tailSamples": 9944,
+      "tailMs": 414.33,
+      "peakDbfs": -6.27,
+      "allSilent": false
+    },
+    {
+      "id": "b1-27-emoji-tone-prod",
+      "numSamples": 62415,
+      "leadInSamples": 720,
+      "leadInMs": 30,
+      "tailSamples": 4575,
+      "tailMs": 190.63,
+      "peakDbfs": -5.86,
+      "allSilent": false
+    },
+    {
+      "id": "b1-28-date-prod",
+      "numSamples": 93623,
+      "leadInSamples": 2400,
+      "leadInMs": 100,
+      "tailSamples": 7703,
+      "tailMs": 320.96,
+      "peakDbfs": -8.14,
+      "allSilent": false
+    }
+  ]
+}

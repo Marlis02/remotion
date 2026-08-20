@@ -1,0 +1,85 @@
+{
+  "schema": "sp2b-block4/1",
+  "block": 4,
+  "voice": "Michael C. Vincent - Confident, Expressive",
+  "voiceMode": "env",
+  "question": "сохраняется ли здоровье alignment выше 1514 символов — ступень ~2700 (долг 4)",
+  "step": {
+    "id": "b4-2700-prod",
+    "target": 2700,
+    "chars": 2689,
+    "codePoints": 2689,
+    "sentences": 39,
+    "fromOriginalParagraph": 22,
+    "fromExtraSentences": 17
+  },
+  "audioSeconds": 155.388,
+  "charsPerSecond": 17.31,
+  "charIdentity": true,
+  "identityDiff": null,
+  "arrayUnit": {
+    "alignmentCharactersLength": 2689,
+    "inputUtf16Length": 2689,
+    "inputCodePoints": 2689,
+    "inputGraphemes": 2689,
+    "matches": [
+      "utf16",
+      "codePoints",
+      "graphemes"
+    ]
+  },
+  "normalizedCoreEqualsInput": true,
+  "alignmentLength": 2689,
+  "lengthsMatch": true,
+  "monotonic": true,
+  "uniqueTimestampRatio": 1,
+  "uniqueStarts": 2689,
+  "maxEqualRun": 1,
+  "maxEqualRunStartIndex": 0,
+  "maxEqualRunCharOffset": 0,
+  "maxEqualRunContext": "The morning began the sa",
+  "equalStartRuns": [],
+  "degradationThreshold": {
+    "uniqueRatio": 0.9,
+    "source": "ADR-0010 / задание SP-2"
+  },
+  "degraded": false,
+  "leadInMs": 0,
+  "tailMs": -0.1,
+  "tailResidualOk": false,
+  "danielSteps": [
+    {
+      "chars": 202,
+      "audioSeconds": 14.582,
+      "charsPerSecond": 13.85,
+      "charIdentity": true,
+      "uniqueTimestampRatio": 1,
+      "maxEqualRun": 1
+    },
+    {
+      "chars": 403,
+      "audioSeconds": 28.561,
+      "charsPerSecond": 14.11,
+      "charIdentity": true,
+      "uniqueTimestampRatio": 1,
+      "maxEqualRun": 1
+    },
+    {
+      "chars": 810,
+      "audioSeconds": 59.257,
+      "charsPerSecond": 13.67,
+      "charIdentity": true,
+      "uniqueTimestampRatio": 1,
+      "maxEqualRun": 1
+    },
+    {
+      "chars": 1514,
+      "audioSeconds": 113.685,
+      "charsPerSecond": 13.32,
+      "charIdentity": true,
+      "uniqueTimestampRatio": 1,
+      "maxEqualRun": 1
+    }
+  ],
+  "audioSha256": "c427c0feb889d9c741fa8f8afac18be97a7bb6813122ab3560f09247248e459d"
+}

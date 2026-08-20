@@ -1,0 +1,312 @@
+{
+  "schema": "sp2b-block3/1",
+  "block": 3,
+  "voice": "Michael C. Vincent - Confident, Expressive",
+  "voiceMode": "env",
+  "question": "куда провайдер кладёт межпредложенческую паузу — на знак, на пробел или распределяет (D10 п.6), на боевом голосе",
+  "rows": [
+    {
+      "id": "b3-1-period-prod",
+      "baseId": "b3-1-period",
+      "sep": ". Then",
+      "input": "The ships would stop. Then the town woke up.",
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ".",
+          "hex": "U+002E",
+          "startMs": 964,
+          "endMs": 1091,
+          "durMs": 127
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1091,
+          "endMs": 1265,
+          "durMs": 174
+        }
+      ],
+      "letterAfter": {
+        "c": "T",
+        "hex": "U+0054",
+        "durMs": 59
+      },
+      "gapTotalMs": 301,
+      "onSignMs": 127,
+      "onSpaceMs": 174,
+      "shareOnSign": 0.422,
+      "daniel": {
+        "gapTotalMs": 499,
+        "onSignMs": 174,
+        "onSpaceMs": 325,
+        "shareOnSign": 0.349,
+        "letterBeforeMs": 117,
+        "letterAfterMs": 58
+      },
+      "deltaGapMs": -198
+    },
+    {
+      "id": "b3-2-emdash-prod",
+      "baseId": "b3-2-emdash",
+      "sep": " — then",
+      "input": "The ships would stop — then the town woke up.",
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "durMs": 81
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1033,
+          "endMs": 1161,
+          "durMs": 128
+        },
+        {
+          "i": 21,
+          "c": "—",
+          "hex": "U+2014",
+          "startMs": 1161,
+          "endMs": 1219,
+          "durMs": 58
+        },
+        {
+          "i": 22,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1219,
+          "endMs": 1463,
+          "durMs": 244
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "durMs": 35
+      },
+      "gapTotalMs": 430,
+      "onSignMs": 58,
+      "onSpaceMs": 372,
+      "shareOnSign": 0.135,
+      "daniel": {
+        "gapTotalMs": 557,
+        "onSignMs": 58,
+        "onSpaceMs": 499,
+        "shareOnSign": 0.104,
+        "letterBeforeMs": 82,
+        "letterAfterMs": 23
+      },
+      "deltaGapMs": -127
+    },
+    {
+      "id": "b3-3-comma-prod",
+      "baseId": "b3-3-comma",
+      "sep": ", then",
+      "input": "The ships would stop, then the town woke up.",
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ",",
+          "hex": "U+002C",
+          "startMs": 964,
+          "endMs": 1091,
+          "durMs": 127
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1091,
+          "endMs": 1265,
+          "durMs": 174
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "durMs": 35
+      },
+      "gapTotalMs": 301,
+      "onSignMs": 127,
+      "onSpaceMs": 174,
+      "shareOnSign": 0.422,
+      "daniel": {
+        "gapTotalMs": 453,
+        "onSignMs": 174,
+        "onSpaceMs": 279,
+        "shareOnSign": 0.384,
+        "letterBeforeMs": 93,
+        "letterAfterMs": 35
+      },
+      "deltaGapMs": -152
+    },
+    {
+      "id": "b3-4-ellipsis-prod",
+      "baseId": "b3-4-ellipsis",
+      "sep": "… then",
+      "input": "The ships would stop… then the town woke up.",
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": "…",
+          "hex": "U+2026",
+          "startMs": 975,
+          "endMs": 1149,
+          "durMs": 174
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1149,
+          "endMs": 1393,
+          "durMs": 244
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "durMs": 35
+      },
+      "gapTotalMs": 418,
+      "onSignMs": 174,
+      "onSpaceMs": 244,
+      "shareOnSign": 0.416,
+      "daniel": {
+        "gapTotalMs": 673,
+        "onSignMs": 232,
+        "onSpaceMs": 441,
+        "shareOnSign": 0.345,
+        "letterBeforeMs": 93,
+        "letterAfterMs": 23
+      },
+      "deltaGapMs": -255
+    },
+    {
+      "id": "b3-5-semi-prod",
+      "baseId": "b3-5-semi",
+      "sep": "; then",
+      "input": "The ships would stop; then the town woke up.",
+      "voice": "Michael C. Vincent - Confident, Expressive",
+      "voiceMode": "env",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ";",
+          "hex": "U+003B",
+          "startMs": 1068,
+          "endMs": 1196,
+          "durMs": 128
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1196,
+          "endMs": 1370,
+          "durMs": 174
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "durMs": 35
+      },
+      "gapTotalMs": 302,
+      "onSignMs": 128,
+      "onSpaceMs": 174,
+      "shareOnSign": 0.424,
+      "daniel": {
+        "gapTotalMs": 476,
+        "onSignMs": 151,
+        "onSpaceMs": 325,
+        "shareOnSign": 0.317,
+        "letterBeforeMs": 93,
+        "letterAfterMs": 35
+      },
+      "deltaGapMs": -174
+    }
+  ],
+  "verdict": {
+    "gapRangeMs": [
+      301,
+      430
+    ],
+    "pauseNeverInsideNeighbourLetters": true,
+    "letterBeforeDurMs": {
+      "values": [
+        93,
+        81,
+        93,
+        93,
+        93
+      ],
+      "spreadMs": 12
+    },
+    "letterAfterDurMs": {
+      "values": [
+        59,
+        35,
+        35,
+        35,
+        35
+      ],
+      "spreadMs": 24
+    },
+    "onSignPlusSpaceEqualsGap": true,
+    "rankingBySeparator": [
+      {
+        "sep": ". Then",
+        "gapMs": 301
+      },
+      {
+        "sep": ", then",
+        "gapMs": 301
+      },
+      {
+        "sep": "; then",
+        "gapMs": 302
+      },
+      {
+        "sep": "… then",
+        "gapMs": 418
+      },
+      {
+        "sep": " — then",
+        "gapMs": 430
+      }
+    ]
+  }
+}
