@@ -21,6 +21,32 @@ const readJson = (f) => {
 
 const fmt = (v, digits = 2) => (v === null || v === undefined || Number.isNaN(v) ? '—' : Number(v).toFixed(digits));
 
+/** Русское склонение при числительном: 1 прогон, 2 прогона, 7 прогонов. */
+const plural = (n, one, few, many) => {
+  const a = Math.abs(n) % 100;
+  const b = a % 10;
+  const word = a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many;
+  return `${n} ${word}`;
+};
+
+/**
+ * Отрисовка одного блока детерминизма. Один и тот же формат используют
+ * results/raw/determinism.json (блоки A–I) и results/raw/angle-determinism-c1-c2.json
+ * (блоки J–L): читателю не должно быть видно, из какого файла пришёл блок.
+ */
+const pushDeterminismBlock = (L, block) => {
+  L.push(`### Блок ${block.id}. ${block.title}`);
+  L.push('');
+  L.push(`* конфигурация: ${block.configText}`);
+  L.push(`* вердикт: **${block.verdict}**`);
+  for (const note of block.notes ?? []) L.push(`* ${note}`);
+  if (block.table) {
+    L.push('');
+    L.push(...block.table);
+  }
+  L.push('');
+};
+
 /** Порог отката из ADR-0008 «Бюджет AC2» по кадрам/с профиля final. */
 export const ac2Verdict = (fps) => {
   if (fps === null || fps === undefined) return {band: '—', decision: '—'};
@@ -229,16 +255,108 @@ export const buildSummary = () => {
   if (det) {
     L.push('## Детерминизм');
     L.push('');
-    for (const block of det.blocks ?? []) {
-      L.push(`### Блок ${block.id}. ${block.title}`);
+    for (const block of det.blocks ?? []) pushDeterminismBlock(L, block);
+  }
+
+  // Долг findings.md §4: детерминизм angle при concurrency 1 и 2 (блоки J, K, L).
+  const angleC1C2 = readJson(path.join(RAW_DIR, 'angle-determinism-c1-c2.json'));
+  if (angleC1C2?.blocks?.length) {
+    L.push('## Детерминизм `angle` при concurrency 1 и 2 (долг findings.md §4)');
+    L.push('');
+    const p0 = angleC1C2.power?.atStart;
+    L.push(
+      `* эталон между настройками: \`${angleC1C2.reference.runId}\` (gl=angle, c=4, профиль final), ` +
+        `sha256 mp4 \`${String(angleC1C2.reference.mp4Sha256).slice(0, 16)}\` — тот же sha256 дали блоки H и I, ` +
+        `то есть ${plural(angleC1C2.reference.confirmingRuns.length + 1, 'прогон', 'прогона', 'прогонов')} до этого замера.`,
+    );
+    L.push(
+      `* питание на старте: ${p0?.source ?? '—'}` +
+        (p0?.batteryCapacity != null ? ` (батарея ${p0.batteryStatus}, ${p0.batteryCapacity} %)` : '') +
+        (angleC1C2.power?.waitedForMainsMs ? `, ждали шнур ${Math.round(angleC1C2.power.waitedForMainsMs / 1000)} с` : ''),
+    );
+    if (angleC1C2.status !== 'OK') L.push(`* статус замера: **${angleC1C2.status}**`);
+    for (const d of angleC1C2.deviations ?? []) L.push(`* ⚠ отклонение: ${d}`);
+    L.push('');
+    for (const block of angleC1C2.blocks) pushDeterminismBlock(L, block);
+
+    const cross = angleC1C2.crossConfig?.mp4 ?? [];
+    if (cross.length) {
+      L.push('### Сверка между настройками concurrency (готовый mp4)');
       L.push('');
-      L.push(`* конфигурация: ${block.configText}`);
-      L.push(`* вердикт: **${block.verdict}**`);
-      for (const note of block.notes ?? []) L.push(`* ${note}`);
-      if (block.table) {
-        L.push('');
-        L.push(...block.table);
+      L.push('| сравнение | framemd5 | mp4 побайтово | вердикт |');
+      L.push('|---|---|---|---|');
+      for (const c of cross) {
+        L.push(
+          `| ${c.a} против ${c.b} | ${c.framemd5Equal === true ? 'совпал' : c.framemd5Equal === false ? `разошёлся на кадре ${c.firstDiffFrame}` : '—'} | ` +
+            `${c.byteIdenticalMp4 ? 'да' : 'нет'} | ${c.verdict ?? '—'} |`,
+        );
       }
+      L.push('');
+    }
+    const crossPng = (angleC1C2.crossConfig?.png ?? []).filter((c) => c.b);
+    if (crossPng.length) {
+      L.push('### Сверка между настройками concurrency (PNG-сиквенс, энкодера нет)');
+      L.push('');
+      L.push('| сравнение | PNG побайтово | framemd5 | вердикт |');
+      L.push('|---|---|---|---|');
+      for (const c of crossPng) {
+        const png = c.pngDirHashEqual !== undefined ? c.pngDirHashEqual : c.pngBytesEqual;
+        L.push(
+          `| ${c.a} против ${c.b} | ${png ? 'да' : `нет (${c.differingPngCount ?? '?'} из ${c.totalPng ?? '?'})`} | ` +
+            `${c.framemd5Equal === true ? 'совпал' : c.framemd5Equal === false ? `разошёлся на кадре ${c.firstDiffFrame}` : '—'} | ${c.verdict ?? '—'} |`,
+        );
+      }
+      L.push('');
+    }
+    const v = angleC1C2.verdict;
+    if (v) {
+      L.push(
+        `* **Исход:** ${v.outcome}. Внутри настройки: ` +
+          v.perConcurrency.map((x) => `c=${x.concurrency} — ${x.stable ? 'стабилен' : 'НЕ стабилен'}`).join(', ') +
+          `; между настройками: ${v.equalAcrossConcurrency ? 'хэши совпадают' : 'хэши различаются'}.`,
+      );
+      L.push(
+        `* различных вариантов mp4 за ${(angleC1C2.blocks ?? []).filter((b) => b.kind === 'mp4-repeat').reduce((a, b) => a + (b.runs ?? []).filter((r) => r.status === 'OK').length, 0)} прогонов: ` +
+          `${v.distinctMp4Variants}` +
+          (v.distinctMp4Variants === 1 && v.observedMp4Sha256[0] === v.referenceMp4Sha256
+            ? `, и это тот же sha256, что у эталона c=4 (суммарно ${plural(v.totalConfirmingRunsForThisSha256, 'совпавший прогон', 'совпавших прогона', 'совпавших прогонов')})`
+            : ''),
+      );
+      L.push('');
+    }
+  }
+
+  // Долг core.md §16: прогон от батареи (запускается владельцем вручную).
+  const battery = readJson(path.join(RAW_DIR, 'angle-battery.json'));
+  if (battery?.runs?.length) {
+    L.push('## Прогон от батареи (core.md §16)');
+    L.push('');
+    L.push(`* конфигурация: ${battery.configText ?? '—'}`);
+    L.push(
+      `* эталон от сети: \`${battery.reference?.runId ?? '—'}\`, sha256 \`${String(battery.reference?.mp4Sha256 ?? '').slice(0, 16)}\``,
+    );
+    if (battery.verdict) L.push(`* вердикт: **${battery.verdict.text ?? battery.verdict}**`);
+    for (const n of battery.notes ?? []) L.push(`* ${n}`);
+    L.push('');
+    L.push('| прогон | кадров/с | wall, с | батарея до, % | батарея после, % | съедено, % | sha256(mp4) | = эталону от сети |');
+    L.push('|---|---|---|---|---|---|---|---|');
+    for (const r of battery.runs) {
+      if (r.status !== 'OK') {
+        L.push(`| ${r.runId} | FAILED | — | — | — | — | — | — |`);
+        continue;
+      }
+      L.push(
+        `| ${r.runId} | ${r.fps?.renderPhase ?? '—'} | ${(r.wallMs / 1000).toFixed(1)} | ${r.powerBefore?.batteryCapacity ?? '—'} | ` +
+          `${r.powerAfter?.batteryCapacity ?? '—'} | ${r.batterySpentPercent ?? '—'} | \`${String(r.outputSha256).slice(0, 16)}\` | ` +
+          `${r.equalToMainsReference ? 'да' : 'нет'} |`,
+      );
+    }
+    L.push('');
+    if (battery.speedTrend) {
+      L.push(
+        `> Тренд скорости по мере разряда: ${battery.speedTrend.text}` +
+          (battery.speedTrend.dropPercent != null ? ` (падение ${battery.speedTrend.dropPercent} % от первого прогона к третьему)` : ''),
+      );
       L.push('');
     }
   }

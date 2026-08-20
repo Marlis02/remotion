@@ -14,3 +14,9 @@
 {"at":"2026-08-20T10:03:12.007Z","event":"bench-done"}
 {"at":"2026-08-20T10:14:13.486Z","runId":"extra-concurrency8","status":"OK","wallMs":48305,"fps":6.658,"peakRssMb":3821.3,"note":"core.md §16 требует concurrency 8; в матрице задания его нет"}
 {"at":"2026-08-20T10:15:39.444Z","runId":"extra-cpuload","status":"OK","wallMs":82047,"fps":3.853,"peakRssMb":2465.3,"note":"core.md §16: прогон под нагрузкой CPU (6 занятых потоков из 12)"}
+{"at":"2026-08-20T16:43:30.097Z","runId":"det-J-angle-1-final-r1","status":"OK","wallMs":31271,"fps":10.751,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
+{"at":"2026-08-20T16:44:06.532Z","runId":"det-J-angle-1-final-r2","status":"OK","wallMs":31540,"fps":10.665,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
+{"at":"2026-08-20T16:44:43.125Z","runId":"det-J-angle-1-final-r3","status":"OK","wallMs":31703,"fps":10.6,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
+{"at":"2026-08-20T16:45:10.818Z","runId":"det-K-angle-2-final-r1","status":"OK","wallMs":22701,"fps":15.519,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
+{"at":"2026-08-20T16:45:38.777Z","runId":"det-K-angle-2-final-r2","status":"OK","wallMs":22958,"fps":15.37,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
+{"at":"2026-08-20T16:46:06.944Z","runId":"det-K-angle-2-final-r3","status":"OK","wallMs":23165,"fps":15.194,"sha256":"124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736"}
