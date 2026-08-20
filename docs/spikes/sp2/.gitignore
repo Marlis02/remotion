@@ -1,0 +1,4 @@
+# Спайковый код выбрасывается. Аудио и полные ответы с base64 в git не идут:
+# в results/raw/ лежит ответ без audio_base64, sha256 PCM — там же.
+out/
+node_modules/

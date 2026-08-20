@@ -1,0 +1,499 @@
+{
+  "schema": "sp2-estimate/1",
+  "budgetChars": 7000,
+  "totals": {
+    "calls": 48,
+    "chars": 5232,
+    "headroom": 1768
+  },
+  "byBlock": [
+    {
+      "block": 1,
+      "calls": 28,
+      "chars": 1215,
+      "taskEstimate": 1300
+    },
+    {
+      "block": 3,
+      "calls": 5,
+      "chars": 221,
+      "taskEstimate": 250
+    },
+    {
+      "block": 4,
+      "calls": 4,
+      "chars": 2929,
+      "taskEstimate": 2900
+    },
+    {
+      "block": 5,
+      "calls": 7,
+      "chars": 599,
+      "taskEstimate": 900
+    },
+    {
+      "block": 6,
+      "calls": 3,
+      "chars": 192,
+      "taskEstimate": 200
+    },
+    {
+      "block": 7,
+      "calls": 1,
+      "chars": 76,
+      "taskEstimate": 100
+    }
+  ],
+  "rows": [
+    {
+      "block": 1,
+      "id": "b1-01-dr",
+      "chars": 46,
+      "codePoints": 46,
+      "text": "Dr. Smith arrived long before the tide turned.",
+      "f": "F1",
+      "trap": "Dr. Smith",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-02-st",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "St. Mary stands above the old harbour road.",
+      "f": "F1",
+      "trap": "St. Mary",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-03-year",
+      "chars": 46,
+      "codePoints": 46,
+      "text": "The harbour was built in 1793 and never moved.",
+      "f": "F2",
+      "trap": "in 1793",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-04-ord3",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "They sailed on the 3rd of May and came home.",
+      "f": "F3",
+      "trap": "the 3rd of May",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-05-ord21",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "The 21st century found the warehouse empty.",
+      "f": "F3",
+      "trap": "21st century",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-06-money",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "A berth cost $5 a night in those old ledgers.",
+      "f": "F4",
+      "trap": "$5",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-07-percent",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "Only 5% of the cargo ever reached the town.",
+      "f": "F5",
+      "trap": "5%",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-08-no7",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "Warehouse No. 7 kept the longest list of all.",
+      "f": "F1",
+      "trap": "No. 7",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-09-eg",
+      "chars": 46,
+      "codePoints": 46,
+      "text": "Some goods, e.g. this crate, waited for years.",
+      "f": "F6",
+      "trap": "e.g. this",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-10-ie",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "The word means waiting, i.e. that patience.",
+      "f": "F6",
+      "trap": "i.e. that",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-11-apos-str",
+      "chars": 41,
+      "codePoints": 41,
+      "text": "The keeper wrote that it's a quiet trade.",
+      "f": "F7",
+      "trap": "it's",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-12-apos-typ",
+      "chars": 41,
+      "codePoints": 41,
+      "text": "The keeper wrote that it’s a quiet trade.",
+      "f": "F8",
+      "trap": "it’s",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-13-dont",
+      "chars": 35,
+      "codePoints": 35,
+      "text": "They don't count the days any more.",
+      "f": "F7",
+      "trap": "don't",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-14-hyphen",
+      "chars": 38,
+      "codePoints": 38,
+      "text": "His co-founder kept the second ledger.",
+      "f": "F9",
+      "trap": "co-founder",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-15-emdash",
+      "chars": 42,
+      "codePoints": 42,
+      "text": "The dock — the long one — held four ships.",
+      "f": "F10",
+      "trap": "word — word",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-16-endash",
+      "chars": 42,
+      "codePoints": 42,
+      "text": "The dock – the long one – held four ships.",
+      "f": "F10",
+      "trap": "word – word",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-17-curly",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "He wrote “quoted” in the margin of the page.",
+      "f": "F11",
+      "trap": "“quoted”",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-18-ellipsis1",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "He would only say wait… and close the book.",
+      "f": "F12",
+      "trap": "wait…",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-19-ellipsis3",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "He would only say wait... and close the book.",
+      "f": "F12",
+      "trap": "wait...",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-20-cafe-nfc",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "They drank at a café near the customs house.",
+      "f": "F16",
+      "trap": "café",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-21-cafe-nfd",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "They drank at a café near the customs house.",
+      "f": "F16",
+      "trap": "café",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-22-nbsp",
+      "chars": 39,
+      "codePoints": 39,
+      "text": "Duty came to 5 % of the declared value.",
+      "f": "F15",
+      "trap": "5 %",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-23-emoji",
+      "chars": 43,
+      "codePoints": 42,
+      "text": "🚢 ahead of the tide, the pilot called out.",
+      "f": "F13",
+      "trap": "🚢 ahead",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-24-url",
+      "chars": 48,
+      "codePoints": 48,
+      "text": "The record lives at https://example.org/a today.",
+      "f": "F14",
+      "trap": "https://example.org/a",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-25-thousands",
+      "chars": 43,
+      "codePoints": 43,
+      "text": "The archive holds 1,000,000 entries in all.",
+      "f": "num",
+      "trap": "1,000,000",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-26-decimal",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "The rate settled at 3.14 for the whole month.",
+      "f": "num",
+      "trap": "3.14",
+      "added": false
+    },
+    {
+      "block": 1,
+      "id": "b1-27-emoji-tone",
+      "chars": 47,
+      "codePoints": 45,
+      "text": "👍🏽 ok said the mate, and the rope went slack.",
+      "f": "F13",
+      "trap": "👍🏽 ok",
+      "added": true
+    },
+    {
+      "block": 1,
+      "id": "b1-28-date",
+      "chars": 46,
+      "codePoints": 46,
+      "text": "The entry is dated 03/04 in the old even hand.",
+      "f": "U16",
+      "trap": "03/04",
+      "added": true
+    },
+    {
+      "block": 3,
+      "id": "b3-1-period",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "The ships would stop. Then the town woke up.",
+      "sep": ". Then"
+    },
+    {
+      "block": 3,
+      "id": "b3-2-emdash",
+      "chars": 45,
+      "codePoints": 45,
+      "text": "The ships would stop — then the town woke up.",
+      "sep": " — then"
+    },
+    {
+      "block": 3,
+      "id": "b3-3-comma",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "The ships would stop, then the town woke up.",
+      "sep": ", then"
+    },
+    {
+      "block": 3,
+      "id": "b3-4-ellipsis",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "The ships would stop… then the town woke up.",
+      "sep": "… then"
+    },
+    {
+      "block": 3,
+      "id": "b3-5-semi",
+      "chars": 44,
+      "codePoints": 44,
+      "text": "The ships would stop; then the town woke up.",
+      "sep": "; then"
+    },
+    {
+      "block": 4,
+      "id": "b4-200",
+      "chars": 202,
+      "codePoints": 202,
+      "text": "The morning began the same way for almost two hundred years running. Ships came in on the night tide, and the town woke to their horns. The harbour warehouses held goods that nobody in town ever bought.",
+      "target": 200,
+      "sentences": 3
+    },
+    {
+      "block": 4,
+      "id": "b4-400",
+      "chars": 403,
+      "codePoints": 403,
+      "text": "The morning began the same way for almost two hundred years running. Ships came in on the night tide, and the town woke to their horns. The harbour warehouses held goods that nobody in town ever bought. They sat there exactly as long as the passage to the next shore took. The town archive kept a plain list of all those waiting goods. The entries are short, the hand is even, and the ink has not faded.",
+      "target": 400,
+      "sentences": 6
+    },
+    {
+      "block": 4,
+      "id": "b4-800",
+      "chars": 810,
+      "codePoints": 810,
+      "text": "The morning began the same way for almost two hundred years running. Ships came in on the night tide, and the town woke to their horns. The harbour warehouses held goods that nobody in town ever bought. They sat there exactly as long as the passage to the next shore took. The town archive kept a plain list of all those waiting goods. The entries are short, the hand is even, and the ink has not faded. Almost every line in that ledger ends with the very same word. The word is waiting, and it is written without any explanation at all. Not delay, not idle time, but waiting, as though the cargo had a will. The warehouse keeper kept a careful count of the days as they passed. Each day he drew one short stroke in the corner of the open page. By the end of the month that corner of the page had turned black.",
+      "target": 800,
+      "sentences": 12
+    },
+    {
+      "block": 4,
+      "id": "b4-1500",
+      "chars": 1514,
+      "codePoints": 1514,
+      "text": "The morning began the same way for almost two hundred years running. Ships came in on the night tide, and the town woke to their horns. The harbour warehouses held goods that nobody in town ever bought. They sat there exactly as long as the passage to the next shore took. The town archive kept a plain list of all those waiting goods. The entries are short, the hand is even, and the ink has not faded. Almost every line in that ledger ends with the very same word. The word is waiting, and it is written without any explanation at all. Not delay, not idle time, but waiting, as though the cargo had a will. The warehouse keeper kept a careful count of the days as they passed. Each day he drew one short stroke in the corner of the open page. By the end of the month that corner of the page had turned black. When a ship finally came, the strokes were crossed out with one line. The archive holds many such pages, and each one is crossed the same way. Not one of them explains what exactly was being awaited on that shore. But each one shows plainly what the waiting itself had cost the town. The keeper never wrote a name, a reason, or a promise of any return. He wrote only the strokes, the crossing line, and that single word. A reader today can count the days but cannot recover the reason for them. That, in the end, is what the harbour archive was built to preserve. The last page is unfinished, and the final stroke has no crossing line. Nobody in the town has ever agreed on what that missing line means.",
+      "target": 1500,
+      "sentences": 22
+    },
+    {
+      "block": 5,
+      "id": "b5-a-single",
+      "chars": 201,
+      "codePoints": 201,
+      "text": "The warehouse keeper kept a careful count of the days as they passed. Each day he drew one short stroke in the corner of the open page. By the end of the month that corner of the page had turned black.",
+      "variant": "а: один запрос"
+    },
+    {
+      "block": 5,
+      "id": "b5-b-ctx-1",
+      "chars": 69,
+      "codePoints": 69,
+      "text": "The warehouse keeper kept a careful count of the days as they passed.",
+      "variant": "б: с previous_text/next_text",
+      "previousTextChars": 0,
+      "nextTextChars": 65
+    },
+    {
+      "block": 5,
+      "id": "b5-b-ctx-2",
+      "chars": 65,
+      "codePoints": 65,
+      "text": "Each day he drew one short stroke in the corner of the open page.",
+      "variant": "б: с previous_text/next_text",
+      "previousTextChars": 69,
+      "nextTextChars": 65
+    },
+    {
+      "block": 5,
+      "id": "b5-b-ctx-3",
+      "chars": 65,
+      "codePoints": 65,
+      "text": "By the end of the month that corner of the page had turned black.",
+      "variant": "б: с previous_text/next_text",
+      "previousTextChars": 65,
+      "nextTextChars": 0
+    },
+    {
+      "block": 5,
+      "id": "b5-c-noctx-1",
+      "chars": 69,
+      "codePoints": 69,
+      "text": "The warehouse keeper kept a careful count of the days as they passed.",
+      "variant": "в: без контекста"
+    },
+    {
+      "block": 5,
+      "id": "b5-c-noctx-2",
+      "chars": 65,
+      "codePoints": 65,
+      "text": "Each day he drew one short stroke in the corner of the open page.",
+      "variant": "в: без контекста"
+    },
+    {
+      "block": 5,
+      "id": "b5-c-noctx-3",
+      "chars": 65,
+      "codePoints": 65,
+      "text": "By the end of the month that corner of the page had turned black.",
+      "variant": "в: без контекста"
+    },
+    {
+      "block": 6,
+      "id": "b6-r1",
+      "chars": 64,
+      "codePoints": 64,
+      "text": "The town archive holds an answer to almost every question asked.",
+      "note": "один seed, три прогона"
+    },
+    {
+      "block": 6,
+      "id": "b6-r2",
+      "chars": 64,
+      "codePoints": 64,
+      "text": "The town archive holds an answer to almost every question asked.",
+      "note": "один seed, три прогона"
+    },
+    {
+      "block": 6,
+      "id": "b6-r3",
+      "chars": 64,
+      "codePoints": 64,
+      "text": "The town archive holds an answer to almost every question asked.",
+      "note": "один seed, три прогона"
+    },
+    {
+      "block": 7,
+      "id": "b7-dict",
+      "chars": 76,
+      "codePoints": 76,
+      "text": "NASA kept a station near the old harbour, and NASA never once explained why.",
+      "note": "словарь с alias NASA -> N A S A"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "sp2-block2b/1",
+  "block": "2 (добавка)",
+  "voice": {
+    "name": "Daniel - Steady Broadcaster",
+    "publicId": "onwK4e9ZLuTAKqWW03F9",
+    "category": "premade"
+  },
+  "question": "снимает ли правило интервала токена (D10 п.6) хвостовую тишину, если чанк кончается не пунктуацией",
+  "rows": [
+    {
+      "id": "b2b-nopunct",
+      "text": "The pilot called out one last time",
+      "endsWithPunctuation": false,
+      "lastChar": "e",
+      "lastCharDurMs": 429,
+      "audioMs": 2368.4,
+      "acousticTailMs": 278.4,
+      "lastWordEndMs": 2368,
+      "silenceInsideLastWordMs": 278,
+      "tailTrimmedByRuleMs": 0.4
+    },
+    {
+      "id": "b2b-punct",
+      "text": "The pilot called out one last time.",
+      "endsWithPunctuation": true,
+      "lastChar": ".",
+      "lastCharDurMs": 314,
+      "audioMs": 2414.9,
+      "acousticTailMs": 324.9,
+      "lastWordEndMs": 2101,
+      "silenceInsideLastWordMs": 11,
+      "tailTrimmedByRuleMs": 313.9
+    }
+  ],
+  "verdict": {
+    "withPunctuationTrimmedMs": 313.9,
+    "withoutPunctuationTrimmedMs": 0.4,
+    "silenceLeftInsideWordMs": 278
+  }
+}

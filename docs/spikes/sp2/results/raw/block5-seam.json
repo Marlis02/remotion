@@ -1,0 +1,175 @@
+{
+  "schema": "sp2-block5/1",
+  "block": 5,
+  "voice": {
+    "name": "Daniel - Steady Broadcaster",
+    "publicId": "onwK4e9ZLuTAKqWW03F9",
+    "category": "premade"
+  },
+  "sentences": [
+    "The warehouse keeper kept a careful count of the days as they passed.",
+    "Each day he drew one short stroke in the corner of the open page.",
+    "By the end of the month that corner of the page had turned black."
+  ],
+  "variants": {
+    "a": {
+      "label": "а — один запрос (эталон просодии)",
+      "calls": 1,
+      "ids": [
+        "b5-a-single"
+      ],
+      "partBytes": [
+        724462
+      ],
+      "partSeconds": [
+        15.093
+      ],
+      "totalSeconds": 15.093,
+      "pcmSha256": "715412a606cf11b64b0b8c9af8bdc543d91d40b717f5d47daf39a7ea5276e070",
+      "wav": "out/b5-a.wav",
+      "seamAtSeconds": []
+    },
+    "b": {
+      "label": "б — три запроса с previous_text/next_text, склеены встык",
+      "calls": 3,
+      "ids": [
+        "b5-b-ctx-1",
+        "b5-b-ctx-2",
+        "b5-b-ctx-3"
+      ],
+      "partBytes": [
+        225140,
+        267494,
+        220682
+      ],
+      "partSeconds": [
+        4.69,
+        5.573,
+        4.598
+      ],
+      "totalSeconds": 14.861,
+      "pcmSha256": "0eef33c43c914cf378533d4947ceb453dcf18e37b395b975f7b053bd94c56c02",
+      "wav": "out/b5-b.wav",
+      "seamAtSeconds": [
+        4.69,
+        10.263
+      ]
+    },
+    "c": {
+      "label": "в — три запроса без контекста, склеены встык",
+      "calls": 3,
+      "ids": [
+        "b5-c-noctx-1",
+        "b5-c-noctx-2",
+        "b5-c-noctx-3"
+      ],
+      "partBytes": [
+        218454,
+        267494,
+        216224
+      ],
+      "partSeconds": [
+        4.551,
+        5.573,
+        4.505
+      ],
+      "totalSeconds": 14.629,
+      "pcmSha256": "54eb14e6552f83381c40704989e0e4e90c6ed33c74711b59711fd3081703d5ca",
+      "wav": "out/b5-c.wav",
+      "seamAtSeconds": [
+        4.551,
+        10.124
+      ]
+    }
+  },
+  "contextEffect": {
+    "question": "меняет ли previous_text/next_text сам звук предложения",
+    "perSentence": [
+      {
+        "sentence": 1,
+        "text": "The warehouse keeper kept a careful count of the days as they passed.",
+        "withContextSeconds": 4.69,
+        "withoutContextSeconds": 4.551,
+        "deltaMs": 139.3,
+        "deltaPercent": 3.06,
+        "pcmIdentical": false,
+        "charIdentityWithContext": true,
+        "charIdentityWithoutContext": true
+      },
+      {
+        "sentence": 2,
+        "text": "Each day he drew one short stroke in the corner of the open page.",
+        "withContextSeconds": 5.573,
+        "withoutContextSeconds": 5.573,
+        "deltaMs": 0,
+        "deltaPercent": 0,
+        "pcmIdentical": false,
+        "charIdentityWithContext": true,
+        "charIdentityWithoutContext": true
+      },
+      {
+        "sentence": 3,
+        "text": "By the end of the month that corner of the page had turned black.",
+        "withContextSeconds": 4.598,
+        "withoutContextSeconds": 4.505,
+        "deltaMs": 92.9,
+        "deltaPercent": 2.06,
+        "pcmIdentical": false,
+        "charIdentityWithContext": true,
+        "charIdentityWithoutContext": true
+      }
+    ],
+    "anyPcmIdentical": false,
+    "maxAbsDeltaMs": 139.3
+  },
+  "singleRequest": {
+    "seconds": 15.093,
+    "charIdentity": true,
+    "health": {
+      "present": true,
+      "lengthsMatch": true,
+      "monotonic": true,
+      "n": 201,
+      "uniqueTimestampRatio": 1,
+      "uniqueStarts": 201,
+      "maxEqualRun": 1,
+      "maxEqualRunStartIndex": 0,
+      "maxEqualRunContext": "The warehouse keeper kep",
+      "maxEqualRunCharOffset": 0,
+      "firstStart": 0,
+      "lastEnd": 15.093,
+      "audioDurationSeconds": 15.092958,
+      "leadInSeconds": 0,
+      "tailSeconds": -0.000042,
+      "leadInSamples": 0,
+      "tailSamples": -1,
+      "tailResidualOk": false
+    }
+  },
+  "stitchedVsSingle": {
+    "singleSeconds": 15.093,
+    "bSeconds": 14.861,
+    "cSeconds": 14.629,
+    "bMinusSingleMs": -232,
+    "cMinusSingleMs": -464
+  },
+  "auditory": {
+    "verdict": "UNKNOWN — слуховую оценку даёт владелец",
+    "listenTo": [
+      "out/b5-a.wav (эталон)",
+      "out/b5-b.wav (с контекстом)",
+      "out/b5-c.wav (без контекста)"
+    ],
+    "seams": {
+      "b": [
+        4.69,
+        10.263
+      ],
+      "c": [
+        4.551,
+        10.124
+      ]
+    },
+    "whatToListenFor": "на отметках шва: скачок высоты/громкости, оборванная интонация конца фразы, разная скорость соседних предложений"
+  }
+}

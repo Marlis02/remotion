@@ -1,0 +1,269 @@
+{
+  "schema": "sp2-block3/1",
+  "block": 3,
+  "question": "куда провайдер кладёт межпредложенческую паузу — на знак, на пробел или распределяет (D10 п.6)",
+  "rows": [
+    {
+      "id": "b3-1-period",
+      "sep": ". Then",
+      "input": "The ships would stop. Then the town woke up.",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "startMs": 940,
+        "endMs": 1057,
+        "durMs": 117
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ".",
+          "hex": "U+002E",
+          "startMs": 1057,
+          "endMs": 1231,
+          "durMs": 174
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1231,
+          "endMs": 1556,
+          "durMs": 325
+        }
+      ],
+      "letterAfter": {
+        "c": "T",
+        "hex": "U+0054",
+        "startMs": 1556,
+        "endMs": 1614,
+        "durMs": 58
+      },
+      "gapTotalMs": 499,
+      "onSignMs": 174,
+      "onSpaceMs": 325,
+      "shareOnSign": 0.349
+    },
+    {
+      "id": "b3-2-emdash",
+      "sep": " — then",
+      "input": "The ships would stop — then the town woke up.",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "startMs": 940,
+        "endMs": 1022,
+        "durMs": 82
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1022,
+          "endMs": 1196,
+          "durMs": 174
+        },
+        {
+          "i": 21,
+          "c": "—",
+          "hex": "U+2014",
+          "startMs": 1196,
+          "endMs": 1254,
+          "durMs": 58
+        },
+        {
+          "i": 22,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1254,
+          "endMs": 1579,
+          "durMs": 325
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "startMs": 1579,
+        "endMs": 1602,
+        "durMs": 23
+      },
+      "gapTotalMs": 557,
+      "onSignMs": 58,
+      "onSpaceMs": 499,
+      "shareOnSign": 0.104
+    },
+    {
+      "id": "b3-3-comma",
+      "sep": ", then",
+      "input": "The ships would stop, then the town woke up.",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "startMs": 859,
+        "endMs": 952,
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ",",
+          "hex": "U+002C",
+          "startMs": 952,
+          "endMs": 1126,
+          "durMs": 174
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1126,
+          "endMs": 1405,
+          "durMs": 279
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "startMs": 1405,
+        "endMs": 1440,
+        "durMs": 35
+      },
+      "gapTotalMs": 453,
+      "onSignMs": 174,
+      "onSpaceMs": 279,
+      "shareOnSign": 0.384
+    },
+    {
+      "id": "b3-4-ellipsis",
+      "sep": "… then",
+      "input": "The ships would stop… then the town woke up.",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "startMs": 952,
+        "endMs": 1045,
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": "…",
+          "hex": "U+2026",
+          "startMs": 1045,
+          "endMs": 1277,
+          "durMs": 232
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1277,
+          "endMs": 1718,
+          "durMs": 441
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "startMs": 1718,
+        "endMs": 1741,
+        "durMs": 23
+      },
+      "gapTotalMs": 673,
+      "onSignMs": 232,
+      "onSpaceMs": 441,
+      "shareOnSign": 0.345
+    },
+    {
+      "id": "b3-5-semi",
+      "sep": "; then",
+      "input": "The ships would stop; then the town woke up.",
+      "letterBefore": {
+        "c": "p",
+        "hex": "U+0070",
+        "startMs": 859,
+        "endMs": 952,
+        "durMs": 93
+      },
+      "between": [
+        {
+          "i": 20,
+          "c": ";",
+          "hex": "U+003B",
+          "startMs": 952,
+          "endMs": 1103,
+          "durMs": 151
+        },
+        {
+          "i": 21,
+          "c": " ",
+          "hex": "U+0020",
+          "startMs": 1103,
+          "endMs": 1428,
+          "durMs": 325
+        }
+      ],
+      "letterAfter": {
+        "c": "t",
+        "hex": "U+0074",
+        "startMs": 1428,
+        "endMs": 1463,
+        "durMs": 35
+      },
+      "gapTotalMs": 476,
+      "onSignMs": 151,
+      "onSpaceMs": 325,
+      "shareOnSign": 0.317
+    }
+  ],
+  "verdict": {
+    "gapRangeMs": [
+      453,
+      673
+    ],
+    "shareOnSign": [
+      {
+        "id": "b3-1-period",
+        "share": 0.349
+      },
+      {
+        "id": "b3-2-emdash",
+        "share": 0.104
+      },
+      {
+        "id": "b3-3-comma",
+        "share": 0.384
+      },
+      {
+        "id": "b3-4-ellipsis",
+        "share": 0.345
+      },
+      {
+        "id": "b3-5-semi",
+        "share": 0.317
+      }
+    ],
+    "allPauseOnSign": false,
+    "letterBeforeDurMs": {
+      "values": [
+        117,
+        82,
+        93,
+        93,
+        93
+      ],
+      "spreadMs": 35
+    },
+    "letterAfterDurMs": {
+      "values": [
+        58,
+        23,
+        35,
+        23,
+        35
+      ],
+      "spreadMs": 35
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "sp2-block7/1",
+  "block": 7,
+  "voice": {
+    "name": "Daniel - Steady Broadcaster",
+    "publicId": "onwK4e9ZLuTAKqWW03F9",
+    "category": "premade"
+  },
+  "rule": {
+    "string_to_replace": "NASA",
+    "type": "alias",
+    "alias": "N A S A"
+  },
+  "text": "NASA kept a station near the old harbour, and NASA never once explained why.",
+  "created": null,
+  "createError": {
+    "status": 401,
+    "body": "{\"detail\":{\"type\":\"authentication_error\",\"code\":\"unauthorized\",\"message\":\"The API key you used is missing the permission pronunciation_dictionaries_write to execute this operation.\",\"status\":\"missing_permissions\",\"request_id\":\"091e36b0734435c696d2d079ddd0fc56\"}}"
+  }
+}

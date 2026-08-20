@@ -1,0 +1,58 @@
+{
+  "schema": "sp2-diag-voice/1",
+  "capturedAt": "2026-08-20T19:55:43.952Z",
+  "billing": {
+    "tier": "free",
+    "characterCount": 605,
+    "characterLimit": 10000
+  },
+  "targetVoice": {
+    "name": "Michael C. Vincent - Confident, Expressive",
+    "category": "professional",
+    "isOwner": "copied",
+    "sharingPublicOwnerId": true,
+    "availableForTiers": []
+  },
+  "accountVoices": {
+    "premade": {
+      "count": 21,
+      "names": [
+        "Roger - Laid-Back, Casual, Resonant",
+        "Sarah - Mature, Reassuring, Confident",
+        "Laura - Enthusiast, Quirky Attitude",
+        "Charlie - Deep, Confident, Energetic",
+        "George - Warm, Captivating Storyteller",
+        "Callum - Husky Trickster",
+        "River - Relaxed, Neutral, Informative",
+        "Harry - Fierce Warrior",
+        "Liam - Energetic, Social Media Creator",
+        "Alice - Clear, Engaging Educator",
+        "Matilda - Knowledgable, Professional",
+        "Will - Relaxed Optimist",
+        "Jessica - Playful, Bright, Warm",
+        "Eric - Smooth, Trustworthy",
+        "Bella - Professional, Bright, Warm",
+        "Chris - Charming, Down-to-Earth",
+        "Brian - Deep, Resonant and Comforting",
+        "Daniel - Steady Broadcaster",
+        "Lily - Velvety Actress",
+        "Adam - Dominant, Firm",
+        "Bill - Wise, Mature, Balanced"
+      ]
+    },
+    "professional": {
+      "count": 5,
+      "names": [
+        "Adam Stone - Smooth, Relaxed and Deep",
+        "Michael C. Vincent - Confident, Expressive",
+        "Ian Cartwell - Suspense and Mystery",
+        "Alex Bell - Deep and Confident",
+        "Brian - Relatable Everyman"
+      ]
+    }
+  },
+  "error402": {
+    "code": "paid_plan_required",
+    "message": "Free users cannot use library voices via the API. Please upgrade your subscription to use this voice."
+  }
+}

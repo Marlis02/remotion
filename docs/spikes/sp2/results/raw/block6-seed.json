@@ -1,0 +1,41 @@
+{
+  "schema": "sp2-block6/1",
+  "block": 6,
+  "seed": 20260821,
+  "voice": {
+    "name": "Daniel - Steady Broadcaster",
+    "publicId": "onwK4e9ZLuTAKqWW03F9",
+    "category": "premade"
+  },
+  "text": "The town archive holds an answer to almost every question asked.",
+  "repeats": 3,
+  "pcmIdentical": true,
+  "distinctPcmHashes": 1,
+  "numSamplesIdentical": true,
+  "numSamples": [
+    117029,
+    117029,
+    117029
+  ],
+  "alignmentIdentical": true,
+  "maxStartDeltaMs": 0,
+  "firstDiffCharIndex": null,
+  "firstDiffChar": null,
+  "takes": [
+    {
+      "id": "b6-r1",
+      "sha256": "2d4bcd9b2791f6368eaba06a9467842c6f1422b3d3b60eba4dc68a8fd03daa10",
+      "numSamples": 117029
+    },
+    {
+      "id": "b6-r2",
+      "sha256": "2d4bcd9b2791f6368eaba06a9467842c6f1422b3d3b60eba4dc68a8fd03daa10",
+      "numSamples": 117029
+    },
+    {
+      "id": "b6-r3",
+      "sha256": "2d4bcd9b2791f6368eaba06a9467842c6f1422b3d3b60eba4dc68a8fd03daa10",
+      "numSamples": 117029
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema": "sp2-lint/1",
+  "block": 9,
+  "rules": [
+    {
+      "id": "digit",
+      "why": "цифра",
+      "test": "(t) => /\\d/u.test(t)"
+    },
+    {
+      "id": "percent",
+      "why": "знак %",
+      "test": "(t) => /%/u.test(t)"
+    },
+    {
+      "id": "currency",
+      "why": "знак валюты",
+      "test": "(t) => /[$€£¥]/u.test(t)"
+    },
+    {
+      "id": "numero",
+      "why": "знак №",
+      "test": "(t) => /№/u.test(t)"
+    },
+    {
+      "id": "url",
+      "why": "URL",
+      "test": "(t) => /^(https?:\\/\\/|www\\.)/iu.test(t)"
+    },
+    {
+      "id": "abbrevInnerDot",
+      "why": "точка внутри токена (e.g., i.e., U.S.)",
+      "test": "(t) => /^[^.]*\\.[^.]*[^.\\s]/u.test(t) || /^(?:[A-Za-z]{1,4}\\.){2,}$/u.test(t)"
+    },
+    {
+      "id": "abbrevKnown",
+      "why": "известное сокращение с точкой (Dr., St., No.)",
+      "test": "(t) => /^[A-Za-z]{1,6}\\.$/u.test(t) && KNOWN_ABBREV.has(t.slice(0, -1).toLowerCase())"
+    },
+    {
+      "id": "roman",
+      "why": "римские цифры",
+      "test": "(t) => /^(?=[MDCLXVI]{2,}$)M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$/u.test(t)"
+    }
+  ],
+  "filesScanned": [
+    "fixtures/minimal/source/01-intro.md"
+  ],
+  "filesNotFound": "второго английского драфта в репозитории нет — см. results/decisions.md п.7",
+  "totals": {
+    "display": {
+      "tokens": 166,
+      "banned": 2,
+      "sharePercent": 1.2
+    },
+    "spoken": {
+      "tokens": 167,
+      "banned": 0,
+      "sharePercent": 0
+    }
+  },
+  "results": [
+    {
+      "file": "fixtures/minimal/source/01-intro.md",
+      "modes": {
+        "display": {
+          "tokens": 166,
+          "banned": 2,
+          "shareBanned": 0.012,
+          "sharePercent": 1.2,
+          "byRule": {
+            "digit": 2
+          },
+          "hits": [
+            {
+              "token": "200",
+              "rules": [
+                "digit"
+              ]
+            },
+            {
+              "token": "14",
+              "rules": [
+                "digit"
+              ]
+            }
+          ],
+          "trailingDotUpperBound": {
+            "count": 11,
+            "sharePercent": 6.63,
+            "tokens": [
+              "horns.",
+              "bought.",
+              "took.",
+              "goods.",
+              "word.",
+              "own.",
+              "days.",
+              "black.",
+              "line.",
+              "pages.",
+              "cost."
+            ],
+            "note": "верхняя граница: если бы КАЖДАЯ точка в конце токена была сокращением"
+          }
+        },
+        "spoken": {
+          "tokens": 167,
+          "banned": 0,
+          "shareBanned": 0,
+          "sharePercent": 0,
+          "byRule": {},
+          "hits": [],
+          "trailingDotUpperBound": {
+            "count": 11,
+            "sharePercent": 6.59,
+            "tokens": [
+              "horns.",
+              "bought.",
+              "took.",
+              "goods.",
+              "word.",
+              "own.",
+              "days.",
+              "black.",
+              "line.",
+              "pages.",
+              "cost."
+            ],
+            "note": "верхняя граница: если бы КАЖДАЯ точка в конце токена была сокращением"
+          }
+        }
+      },
+      "sayMarkers": [
+        {
+          "display": "200",
+          "spoken": "two hundred"
+        },
+        {
+          "display": "“waiting”",
+          "spoken": "waiting"
+        },
+        {
+          "display": "14",
+          "spoken": "fourteen"
+        }
+      ]
+    }
+  ],
+  "thresholdFromAdr0002": {
+    "sharePercent": 2,
+    "source": "ADR-0002, Риски: «при доле > ~2 % придётся ослаблять правило»"
+  }
+}

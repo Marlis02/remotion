@@ -1,0 +1,3293 @@
+{
+  "schema": "sp2-block1/2",
+  "blocks": [
+    1,
+    2
+  ],
+  "voice": "Daniel - Steady Broadcaster",
+  "calls": 28,
+  "chargedTotal": null,
+  "u4_identity": {
+    "alignmentIdentical": 28,
+    "total": 28,
+    "failures": [],
+    "lengthsMatchAll": true,
+    "monotonicAll": true
+  },
+  "u4_unit": {
+    "verdict": "code points",
+    "matchesUtf16": 26,
+    "matchesCodePoints": 28,
+    "matchesGraphemes": 26,
+    "discriminating": [
+      {
+        "id": "b1-21-cafe-nfd",
+        "trap": "café",
+        "alignmentCharactersLength": 45,
+        "inputUtf16Length": 45,
+        "inputCodePoints": 45,
+        "inputGraphemes": 44,
+        "matches": [
+          "utf16",
+          "codePoints"
+        ],
+        "multiUnitElements": []
+      },
+      {
+        "id": "b1-23-emoji",
+        "trap": "🚢 ahead",
+        "alignmentCharactersLength": 42,
+        "inputUtf16Length": 43,
+        "inputCodePoints": 42,
+        "inputGraphemes": 42,
+        "matches": [
+          "codePoints",
+          "graphemes"
+        ],
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "🚢",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F6A2"
+          }
+        ]
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "trap": "👍🏽 ok",
+        "alignmentCharactersLength": 45,
+        "inputUtf16Length": 47,
+        "inputCodePoints": 45,
+        "inputGraphemes": 44,
+        "matches": [
+          "codePoints"
+        ],
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "👍",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F44D"
+          },
+          {
+            "i": 1,
+            "c": "🏽",
+            "utf16": 2,
+            "codePoints": 1,
+            "hex": "U+1F3FD"
+          }
+        ]
+      }
+    ]
+  },
+  "u16_normalization": {
+    "rawIdenticalToInput": 0,
+    "onlyPaddingDiffers": 20,
+    "total": 28,
+    "paddingShape": [
+      "1/1"
+    ],
+    "rewrites": [
+      {
+        "id": "b1-12-apos-typ",
+        "trap": "it’s",
+        "diff": {
+          "firstDivergenceCodePointIndex": 24,
+          "lengthCodePoints": {
+            "input": 41,
+            "alignment": 41
+          },
+          "inputAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"’\"(U+2019)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ],
+          "alignmentAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"'\"(U+0027)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      {
+        "id": "b1-15-emdash",
+        "trap": "word — word",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"—\"(U+2014)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)"
+          ]
+        }
+      },
+      {
+        "id": "b1-16-endash",
+        "trap": "word – word",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"–\"(U+2013)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ]
+        }
+      },
+      {
+        "id": "b1-17-curly",
+        "trap": "“quoted”",
+        "diff": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 44,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"“\"(U+201C)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"”\"(U+201D)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ],
+          "alignmentAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"\\\"\"(U+0022)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"\\\"\"(U+0022)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ]
+        }
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "trap": "wait…",
+        "diff": {
+          "firstDivergenceCodePointIndex": 22,
+          "lengthCodePoints": {
+            "input": 43,
+            "alignment": 45
+          },
+          "inputAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"…\"(U+2026)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"s\"(U+0073)"
+          ],
+          "alignmentAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)"
+          ]
+        }
+      },
+      {
+        "id": "b1-22-nbsp",
+        "trap": "5 %",
+        "diff": {
+          "firstDivergenceCodePointIndex": 14,
+          "lengthCodePoints": {
+            "input": 39,
+            "alignment": 39
+          },
+          "inputAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+00A0)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ],
+          "alignmentAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+0020)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ]
+        }
+      },
+      {
+        "id": "b1-23-emoji",
+        "trap": "🚢 ahead",
+        "diff": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 40
+          },
+          "inputAround": [
+            "\"🚢\"(U+1F6A2)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)"
+          ],
+          "alignmentAround": [
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "trap": "👍🏽 ok",
+        "diff": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 45,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\"👍\"(U+1F44D)",
+            "\"🏽\"(U+1F3FD)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)"
+          ],
+          "alignmentAround": [
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)"
+          ]
+        }
+      }
+    ],
+    "perClass": [
+      {
+        "id": "b1-01-dr",
+        "class": "F1",
+        "trap": "Dr. Smith",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-03-year",
+        "class": "F2",
+        "trap": "in 1793",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-04-ord3",
+        "class": "F3",
+        "trap": "the 3rd of May",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-05-ord21",
+        "class": "F3",
+        "trap": "21st century",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-06-money",
+        "class": "F4",
+        "trap": "$5",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-07-percent",
+        "class": "F5",
+        "trap": "5%",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-25-thousands",
+        "class": "num",
+        "trap": "1,000,000",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-26-decimal",
+        "class": "num",
+        "trap": "3.14",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      },
+      {
+        "id": "b1-28-date",
+        "class": "U16",
+        "trap": "03/04",
+        "alignmentIdentical": true,
+        "normalizedCoreEqualsInput": true,
+        "trapVerbatimInAlignment": true,
+        "trapVerbatimInNormalized": true
+      }
+    ]
+  },
+  "t7_leadin_tail": {
+    "leadInMs": {
+      "n": 28,
+      "min": 0,
+      "p25": 0,
+      "median": 0,
+      "p75": 0,
+      "p95": 0,
+      "max": 0,
+      "mean": 0,
+      "stdev": 0
+    },
+    "tailMs": {
+      "n": 28,
+      "min": -0.5,
+      "p25": -0.25,
+      "median": 0.041999999999999996,
+      "p75": 0.208,
+      "p95": 0.333,
+      "max": 0.375,
+      "mean": -0.016357,
+      "stdev": 0.267345
+    },
+    "leadInSamples": {
+      "n": 28,
+      "min": 0,
+      "p25": 0,
+      "median": 0,
+      "p75": 0,
+      "p95": 0,
+      "max": 0,
+      "mean": 0,
+      "stdev": 0
+    },
+    "tailSamples": {
+      "n": 28,
+      "min": -12,
+      "p25": -6,
+      "median": 1,
+      "p75": 5,
+      "p95": 8,
+      "max": 9,
+      "mean": -0.392857,
+      "stdev": 6.416159
+    },
+    "negativeTails": [
+      {
+        "id": "b1-02-st",
+        "tailMs": -0.292,
+        "tailSamples": -7
+      },
+      {
+        "id": "b1-04-ord3",
+        "tailMs": -0.208,
+        "tailSamples": -5
+      },
+      {
+        "id": "b1-05-ord21",
+        "tailMs": -0.167,
+        "tailSamples": -4
+      },
+      {
+        "id": "b1-10-ie",
+        "tailMs": -0.083,
+        "tailSamples": -2
+      },
+      {
+        "id": "b1-11-apos-str",
+        "tailMs": -0.5,
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-12-apos-typ",
+        "tailMs": -0.5,
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-13-dont",
+        "tailMs": -0.083,
+        "tailSamples": -2
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "tailMs": -0.292,
+        "tailSamples": -7
+      },
+      {
+        "id": "b1-19-ellipsis3",
+        "tailMs": -0.292,
+        "tailSamples": -7
+      },
+      {
+        "id": "b1-23-emoji",
+        "tailMs": -0.25,
+        "tailSamples": -6
+      },
+      {
+        "id": "b1-25-thousands",
+        "tailMs": -0.5,
+        "tailSamples": -12
+      },
+      {
+        "id": "b1-26-decimal",
+        "tailMs": -0.25,
+        "tailSamples": -6
+      }
+    ],
+    "tailResidualOkAll": false,
+    "perString": [
+      {
+        "id": "b1-01-dr",
+        "leadInMs": 0,
+        "tailMs": 0,
+        "leadInSamples": 0,
+        "tailSamples": 0,
+        "audioMs": 3483
+      },
+      {
+        "id": "b1-02-st",
+        "leadInMs": 0,
+        "tailMs": -0.29,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "audioMs": 2925.7
+      },
+      {
+        "id": "b1-03-year",
+        "leadInMs": 0,
+        "tailMs": 0.29,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "audioMs": 4040.3
+      },
+      {
+        "id": "b1-04-ord3",
+        "leadInMs": 0,
+        "tailMs": -0.21,
+        "leadInSamples": 0,
+        "tailSamples": -5,
+        "audioMs": 3250.8
+      },
+      {
+        "id": "b1-05-ord21",
+        "leadInMs": 0,
+        "tailMs": -0.17,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "audioMs": 2832.8
+      },
+      {
+        "id": "b1-06-money",
+        "leadInMs": 0,
+        "tailMs": 0.33,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "audioMs": 3204.3
+      },
+      {
+        "id": "b1-07-percent",
+        "leadInMs": 0,
+        "tailMs": 0.33,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "audioMs": 3622.3
+      },
+      {
+        "id": "b1-08-no7",
+        "leadInMs": 0,
+        "tailMs": 0.04,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "audioMs": 3065
+      },
+      {
+        "id": "b1-09-eg",
+        "leadInMs": 0,
+        "tailMs": 0.25,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "audioMs": 3297.3
+      },
+      {
+        "id": "b1-10-ie",
+        "leadInMs": 0,
+        "tailMs": -0.08,
+        "leadInSamples": 0,
+        "tailSamples": -2,
+        "audioMs": 3157.9
+      },
+      {
+        "id": "b1-11-apos-str",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-12-apos-typ",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 2693.5
+      },
+      {
+        "id": "b1-13-dont",
+        "leadInMs": 0,
+        "tailMs": -0.08,
+        "leadInSamples": 0,
+        "tailSamples": -2,
+        "audioMs": 1996.9
+      },
+      {
+        "id": "b1-14-hyphen",
+        "leadInMs": 0,
+        "tailMs": 0.21,
+        "leadInSamples": 0,
+        "tailSamples": 5,
+        "audioMs": 2554.2
+      },
+      {
+        "id": "b1-15-emdash",
+        "leadInMs": 0,
+        "tailMs": 0.25,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "audioMs": 3297.3
+      },
+      {
+        "id": "b1-16-endash",
+        "leadInMs": 0,
+        "tailMs": 0.04,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "audioMs": 3065
+      },
+      {
+        "id": "b1-17-curly",
+        "leadInMs": 0,
+        "tailMs": 0.04,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "audioMs": 3065
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "leadInMs": 0,
+        "tailMs": -0.29,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "audioMs": 2925.7
+      },
+      {
+        "id": "b1-19-ellipsis3",
+        "leadInMs": 0,
+        "tailMs": -0.29,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "audioMs": 2925.7
+      },
+      {
+        "id": "b1-20-cafe-nfc",
+        "leadInMs": 0,
+        "tailMs": 0.04,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "audioMs": 3065
+      },
+      {
+        "id": "b1-21-cafe-nfd",
+        "leadInMs": 0,
+        "tailMs": 0.38,
+        "leadInSamples": 0,
+        "tailSamples": 9,
+        "audioMs": 2786.4
+      },
+      {
+        "id": "b1-22-nbsp",
+        "leadInMs": 0,
+        "tailMs": 0.13,
+        "leadInSamples": 0,
+        "tailSamples": 3,
+        "audioMs": 3390.1
+      },
+      {
+        "id": "b1-23-emoji",
+        "leadInMs": 0,
+        "tailMs": -0.25,
+        "leadInSamples": 0,
+        "tailSamples": -6,
+        "audioMs": 2507.8
+      },
+      {
+        "id": "b1-24-url",
+        "leadInMs": 0,
+        "tailMs": 0.13,
+        "leadInSamples": 0,
+        "tailSamples": 3,
+        "audioMs": 5712.1
+      },
+      {
+        "id": "b1-25-thousands",
+        "leadInMs": 0,
+        "tailMs": -0.5,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "audioMs": 3854.5
+      },
+      {
+        "id": "b1-26-decimal",
+        "leadInMs": 0,
+        "tailMs": -0.25,
+        "leadInSamples": 0,
+        "tailSamples": -6,
+        "audioMs": 3668.8
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "leadInMs": 0,
+        "tailMs": 0.17,
+        "leadInSamples": 0,
+        "tailSamples": 4,
+        "audioMs": 2972.2
+      },
+      {
+        "id": "b1-28-date",
+        "leadInMs": 0,
+        "tailMs": 0.33,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "audioMs": 4365.3
+      }
+    ]
+  },
+  "health": {
+    "uniqueTimestampRatio": {
+      "n": 28,
+      "min": 0.9556,
+      "p25": 1,
+      "median": 1,
+      "p75": 1,
+      "p95": 1,
+      "max": 1,
+      "mean": 0.997564,
+      "stdev": 0.009203
+    },
+    "maxEqualRun": {
+      "n": 28,
+      "min": 1,
+      "p25": 1,
+      "median": 1,
+      "p75": 1,
+      "p95": 1,
+      "max": 3,
+      "mean": 1.107143,
+      "stdev": 0.408769
+    },
+    "perString": [
+      {
+        "id": "b1-01-dr",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-02-st",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-03-year",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-04-ord3",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-05-ord21",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-06-money",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-07-percent",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-08-no7",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-09-eg",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-10-ie",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-11-apos-str",
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-12-apos-typ",
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-13-dont",
+        "n": 35,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-14-hyphen",
+        "n": 38,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-15-emdash",
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-16-endash",
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-17-curly",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-18-ellipsis1",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-19-ellipsis3",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-20-cafe-nfc",
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-21-cafe-nfd",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-22-nbsp",
+        "n": 39,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-23-emoji",
+        "n": 42,
+        "uniqueTimestampRatio": 0.9762,
+        "maxEqualRun": 2
+      },
+      {
+        "id": "b1-24-url",
+        "n": 48,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-25-thousands",
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-26-decimal",
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      },
+      {
+        "id": "b1-27-emoji-tone",
+        "n": 45,
+        "uniqueTimestampRatio": 0.9556,
+        "maxEqualRun": 3
+      },
+      {
+        "id": "b1-28-date",
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "maxEqualRun": 1
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "b1-01-dr",
+      "f": "F1",
+      "trap": "Dr. Smith",
+      "added": false,
+      "input": "Dr. Smith arrived long before the tide turned.",
+      "inputChars": 46,
+      "audio": {
+        "sha256": "e0aac139e625f97f168375b3075053c9c6e3af3a4e9c34f8b14d10f2c6bc20cb",
+        "numSamples": 83592,
+        "durationSeconds": 3.483
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Dr. Smith arrived long before the tide turned.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Dr. Smith arrived long before the tide turned. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Dr. Smith arrived long b",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.483,
+        "audioDurationSeconds": 3.483,
+        "leadInSeconds": 0,
+        "tailSeconds": 0,
+        "leadInSamples": 0,
+        "tailSamples": 0,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-02-st",
+      "f": "F1",
+      "trap": "St. Mary",
+      "added": false,
+      "input": "St. Mary stands above the old harbour road.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "ff5c93c4b7c3c581ee1cdce19cbc5fc8040be9253ac7dc4efc0aab473d96d815",
+        "numSamples": 70217,
+        "durationSeconds": 2.925708333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "St. Mary stands above the old harbour road.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " St. Mary stands above the old harbour road. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "St. Mary stands above th",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.926,
+        "audioDurationSeconds": 2.925708,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000292,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-03-year",
+      "f": "F2",
+      "trap": "in 1793",
+      "added": false,
+      "input": "The harbour was built in 1793 and never moved.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "7745235498e5251affe5f611cb5705973199b3d9f4e8af34b3dea89f61a5bd77",
+        "numSamples": 96967,
+        "durationSeconds": 4.040291666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The harbour was built in 1793 and never moved.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The harbour was built in 1793 and never moved. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The harbour was built in",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 4.04,
+        "audioDurationSeconds": 4.040292,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000292,
+        "leadInSamples": 0,
+        "tailSamples": 7,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-04-ord3",
+      "f": "F3",
+      "trap": "the 3rd of May",
+      "added": false,
+      "input": "They sailed on the 3rd of May and came home.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "ce1d5c1af1b3600c75d99758154c9e4ea4578c216f1619e2d7a020496a740ec9",
+        "numSamples": 78019,
+        "durationSeconds": 3.2507916666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They sailed on the 3rd of May and came home.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They sailed on the 3rd of May and came home. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They sailed on the 3rd o",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.251,
+        "audioDurationSeconds": 3.250792,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000208,
+        "leadInSamples": 0,
+        "tailSamples": -5,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-05-ord21",
+      "f": "F3",
+      "trap": "21st century",
+      "added": false,
+      "input": "The 21st century found the warehouse empty.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "943c8c8541e050af4e9d30f1b6e8b8d1cd496e70a98d0854d004b1ae4319699d",
+        "numSamples": 67988,
+        "durationSeconds": 2.8328333333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The 21st century found the warehouse empty.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The 21st century found the warehouse empty. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The 21st century found t",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.833,
+        "audioDurationSeconds": 2.832833,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000167,
+        "leadInSamples": 0,
+        "tailSamples": -4,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-06-money",
+      "f": "F4",
+      "trap": "$5",
+      "added": false,
+      "input": "A berth cost $5 a night in those old ledgers.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "17cde8d9dba8bd6c6b7847c7f92a09301745503f19515fc5fb510e0dc7592f29",
+        "numSamples": 76904,
+        "durationSeconds": 3.2043333333333335
+      },
+      "alignment": {
+        "present": true,
+        "joined": "A berth cost $5 a night in those old ledgers.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " A berth cost $5 a night in those old ledgers. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "A berth cost $5 a night ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.204,
+        "audioDurationSeconds": 3.204333,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000333,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-07-percent",
+      "f": "F5",
+      "trap": "5%",
+      "added": false,
+      "input": "Only 5% of the cargo ever reached the town.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "ccb3c3435e73ce0b085a80735b7b0d6c71fe3642774cf36ca2e99aa3d310170b",
+        "numSamples": 86936,
+        "durationSeconds": 3.622333333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Only 5% of the cargo ever reached the town.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Only 5% of the cargo ever reached the town. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Only 5% of the cargo eve",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.622,
+        "audioDurationSeconds": 3.622333,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000333,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-08-no7",
+      "f": "F1",
+      "trap": "No. 7",
+      "added": false,
+      "input": "Warehouse No. 7 kept the longest list of all.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "b554d72b24f08f901228f29a661b1f1ef482fe34b1e552656b6952051e3a7457",
+        "numSamples": 73561,
+        "durationSeconds": 3.0650416666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Warehouse No. 7 kept the longest list of all.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Warehouse No. 7 kept the longest list of all. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Warehouse No. 7 kept the",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.065,
+        "audioDurationSeconds": 3.065042,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000042,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-09-eg",
+      "f": "F6",
+      "trap": "e.g. this",
+      "added": false,
+      "input": "Some goods, e.g. this crate, waited for years.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "48744a7494c16c5906bd93a9d9daa629710b2320870dbcd64c646558635674a7",
+        "numSamples": 79134,
+        "durationSeconds": 3.29725
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Some goods, e.g. this crate, waited for years.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Some goods, e.g. this crate, waited for years. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Some goods, e.g. this cr",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.297,
+        "audioDurationSeconds": 3.29725,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.00025,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-10-ie",
+      "f": "F6",
+      "trap": "i.e. that",
+      "added": false,
+      "input": "The word means waiting, i.e. that patience.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "de1191023d33087c25761cc053339fd95a1231fd13347868b47c11b6e9457e85",
+        "numSamples": 75790,
+        "durationSeconds": 3.1579166666666665
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The word means waiting, i.e. that patience.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The word means waiting, i.e. that patience. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The word means waiting, ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.158,
+        "audioDurationSeconds": 3.157917,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000083,
+        "leadInSamples": 0,
+        "tailSamples": -2,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-11-apos-str",
+      "f": "F7",
+      "trap": "it's",
+      "added": false,
+      "input": "The keeper wrote that it's a quiet trade.",
+      "inputChars": 41,
+      "charged": 41,
+      "audio": {
+        "sha256": "779f8dd770b2d89dbe12c4f4da346d7973d967299f94f9669138e2419e467deb",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The keeper wrote that it's a quiet trade.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 41,
+          "inputUtf16Length": 41,
+          "inputCodePoints": 41,
+          "inputGraphemes": 41,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The keeper wrote that it's a quiet trade. ",
+        "length": 43
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 41,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The keeper wrote that it",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-12-apos-typ",
+      "f": "F8",
+      "trap": "it’s",
+      "added": false,
+      "input": "The keeper wrote that it’s a quiet trade.",
+      "inputChars": 41,
+      "charged": 41,
+      "audio": {
+        "sha256": "779f8dd770b2d89dbe12c4f4da346d7973d967299f94f9669138e2419e467deb",
+        "numSamples": 64644,
+        "durationSeconds": 2.6935
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The keeper wrote that it’s a quiet trade.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 41,
+          "inputUtf16Length": 41,
+          "inputCodePoints": 41,
+          "inputGraphemes": 41,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The keeper wrote that it's a quiet trade. ",
+        "length": 43
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 24,
+          "lengthCodePoints": {
+            "input": 41,
+            "alignment": 41
+          },
+          "inputAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"’\"(U+2019)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ],
+          "alignmentAround": [
+            "\"h\"(U+0068)",
+            "\"a\"(U+0061)",
+            "\"t\"(U+0074)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"'\"(U+0027)",
+            "\"s\"(U+0073)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\" \"(U+0020)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"i\"(U+0069)",
+            "\"e\"(U+0065)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 41,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 41,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The keeper wrote that it",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.694,
+        "audioDurationSeconds": 2.6935,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-13-dont",
+      "f": "F7",
+      "trap": "don't",
+      "added": false,
+      "input": "They don't count the days any more.",
+      "inputChars": 35,
+      "charged": 35,
+      "audio": {
+        "sha256": "aec3866f528a1a17f16054f49da258e49a50f8a069182f372eba445d063f5a2d",
+        "numSamples": 47926,
+        "durationSeconds": 1.9969166666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They don't count the days any more.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 35,
+          "inputUtf16Length": 35,
+          "inputCodePoints": 35,
+          "inputGraphemes": 35,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They don't count the days any more. ",
+        "length": 37
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 35,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 35,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They don't count the day",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 1.997,
+        "audioDurationSeconds": 1.996917,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000083,
+        "leadInSamples": 0,
+        "tailSamples": -2,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-14-hyphen",
+      "f": "F9",
+      "trap": "co-founder",
+      "added": false,
+      "input": "His co-founder kept the second ledger.",
+      "inputChars": 38,
+      "charged": 38,
+      "audio": {
+        "sha256": "d08ca356fb25534ddbb0b624cffe40088f160e18fe8d2e8b86976ecbdce218c7",
+        "numSamples": 61301,
+        "durationSeconds": 2.5542083333333334
+      },
+      "alignment": {
+        "present": true,
+        "joined": "His co-founder kept the second ledger.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 38,
+          "inputUtf16Length": 38,
+          "inputCodePoints": 38,
+          "inputGraphemes": 38,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " His co-founder kept the second ledger. ",
+        "length": 40
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 38,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 38,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "His co-founder kept the ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.554,
+        "audioDurationSeconds": 2.554208,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000208,
+        "leadInSamples": 0,
+        "tailSamples": 5,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-15-emdash",
+      "f": "F10",
+      "trap": "word — word",
+      "added": false,
+      "input": "The dock — the long one — held four ships.",
+      "inputChars": 42,
+      "charged": 42,
+      "audio": {
+        "sha256": "ea596decdfbae0e52854bb692141f4c340888df246a0c8975ec74c7548720e7d",
+        "numSamples": 79134,
+        "durationSeconds": 3.29725
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The dock — the long one — held four ships.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 42,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The dock -- the long one -- held four ships. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"—\"(U+2014)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": false,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 42,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The dock — the long one ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.297,
+        "audioDurationSeconds": 3.29725,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.00025,
+        "leadInSamples": 0,
+        "tailSamples": 6,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-16-endash",
+      "f": "F10",
+      "trap": "word – word",
+      "added": false,
+      "input": "The dock – the long one – held four ships.",
+      "inputChars": 42,
+      "charged": 42,
+      "audio": {
+        "sha256": "4ce3ae342ad943fa43f5c1e7b1c913b88f6ac220c1d66b80df56419015abab72",
+        "numSamples": 73561,
+        "durationSeconds": 3.0650416666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The dock – the long one – held four ships.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 42,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The dock - the long one - held four ships. ",
+        "length": 44
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"–\"(U+2013)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ],
+          "alignmentAround": [
+            "\" \"(U+0020)",
+            "\"d\"(U+0064)",
+            "\"o\"(U+006F)",
+            "\"c\"(U+0063)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"-\"(U+002D)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"n\"(U+006E)",
+            "\"g\"(U+0067)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": false,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 42,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The dock – the long one ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.065,
+        "audioDurationSeconds": 3.065042,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000042,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-17-curly",
+      "f": "F11",
+      "trap": "“quoted”",
+      "added": false,
+      "input": "He wrote “quoted” in the margin of the page.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "2618e5919663fd2c3ce319e7ee0b8cdfd981fa5bb9eaac6b585572e15e11c677",
+        "numSamples": 73561,
+        "durationSeconds": 3.0650416666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He wrote “quoted” in the margin of the page.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He wrote \"quoted\" in the margin of the page. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 9,
+          "lengthCodePoints": {
+            "input": 44,
+            "alignment": 44
+          },
+          "inputAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"“\"(U+201C)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"”\"(U+201D)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ],
+          "alignmentAround": [
+            "\"w\"(U+0077)",
+            "\"r\"(U+0072)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"\\\"\"(U+0022)",
+            "\"q\"(U+0071)",
+            "\"u\"(U+0075)",
+            "\"o\"(U+006F)",
+            "\"t\"(U+0074)",
+            "\"e\"(U+0065)",
+            "\"d\"(U+0064)",
+            "\"\\\"\"(U+0022)",
+            "\" \"(U+0020)",
+            "\"i\"(U+0069)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He wrote “quoted” in the",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.065,
+        "audioDurationSeconds": 3.065042,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000042,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-18-ellipsis1",
+      "f": "F12",
+      "trap": "wait…",
+      "added": false,
+      "input": "He would only say wait… and close the book.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "6bb9e0f586ca0122c959cbc980f01cc2ac59e098253841c7467e60dfedecac31",
+        "numSamples": 70217,
+        "durationSeconds": 2.925708333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He would only say wait… and close the book.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He would only say wait... and close the book. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 22,
+          "lengthCodePoints": {
+            "input": 43,
+            "alignment": 45
+          },
+          "inputAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\"…\"(U+2026)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)",
+            "\"o\"(U+006F)",
+            "\"s\"(U+0073)"
+          ],
+          "alignmentAround": [
+            "\"y\"(U+0079)",
+            "\" \"(U+0020)",
+            "\"w\"(U+0077)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"t\"(U+0074)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\".\"(U+002E)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"n\"(U+006E)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"c\"(U+0063)",
+            "\"l\"(U+006C)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He would only say wait… ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.926,
+        "audioDurationSeconds": 2.925708,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000292,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-19-ellipsis3",
+      "f": "F12",
+      "trap": "wait...",
+      "added": false,
+      "input": "He would only say wait... and close the book.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "6bb9e0f586ca0122c959cbc980f01cc2ac59e098253841c7467e60dfedecac31",
+        "numSamples": 70217,
+        "durationSeconds": 2.925708333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "He would only say wait... and close the book.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " He would only say wait... and close the book. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "He would only say wait..",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.926,
+        "audioDurationSeconds": 2.925708,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.000292,
+        "leadInSamples": 0,
+        "tailSamples": -7,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-20-cafe-nfc",
+      "f": "F16",
+      "trap": "café",
+      "added": false,
+      "input": "They drank at a café near the customs house.",
+      "inputChars": 44,
+      "charged": 44,
+      "audio": {
+        "sha256": "3fca8e06b65fd938d6e013378a2562c051bf6452563b5eca7c07c05ac5d0ae17",
+        "numSamples": 73561,
+        "durationSeconds": 3.0650416666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They drank at a café near the customs house.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 44,
+          "inputUtf16Length": 44,
+          "inputCodePoints": 44,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They drank at a café near the customs house. ",
+        "length": 46
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 44,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 44,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They drank at a café nea",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.065,
+        "audioDurationSeconds": 3.065042,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000042,
+        "leadInSamples": 0,
+        "tailSamples": 1,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-21-cafe-nfd",
+      "f": "F16",
+      "trap": "café",
+      "added": false,
+      "input": "They drank at a café near the customs house.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "6a1dce916923d653d6695c839950d280e9e8f91ced249e9ad03c3d72dfeb0fba",
+        "numSamples": 66873,
+        "durationSeconds": 2.786375
+      },
+      "alignment": {
+        "present": true,
+        "joined": "They drank at a café near the customs house.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 44,
+          "matches": [
+            "utf16",
+            "codePoints"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " They drank at a café near the customs house. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "They drank at a café ne",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 2.786,
+        "audioDurationSeconds": 2.786375,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000375,
+        "leadInSamples": 0,
+        "tailSamples": 9,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-22-nbsp",
+      "f": "F15",
+      "trap": "5 %",
+      "added": false,
+      "input": "Duty came to 5 % of the declared value.",
+      "inputChars": 39,
+      "charged": 39,
+      "audio": {
+        "sha256": "aab176ec6355700a2fc324cd67d5f261b92e65ebdab5a779c3601d83307ae55d",
+        "numSamples": 81363,
+        "durationSeconds": 3.390125
+      },
+      "alignment": {
+        "present": true,
+        "joined": "Duty came to 5 % of the declared value.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 39,
+          "inputUtf16Length": 39,
+          "inputCodePoints": 39,
+          "inputGraphemes": 39,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " Duty came to 5 % of the declared value. ",
+        "length": 41
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 14,
+          "lengthCodePoints": {
+            "input": 39,
+            "alignment": 39
+          },
+          "inputAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+00A0)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ],
+          "alignmentAround": [
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"o\"(U+006F)",
+            "\" \"(U+0020)",
+            "\"5\"(U+0035)",
+            "\" \"(U+0020)",
+            "\"%\"(U+0025)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\" \"(U+0020)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 39,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 39,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "Duty came to 5 % of the ",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.39,
+        "audioDurationSeconds": 3.390125,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000125,
+        "leadInSamples": 0,
+        "tailSamples": 3,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-23-emoji",
+      "f": "F13",
+      "trap": "🚢 ahead",
+      "added": false,
+      "input": "🚢 ahead of the tide, the pilot called out.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "fb93c9f2b83face35691842c9cc4182a4a00444e754687df0f1a9e7ba82ab84d",
+        "numSamples": 60186,
+        "durationSeconds": 2.50775
+      },
+      "alignment": {
+        "present": true,
+        "joined": "🚢 ahead of the tide, the pilot called out.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 42,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 42,
+          "inputGraphemes": 42,
+          "matches": [
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "🚢",
+            "utf16": 2,
+            "codePoints": 1
+          }
+        ]
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " ahead of the tide, the pilot called out. ",
+        "length": 42
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 42,
+            "alignment": 40
+          },
+          "inputAround": [
+            "\"🚢\"(U+1F6A2)",
+            "\" \"(U+0020)",
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)"
+          ],
+          "alignmentAround": [
+            "\"a\"(U+0061)",
+            "\"h\"(U+0068)",
+            "\"e\"(U+0065)",
+            "\"a\"(U+0061)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"f\"(U+0066)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 42,
+        "uniqueTimestampRatio": 0.9762,
+        "uniqueStarts": 41,
+        "maxEqualRun": 2,
+        "maxEqualRunStartIndex": 1,
+        "maxEqualRunContext": "🚢 ahead of the tide, the ",
+        "maxEqualRunCharOffset": 2,
+        "firstStart": 0,
+        "lastEnd": 2.508,
+        "audioDurationSeconds": 2.50775,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.00025,
+        "leadInSamples": 0,
+        "tailSamples": -6,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-24-url",
+      "f": "F14",
+      "trap": "https://example.org/a",
+      "added": false,
+      "input": "The record lives at https://example.org/a today.",
+      "inputChars": 48,
+      "charged": 48,
+      "audio": {
+        "sha256": "3a49fff2885ce5c1a4539cd7c7c4db25b12a9d0c13baf3739def1ca5715e245f",
+        "numSamples": 137091,
+        "durationSeconds": 5.712125
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The record lives at https://example.org/a today.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 48,
+          "inputUtf16Length": 48,
+          "inputCodePoints": 48,
+          "inputGraphemes": 48,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The record lives at https://example.org/a today. ",
+        "length": 50
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 48,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 48,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The record lives at http",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 5.712,
+        "audioDurationSeconds": 5.712125,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000125,
+        "leadInSamples": 0,
+        "tailSamples": 3,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-25-thousands",
+      "f": "num",
+      "trap": "1,000,000",
+      "added": false,
+      "input": "The archive holds 1,000,000 entries in all.",
+      "inputChars": 43,
+      "charged": 43,
+      "audio": {
+        "sha256": "afa26bf4f55c82fba36d37852b73e333abb5cc21414884962b584a14749c03fd",
+        "numSamples": 92508,
+        "durationSeconds": 3.8545
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The archive holds 1,000,000 entries in all.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 43,
+          "inputUtf16Length": 43,
+          "inputCodePoints": 43,
+          "inputGraphemes": 43,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The archive holds 1,000,000 entries in all. ",
+        "length": 45
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 43,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 43,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The archive holds 1,000,",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.855,
+        "audioDurationSeconds": 3.8545,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.0005,
+        "leadInSamples": 0,
+        "tailSamples": -12,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-26-decimal",
+      "f": "num",
+      "trap": "3.14",
+      "added": false,
+      "input": "The rate settled at 3.14 for the whole month.",
+      "inputChars": 45,
+      "charged": 45,
+      "audio": {
+        "sha256": "6885090c56f6e3be538f04cf5529f478cac2f37964309fae248b7a979d95311a",
+        "numSamples": 88050,
+        "durationSeconds": 3.66875
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The rate settled at 3.14 for the whole month.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 45,
+          "inputCodePoints": 45,
+          "inputGraphemes": 45,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The rate settled at 3.14 for the whole month. ",
+        "length": 47
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 45,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The rate settled at 3.14",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 3.669,
+        "audioDurationSeconds": 3.66875,
+        "leadInSeconds": 0,
+        "tailSeconds": -0.00025,
+        "leadInSamples": 0,
+        "tailSamples": -6,
+        "tailResidualOk": false
+      }
+    },
+    {
+      "id": "b1-27-emoji-tone",
+      "f": "F13",
+      "trap": "👍🏽 ok",
+      "added": true,
+      "input": "👍🏽 ok said the mate, and the rope went slack.",
+      "inputChars": 47,
+      "charged": 47,
+      "audio": {
+        "sha256": "e4455da31bb955091150f681618315db1d8a1f49d34b4481b7fec631c1dc97fc",
+        "numSamples": 71332,
+        "durationSeconds": 2.972166666666667
+      },
+      "alignment": {
+        "present": true,
+        "joined": "👍🏽 ok said the mate, and the rope went slack.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 45,
+          "inputUtf16Length": 47,
+          "inputCodePoints": 45,
+          "inputGraphemes": 44,
+          "matches": [
+            "codePoints"
+          ]
+        },
+        "multiUnitElements": [
+          {
+            "i": 0,
+            "c": "👍",
+            "utf16": 2,
+            "codePoints": 1
+          },
+          {
+            "i": 1,
+            "c": "🏽",
+            "utf16": 2,
+            "codePoints": 1
+          }
+        ]
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " ok said the mate, and the rope went slack. ",
+        "length": 44
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": false,
+        "coreEqualsInput": false,
+        "diffAfterUnpad": {
+          "firstDivergenceCodePointIndex": 0,
+          "lengthCodePoints": {
+            "input": 45,
+            "alignment": 42
+          },
+          "inputAround": [
+            "\"👍\"(U+1F44D)",
+            "\"🏽\"(U+1F3FD)",
+            "\" \"(U+0020)",
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)"
+          ],
+          "alignmentAround": [
+            "\"o\"(U+006F)",
+            "\"k\"(U+006B)",
+            "\" \"(U+0020)",
+            "\"s\"(U+0073)",
+            "\"a\"(U+0061)",
+            "\"i\"(U+0069)",
+            "\"d\"(U+0064)",
+            "\" \"(U+0020)",
+            "\"t\"(U+0074)",
+            "\"h\"(U+0068)"
+          ]
+        }
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": false
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 45,
+        "uniqueTimestampRatio": 0.9556,
+        "uniqueStarts": 43,
+        "maxEqualRun": 3,
+        "maxEqualRunStartIndex": 1,
+        "maxEqualRunContext": "👍🏽 ok said the mate, and ",
+        "maxEqualRunCharOffset": 2,
+        "firstStart": 0,
+        "lastEnd": 2.972,
+        "audioDurationSeconds": 2.972167,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000167,
+        "leadInSamples": 0,
+        "tailSamples": 4,
+        "tailResidualOk": true
+      }
+    },
+    {
+      "id": "b1-28-date",
+      "f": "U16",
+      "trap": "03/04",
+      "added": true,
+      "input": "The entry is dated 03/04 in the old even hand.",
+      "inputChars": 46,
+      "charged": 46,
+      "audio": {
+        "sha256": "ec33a93e129e4d2d3e00c1c6124d4babe64fb01bde72b365cdad9e930585b9b7",
+        "numSamples": 104768,
+        "durationSeconds": 4.365333333333333
+      },
+      "alignment": {
+        "present": true,
+        "joined": "The entry is dated 03/04 in the old even hand.",
+        "identical": true,
+        "diff": null,
+        "unit": {
+          "alignmentCharactersLength": 46,
+          "inputUtf16Length": 46,
+          "inputCodePoints": 46,
+          "inputGraphemes": 46,
+          "matches": [
+            "utf16",
+            "codePoints",
+            "graphemes"
+          ]
+        },
+        "multiUnitElements": []
+      },
+      "normalizedRaw": {
+        "identical": false,
+        "joined": " The entry is dated 03/04 in the old even hand. ",
+        "length": 48
+      },
+      "normalizedPadding": {
+        "left": 1,
+        "right": 1,
+        "onlyDifferenceIsPadding": true,
+        "coreEqualsInput": true,
+        "diffAfterUnpad": null
+      },
+      "trapSurvives": {
+        "inAlignment": true,
+        "inNormalizedCore": true
+      },
+      "health": {
+        "present": true,
+        "lengthsMatch": true,
+        "monotonic": true,
+        "n": 46,
+        "uniqueTimestampRatio": 1,
+        "uniqueStarts": 46,
+        "maxEqualRun": 1,
+        "maxEqualRunStartIndex": 0,
+        "maxEqualRunContext": "The entry is dated 03/04",
+        "maxEqualRunCharOffset": 0,
+        "firstStart": 0,
+        "lastEnd": 4.365,
+        "audioDurationSeconds": 4.365333,
+        "leadInSeconds": 0,
+        "tailSeconds": 0.000333,
+        "leadInSamples": 0,
+        "tailSamples": 8,
+        "tailResidualOk": true
+      }
+    }
+  ]
+}
