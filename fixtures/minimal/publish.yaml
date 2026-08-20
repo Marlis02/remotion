@@ -4,13 +4,17 @@ schema: publish/1
 # после первого ролика это была бы миграция project/1 плюс новое семейство файлов.
 # В MVP реально проверяются домены D и E (+PG-C3); остальные поля заведены заранее.
 
-title: "Чего ждали в порту"
+# Charter rev3 (2026-08-21): язык контента → en. title и descriptionTemplate — это КОНТЕНТ
+# (уходит в публикацию), поэтому переведены. Комментарии в YAML остаются русскими:
+# по V12 меняется язык контента, а не язык документации.
+# Было: title: "Чего ждали в порту"
+title: "What the Harbour Was Waiting For"
 
 # {{attributions}} заполняет компилятор из provenance ассетов — это делает PG-D5 (BLOCK) исполнимым.
 descriptionTemplate: |
-  Короткая история о портовых складах и о том, сколько стоит ожидание.
+  A short story about harbour warehouses and what waiting costs.
 
-  Источники и лицензии:
+  Sources and licences:
   {{attributions}}
 
 topic: history                    # PG-A5/A6

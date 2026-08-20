@@ -165,7 +165,7 @@ w:<base32(csprng(128 бит))[:16]>
 | 5 | заменить фото | `assets/aliases.yaml` | да |
 | 6 | параметры шаблона | `direction/*.yaml` | да |
 | 7 | выбрать другой дубль | `vpe voice regen --force` + git-история (слой `takeChoice` не строится, раскрой 2.1 п.2) | н/п |
-| 8 | произношение имени | `source`: `[say: Имя \| про-из-но-ше-ни-е]` (`lexicon.yaml` удалён, C1) | да |
+| 8 | произношение имени | `source`: `[say: Worcestershire \| WUUS-ter-sher]` (`lexicon.yaml` удалён, C1) *(пример переведён: язык контента → en, Charter rev3)* | да |
 | 9 | пауза между сценами | `source` (`[pause:]`) | да |
 | 10 | удлинить показ кадра | direction, тип `Duration` | да |
 | 11 | in-point музыки | direction, тип `MediaTime` | да |
