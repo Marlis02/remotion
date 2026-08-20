@@ -1,0 +1,343 @@
+{
+  "schema": "sp3-mains-control/1",
+  "capturedAt": "2026-08-20T17:29:14.329Z",
+  "question": "Сколько из −18.1 % между прогоном от батареи и матричным эталоном приходится на батарею, а сколько — на «эффект дня»?",
+  "debt": "results/findings.md §4, строка «контрольный c=4 от сети сегодня»",
+  "status": "OK",
+  "configText": "профиль final (scale 1, crf 18, encoder threads 4), gl=angle, concurrency=4, 3 прогона подряд, питание от сети",
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "powerAtStart": {
+    "source": "mains",
+    "acOnline": true,
+    "batteryStatus": "Not charging",
+    "batteryCapacity": 100
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      0.82,
+      0.93,
+      0.83
+    ],
+    "freeMemBytes": 8070201344,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Not charging",
+      "batteryCapacity": 100
+    },
+    "cpuTempC": 50.1
+  },
+  "reference": {
+    "runId": "angle-4-final",
+    "takenAt": "2026-08-20T10:01:01.421Z",
+    "powerAtRun": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 68
+    },
+    "cpuTempCAtRun": 90.5,
+    "mp4Sha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+    "framemd5File": "results/framemd5/angle-4-final.framemd5",
+    "fpsRenderPhase": 19.539
+  },
+  "batteryRunRef": {
+    "file": "results/raw/angle-battery.json",
+    "takenAt": "2026-08-20T17:19:07.868Z",
+    "fps": [
+      15.286,
+      16.246,
+      16.447
+    ]
+  },
+  "runs": [
+    {
+      "runId": "ctl-mains-angle-4-final-r1",
+      "status": "OK",
+      "commandLine": "node runner.mjs '{\"runId\":\"ctl-mains-angle-4-final-r1\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r1.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r1.json\"}'",
+      "wallMs": 20127,
+      "fps": {
+        "renderPhase": 17.91,
+        "framesOnly": 21.222,
+        "endToEnd": 15.092
+      },
+      "timings": {
+        "ensureBrowserMs": 5,
+        "bundleMs": 1039,
+        "chromeStartProbeMs": 65,
+        "chromeCloseProbeMs": 13,
+        "selectCompositionMs": 1835,
+        "toFirstFrameMs": 83,
+        "renderCallMs": 16833,
+        "renderPhaseMs": 16750,
+        "framesRenderPhaseMs": 14136,
+        "stitchTailMs": 2614,
+        "totalMs": 19878,
+        "nodeBootMs": 209,
+        "preRenderOverheadMs": 3337
+      },
+      "peakRssSumMb": 2134.2,
+      "peakPssSumMb": 1522.7,
+      "powerBefore": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "powerAfter": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "cpuTempCBefore": 52.9,
+      "cpuTempCAfter": 70.6,
+      "loadAvgBefore": [
+        0.82,
+        0.93,
+        0.83
+      ],
+      "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+      "outputBytes": 31451664,
+      "framemd5": {
+        "ms": 1453,
+        "file": "results/framemd5/ctl-mains-angle-4-final-r1.framemd5",
+        "frameLines": 300,
+        "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/ctl-mains-angle-4-final-r1.framemd5"
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 25161331
+      },
+      "equalToReference": true
+    },
+    {
+      "runId": "ctl-mains-angle-4-final-r2",
+      "status": "OK",
+      "commandLine": "node runner.mjs '{\"runId\":\"ctl-mains-angle-4-final-r2\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r2.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r2.json\"}'",
+      "wallMs": 19479,
+      "fps": {
+        "renderPhase": 17.171,
+        "framesOnly": 20.708,
+        "endToEnd": 15.623
+      },
+      "timings": {
+        "ensureBrowserMs": 6,
+        "bundleMs": 1084,
+        "chromeStartProbeMs": 68,
+        "chromeCloseProbeMs": 16,
+        "selectCompositionMs": 385,
+        "toFirstFrameMs": 84,
+        "renderCallMs": 17555,
+        "renderPhaseMs": 17471,
+        "framesRenderPhaseMs": 14487,
+        "stitchTailMs": 2984,
+        "totalMs": 19202,
+        "nodeBootMs": 220,
+        "preRenderOverheadMs": 1951
+      },
+      "peakRssSumMb": 2173,
+      "peakPssSumMb": 1544.7,
+      "powerBefore": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "powerAfter": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "cpuTempCBefore": 70.6,
+      "cpuTempCAfter": 70.6,
+      "loadAvgBefore": [
+        3.28,
+        1.49,
+        1.02
+      ],
+      "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+      "outputBytes": 31451664,
+      "framemd5": {
+        "ms": 1465,
+        "file": "results/framemd5/ctl-mains-angle-4-final-r2.framemd5",
+        "frameLines": 300,
+        "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/ctl-mains-angle-4-final-r2.framemd5"
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 25161331
+      },
+      "equalToReference": true
+    },
+    {
+      "runId": "ctl-mains-angle-4-final-r3",
+      "status": "OK",
+      "commandLine": "node runner.mjs '{\"runId\":\"ctl-mains-angle-4-final-r3\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r3.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r3.json\"}'",
+      "wallMs": 22164,
+      "fps": {
+        "renderPhase": 16.062,
+        "framesOnly": 18.89,
+        "endToEnd": 13.704
+      },
+      "timings": {
+        "ensureBrowserMs": 5,
+        "bundleMs": 1088,
+        "chromeStartProbeMs": 65,
+        "chromeCloseProbeMs": 25,
+        "selectCompositionMs": 1858,
+        "toFirstFrameMs": 85,
+        "renderCallMs": 18763,
+        "renderPhaseMs": 18678,
+        "framesRenderPhaseMs": 15881,
+        "stitchTailMs": 2797,
+        "totalMs": 21892,
+        "nodeBootMs": 214,
+        "preRenderOverheadMs": 3428
+      },
+      "peakRssSumMb": 2183.2,
+      "peakPssSumMb": 1543.3,
+      "powerBefore": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "powerAfter": {
+        "source": "mains",
+        "acOnline": true,
+        "batteryStatus": "Not charging",
+        "batteryCapacity": 100
+      },
+      "cpuTempCBefore": 70.6,
+      "cpuTempCAfter": 70.5,
+      "loadAvgBefore": [
+        4.66,
+        1.92,
+        1.17
+      ],
+      "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+      "outputBytes": 31451664,
+      "framemd5": {
+        "ms": 1488,
+        "file": "results/framemd5/ctl-mains-angle-4-final-r3.framemd5",
+        "frameLines": 300,
+        "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/ctl-mains-angle-4-final-r3.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/ctl-mains-angle-4-final-r3.framemd5"
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 25161331
+      },
+      "equalToReference": true
+    }
+  ],
+  "comparisons": [
+    {
+      "a": "ctl-mains-angle-4-final-r1",
+      "b": "angle-4-final (эталон)",
+      "byteIdenticalMp4": true,
+      "framemd5Equal": true,
+      "firstDiffFrame": null,
+      "verdict": "совпало"
+    },
+    {
+      "a": "ctl-mains-angle-4-final-r2",
+      "b": "angle-4-final (эталон)",
+      "byteIdenticalMp4": true,
+      "framemd5Equal": true,
+      "firstDiffFrame": null,
+      "verdict": "совпало"
+    },
+    {
+      "a": "ctl-mains-angle-4-final-r3",
+      "b": "angle-4-final (эталон)",
+      "byteIdenticalMp4": true,
+      "framemd5Equal": true,
+      "firstDiffFrame": null,
+      "verdict": "совпало"
+    }
+  ],
+  "decomposition": {
+    "matrixMainsFps": 19.539,
+    "mainsTodayFps": 17.048,
+    "batteryTodayFps": 15.993,
+    "totalGapPercent": -18.1,
+    "dayEffectPercent": -12.7,
+    "batteryEffectPercent": -6.2,
+    "text": "батарея против сети сегодня: -6.2 %; сеть сегодня против матрицы: -12.7 %; итоговый разрыв батарея-против-матрицы: -18.1 %"
+  },
+  "verdict": {
+    "runsOk": 3,
+    "allEqualToReference": true,
+    "text": "кадры совпали с эталоном; батарея против сети сегодня: -6.2 %; сеть сегодня против матрицы: -12.7 %; итоговый разрыв батарея-против-матрицы: -18.1 %"
+  },
+  "notes": [
+    "эталон матрицы снят при 90.5 °C и батарее 68 % (Charging); сегодняшний контроль — при 52.9 °C и батарее 100 % (Not charging)"
+  ],
+  "finishedAt": "2026-08-20T17:30:20.876Z",
+  "stateAtEnd": {
+    "loadAvg": [
+      6.27,
+      2.53,
+      1.39
+    ],
+    "freeMemBytes": 7789993984,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Not charging",
+      "batteryCapacity": 100
+    },
+    "cpuTempC": 70.6
+  },
+  "totalWallMs": 66440
+}

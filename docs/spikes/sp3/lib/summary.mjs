@@ -326,6 +326,54 @@ export const buildSummary = () => {
     }
   }
 
+  // Долг findings.md §4: контрольный прогон от сети, чтобы разложить разрыв со «вчерашним» эталоном.
+  const ctl = readJson(path.join(RAW_DIR, 'angle-mains-control.json'));
+  if (ctl?.runs?.length) {
+    L.push('## Контроль от сети: из чего состоит разрыв с эталоном матрицы');
+    L.push('');
+    L.push(`* конфигурация: ${ctl.configText ?? '—'}`);
+    L.push(`* вердикт: **${ctl.verdict?.text ?? '—'}**`);
+    for (const n of ctl.notes ?? []) L.push(`* ${n}`);
+    L.push('');
+    L.push('| прогон | кадров/с | wall, с | CPU °C до → после | loadavg(1m) на входе | sha256 = эталону |');
+    L.push('|---|---|---|---|---|---|');
+    for (const r of ctl.runs) {
+      if (r.status !== 'OK') {
+        L.push(`| ${r.runId} | FAILED | — | — | — | — |`);
+        continue;
+      }
+      L.push(
+        `| ${r.runId} | ${r.fps?.renderPhase ?? '—'} | ${(r.wallMs / 1000).toFixed(1)} | ` +
+          `${r.cpuTempCBefore ?? '—'} → ${r.cpuTempCAfter ?? '—'} | ${r.loadAvgBefore?.[0] ?? '—'} | ${r.equalToReference ? 'да' : 'нет'} |`,
+      );
+    }
+    L.push('');
+    const d = ctl.decomposition;
+    if (d) {
+      L.push('| слагаемое | сравнение | величина |');
+      L.push('|---|---|---|');
+      L.push(`| эффект батареи | от батареи (${d.batteryTodayFps}) против сети сегодня (${d.mainsTodayFps}) | **${d.batteryEffectPercent} %** |`);
+      L.push(`| эффект дня | сеть сегодня (${d.mainsTodayFps}) против матрицы (${d.matrixMainsFps}) | **${d.dayEffectPercent} %** |`);
+      L.push(`| суммарный разрыв | от батареи против матрицы | **${d.totalGapPercent} %** |`);
+      L.push('');
+      // Три прогона на серию — это не тот объём, по которому 6 % отличают от шума.
+      const bat = readJson(path.join(RAW_DIR, 'angle-battery.json'));
+      const bf = (bat?.runs ?? []).filter((r) => r.status === 'OK').map((r) => r.fps?.renderPhase).filter((v) => typeof v === 'number');
+      const mf = ctl.runs.filter((r) => r.status === 'OK').map((r) => r.fps?.renderPhase).filter((v) => typeof v === 'number');
+      if (bf.length && mf.length) {
+        const overlap = !(Math.max(...bf) < Math.min(...mf) || Math.max(...mf) < Math.min(...bf));
+        L.push(
+          `> Разброс внутри серий: от батареи ${Math.min(...bf)}–${Math.max(...bf)} кадра/с, от сети сегодня ` +
+            `${Math.min(...mf)}–${Math.max(...mf)}. Диапазоны ${overlap ? '**пересекаются**' : 'не пересекаются'}` +
+            (overlap
+              ? `, то есть при трёх прогонах на серию эффект батареи (${d.batteryEffectPercent} %) **не отделяется от шума прогон-к-прогону**. Верно лишь то, что он мал по сравнению с эффектом дня.`
+              : '.'),
+        );
+        L.push('');
+      }
+    }
+  }
+
   // Долг core.md §16: прогон от батареи (запускается владельцем вручную).
   const battery = readJson(path.join(RAW_DIR, 'angle-battery.json'));
   if (battery?.runs?.length) {
@@ -338,25 +386,34 @@ export const buildSummary = () => {
     if (battery.verdict) L.push(`* вердикт: **${battery.verdict.text ?? battery.verdict}**`);
     for (const n of battery.notes ?? []) L.push(`* ${n}`);
     L.push('');
-    L.push('| прогон | кадров/с | wall, с | батарея до, % | батарея после, % | съедено, % | sha256(mp4) | = эталону от сети |');
-    L.push('|---|---|---|---|---|---|---|---|');
+    L.push('| прогон | кадров/с | wall, с | CPU °C до → после | батарея до, % | батарея после, % | съедено, % | sha256(mp4) | = эталону от сети |');
+    L.push('|---|---|---|---|---|---|---|---|---|');
     for (const r of battery.runs) {
       if (r.status !== 'OK') {
-        L.push(`| ${r.runId} | FAILED | — | — | — | — | — | — |`);
+        L.push(`| ${r.runId} | FAILED | — | — | — | — | — | — | — |`);
         continue;
       }
       L.push(
-        `| ${r.runId} | ${r.fps?.renderPhase ?? '—'} | ${(r.wallMs / 1000).toFixed(1)} | ${r.powerBefore?.batteryCapacity ?? '—'} | ` +
+        `| ${r.runId} | ${r.fps?.renderPhase ?? '—'} | ${(r.wallMs / 1000).toFixed(1)} | ` +
+          `${r.cpuTempCBefore ?? '—'} → ${r.cpuTempCAfter ?? '—'} | ${r.powerBefore?.batteryCapacity ?? '—'} | ` +
           `${r.powerAfter?.batteryCapacity ?? '—'} | ${r.batterySpentPercent ?? '—'} | \`${String(r.outputSha256).slice(0, 16)}\` | ` +
           `${r.equalToMainsReference ? 'да' : 'нет'} |`,
       );
     }
     L.push('');
     if (battery.speedTrend) {
-      L.push(
-        `> Тренд скорости по мере разряда: ${battery.speedTrend.text}` +
-          (battery.speedTrend.dropPercent != null ? ` (падение ${battery.speedTrend.dropPercent} % от первого прогона к третьему)` : ''),
-      );
+      const t = battery.speedTrend;
+      const delta = t.dropPercent == null ? '' : t.dropPercent > 0 ? ` (−${t.dropPercent} % от первого прогона к последнему)` : ` (+${Math.abs(t.dropPercent)} % от первого прогона к последнему)`;
+      L.push(`> Скорость от первого прогона к последнему: ${t.text}${delta}.`);
+      // Без этой оговорки таблица читается как ответ на вопрос «падает ли скорость по мере
+      // разряда», хотя разряда могло не быть вовсе.
+      if (t.batteryFrom != null && t.batteryFrom === t.batteryTo) {
+        L.push(
+          `>\n> **Про разряд этот замер не говорит ничего:** заряд за всё время остался ${t.batteryFrom} % — ` +
+            `${Math.round((battery.totalWallMs ?? 0) / 1000)} с рендера не сдвинули его ни на процент. ` +
+            `Измерено «работает ли движок от батареи», а не «что происходит по мере разряда».`,
+        );
+      }
       L.push('');
     }
   }
