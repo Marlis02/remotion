@@ -1,0 +1,604 @@
+{
+  "runId": "swangle-1-draft",
+  "status": "OK",
+  "startedAt": "2026-08-20T10:01:24.862Z",
+  "config": {
+    "gl": "swangle",
+    "concurrency": 1,
+    "profile": "draft",
+    "mode": "media",
+    "bundleMode": "warm",
+    "compositionId": "short",
+    "profileParams": {
+      "profileId": "draft",
+      "crf": 28,
+      "scale": 0.5,
+      "imageFormat": "jpeg",
+      "jpegQuality": 90,
+      "x264Preset": "medium",
+      "pixelFormat": "yuv420p",
+      "colorSpace": "bt709",
+      "encoderThreads": 4,
+      "gopSize": 30,
+      "disallowParallelEncoding": false,
+      "offthreadVideoCacheSizeInBytes": 536870912
+    }
+  },
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      5.22,
+      4.62,
+      2.37
+    ],
+    "freeMemBytes": 9445613568,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 69
+    },
+    "cpuTempC": 90.6
+  },
+  "timings": {
+    "ensureBrowserMs": 4,
+    "bundleMs": 1033,
+    "chromeStartProbeMs": 66,
+    "chromeCloseProbeMs": 21,
+    "selectCompositionMs": 1705,
+    "toFirstFrameMs": 88,
+    "renderCallMs": 23734,
+    "renderPhaseMs": 23646,
+    "framesRenderPhaseMs": 23523,
+    "stitchTailMs": 123,
+    "totalMs": 26661,
+    "nodeBootMs": 209,
+    "preRenderOverheadMs": 3224
+  },
+  "render": {
+    "frameCount": 300,
+    "frameRange": [
+      0,
+      299
+    ],
+    "compositionSize": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "renderedFrames": 300,
+    "progressSamples": [
+      {
+        "tMs": 3015,
+        "renderedFrames": 0,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 4195,
+        "renderedFrames": 10,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 5056,
+        "renderedFrames": 20,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 5774,
+        "renderedFrames": 30,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 6573,
+        "renderedFrames": 40,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 7356,
+        "renderedFrames": 50,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 8057,
+        "renderedFrames": 60,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 8858,
+        "renderedFrames": 70,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 9590,
+        "renderedFrames": 80,
+        "encodedFrames": 0,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 10408,
+        "renderedFrames": 89,
+        "encodedFrames": 40,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 11105,
+        "renderedFrames": 98,
+        "encodedFrames": 45,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 11775,
+        "renderedFrames": 107,
+        "encodedFrames": 50,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 12409,
+        "renderedFrames": 115,
+        "encodedFrames": 61,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 13024,
+        "renderedFrames": 124,
+        "encodedFrames": 66,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 13739,
+        "renderedFrames": 133,
+        "encodedFrames": 71,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 14405,
+        "renderedFrames": 142,
+        "encodedFrames": 77,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 15005,
+        "renderedFrames": 150,
+        "encodedFrames": 87,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 15707,
+        "renderedFrames": 159,
+        "encodedFrames": 93,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 16410,
+        "renderedFrames": 167,
+        "encodedFrames": 102,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 17074,
+        "renderedFrames": 176,
+        "encodedFrames": 108,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 17789,
+        "renderedFrames": 185,
+        "encodedFrames": 113,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 18422,
+        "renderedFrames": 193,
+        "encodedFrames": 122,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 19123,
+        "renderedFrames": 202,
+        "encodedFrames": 128,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 19824,
+        "renderedFrames": 211,
+        "encodedFrames": 133,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 20422,
+        "renderedFrames": 219,
+        "encodedFrames": 143,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 21089,
+        "renderedFrames": 228,
+        "encodedFrames": 149,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 21723,
+        "renderedFrames": 237,
+        "encodedFrames": 154,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 22414,
+        "renderedFrames": 245,
+        "encodedFrames": 165,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 23039,
+        "renderedFrames": 254,
+        "encodedFrames": 170,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 23794,
+        "renderedFrames": 263,
+        "encodedFrames": 175,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 24421,
+        "renderedFrames": 271,
+        "encodedFrames": 185,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 25022,
+        "renderedFrames": 280,
+        "encodedFrames": 191,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 25738,
+        "renderedFrames": 289,
+        "encodedFrames": 196,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 26389,
+        "renderedFrames": 298,
+        "encodedFrames": 202,
+        "stitchStage": "encoding"
+      },
+      {
+        "tMs": 26660,
+        "renderedFrames": 300,
+        "encodedFrames": 300,
+        "stitchStage": "muxing"
+      }
+    ],
+    "browserLogCount": 0,
+    "browserLogs": [],
+    "fps": {
+      "renderPhase": 12.687,
+      "framesOnly": 12.753,
+      "endToEnd": 11.252
+    },
+    "outputBytes": 485095
+  },
+  "ffmpeg": {
+    "invocations": [
+      {
+        "type": "pre-stitcher",
+        "original": [
+          "-r",
+          30,
+          "-f",
+          "image2pipe",
+          "-s",
+          "540x960",
+          "-vcodec",
+          "mjpeg",
+          "-i",
+          "-",
+          "-c:v",
+          "libx264",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-vf",
+          "zscale=matrix=709:matrixin=709:range=limited",
+          "-pix_fmt",
+          "yuv420p",
+          "-preset",
+          "medium",
+          "-video_track_timescale",
+          "90000",
+          "-crf",
+          "28",
+          "-y",
+          "/tmp/react-motion-renderlI7sjT/pre-encode.mp4"
+        ],
+        "patched": [
+          "-r",
+          30,
+          "-f",
+          "image2pipe",
+          "-s",
+          "540x960",
+          "-vcodec",
+          "mjpeg",
+          "-i",
+          "-",
+          "-c:v",
+          "libx264",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-vf",
+          "zscale=matrix=709:matrixin=709:range=limited",
+          "-pix_fmt",
+          "yuv420p",
+          "-preset",
+          "medium",
+          "-video_track_timescale",
+          "90000",
+          "-crf",
+          "28",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/tmp/react-motion-renderlI7sjT/pre-encode.mp4"
+        ]
+      },
+      {
+        "type": "stitcher",
+        "original": [
+          "-i",
+          "/tmp/react-motion-renderlI7sjT/pre-encode.mp4",
+          "-an",
+          "-c:v",
+          "copy",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-movflags",
+          "faststart",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Made with Remotion 4.0.513",
+          "-y",
+          "/home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4"
+        ],
+        "patched": [
+          "-i",
+          "/tmp/react-motion-renderlI7sjT/pre-encode.mp4",
+          "-an",
+          "-c:v",
+          "copy",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-movflags",
+          "faststart",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Made with Remotion 4.0.513",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4"
+        ]
+      }
+    ]
+  },
+  "warnings": [],
+  "bundle": {
+    "mode": "warm",
+    "outDir": "/home/marlis/Documents/remotion/docs/spikes/sp3/.bundle/main",
+    "ms": 1033
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      5.14,
+      4.64,
+      2.44
+    ],
+    "freeMemBytes": 9471279104,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 69
+    },
+    "cpuTempC": 91.3
+  },
+  "finishedAt": "2026-08-20T10:01:51.525Z",
+  "schema": "sp3-run/1",
+  "commandLine": "node runner.mjs '{\"runId\":\"swangle-1-draft\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"draft\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/results/raw/swangle-1-draft.json\"}'",
+  "externalTimings": {
+    "wallMsIncludingProcessSpawn": 26895,
+    "exitCode": 0,
+    "timedOut": false
+  },
+  "memory": {
+    "intervalMs": 200,
+    "samples": 135,
+    "errors": 0,
+    "peakRssSumMb": 1132.1,
+    "peakPssSumMb": 859.2,
+    "peakSingleProcRssMb": 396.4,
+    "peakProcessCount": 8,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 985.7,
+        "procs": 8
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 1002.5,
+        "procs": 8
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 1131,
+        "procs": 8
+      },
+      {
+        "tSec": 15,
+        "rssSumMb": 1132.1,
+        "procs": 8
+      },
+      {
+        "tSec": 20,
+        "rssSumMb": 880.9,
+        "procs": 8
+      },
+      {
+        "tSec": 25,
+        "rssSumMb": 881.5,
+        "procs": 8
+      }
+    ]
+  },
+  "bundleReference": {
+    "coldMsMin": 1019,
+    "coldMsMax": 1026,
+    "coldWallMsMedian": 1238,
+    "warmMsMedian": 1022,
+    "warmMsMin": 1011,
+    "warmMsMax": 1047,
+    "bundleReproducible": true,
+    "coldHashes": [
+      "ab6437b95075eb762ce36f86bccddfe646b323ec89bf07c92751d6e4167221d5",
+      "ab6437b95075eb762ce36f86bccddfe646b323ec89bf07c92751d6e4167221d5"
+    ],
+    "differingFiles": []
+  },
+  "hostStateAfter": {
+    "loadAvg": [
+      5.14,
+      4.64,
+      2.44
+    ],
+    "freeMemBytes": 9548222464,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 69
+    },
+    "cpuTempC": 91.3
+  },
+  "verification": {
+    "framemd5": {
+      "ms": 367,
+      "file": "results/framemd5/swangle-1-draft.framemd5",
+      "frameLines": 300,
+      "sha256": "642e7fa7c4c0f4bb1a7d07ddedbd6a1312d0e5f84e0d7d651019441e556943a7",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/swangle-1-draft.framemd5"
+    },
+    "ffprobe": {
+      "ms": 39,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 31,
+        "pixFmt": "yuv420p",
+        "width": 540,
+        "height": 960,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 388076
+      }
+    },
+    "keyframes": {
+      "ms": 218,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-draft.mp4",
+      "frameCount": 300,
+      "keyframeCount": 11,
+      "keyframeIndexes": [
+        0,
+        3,
+        33,
+        63,
+        93,
+        123,
+        153,
+        183,
+        213,
+        243,
+        273
+      ],
+      "gopSizes": [
+        3,
+        30
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "ae14f2eb015a20f79eb024430ed4c4e99ac512387cb100220b2c355031cc83fd",
+    "outputBytes": 485095
+  },
+  "derived": {
+    "framesPerSecond_endToEnd": 11.154,
+    "framesPerSecond_renderPhase": 12.687,
+    "framesPerSecond_framesOnly": 12.753,
+    "wallTimeSec": 26.895,
+    "verifyCostMs": 406,
+    "framesPerSecond_withVerification": 10.989,
+    "ac2ProjectedMinutes_renderPhase": 2.36,
+    "ac2ProjectedMinutes_endToEnd": 2.69
+  }
+}

@@ -1,0 +1,488 @@
+{
+  "schema": "sp3-pixeldiff/1",
+  "capturedAt": "2026-08-20T10:36:32.110Z",
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      0.86,
+      4.96,
+      5.74
+    ],
+    "freeMemBytes": 9597554688,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 92
+    },
+    "cpuTempC": 48.3
+  },
+  "frameRange": [
+    200,
+    219
+  ],
+  "config": "gl=swangle, concurrency=1, профиль final (scale 1, 1080x1920), imageFormat=png, два прогона подряд",
+  "frames": [
+    {
+      "file": "element-200.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 953281,
+      "differingShare": 15.3241,
+      "maxAbsDiff": 22,
+      "histogramOfAbsDiff": {
+        "1": 918558,
+        "2": 15620,
+        "3": 6743,
+        "4": 4103,
+        "5": 2674,
+        "6": 1672,
+        "7": 1211,
+        "8": 900,
+        "9": 610,
+        "10": 392,
+        "11": 292,
+        "12": 190
+      }
+    },
+    {
+      "file": "element-201.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 953741,
+      "differingShare": 15.3315,
+      "maxAbsDiff": 22,
+      "histogramOfAbsDiff": {
+        "1": 918836,
+        "2": 15717,
+        "3": 6807,
+        "4": 4108,
+        "5": 2622,
+        "6": 1750,
+        "7": 1201,
+        "8": 868,
+        "9": 608,
+        "10": 371,
+        "11": 284,
+        "12": 209
+      }
+    },
+    {
+      "file": "element-202.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955309,
+      "differingShare": 15.3567,
+      "maxAbsDiff": 21,
+      "histogramOfAbsDiff": {
+        "1": 920281,
+        "2": 15856,
+        "3": 6775,
+        "4": 4068,
+        "5": 2657,
+        "6": 1785,
+        "7": 1188,
+        "8": 826,
+        "9": 626,
+        "10": 460,
+        "11": 257,
+        "12": 185
+      }
+    },
+    {
+      "file": "element-203.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956107,
+      "differingShare": 15.3695,
+      "maxAbsDiff": 23,
+      "histogramOfAbsDiff": {
+        "1": 920720,
+        "2": 16000,
+        "3": 6860,
+        "4": 4025,
+        "5": 2832,
+        "6": 1766,
+        "7": 1246,
+        "8": 832,
+        "9": 612,
+        "10": 376,
+        "11": 260,
+        "12": 206
+      }
+    },
+    {
+      "file": "element-204.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955541,
+      "differingShare": 15.3604,
+      "maxAbsDiff": 23,
+      "histogramOfAbsDiff": {
+        "1": 920281,
+        "2": 15815,
+        "3": 6951,
+        "4": 4115,
+        "5": 2610,
+        "6": 1844,
+        "7": 1204,
+        "8": 838,
+        "9": 608,
+        "10": 419,
+        "11": 288,
+        "12": 192
+      }
+    },
+    {
+      "file": "element-205.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 954209,
+      "differingShare": 15.339,
+      "maxAbsDiff": 27,
+      "histogramOfAbsDiff": {
+        "1": 918896,
+        "2": 15909,
+        "3": 6828,
+        "4": 4276,
+        "5": 2704,
+        "6": 1711,
+        "7": 1252,
+        "8": 840,
+        "9": 572,
+        "10": 391,
+        "11": 282,
+        "12": 175
+      }
+    },
+    {
+      "file": "element-206.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955281,
+      "differingShare": 15.3562,
+      "maxAbsDiff": 22,
+      "histogramOfAbsDiff": {
+        "1": 919896,
+        "2": 15950,
+        "3": 7025,
+        "4": 4169,
+        "5": 2700,
+        "6": 1739,
+        "7": 1131,
+        "8": 853,
+        "9": 621,
+        "10": 377,
+        "11": 275,
+        "12": 192
+      }
+    },
+    {
+      "file": "element-207.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956730,
+      "differingShare": 15.3795,
+      "maxAbsDiff": 21,
+      "histogramOfAbsDiff": {
+        "1": 921432,
+        "2": 15872,
+        "3": 6960,
+        "4": 4167,
+        "5": 2740,
+        "6": 1701,
+        "7": 1187,
+        "8": 872,
+        "9": 605,
+        "10": 383,
+        "11": 297,
+        "12": 171
+      }
+    },
+    {
+      "file": "element-208.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956048,
+      "differingShare": 15.3686,
+      "maxAbsDiff": 24,
+      "histogramOfAbsDiff": {
+        "1": 920903,
+        "2": 15676,
+        "3": 6961,
+        "4": 4143,
+        "5": 2650,
+        "6": 1799,
+        "7": 1229,
+        "8": 883,
+        "9": 606,
+        "10": 380,
+        "11": 280,
+        "12": 180
+      }
+    },
+    {
+      "file": "element-209.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956633,
+      "differingShare": 15.378,
+      "maxAbsDiff": 21,
+      "histogramOfAbsDiff": {
+        "1": 921176,
+        "2": 15948,
+        "3": 6901,
+        "4": 4150,
+        "5": 2731,
+        "6": 1809,
+        "7": 1267,
+        "8": 840,
+        "9": 579,
+        "10": 379,
+        "11": 277,
+        "12": 193
+      }
+    },
+    {
+      "file": "element-210.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955437,
+      "differingShare": 15.3587,
+      "maxAbsDiff": 24,
+      "histogramOfAbsDiff": {
+        "1": 920419,
+        "2": 15540,
+        "3": 6777,
+        "4": 4244,
+        "5": 2762,
+        "6": 1773,
+        "7": 1230,
+        "8": 891,
+        "9": 579,
+        "10": 403,
+        "11": 270,
+        "12": 189
+      }
+    },
+    {
+      "file": "element-211.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956541,
+      "differingShare": 15.3765,
+      "maxAbsDiff": 23,
+      "histogramOfAbsDiff": {
+        "1": 921417,
+        "2": 15702,
+        "3": 6931,
+        "4": 4118,
+        "5": 2722,
+        "6": 1829,
+        "7": 1177,
+        "8": 803,
+        "9": 623,
+        "10": 387,
+        "11": 272,
+        "12": 197
+      }
+    },
+    {
+      "file": "element-212.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955947,
+      "differingShare": 15.3669,
+      "maxAbsDiff": 23,
+      "histogramOfAbsDiff": {
+        "1": 920962,
+        "2": 15849,
+        "3": 6741,
+        "4": 4102,
+        "5": 2688,
+        "6": 1670,
+        "7": 1208,
+        "8": 889,
+        "9": 607,
+        "10": 417,
+        "11": 278,
+        "12": 163
+      }
+    },
+    {
+      "file": "element-213.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 954259,
+      "differingShare": 15.3398,
+      "maxAbsDiff": 21,
+      "histogramOfAbsDiff": {
+        "1": 919442,
+        "2": 15537,
+        "3": 6848,
+        "4": 4037,
+        "5": 2736,
+        "6": 1798,
+        "7": 1160,
+        "8": 891,
+        "9": 613,
+        "10": 362,
+        "11": 283,
+        "12": 197
+      }
+    },
+    {
+      "file": "element-214.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 952955,
+      "differingShare": 15.3188,
+      "maxAbsDiff": 21,
+      "histogramOfAbsDiff": {
+        "1": 918030,
+        "2": 15674,
+        "3": 6806,
+        "4": 4106,
+        "5": 2701,
+        "6": 1735,
+        "7": 1259,
+        "8": 863,
+        "9": 584,
+        "10": 389,
+        "11": 264,
+        "12": 192
+      }
+    },
+    {
+      "file": "element-215.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 956227,
+      "differingShare": 15.3714,
+      "maxAbsDiff": 22,
+      "histogramOfAbsDiff": {
+        "1": 921194,
+        "2": 15583,
+        "3": 6975,
+        "4": 4194,
+        "5": 2745,
+        "6": 1754,
+        "7": 1113,
+        "8": 859,
+        "9": 546,
+        "10": 438,
+        "11": 303,
+        "12": 173
+      }
+    },
+    {
+      "file": "element-216.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955413,
+      "differingShare": 15.3584,
+      "maxAbsDiff": 22,
+      "histogramOfAbsDiff": {
+        "1": 920431,
+        "2": 15698,
+        "3": 6805,
+        "4": 4090,
+        "5": 2728,
+        "6": 1780,
+        "7": 1191,
+        "8": 863,
+        "9": 606,
+        "10": 411,
+        "11": 261,
+        "12": 193
+      }
+    },
+    {
+      "file": "element-217.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 957544,
+      "differingShare": 15.3926,
+      "maxAbsDiff": 24,
+      "histogramOfAbsDiff": {
+        "1": 922386,
+        "2": 15744,
+        "3": 6863,
+        "4": 4118,
+        "5": 2720,
+        "6": 1746,
+        "7": 1209,
+        "8": 890,
+        "9": 607,
+        "10": 395,
+        "11": 276,
+        "12": 203
+      }
+    },
+    {
+      "file": "element-218.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 955892,
+      "differingShare": 15.3661,
+      "maxAbsDiff": 25,
+      "histogramOfAbsDiff": {
+        "1": 921083,
+        "2": 15392,
+        "3": 6854,
+        "4": 4106,
+        "5": 2761,
+        "6": 1781,
+        "7": 1209,
+        "8": 839,
+        "9": 612,
+        "10": 401,
+        "11": 267,
+        "12": 183
+      }
+    },
+    {
+      "file": "element-219.png",
+      "identical": false,
+      "totalSubpixels": 6220800,
+      "differingSubpixels": 957305,
+      "differingShare": 15.3888,
+      "maxAbsDiff": 24,
+      "histogramOfAbsDiff": {
+        "1": 922449,
+        "2": 15474,
+        "3": 6802,
+        "4": 4185,
+        "5": 2682,
+        "6": 1813,
+        "7": 1215,
+        "8": 868,
+        "9": 590,
+        "10": 381,
+        "11": 286,
+        "12": 178
+      }
+    }
+  ],
+  "commandLines": [
+    "node runner.mjs '{\"runId\":\"pixeldiff-pxd-a\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/pxd-a\",\"frameRange\":[200,219],\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/pxd-a.json\"}'",
+    "node runner.mjs '{\"runId\":\"pixeldiff-pxd-b\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/pxd-b\",\"frameRange\":[200,219],\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/pxd-b.json\"}'"
+  ],
+  "summary": {
+    "framesCompared": 20,
+    "identicalFrames": 0,
+    "differingFrames": 20,
+    "maxAbsDiffOverall": 27,
+    "maxDifferingSharepercent": 15.3926,
+    "medianDifferingSharePercent": 15.3661
+  }
+}

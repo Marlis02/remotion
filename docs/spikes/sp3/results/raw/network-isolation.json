@@ -1,0 +1,77 @@
+{
+  "schema": "sp3-network/1",
+  "capturedAt": "2026-08-20T10:33:33.709Z",
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      8.6,
+      8.12,
+      6.69
+    ],
+    "freeMemBytes": 9425534976,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 90
+    },
+    "cpuTempC": 92.3
+  },
+  "checks": [
+    {
+      "id": "negative-control",
+      "title": "HTTPS-запрос наружу внутри сетевого namespace",
+      "expected": "запрос обязан провалиться",
+      "passed": true,
+      "raw": {
+        "ok": false,
+        "ms": 56,
+        "code": 3,
+        "stdout": "NETWORK-BLOCKED TypeError\n",
+        "stderr": "",
+        "command": "unshare -rn --map-root-user sh -c ip link set lo up; /home/marlis/.nvm/versions/node/v22.22.1/bin/node -e \"fetch('https://registry.npmjs.org/remotion',{signal:AbortSignal.timeout(8000)}).then(r=>{console.log('NETWORK-REACHABLE',r.status);process.exit(0)}).catch(e=>{console.log('NETWORK-BLOCKED',e.name);process.exit(3)})\""
+      }
+    },
+    {
+      "id": "render-without-network",
+      "title": "Рендер 60 кадров без единого сетевого интерфейса, кроме loopback",
+      "expected": "рендер обязан пройти полностью",
+      "passed": true,
+      "runnerStatus": "OK",
+      "runnerTimings": {
+        "ensureBrowserMs": 5,
+        "bundleMs": 1030,
+        "chromeStartProbeMs": 67,
+        "chromeCloseProbeMs": 14,
+        "selectCompositionMs": 1705,
+        "toFirstFrameMs": 91,
+        "renderCallMs": 12623,
+        "renderPhaseMs": 12532,
+        "framesRenderPhaseMs": 11376,
+        "stitchTailMs": 1156,
+        "totalMs": 15531,
+        "nodeBootMs": 208,
+        "preRenderOverheadMs": 3207
+      },
+      "outputBytes": 2882556,
+      "commandLine": "node runner.mjs '{\"runId\":\"netns-render\",\"gl\":\"swangle\",\"concurrency\":2,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/netns-render.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/netns-render.json\",\"frameRange\":[0,59]}'",
+      "raw": {
+        "ok": true,
+        "ms": 15775,
+        "stdout": "",
+        "stderr": "",
+        "command": "unshare -rn --map-root-user sh -c ip link set lo up; /home/marlis/.nvm/versions/node/v22.22.1/bin/node runner.mjs '{\"runId\":\"netns-render\",\"gl\":\"swangle\",\"concurrency\":2,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/netns-render.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/netns-render.json\",\"frameRange\":[0,59]}'"
+      }
+    }
+  ],
+  "verdict": "V9 подтверждён механикой: сеть недоступна, рендер проходит"
+}

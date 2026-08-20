@@ -1,0 +1,193 @@
+{
+  "schema": "sp3-distribution/1",
+  "capturedAt": "2026-08-20T10:33:27.460Z",
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      9,
+      8.19,
+      6.71
+    ],
+    "freeMemBytes": 9241812992,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 90
+    },
+    "cpuTempC": 91.9
+  },
+  "pairs": [
+    {
+      "label": "A: final/swangle/c4, прогон 1 против 2",
+      "a": "det-A-swangle-4-final-r1.mp4",
+      "b": "det-A-swangle-4-final-r2.mp4",
+      "profile": "final",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r2.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 1148,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 43.14,
+        "psnrP05Db": 43.35,
+        "psnrP50Db": 44.08,
+        "psnrP95Db": 48.98,
+        "psnrMaxDb": 61.77,
+        "maxMse": 3.15,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 287
+      }
+    },
+    {
+      "label": "A: final/swangle/c4, прогон 1 против 3",
+      "a": "det-A-swangle-4-final-r1.mp4",
+      "b": "det-A-swangle-4-final-r3.mp4",
+      "profile": "final",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r3.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 1112,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 43.16,
+        "psnrP05Db": 43.39,
+        "psnrP50Db": 44.09,
+        "psnrP95Db": 49.04,
+        "psnrMaxDb": 61.79,
+        "maxMse": 3.14,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 286
+      }
+    },
+    {
+      "label": "B: ac4/swangle/c1, прогон 1 против 2",
+      "a": "det-B-swangle-1-ac4-r1.mp4",
+      "b": "det-B-swangle-1-ac4-r2.mp4",
+      "profile": "ac4",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r2.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 120,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 46.55,
+        "psnrP05Db": 47.05,
+        "psnrP50Db": 47.86,
+        "psnrP95Db": 50.92,
+        "psnrMaxDb": 60.31,
+        "maxMse": 1.44,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 281
+      }
+    },
+    {
+      "label": "B: ac4/swangle/c1, прогон 1 против 3",
+      "a": "det-B-swangle-1-ac4-r1.mp4",
+      "b": "det-B-swangle-1-ac4-r3.mp4",
+      "profile": "ac4",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r3.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 130,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 46.55,
+        "psnrP05Db": 47.05,
+        "psnrP50Db": 47.86,
+        "psnrP95Db": 50.92,
+        "psnrMaxDb": 60.31,
+        "maxMse": 1.44,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 281
+      }
+    },
+    {
+      "label": "матрица: final/swangle, concurrency 1 против 4",
+      "a": "swangle-1-final.mp4",
+      "b": "swangle-4-final.mp4",
+      "profile": "final",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-final.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-4-final.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 1174,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 43.67,
+        "psnrP05Db": 44.36,
+        "psnrP50Db": 45.68,
+        "psnrP95Db": 51.15,
+        "psnrMaxDb": 62.19,
+        "maxMse": 2.79,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 280
+      }
+    },
+    {
+      "label": "матрица: final/swangle, concurrency 1 против 2",
+      "a": "swangle-1-final.mp4",
+      "b": "swangle-2-final.mp4",
+      "profile": "final",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-1-final.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/swangle-2-final.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 1129,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 300,
+        "differingFrames": 0,
+        "differingShare": 0,
+        "psnrMinDb": null,
+        "psnrP05Db": null,
+        "psnrP50Db": null,
+        "psnrP95Db": null,
+        "psnrMaxDb": null,
+        "maxMse": null,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 0
+      }
+    },
+    {
+      "label": "матрица: final/angle, concurrency 1 против 4",
+      "a": "angle-1-final.mp4",
+      "b": "angle-4-final.mp4",
+      "profile": "final",
+      "status": "OK",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/angle-1-final.mp4 -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/angle-4-final.mp4 -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/dist.psnr -f null -",
+      "ms": 1275,
+      "distribution": {
+        "frames": 300,
+        "identicalFrames": 300,
+        "differingFrames": 0,
+        "differingShare": 0,
+        "psnrMinDb": null,
+        "psnrP05Db": null,
+        "psnrP50Db": null,
+        "psnrP95Db": null,
+        "psnrMaxDb": null,
+        "maxMse": null,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 0
+      }
+    }
+  ],
+  "finishedAt": "2026-08-20T10:33:33.677Z"
+}

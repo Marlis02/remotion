@@ -1,0 +1,6 @@
+# Спайковый код выбрасывается, зависимости и бандл — тем более.
+node_modules/
+out/
+.bundle/
+.webpack-cache*/
+package-lock.json

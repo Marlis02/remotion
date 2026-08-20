@@ -1,0 +1,75 @@
+{
+  "schema": "sp3-fixture/1",
+  "capturedAt": "2026-08-20T10:47:11.493Z",
+  "composition": {
+    "id": "short",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationInFrames": 300,
+    "captionPages": 7,
+    "captionTokens": 24
+  },
+  "files": [
+    {
+      "path": "src/index.ts",
+      "bytes": 105,
+      "sha256": "5462d3268136731ce43bfd7c5072ea1ba48b51fec94fa30076f5044f4b39e4a2"
+    },
+    {
+      "path": "src/Root.tsx",
+      "bytes": 549,
+      "sha256": "2f9e99f592edfeeaef8a8eda785938391ab77f55c49cd29da9dac0145970007c"
+    },
+    {
+      "path": "src/Short.tsx",
+      "bytes": 5896,
+      "sha256": "6a554523a3a1816a1ef51ddee49aa7b6a91dd45dbb3525d8e6961a19ec3beb46"
+    },
+    {
+      "path": "src/captions.json",
+      "bytes": 3947,
+      "sha256": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d"
+    },
+    {
+      "path": "assets/backdrop.jpg",
+      "bytes": 2704308,
+      "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+    },
+    {
+      "path": "assets/DejaVuSans-Bold.ttf",
+      "bytes": 705684,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    },
+    {
+      "path": "gen-captions.mjs",
+      "bytes": 3433,
+      "sha256": "0136a8b469b421cb5d67c83931342c0ddf50c9613cdefcdce1e4e1c107aedc83"
+    },
+    {
+      "path": "runner.mjs",
+      "bytes": 10009,
+      "sha256": "ad44494d358d9a8fa8597983b8717bc7f4b6dd375b4cb450ee8a91fbe42e9377"
+    },
+    {
+      "path": "bench.mjs",
+      "bytes": 7888,
+      "sha256": "3320936e566fcdbe9cdf9a99ae1ee72448ff7c21248acd18992e09f5a9ce3e97"
+    },
+    {
+      "path": "determinism.mjs",
+      "bytes": 24860,
+      "sha256": "bb442b23bb8d989bae4075deddd071a768cbe6124d3fd4861573f75867e59277"
+    },
+    {
+      "path": "lib/profiles.mjs",
+      "bytes": 2125,
+      "sha256": "7332f1a49d7280608ceefd3dda7a18550c1c2033aa95022e151193aa44b25f3a"
+    },
+    {
+      "path": "package.json",
+      "bytes": 527,
+      "sha256": "f483bff5cb038127079b9f68071b19cb16051a6c9def3b85f4fde74ae909f65f"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema": "sp3-machine/1",
+  "capturedAt": "2026-08-20T09:53:37.289Z",
+  "machine": {
+    "cpuModel": "AMD Ryzen 5 5600H with Radeon Graphics",
+    "cpuLogical": 12,
+    "cpuPhysicalCores": 6,
+    "threadsPerCore": 2,
+    "cpuMaxMhz": 4280,
+    "cpuGovernor": "powersave",
+    "ramTotalBytes": 16138244096,
+    "ramTotalGiB": 15.03,
+    "swapTotalKb": 2097148,
+    "os": "Ubuntu 22.04.5 LTS",
+    "kernel": "6.8.0-136-generic",
+    "arch": "x64",
+    "hostClass": "local",
+    "gpuPresent": true,
+    "gpuDevices": [
+      "by-path",
+      "card1",
+      "card2",
+      "renderD128",
+      "renderD129"
+    ]
+  },
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      0.55,
+      0.66,
+      0.59
+    ],
+    "freeMemBytes": 9623506944,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 60
+    },
+    "cpuTempC": 46.6
+  },
+  "notes": [
+    "hostClass=local: в v1 это константа (ADR-0006 §4), сюда же входит в engineFingerprint.",
+    "cpuGovernor важен: на powersave частоты плавают, поэтому повтор замера на другой день может отличаться.",
+    "gpuDevices присутствуют, но профиль final использует gl=swangle (софтверный растеризатор) — GPU не задействован by design (ADR-0008)."
+  ]
+}

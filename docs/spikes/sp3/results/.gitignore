@@ -1,0 +1,13 @@
+# Крупные бинарники замеров в git не идут: они восстановимы прогоном bench.mjs,
+# а JSON/md/framemd5 — маленькие и коммитятся.
+*.mp4
+*.mkv
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.y4m
+frames/
+frames-*/
+png-seq*/
+encode-*/

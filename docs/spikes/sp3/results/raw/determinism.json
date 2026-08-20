@@ -1,0 +1,1440 @@
+{
+  "schema": "sp3-determinism/1",
+  "capturedAt": "2026-08-20T10:15:48.359Z",
+  "repeats": 3,
+  "versions": {
+    "node": "v22.22.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": "Chromium 149.0.7790.0",
+    "chromeBuildTag": "149.0.7790.0",
+    "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      14.06,
+      6.76,
+      3.79
+    ],
+    "freeMemBytes": 9592131584,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 81
+    },
+    "cpuTempC": 71.5
+  },
+  "blocks": [
+    {
+      "id": "A",
+      "title": "mp4, 3 прогона подряд: профиль final как в проде",
+      "configText": "профиль final (scale 1, crf 18, imageFormat jpeg, encoder threads 4), gl=swangle, concurrency=4, 3 прогона подряд",
+      "kind": "mp4-repeat",
+      "runs": [
+        {
+          "runId": "det-A-swangle-4-final-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-A-swangle-4-final-r1\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.json\"}'",
+          "wallMs": 49667,
+          "peakRssSumMb": 2615.3,
+          "renderFps": {
+            "renderPhase": 6.46,
+            "framesOnly": 6.64,
+            "endToEnd": 6.069
+          },
+          "outputSha256": "a68278559efb3e7ad6f2b3174524f253b74c1f8368942dc184b43c3ef7ba0c93",
+          "outputBytes": 20506092,
+          "framemd5": {
+            "ms": 1338,
+            "file": "results/framemd5/det-A-swangle-4-final-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "8fead586bca466fde0179352c7a62392d1488563d918b10e91207c6d3df3146f",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-A-swangle-4-final-r1.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 16404873
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "pre-stitcher",
+              "patched": "-r 30 -f image2pipe -s 1080x1920 -vcodec mjpeg -i - -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /tmp/react-motion-renderWcPzSP/pre-encode.mp4"
+            },
+            {
+              "type": "stitcher",
+              "patched": "-i /tmp/react-motion-renderWcPzSP/pre-encode.mp4 -an -c:v copy -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r1.mp4"
+            }
+          ]
+        },
+        {
+          "runId": "det-A-swangle-4-final-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-A-swangle-4-final-r2\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r2.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r2.json\"}'",
+          "wallMs": 51269,
+          "peakRssSumMb": 2675.1,
+          "renderFps": {
+            "renderPhase": 6.246,
+            "framesOnly": 6.414,
+            "endToEnd": 5.879
+          },
+          "outputSha256": "8535b58562d4db12d06265b72905f2c07d0beb4c951d1de44d45a52b83044ecc",
+          "outputBytes": 20534668,
+          "framemd5": {
+            "ms": 1412,
+            "file": "results/framemd5/det-A-swangle-4-final-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "94980629d6b1609b247a7cb9ea776844e8ceab1c6c28e57ce22380e70e456d02",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-A-swangle-4-final-r2.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 16427734
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "pre-stitcher",
+              "patched": "-r 30 -f image2pipe -s 1080x1920 -vcodec mjpeg -i - -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /tmp/react-motion-renderuNhKei/pre-encode.mp4"
+            },
+            {
+              "type": "stitcher",
+              "patched": "-i /tmp/react-motion-renderuNhKei/pre-encode.mp4 -an -c:v copy -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r2.mp4"
+            }
+          ]
+        },
+        {
+          "runId": "det-A-swangle-4-final-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-A-swangle-4-final-r3\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r3.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r3.json\"}'",
+          "wallMs": 50991,
+          "peakRssSumMb": 2611.4,
+          "renderFps": {
+            "renderPhase": 6.291,
+            "framesOnly": 6.454,
+            "endToEnd": 5.914
+          },
+          "outputSha256": "2399d9b0f924ce5aed962a4ab50cf9cf308eb97609e38c2e01d561ca06867f79",
+          "outputBytes": 20539757,
+          "framemd5": {
+            "ms": 1340,
+            "file": "results/framemd5/det-A-swangle-4-final-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "0ed8f2ccf84261f5a0670670883fd490516b6c22ab5e3a83f0360dd4b58f521b",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r3.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-A-swangle-4-final-r3.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 16431805
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "pre-stitcher",
+              "patched": "-r 30 -f image2pipe -s 1080x1920 -vcodec mjpeg -i - -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /tmp/react-motion-render2yvOcN/pre-encode.mp4"
+            },
+            {
+              "type": "stitcher",
+              "patched": "-i /tmp/react-motion-render2yvOcN/pre-encode.mp4 -an -c:v copy -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-A-swangle-4-final-r3.mp4"
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-A-swangle-4-final-r1",
+          "b": "det-A-swangle-4-final-r2",
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "framesCompared": 300,
+          "byteIdenticalMp4": false,
+          "verdict": "разошлось на кадре 1"
+        },
+        {
+          "a": "det-A-swangle-4-final-r1",
+          "b": "det-A-swangle-4-final-r3",
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "framesCompared": 300,
+          "byteIdenticalMp4": false,
+          "verdict": "разошлось на кадре 1"
+        }
+      ],
+      "verdict": "разошлось на кадре 1",
+      "notes": [
+        "побайтовое равенство самих mp4: нет (framemd5 сравнивает декодированные кадры, sha256 — контейнер и битстрим)"
+      ],
+      "table": [
+        "| прогон | wall, с | sha256(mp4) | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-A-swangle-4-final-r1 | 49.7 | `a68278559efb3e7a` | `8fead586bca466fd` |",
+        "| det-A-swangle-4-final-r2 | 51.3 | `8535b58562d4db12` | `94980629d6b1609b` |",
+        "| det-A-swangle-4-final-r3 | 51.0 | `2399d9b0f924ce5a` | `0ed8f2ccf84261f5` |"
+      ]
+    },
+    {
+      "id": "B",
+      "title": "mp4, 3 прогона подряд: профиль ac4 (render.ac4.yaml)",
+      "configText": "профиль ac4 (scale 0.25, crf 18, imageFormat png, encoder threads 1), gl=swangle, concurrency=1, 3 прогона подряд",
+      "kind": "mp4-repeat",
+      "runs": [
+        {
+          "runId": "det-B-swangle-1-ac4-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-B-swangle-1-ac4-r1\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"ac4\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.json\"}'",
+          "wallMs": 34802,
+          "peakRssSumMb": 1127.9,
+          "renderFps": {
+            "renderPhase": 9.504,
+            "framesOnly": 9.819,
+            "endToEnd": 8.684
+          },
+          "outputSha256": "4c187593462f5e5e36423b190a4808273b5f38a0aebe9a92e55798bd103bd19d",
+          "outputBytes": 521927,
+          "framemd5": {
+            "ms": 130,
+            "file": "results/framemd5/det-B-swangle-1-ac4-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "850e9277ccacb93877b34bc9a6c60f5658467ed8e08310bf0611a4edd0c7a94c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-B-swangle-1-ac4-r1.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 21,
+            "pixFmt": "yuv420p",
+            "width": 270,
+            "height": 480,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 417541
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "stitcher",
+              "patched": "-r 30 -f image2 -s 270x480 -start_number 0 -i /tmp/react-motion-renderczosvo/element-%03d.png -an -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r1.mp4"
+            }
+          ]
+        },
+        {
+          "runId": "det-B-swangle-1-ac4-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-B-swangle-1-ac4-r2\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"ac4\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r2.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r2.json\"}'",
+          "wallMs": 43114,
+          "peakRssSumMb": 1013.5,
+          "renderFps": {
+            "renderPhase": 7.525,
+            "framesOnly": 7.724,
+            "endToEnd": 7.001
+          },
+          "outputSha256": "d05406485ca3103b44b68fe16ffe28b3adc45c3765347369e9d3b35ad802f882",
+          "outputBytes": 523090,
+          "framemd5": {
+            "ms": 129,
+            "file": "results/framemd5/det-B-swangle-1-ac4-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "15f191b057efe5d6dd7c69adf46f2609d0c9ac6bc5b307c83048ffca0b1595a1",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-B-swangle-1-ac4-r2.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 21,
+            "pixFmt": "yuv420p",
+            "width": 270,
+            "height": 480,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 418472
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "stitcher",
+              "patched": "-r 30 -f image2 -s 270x480 -start_number 0 -i /tmp/react-motion-render9uTGyD/element-%03d.png -an -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r2.mp4"
+            }
+          ]
+        },
+        {
+          "runId": "det-B-swangle-1-ac4-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-B-swangle-1-ac4-r3\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"ac4\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r3.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r3.json\"}'",
+          "wallMs": 43253,
+          "peakRssSumMb": 1011.2,
+          "renderFps": {
+            "renderPhase": 7.499,
+            "framesOnly": 7.694,
+            "endToEnd": 6.978
+          },
+          "outputSha256": "d05406485ca3103b44b68fe16ffe28b3adc45c3765347369e9d3b35ad802f882",
+          "outputBytes": 523090,
+          "framemd5": {
+            "ms": 127,
+            "file": "results/framemd5/det-B-swangle-1-ac4-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "15f191b057efe5d6dd7c69adf46f2609d0c9ac6bc5b307c83048ffca0b1595a1",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r3.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-B-swangle-1-ac4-r3.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 21,
+            "pixFmt": "yuv420p",
+            "width": 270,
+            "height": 480,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 418472
+          },
+          "ffmpegInvocations": [
+            {
+              "type": "stitcher",
+              "patched": "-r 30 -f image2 -s 270x480 -start_number 0 -i /tmp/react-motion-rendercnevXR/element-%03d.png -an -c:v libx264 -colorspace:v bt709 -color_primaries:v bt709 -color_trc:v bt709 -color_range tv -vf zscale=matrix=709:matrixin=709:range=limited -pix_fmt yuv420p -preset medium -video_track_timescale 90000 -crf 18 -movflags faststart -map_metadata -1 -metadata comment=Made with Remotion 4.0.513 -y -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-B-swangle-1-ac4-r3.mp4"
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-B-swangle-1-ac4-r1",
+          "b": "det-B-swangle-1-ac4-r2",
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "framesCompared": 300,
+          "byteIdenticalMp4": false,
+          "verdict": "разошлось на кадре 1"
+        },
+        {
+          "a": "det-B-swangle-1-ac4-r1",
+          "b": "det-B-swangle-1-ac4-r3",
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "framesCompared": 300,
+          "byteIdenticalMp4": false,
+          "verdict": "разошлось на кадре 1"
+        }
+      ],
+      "verdict": "разошлось на кадре 1",
+      "notes": [
+        "побайтовое равенство самих mp4: нет (framemd5 сравнивает декодированные кадры, sha256 — контейнер и битстрим)"
+      ],
+      "table": [
+        "| прогон | wall, с | sha256(mp4) | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-B-swangle-1-ac4-r1 | 34.8 | `4c187593462f5e5e` | `850e9277ccacb938` |",
+        "| det-B-swangle-1-ac4-r2 | 43.1 | `d05406485ca3103b` | `15f191b057efe5d6` |",
+        "| det-B-swangle-1-ac4-r3 | 43.3 | `d05406485ca3103b` | `15f191b057efe5d6` |"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "PNG-сиквенс без энкода: изоляция Chrome",
+      "configText": "renderFrames(imageFormat=png), профиль final (scale 1), gl=swangle, concurrency=4, 3 прогона подряд",
+      "kind": "png-repeat",
+      "runs": [
+        {
+          "runId": "det-C-png-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-C-png-r1\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-C-png-r1.json\"}'",
+          "wallMs": 75990,
+          "peakRssSumMb": 2431.2,
+          "renderFps": {
+            "renderPhase": 4.127,
+            "framesOnly": 4.127,
+            "endToEnd": 3.964
+          },
+          "pngCount": 300,
+          "pngDirHash": "f02744ac6c5520dc53fa243e90c69832a380979107b1a52f23b5c745828b98dd",
+          "framemd5": {
+            "ms": 2745,
+            "file": "results/framemd5/det-C-png-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "ee6efe0ed8c6728aba3e4598c1161f9f4125aad42ba5d4660825a3888fd5198f",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-C-png-r1.framemd5"
+          },
+          "totalBytes": 968721676
+        },
+        {
+          "runId": "det-C-png-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-C-png-r2\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r2\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-C-png-r2.json\"}'",
+          "wallMs": 80043,
+          "peakRssSumMb": 2294.1,
+          "renderFps": {
+            "renderPhase": 3.907,
+            "framesOnly": 3.907,
+            "endToEnd": 3.761
+          },
+          "pngCount": 300,
+          "pngDirHash": "73e8452a09f75a3a885a5c62c980d210032f0390575fda9981ba997d7cfb9f90",
+          "framemd5": {
+            "ms": 2787,
+            "file": "results/framemd5/det-C-png-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "aed087f7a664d33f1c72dba63f0c857f4b77a25f36ab1cc72f47675d665addcb",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r2/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-C-png-r2.framemd5"
+          },
+          "totalBytes": 969434517
+        },
+        {
+          "runId": "det-C-png-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-C-png-r3\",\"gl\":\"swangle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r3\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-C-png-r3.json\"}'",
+          "wallMs": 78342,
+          "peakRssSumMb": 2438,
+          "renderFps": {
+            "renderPhase": 3.997,
+            "framesOnly": 3.997,
+            "endToEnd": 3.843
+          },
+          "pngCount": 300,
+          "pngDirHash": "f02744ac6c5520dc53fa243e90c69832a380979107b1a52f23b5c745828b98dd",
+          "framemd5": {
+            "ms": 2752,
+            "file": "results/framemd5/det-C-png-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "ee6efe0ed8c6728aba3e4598c1161f9f4125aad42ba5d4660825a3888fd5198f",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r3/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-C-png-r3.framemd5"
+          },
+          "totalBytes": 968721676
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-C-png-r1",
+          "b": "det-C-png-r2",
+          "pngBytesEqual": false,
+          "firstDiffPngIndex": 1,
+          "firstDiffPngFile": "element-001.png",
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "framesCompared": 300,
+          "verdict": "разошлось на кадре 1"
+        },
+        {
+          "a": "det-C-png-r1",
+          "b": "det-C-png-r3",
+          "pngBytesEqual": true,
+          "firstDiffPngIndex": null,
+          "firstDiffPngFile": null,
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "verdict": "совпало"
+        }
+      ],
+      "verdict": "разошлось на кадре 1",
+      "notes": [],
+      "table": [
+        "| прогон | PNG | суммарно, МБ | dirHash | sha256(framemd5) |",
+        "|---|---|---|---|---|",
+        "| det-C-png-r1 | 300 | 924 | `f02744ac6c5520dc` | `ee6efe0ed8c6728a` |",
+        "| det-C-png-r2 | 300 | 925 | `73e8452a09f75a3a` | `aed087f7a664d33f` |",
+        "| det-C-png-r3 | 300 | 924 | `f02744ac6c5520dc` | `ee6efe0ed8c6728a` |"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Двойной энкод одного и того же PNG-сиквенса: изоляция энкодера",
+      "configText": "libx264 crf 18, preset medium, bt709, yuv420p, -g 30, bitexact; вход — фиксированный PNG-сиквенс из блока C",
+      "kind": "encoder-repeat",
+      "runs": [
+        {
+          "runId": "det-D-threads1-e1",
+          "threads": 1,
+          "encodeMs": 29660,
+          "commandLine": "ffmpeg -hide_banner -nostdin -loglevel error -y -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -an -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e1.mp4",
+          "outputSha256": "87a7cc36ead97c2742917f4ed7e38fe816020117785f918f22df297da550eb72",
+          "outputBytes": 15950790,
+          "framemd5": {
+            "ms": 1347,
+            "file": "results/framemd5/det-D-threads1-e1.framemd5",
+            "frameLines": 300,
+            "sha256": "941996af051fd0192f5bccc11c2960b8309f3f24f68f61f440a003d4c5760ba0",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-D-threads1-e1.framemd5"
+          },
+          "keyframes": {
+            "ms": 2141,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e1.mp4",
+            "frameCount": 300,
+            "keyframeCount": 10,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              120,
+              150,
+              180,
+              210,
+              240,
+              270
+            ],
+            "gopSizes": [
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-D-threads1-e2",
+          "threads": 1,
+          "encodeMs": 29424,
+          "commandLine": "ffmpeg -hide_banner -nostdin -loglevel error -y -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -an -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e2.mp4",
+          "outputSha256": "87a7cc36ead97c2742917f4ed7e38fe816020117785f918f22df297da550eb72",
+          "outputBytes": 15950790,
+          "framemd5": {
+            "ms": 1336,
+            "file": "results/framemd5/det-D-threads1-e2.framemd5",
+            "frameLines": 300,
+            "sha256": "941996af051fd0192f5bccc11c2960b8309f3f24f68f61f440a003d4c5760ba0",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-D-threads1-e2.framemd5"
+          },
+          "keyframes": {
+            "ms": 2140,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads1-e2.mp4",
+            "frameCount": 300,
+            "keyframeCount": 10,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              120,
+              150,
+              180,
+              210,
+              240,
+              270
+            ],
+            "gopSizes": [
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-D-threads4-e1",
+          "threads": 4,
+          "encodeMs": 10311,
+          "commandLine": "ffmpeg -hide_banner -nostdin -loglevel error -y -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -an -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e1.mp4",
+          "outputSha256": "688af8ba7cc436b428b8d5f545d2c931482afe07683365852fb6956372b1b30a",
+          "outputBytes": 15951094,
+          "framemd5": {
+            "ms": 1344,
+            "file": "results/framemd5/det-D-threads4-e1.framemd5",
+            "frameLines": 300,
+            "sha256": "073a7c9a1f59be39ff80b701ee2fb265974621b5c09f23d7cdbfe42d6850edf8",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-D-threads4-e1.framemd5"
+          },
+          "keyframes": {
+            "ms": 2134,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e1.mp4",
+            "frameCount": 300,
+            "keyframeCount": 10,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              120,
+              150,
+              180,
+              210,
+              240,
+              270
+            ],
+            "gopSizes": [
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-D-threads4-e2",
+          "threads": 4,
+          "encodeMs": 10462,
+          "commandLine": "ffmpeg -hide_banner -nostdin -loglevel error -y -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -an -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e2.mp4",
+          "outputSha256": "688af8ba7cc436b428b8d5f545d2c931482afe07683365852fb6956372b1b30a",
+          "outputBytes": 15951094,
+          "framemd5": {
+            "ms": 1351,
+            "file": "results/framemd5/det-D-threads4-e2.framemd5",
+            "frameLines": 300,
+            "sha256": "073a7c9a1f59be39ff80b701ee2fb265974621b5c09f23d7cdbfe42d6850edf8",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-D-threads4-e2.framemd5"
+          },
+          "keyframes": {
+            "ms": 2139,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-D-threads4-e2.mp4",
+            "frameCount": 300,
+            "keyframeCount": 10,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              120,
+              150,
+              180,
+              210,
+              240,
+              270
+            ],
+            "gopSizes": [
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "threads": 1,
+          "a": "det-D-threads1-e1",
+          "b": "det-D-threads1-e2",
+          "byteIdenticalMp4": true,
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "verdict": "совпало"
+        },
+        {
+          "threads": 4,
+          "a": "det-D-threads4-e1",
+          "b": "det-D-threads4-e2",
+          "byteIdenticalMp4": true,
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "verdict": "совпало"
+        }
+      ],
+      "verdict": "совпало (двойной энкод одного и того же сиквенса даёт побайтово равный mp4 при threads 1 и 4)",
+      "notes": [
+        "threads=1 против threads=4: разошлось на кадре 3, побайтово различны — это ответ на вопрос, обязан ли threads быть числом в профиле"
+      ],
+      "crossThreads": {
+        "a": "det-D-threads1-e1",
+        "b": "det-D-threads4-e1",
+        "framemd5Equal": false,
+        "firstDiffFrame": 3,
+        "byteIdenticalMp4": false,
+        "verdict": "разошлось на кадре 3"
+      },
+      "table": [
+        "| энкод | threads | время, мс | размер, МБ | sha256(mp4) |",
+        "|---|---|---|---|---|",
+        "| det-D-threads1-e1 | 1 | 29660 | 15.2 | `87a7cc36ead97c27` |",
+        "| det-D-threads1-e2 | 1 | 29424 | 15.2 | `87a7cc36ead97c27` |",
+        "| det-D-threads4-e1 | 4 | 10311 | 15.2 | `688af8ba7cc436b4` |",
+        "| det-D-threads4-e2 | 4 | 10462 | 15.2 | `688af8ba7cc436b4` |"
+      ]
+    },
+    {
+      "id": "E",
+      "title": "PNG-сиквенс: concurrency 1 против concurrency 4 (энкодера нет)",
+      "configText": "renderFrames(imageFormat=png), профиль final (scale 1), gl=swangle, concurrency 1 против 4",
+      "kind": "png-cross-concurrency",
+      "runs": [
+        {
+          "runId": "det-E-png-c1",
+          "status": "OK",
+          "concurrency": 1,
+          "commandLine": "node runner.mjs '{\"runId\":\"det-E-png-c1\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-c1\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-E-png-c1.json\"}'",
+          "wallMs": 106598,
+          "peakRssSumMb": 1049.1,
+          "renderFps": {
+            "renderPhase": 2.903,
+            "framesOnly": 2.903,
+            "endToEnd": 2.821
+          },
+          "pngCount": 300,
+          "pngDirHash": "f86cfd727d522c2befd0ad8e44cdda63f5081ade85aeb1792f5d6113f46af2e1",
+          "framemd5": {
+            "ms": 2720,
+            "file": "results/framemd5/det-E-png-c1.framemd5",
+            "frameLines": 300,
+            "sha256": "047e2939eade7fc32bc780f3df1f02cfaeaa7cfa2af26d9b1f2b5cf76768604a",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-c1/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-E-png-c1.framemd5"
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "concurrency 4 (блок C, прогон 1)",
+          "b": "concurrency 1",
+          "pngBytesEqual": false,
+          "firstDiffPngIndex": 1,
+          "firstDiffPngFile": "element-001.png",
+          "differingPngCount": 298,
+          "totalPng": 300,
+          "psnr": {
+            "ms": 3541,
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-r1/*.png -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-c1/*.png -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-E.psnr -f null -",
+            "framesCompared": 300,
+            "identicalFrames": 2,
+            "differingFrames": 298,
+            "worstFrame": {
+              "n": 223,
+              "psnrDb": 53.85,
+              "mse": 0.27
+            },
+            "meanPsnrDbOfDiffering": 54.62,
+            "maxMseOfDiffering": 0.27
+          },
+          "verdict": "разошлось на кадре 1"
+        }
+      ],
+      "verdict": "разошлось на кадре 1 (298 из 300 PNG различаются) ⇒ источник расхождения — Chrome, не энкодер",
+      "notes": [
+        "худший кадр по PSNR: n=223, 53.85 dB (MSE 0.27); кадров, совпавших точно: 2 из 300"
+      ],
+      "table": [
+        "| сравнение | PNG различается | первый расхождение | худший PSNR, dB | средний PSNR расходящихся, dB |",
+        "|---|---|---|---|---|",
+        "| c4 против c1 | 298 из 300 | кадр 1 | 53.85 | 54.62 |"
+      ]
+    },
+    {
+      "id": "F",
+      "title": "PNG-сиквенс без энкода при concurrency 1: детерминирован ли Chrome сам по себе",
+      "configText": "renderFrames(imageFormat=png), профиль final (scale 1), gl=swangle, concurrency=1, 3 прогона подряд",
+      "kind": "png-repeat",
+      "runs": [
+        {
+          "runId": "det-F-png-c1-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-F-png-c1-r1\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r1\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-F-png-c1-r1.json\"}'",
+          "wallMs": 96811,
+          "peakRssSumMb": 1191.7,
+          "pngCount": 300,
+          "pngDirHash": "f02744ac6c5520dc53fa243e90c69832a380979107b1a52f23b5c745828b98dd",
+          "framemd5": {
+            "ms": 2733,
+            "file": "results/framemd5/det-F-png-c1-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "ee6efe0ed8c6728aba3e4598c1161f9f4125aad42ba5d4660825a3888fd5198f",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r1/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-F-png-c1-r1.framemd5"
+          }
+        },
+        {
+          "runId": "det-F-png-c1-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-F-png-c1-r2\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r2\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-F-png-c1-r2.json\"}'",
+          "wallMs": 106330,
+          "peakRssSumMb": 1083.4,
+          "pngCount": 300,
+          "pngDirHash": "f86cfd727d522c2befd0ad8e44cdda63f5081ade85aeb1792f5d6113f46af2e1",
+          "framemd5": {
+            "ms": 2727,
+            "file": "results/framemd5/det-F-png-c1-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "047e2939eade7fc32bc780f3df1f02cfaeaa7cfa2af26d9b1f2b5cf76768604a",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r2/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-F-png-c1-r2.framemd5"
+          }
+        },
+        {
+          "runId": "det-F-png-c1-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-F-png-c1-r3\",\"gl\":\"swangle\",\"concurrency\":1,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r3\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-F-png-c1-r3.json\"}'",
+          "wallMs": 104019,
+          "peakRssSumMb": 1059.9,
+          "pngCount": 300,
+          "pngDirHash": "f86cfd727d522c2befd0ad8e44cdda63f5081ade85aeb1792f5d6113f46af2e1",
+          "framemd5": {
+            "ms": 2734,
+            "file": "results/framemd5/det-F-png-c1-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "047e2939eade7fc32bc780f3df1f02cfaeaa7cfa2af26d9b1f2b5cf76768604a",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r3/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-F-png-c1-r3.framemd5"
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-F-png-c1-r1",
+          "b": "det-F-png-c1-r2",
+          "pngBytesEqual": false,
+          "firstDiffPngIndex": 1,
+          "differingPngCount": 298,
+          "totalPng": 300,
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "psnr": {
+            "ms": 3564,
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r1/*.png -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r2/*.png -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-F.psnr -f null -",
+            "framesCompared": 300,
+            "identicalFrames": 2,
+            "differingFrames": 298,
+            "worstFrame": {
+              "n": 223,
+              "psnrDb": 53.85,
+              "mse": 0.27
+            },
+            "meanPsnrDbOfDiffering": 54.62,
+            "maxMseOfDiffering": 0.27
+          },
+          "verdict": "разошлось на кадре 1"
+        },
+        {
+          "a": "det-F-png-c1-r1",
+          "b": "det-F-png-c1-r3",
+          "pngBytesEqual": false,
+          "firstDiffPngIndex": 1,
+          "differingPngCount": 298,
+          "totalPng": 300,
+          "framemd5Equal": false,
+          "firstDiffFrame": 1,
+          "psnr": {
+            "ms": 3581,
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r1/*.png -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-F-r3/*.png -lavfi psnr=stats_file=/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-F.psnr -f null -",
+            "framesCompared": 300,
+            "identicalFrames": 2,
+            "differingFrames": 298,
+            "worstFrame": {
+              "n": 223,
+              "psnrDb": 53.85,
+              "mse": 0.27
+            },
+            "meanPsnrDbOfDiffering": 54.62,
+            "maxMseOfDiffering": 0.27
+          },
+          "verdict": "разошлось на кадре 1"
+        }
+      ],
+      "verdict": "разошлось на кадре 1",
+      "notes": [],
+      "table": [
+        "| прогон | PNG | dirHash | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-F-png-c1-r1 | 300 | `f02744ac6c5520dc` | `ee6efe0ed8c6728a` |",
+        "| det-F-png-c1-r2 | 300 | `f86cfd727d522c2b` | `047e2939eade7fc3` |",
+        "| det-F-png-c1-r3 | 300 | `f86cfd727d522c2b` | `047e2939eade7fc3` |"
+      ]
+    },
+    {
+      "id": "G",
+      "title": "PNG-сиквенс без энкода, gl=angle, concurrency 4: детерминирован ли Chrome сам по себе",
+      "configText": "renderFrames(imageFormat=png), профиль final (scale 1), gl=angle, concurrency=4, 3 прогона подряд",
+      "kind": "png-repeat",
+      "runs": [
+        {
+          "runId": "det-G-png-angle-c4-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-G-png-angle-c4-r1\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r1\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-G-png-angle-c4-r1.json\"}'",
+          "wallMs": 35202,
+          "peakRssSumMb": 1681.4,
+          "pngCount": 300,
+          "pngDirHash": "986bdc03457339ff022416316405b57186855250d3c4dbd6d4892d08575a84d8",
+          "framemd5": {
+            "ms": 2743,
+            "file": "results/framemd5/det-G-png-angle-c4-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "e3ae2e57f4f458989b74e3b428e492ece65b06815254a8c548a653ee518cfef3",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r1/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-G-png-angle-c4-r1.framemd5"
+          }
+        },
+        {
+          "runId": "det-G-png-angle-c4-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-G-png-angle-c4-r2\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r2\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-G-png-angle-c4-r2.json\"}'",
+          "wallMs": 35517,
+          "peakRssSumMb": 1657.9,
+          "pngCount": 300,
+          "pngDirHash": "986bdc03457339ff022416316405b57186855250d3c4dbd6d4892d08575a84d8",
+          "framemd5": {
+            "ms": 2753,
+            "file": "results/framemd5/det-G-png-angle-c4-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "e3ae2e57f4f458989b74e3b428e492ece65b06815254a8c548a653ee518cfef3",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r2/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-G-png-angle-c4-r2.framemd5"
+          }
+        },
+        {
+          "runId": "det-G-png-angle-c4-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-G-png-angle-c4-r3\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"frames\",\"bundleMode\":\"warm\",\"framesOutDir\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r3\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-G-png-angle-c4-r3.json\"}'",
+          "wallMs": 35865,
+          "peakRssSumMb": 1720,
+          "pngCount": 300,
+          "pngDirHash": "986bdc03457339ff022416316405b57186855250d3c4dbd6d4892d08575a84d8",
+          "framemd5": {
+            "ms": 2755,
+            "file": "results/framemd5/det-G-png-angle-c4-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "e3ae2e57f4f458989b74e3b428e492ece65b06815254a8c548a653ee518cfef3",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -pattern_type glob -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/frames-G-r3/*.png -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-G-png-angle-c4-r3.framemd5"
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-G-png-angle-c4-r1",
+          "b": "det-G-png-angle-c4-r2",
+          "pngBytesEqual": true,
+          "firstDiffPngIndex": null,
+          "differingPngCount": 0,
+          "totalPng": 300,
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "psnr": null,
+          "verdict": "совпало"
+        },
+        {
+          "a": "det-G-png-angle-c4-r1",
+          "b": "det-G-png-angle-c4-r3",
+          "pngBytesEqual": true,
+          "firstDiffPngIndex": null,
+          "differingPngCount": 0,
+          "totalPng": 300,
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "psnr": null,
+          "verdict": "совпало"
+        }
+      ],
+      "verdict": "совпало (3 прогона × 300 PNG побайтово идентичны при gl=angle, concurrency 4)",
+      "notes": [],
+      "table": [
+        "| прогон | PNG | dirHash | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-G-png-angle-c4-r1 | 300 | `986bdc03457339ff` | `e3ae2e57f4f45898` |",
+        "| det-G-png-angle-c4-r2 | 300 | `986bdc03457339ff` | `e3ae2e57f4f45898` |",
+        "| det-G-png-angle-c4-r3 | 300 | `986bdc03457339ff` | `e3ae2e57f4f45898` |"
+      ]
+    },
+    {
+      "id": "H",
+      "title": "mp4, 3 прогона подряд: gl=angle, профиль final, concurrency 4",
+      "configText": "профиль final (scale 1, crf 18, imageFormat jpeg, encoder threads 4), gl=angle, concurrency=4, 3 прогона подряд",
+      "kind": "mp4-repeat",
+      "runs": [
+        {
+          "runId": "det-H-angle-4-final-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-H-angle-4-final-r1\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r1.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r1.json\"}'",
+          "wallMs": 20109,
+          "peakRssSumMb": 2146.4,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1359,
+            "file": "results/framemd5/det-H-angle-4-final-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-H-angle-4-final-r1.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3348,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r1.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-H-angle-4-final-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-H-angle-4-final-r2\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r2.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r2.json\"}'",
+          "wallMs": 20270,
+          "peakRssSumMb": 2193.1,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1361,
+            "file": "results/framemd5/det-H-angle-4-final-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-H-angle-4-final-r2.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3316,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r2.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-H-angle-4-final-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-H-angle-4-final-r3\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r3.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r3.json\"}'",
+          "wallMs": 20471,
+          "peakRssSumMb": 2171.1,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1368,
+            "file": "results/framemd5/det-H-angle-4-final-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r3.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-H-angle-4-final-r3.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3313,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-H-angle-4-final-r3.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-H-angle-4-final-r1",
+          "b": "det-H-angle-4-final-r2",
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "byteIdenticalMp4": true,
+          "verdict": "совпало"
+        },
+        {
+          "a": "det-H-angle-4-final-r1",
+          "b": "det-H-angle-4-final-r3",
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "byteIdenticalMp4": true,
+          "verdict": "совпало"
+        }
+      ],
+      "verdict": "совпало (3 прогона, 300 кадров, декодированные кадры идентичны)",
+      "notes": [
+        "побайтовое равенство самих mp4: да"
+      ],
+      "table": [
+        "| прогон | wall, с | sha256(mp4) | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-H-angle-4-final-r1 | 20.1 | `124d8f4129caf855` | `94311e7735a21245` |",
+        "| det-H-angle-4-final-r2 | 20.3 | `124d8f4129caf855` | `94311e7735a21245` |",
+        "| det-H-angle-4-final-r3 | 20.5 | `124d8f4129caf855` | `94311e7735a21245` |"
+      ]
+    },
+    {
+      "id": "I",
+      "title": "mp4, 3 прогона подряд: gl=angle, профиль final, concurrency 4, машина занята (6 фоновых процессов)",
+      "loadWorkers": 6,
+      "configText": "профиль final (scale 1, crf 18, imageFormat jpeg, encoder threads 4), gl=angle, concurrency=4, 3 прогона подряд, фоновая нагрузка 6 процессов",
+      "kind": "mp4-repeat",
+      "runs": [
+        {
+          "runId": "det-I-angle-4-final-r1",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-I-angle-4-final-r1\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r1.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r1.json\"}'",
+          "wallMs": 30155,
+          "peakRssSumMb": 2198.1,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1365,
+            "file": "results/framemd5/det-I-angle-4-final-r1.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r1.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-I-angle-4-final-r1.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3324,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r1.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-I-angle-4-final-r2",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-I-angle-4-final-r2\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r2.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r2.json\"}'",
+          "wallMs": 30748,
+          "peakRssSumMb": 2188.3,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1371,
+            "file": "results/framemd5/det-I-angle-4-final-r2.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r2.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-I-angle-4-final-r2.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3333,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r2.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        },
+        {
+          "runId": "det-I-angle-4-final-r3",
+          "status": "OK",
+          "commandLine": "node runner.mjs '{\"runId\":\"det-I-angle-4-final-r3\",\"gl\":\"angle\",\"concurrency\":4,\"profile\":\"final\",\"mode\":\"media\",\"bundleMode\":\"warm\",\"outputPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r3.mp4\",\"resultPath\":\"/home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r3.json\"}'",
+          "wallMs": 31106,
+          "peakRssSumMb": 2199.4,
+          "outputSha256": "124d8f4129caf855d190a9d7a6d46bfc22dd5d2cc27bb06f4056ca721831e736",
+          "outputBytes": 31451664,
+          "framemd5": {
+            "ms": 1382,
+            "file": "results/framemd5/det-I-angle-4-final-r3.framemd5",
+            "frameLines": 300,
+            "sha256": "94311e7735a21245ee88c03c8e18a7cadfee6c28ee4b9ff44019314694224e0c",
+            "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r3.mp4 -an -f framemd5 -y /home/marlis/Documents/remotion/docs/spikes/sp3/results/framemd5/det-I-angle-4-final-r3.framemd5"
+          },
+          "ffprobe": {
+            "codec": "h264",
+            "profile": "High",
+            "level": 40,
+            "pixFmt": "yuv420p",
+            "width": 1080,
+            "height": 1920,
+            "rFrameRate": "30/1",
+            "timeBase": "1/90000",
+            "colorSpace": "bt709",
+            "colorRange": "tv",
+            "nbFrames": "300",
+            "hasBFrames": 2,
+            "durationSec": 10,
+            "bitRate": 25161331
+          },
+          "keyframes": {
+            "ms": 3325,
+            "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/marlis/Documents/remotion/docs/spikes/sp3/out/det-I-angle-4-final-r3.mp4",
+            "frameCount": 300,
+            "keyframeCount": 11,
+            "keyframeIndexes": [
+              0,
+              30,
+              60,
+              90,
+              116,
+              146,
+              176,
+              206,
+              236,
+              266,
+              295
+            ],
+            "gopSizes": [
+              26,
+              29,
+              30
+            ],
+            "firstFrameIsKey": true
+          }
+        }
+      ],
+      "comparisons": [
+        {
+          "a": "det-I-angle-4-final-r1",
+          "b": "det-I-angle-4-final-r2",
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "byteIdenticalMp4": true,
+          "verdict": "совпало"
+        },
+        {
+          "a": "det-I-angle-4-final-r1",
+          "b": "det-I-angle-4-final-r3",
+          "framemd5Equal": true,
+          "firstDiffFrame": null,
+          "framesCompared": 300,
+          "byteIdenticalMp4": true,
+          "verdict": "совпало"
+        }
+      ],
+      "verdict": "совпало (3 прогона, 300 кадров, декодированные кадры идентичны)",
+      "notes": [
+        "побайтовое равенство самих mp4: да"
+      ],
+      "table": [
+        "| прогон | wall, с | sha256(mp4) | sha256(framemd5) |",
+        "|---|---|---|---|",
+        "| det-I-angle-4-final-r1 | 30.2 | `124d8f4129caf855` | `94311e7735a21245` |",
+        "| det-I-angle-4-final-r2 | 30.7 | `124d8f4129caf855` | `94311e7735a21245` |",
+        "| det-I-angle-4-final-r3 | 31.1 | `124d8f4129caf855` | `94311e7735a21245` |"
+      ]
+    }
+  ],
+  "stateAtEnd": {
+    "loadAvg": [
+      6.4,
+      7.03,
+      5.88
+    ],
+    "freeMemBytes": 9373134848,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 88
+    },
+    "cpuTempC": 92
+  },
+  "finishedAt": "2026-08-20T10:27:59.802Z",
+  "stateAtEndF": {
+    "loadAvg": [
+      3.54,
+      3.9,
+      5.08
+    ],
+    "freeMemBytes": 9385594880,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 93
+    },
+    "cpuTempC": 89.9
+  },
+  "stateAtEndH": {
+    "loadAvg": [
+      4.65,
+      3.9,
+      4.91
+    ],
+    "freeMemBytes": 9809723392,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 94
+    },
+    "cpuTempC": 91.1
+  },
+  "stateAtEndI": {
+    "loadAvg": [
+      10.95,
+      6.33,
+      5.58
+    ],
+    "freeMemBytes": 9457598464,
+    "power": {
+      "source": "mains",
+      "acOnline": true,
+      "batteryStatus": "Charging",
+      "batteryCapacity": 96
+    },
+    "cpuTempC": 91
+  }
+}

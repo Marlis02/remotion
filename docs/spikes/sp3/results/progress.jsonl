@@ -1,0 +1,16 @@
+{"at":"2026-08-20T09:56:49.607Z","event":"bench-start","gls":["swangle","angle"],"concurrencies":[1,2,4],"profiles":["final","draft"]}
+{"at":"2026-08-20T09:58:00.972Z","runId":"swangle-1-final","status":"OK","wallMs":67479,"fps":4.67,"peakRssMb":1309.6,"error":null}
+{"at":"2026-08-20T09:59:05.021Z","runId":"swangle-2-final","status":"OK","wallMs":60140,"fps":5.27,"peakRssMb":1707.7,"error":null}
+{"at":"2026-08-20T10:00:00.188Z","runId":"swangle-4-final","status":"OK","wallMs":51286,"fps":6.242,"peakRssMb":2490.8,"error":null}
+{"at":"2026-08-20T10:00:35.083Z","runId":"angle-1-final","status":"OK","wallMs":30200,"fps":11.187,"peakRssMb":1370.4,"error":null}
+{"at":"2026-08-20T10:01:01.205Z","runId":"angle-2-final","status":"OK","wallMs":21429,"fps":16.644,"peakRssMb":1609.2,"error":null}
+{"at":"2026-08-20T10:01:24.645Z","runId":"angle-4-final","status":"OK","wallMs":18731,"fps":19.539,"peakRssMb":2172,"error":null}
+{"at":"2026-08-20T10:01:52.170Z","runId":"swangle-1-draft","status":"OK","wallMs":26895,"fps":12.687,"peakRssMb":1132.1,"error":null}
+{"at":"2026-08-20T10:02:14.174Z","runId":"swangle-2-draft","status":"OK","wallMs":21373,"fps":16.533,"peakRssMb":1606.7,"error":null}
+{"at":"2026-08-20T10:02:32.061Z","runId":"swangle-4-draft","status":"OK","wallMs":17252,"fps":19.314,"peakRssMb":2197.8,"error":null}
+{"at":"2026-08-20T10:02:51.647Z","runId":"angle-1-draft","status":"OK","wallMs":18947,"fps":19.247,"peakRssMb":1049.5,"error":null}
+{"at":"2026-08-20T10:03:02.357Z","runId":"angle-2-draft","status":"OK","wallMs":10064,"fps":36.841,"peakRssMb":1261,"error":null}
+{"at":"2026-08-20T10:03:12.003Z","runId":"angle-4-draft","status":"OK","wallMs":8996,"fps":53.841,"peakRssMb":1672.3,"error":null}
+{"at":"2026-08-20T10:03:12.007Z","event":"bench-done"}
+{"at":"2026-08-20T10:14:13.486Z","runId":"extra-concurrency8","status":"OK","wallMs":48305,"fps":6.658,"peakRssMb":3821.3,"note":"core.md §16 требует concurrency 8; в матрице задания его нет"}
+{"at":"2026-08-20T10:15:39.444Z","runId":"extra-cpuload","status":"OK","wallMs":82047,"fps":3.853,"peakRssMb":2465.3,"note":"core.md §16: прогон под нагрузкой CPU (6 занятых потоков из 12)"}
