@@ -1,0 +1,11 @@
+*.mp4
+*.mkv
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.y4m
+frames/
+frames-*/
+png-seq*/
+encode-*/

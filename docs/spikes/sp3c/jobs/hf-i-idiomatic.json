@@ -1,0 +1,6 @@
+[
+  {"runId": "hfI-idiom-final-w4-gpu-r1", "profile": "final", "project": "src-idiomatic", "workers": 4, "gpu": "gpu", "outputPath": "out/hfI-idiom-final-w4-gpu-r1.mp4", "timeoutSec": 600, "skipIfDone": true},
+  {"runId": "hfI-idiom-final-w4-gpu-r2", "profile": "final", "project": "src-idiomatic", "workers": 4, "gpu": "gpu", "outputPath": "out/hfI-idiom-final-w4-gpu-r2.mp4", "timeoutSec": 600, "skipIfDone": true},
+  {"runId": "hfI-idiom-final-w4-gpu-r3", "profile": "final", "project": "src-idiomatic", "workers": 4, "gpu": "gpu", "outputPath": "out/hfI-idiom-final-w4-gpu-r3.mp4", "timeoutSec": 600, "skipIfDone": true},
+  {"runId": "hfI-idiom-png-w4-gpu", "profile": "pngseq", "project": "src-idiomatic", "workers": 4, "gpu": "gpu", "outputPath": "out/hfI-idiom-png-w4-gpu", "timeoutSec": 900, "skipIfDone": true}
+]

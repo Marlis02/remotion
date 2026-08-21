@@ -1,0 +1,75 @@
+{
+  "schema": "sp3c-network/1",
+  "capturedAt": "2026-08-21T05:06:07.472Z",
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "state": {
+    "loadAvg": [
+      11,
+      10.45,
+      9.42
+    ],
+    "freeMemBytes": 15534276608,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 63
+  },
+  "checks": [
+    {
+      "id": "negative-control",
+      "title": "HTTPS-запрос наружу внутри сетевого namespace",
+      "expected": "запрос обязан провалиться",
+      "passed": true,
+      "raw": {
+        "ok": false,
+        "ms": 71,
+        "code": 3,
+        "stdout": "NETWORK-BLOCKED TypeError\n",
+        "stderr": "",
+        "command": "unshare -rn --map-root-user sh -c ip link set lo up; /home/ct/.nvm/versions/node/v25.6.1/bin/node -e \"fetch('https://registry.npmjs.org/hyperframes',{signal:AbortSignal.timeout(8000)}).then(r=>{console.log('NETWORK-REACHABLE',r.status);process.exit(0)}).catch(e=>{console.log('NETWORK-BLOCKED',e.name);process.exit(3)})\""
+      }
+    },
+    {
+      "id": "render-without-network",
+      "title": "Полный рендер 300 кадров без единого сетевого интерфейса, кроме loopback",
+      "expected": "рендер обязан пройти полностью",
+      "passed": true,
+      "outputBytes": 27858501,
+      "raw": {
+        "ok": true,
+        "ms": 17795,
+        "stdout": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, beginframe, gl=--use-gl=angle --use-angle=gl-egl, headlessShell=true, platform=linux)\n[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, beginframe, gl=--use-gl=angle --use-angle=gl-egl, headlessShell=true, platform=linux)\n[initSession:beginframe] warmup loop started (1ms)\n[initSession:beginframe] page.goto start (1ms)\n[initSession:beginframe] warmup loop started (0ms)\n[initSession:beginframe] page.goto start (0ms)\n[HyperFrames] render runtime fps [object Object]\n[HyperFrames] render runtime fps [object Object]\n[initSession:beginframe] page.goto complete (111ms)\n[initSession:beginframe] GSAP proxy flush complete (115ms)\n[initSession:beginframe] page.goto complete (109ms)\n[initSession:beginframe] GSAP proxy flush complete (111ms)\n[initSession:beginframe] pollHfReady complete (216ms)\n[initSession:beginframe] pollSubCompositionTimelines complete (ready) (217ms)\n[initSession:beginframe] applyVideoMetadataHints complete (218ms)\n[initSession:beginframe] pollHfReady complete (212ms)\n[initSession:beginframe] pollSubCompositionTimelines complete (ready) (214ms)\n[initSession:beginframe] applyVideoMetadataHints complete (214ms)\n[initSession:beginframe] media + fonts + tailwind ready (260ms)\n[initSession:beginframe] media + fonts + tailwind ready (254ms)\n[initSession:beginframe] static-frame dedup: disabled (capture mode beginframe, not screenshot) (273ms)\n[initSession:beginframe] static-frame dedup: disabled (capture mode beginframe, not screenshot) (267ms)\n",
+        "stderr": "outerEligible\":false}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"worker_resolution\",\"status\":\"checkpoint\",\"elapsedMs\":364,\"message\":\"resolved\",\"workerCount\":2}\n[INFO] streaming-encode gate {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"enabled\":false,\"configFlag\":true,\"outputFormat\":\"mp4\",\"workerCount\":2,\"durationSeconds\":10,\"maxDurationSeconds\":240}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"capture_strategy\",\"status\":\"checkpoint\",\"elapsedMs\":364,\"message\":\"resolved\",\"workerCount\":2,\"forceScreenshot\":false,\"captureBeyondViewport\":null,\"useStreamingEncode\":false,\"useLayeredComposite\":false,\"usePageSideCompositing\":false,\"hasHdrContent\":false,\"hasShaderTransitions\":false,\"isPngSequence\":false}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"capture_disk\",\"status\":\"start\",\"elapsedMs\":364,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":0,\"captureMode\":\"beginframe\",\"captureOperation\":\"beginFrame\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"capture_disk\",\"status\":\"end\",\"elapsedMs\":9169,\"durationMs\":8805,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"beginframe\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"encode\",\"status\":\"start\",\"elapsedMs\":9169,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"beginframe\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"encode\",\"status\":\"end\",\"elapsedMs\":17034,\"durationMs\":7865,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"beginframe\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":17035,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"beginframe\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":17060,\"durationMs\":25,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":2,\"forceScreenshot\":false,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"beginframe\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"b035940d-8032-491e-8a79-f20682f05d87\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":17063,\"message\":\"artifact validated\",\"totalElapsedMs\":17061}\n",
+        "command": "unshare -rn --map-root-user sh -c ip link set lo up; /home/ct/.nvm/versions/node/v25.6.1/bin/node /home/ct/Desktop/remotion/docs/spikes/sp3c/node_modules/.bin/hyperframes render src -o /home/ct/Desktop/remotion/docs/spikes/sp3c/out/netns-render.mp4 --workers 2 --quality standard --format mp4 --fps 30 --browser-gpu --quiet"
+      }
+    },
+    {
+      "id": "netns-output-matches",
+      "title": "sha256 mp4 из namespace против эталона матрицы",
+      "expected": "совпадение с hfA-final-w2-gpu-r1",
+      "passed": true,
+      "note": "рендер в namespace шёл с --workers 2 --quality standard --browser-gpu, то есть той же настройкой, что эталон",
+      "netnsSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "baselineSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "baselineRunId": "hfA-final-w2-gpu-r1"
+    }
+  ],
+  "verdict": "V9 подтверждён механикой: сеть недоступна, рендер проходит, и кадры те же, что вне namespace"
+}

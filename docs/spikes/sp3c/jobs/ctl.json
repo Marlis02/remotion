@@ -1,0 +1,272 @@
+[
+  {
+    "runId": "ctlA-final-c1-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c1-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c1-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c1-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c1-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c1-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c2-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c2-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c2-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c2-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c2-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c2-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c4-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c4-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c4-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c4-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-final-c4-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-final-c4-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlA-draft-c1-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c1-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c1-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c1-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c1-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c1-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c2-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c2-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c2-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c2-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c2-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c2-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 2,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c4-angle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c4-angle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c4-angle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c4-angle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlA-draft-c4-angle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlA-draft-c4-angle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlB-final-c1-swangle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c1-swangle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-final-c1-swangle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c1-swangle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-final-c1-swangle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c1-swangle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 1,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-final-c4-swangle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c4-swangle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-final-c4-swangle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c4-swangle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-final-c4-swangle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-final-c4-swangle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "final"
+  },
+  {
+    "runId": "ctlB-draft-c4-swangle-r1",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-draft-c4-swangle-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlB-draft-c4-swangle-r2",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-draft-c4-swangle-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "draft"
+  },
+  {
+    "runId": "ctlB-draft-c4-swangle-r3",
+    "script": "control/runner.mjs",
+    "outputPath": "out/ctlB-draft-c4-swangle-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "draft"
+  }
+]

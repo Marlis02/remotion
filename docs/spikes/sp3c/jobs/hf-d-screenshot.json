@@ -1,0 +1,74 @@
+[
+  {
+    "runId": "hfD-final-w1-gpu-shot-r1",
+    "outputPath": "out/hfD-final-w1-gpu-shot-r1.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  },
+  {
+    "runId": "hfD-final-w1-gpu-shot-r2",
+    "outputPath": "out/hfD-final-w1-gpu-shot-r2.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  },
+  {
+    "runId": "hfD-final-w1-gpu-shot-r3",
+    "outputPath": "out/hfD-final-w1-gpu-shot-r3.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  },
+  {
+    "runId": "hfD-final-w4-gpu-shot-r1",
+    "outputPath": "out/hfD-final-w4-gpu-shot-r1.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  },
+  {
+    "runId": "hfD-final-w4-gpu-shot-r2",
+    "outputPath": "out/hfD-final-w4-gpu-shot-r2.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  },
+  {
+    "runId": "hfD-final-w4-gpu-shot-r3",
+    "outputPath": "out/hfD-final-w4-gpu-shot-r3.mp4",
+    "timeoutSec": 1200,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "env": {
+      "PRODUCER_FORCE_SCREENSHOT": "true"
+    }
+  }
+]

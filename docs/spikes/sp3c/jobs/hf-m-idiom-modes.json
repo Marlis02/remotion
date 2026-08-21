@@ -1,0 +1,62 @@
+[
+  {
+    "runId": "hfM-idiom-final-w4-sw-r1",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 4,
+    "gpu": "sw",
+    "outputPath": "out/hfM-idiom-final-w4-sw-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfM-idiom-final-w4-sw-r2",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 4,
+    "gpu": "sw",
+    "outputPath": "out/hfM-idiom-final-w4-sw-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfM-idiom-final-w4-sw-r3",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 4,
+    "gpu": "sw",
+    "outputPath": "out/hfM-idiom-final-w4-sw-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfM-idiom-final-w1-gpu-r1",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "gpu",
+    "outputPath": "out/hfM-idiom-final-w1-gpu-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfM-idiom-final-w1-gpu-r2",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "gpu",
+    "outputPath": "out/hfM-idiom-final-w1-gpu-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfM-idiom-final-w1-gpu-r3",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "gpu",
+    "outputPath": "out/hfM-idiom-final-w1-gpu-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  }
+]

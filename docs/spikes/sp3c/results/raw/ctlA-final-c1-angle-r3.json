@@ -1,0 +1,285 @@
+{
+  "schema": "sp3c-run/1",
+  "runId": "ctlA-final-c1-angle-r3",
+  "renderer": "remotion",
+  "status": "OK",
+  "startedAt": "2026-08-21T05:17:14.791Z",
+  "config": {
+    "gl": "angle",
+    "concurrency": 1,
+    "profile": "final",
+    "mode": "media",
+    "compositionId": "short",
+    "compositionSource": "spikes/sp3/src/index.ts",
+    "profileParams": {
+      "profileId": "final",
+      "crf": 18,
+      "scale": 1,
+      "imageFormat": "jpeg",
+      "jpegQuality": 90,
+      "x264Preset": "medium",
+      "pixelFormat": "yuv420p",
+      "colorSpace": "bt709",
+      "encoderThreads": 4,
+      "gopSize": 30,
+      "disallowParallelEncoding": false,
+      "offthreadVideoCacheSizeInBytes": 536870912
+    },
+    "cpuLoadProcesses": 0
+  },
+  "versions": {
+    "node": "v25.6.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShellPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/control/node_modules/.remotion/chrome-headless-shell/linux64/chrome-headless-shell-linux64/chrome-headless-shell"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      4.31,
+      5.96,
+      7.58
+    ],
+    "freeMemBytes": 14945296384,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 64
+  },
+  "timings": {
+    "nodeBootMs": 224,
+    "ensureBrowserMs": 4,
+    "bundleMs": 1176,
+    "chromeStartProbeMs": 85,
+    "selectCompositionMs": 519,
+    "toFirstFrameMs": 99,
+    "renderCallMs": 26203,
+    "renderPhaseMs": 26104,
+    "framesRenderPhaseMs": 24395,
+    "stitchTailMs": 1709,
+    "totalMs": 28002,
+    "preRenderOverheadMs": 2122
+  },
+  "render": {
+    "frameCount": 300,
+    "compositionSize": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "renderedFrames": 300,
+    "fps": {
+      "renderPhase": 11.492,
+      "framesOnly": 12.298,
+      "endToEnd": 10.714
+    }
+  },
+  "warnings": [],
+  "ffmpeg": {
+    "invocations": [
+      {
+        "type": "pre-stitcher",
+        "patched": [
+          "-r",
+          30,
+          "-f",
+          "image2pipe",
+          "-s",
+          "1080x1920",
+          "-vcodec",
+          "mjpeg",
+          "-i",
+          "-",
+          "-c:v",
+          "libx264",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-vf",
+          "zscale=matrix=709:matrixin=709:range=limited",
+          "-pix_fmt",
+          "yuv420p",
+          "-preset",
+          "medium",
+          "-video_track_timescale",
+          "90000",
+          "-crf",
+          "18",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/tmp/react-motion-render1mYrIz/pre-encode.mp4"
+        ]
+      },
+      {
+        "type": "stitcher",
+        "patched": [
+          "-i",
+          "/tmp/react-motion-render1mYrIz/pre-encode.mp4",
+          "-an",
+          "-c:v",
+          "copy",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-movflags",
+          "faststart",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Made with Remotion 4.0.513",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/ctlA-final-c1-angle-r3.mp4"
+        ]
+      }
+    ]
+  },
+  "memory": {
+    "intervalMs": 200,
+    "samples": 139,
+    "errors": 0,
+    "peakRssSumMb": 1627.9,
+    "peakPssSumMb": 1303.4,
+    "peakSingleProcRssMb": 562.3,
+    "peakProcessCount": 8,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 1494.4,
+        "procs": 8
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 1627.9,
+        "procs": 8
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 1451.7,
+        "procs": 8
+      },
+      {
+        "tSec": 15,
+        "rssSumMb": 1455.3,
+        "procs": 8
+      },
+      {
+        "tSec": 20,
+        "rssSumMb": 1464.3,
+        "procs": 8
+      },
+      {
+        "tSec": 25,
+        "rssSumMb": 1455.6,
+        "procs": 8
+      }
+    ]
+  },
+  "verification": {
+    "framemd5": {
+      "ms": 1357,
+      "file": "results/framemd5/ctlA-final-c1-angle-r3.framemd5",
+      "frameLines": 300,
+      "sha256": "0d1c6d9d7b288bb0ecbbbefcee995c61fb1e2dbcaee3189414125815b51fcac7",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i out/ctlA-final-c1-angle-r3.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/ctlA-final-c1-angle-r3.framemd5"
+    },
+    "ffprobe": {
+      "ms": 12,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json out/ctlA-final-c1-angle-r3.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 16019223
+      }
+    },
+    "keyframes": {
+      "ms": 2994,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 out/ctlA-final-c1-angle-r3.mp4",
+      "frameCount": 300,
+      "keyframeCount": 11,
+      "keyframeIndexes": [
+        0,
+        3,
+        33,
+        63,
+        93,
+        123,
+        152,
+        181,
+        211,
+        241,
+        271
+      ],
+      "gopSizes": [
+        3,
+        29,
+        30
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "864f10d2ea49d27b0d271ca46a038507f5950f7b66f291caae16ca489636b346",
+    "outputBytes": 20024029
+  },
+  "derived": {
+    "frames": 300,
+    "framesPerSecond_framesOnly": 12.298,
+    "framesPerSecond_renderPhase": 11.492,
+    "framesPerSecond_endToEnd": 10.714,
+    "wallTimeSec": 28.002,
+    "ac2ProjectedMinutes_renderPhase": 2.61,
+    "ac2ProjectedMinutes_endToEnd": 2.8
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      4.2,
+      5.78,
+      7.46
+    ],
+    "freeMemBytes": 14623830016,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 63
+  },
+  "finishedAt": "2026-08-21T05:17:47.205Z"
+}

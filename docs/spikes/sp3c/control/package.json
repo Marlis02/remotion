@@ -1,0 +1,14 @@
+{
+  "name": "sp3c-remotion-control",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "SP-3c control: тот же Remotion 4.0.513, что в SP-3, на ЭТОЙ машине. Нужен только чтобы кадров/с HyperFrames было с чем сравнивать на одном железе.",
+  "dependencies": {
+    "@remotion/bundler": "4.0.513",
+    "@remotion/renderer": "4.0.513",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.513"
+  }
+}

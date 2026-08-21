@@ -1,0 +1,1164 @@
+window.CAPTIONS = {
+  "fps": 30,
+  "durationInFrames": 1800,
+  "pages": [
+    {
+      "index": 0,
+      "startFrame": 12,
+      "endFrame": 62,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 12,
+          "endFrame": 20
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 20,
+          "endFrame": 36
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 36,
+          "endFrame": 47
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 47,
+          "endFrame": 62
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "startFrame": 62,
+      "endFrame": 113,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 62,
+          "endFrame": 73
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 73,
+          "endFrame": 81
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 81,
+          "endFrame": 95
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 95,
+          "endFrame": 113
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "startFrame": 113,
+      "endFrame": 151,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 113,
+          "endFrame": 119
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 119,
+          "endFrame": 126
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 126,
+          "endFrame": 136
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 136,
+          "endFrame": 151
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "startFrame": 151,
+      "endFrame": 179,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 151,
+          "endFrame": 161
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 161,
+          "endFrame": 179
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "startFrame": 179,
+      "endFrame": 222,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 179,
+          "endFrame": 188
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 188,
+          "endFrame": 203
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 203,
+          "endFrame": 212
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 212,
+          "endFrame": 222
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "startFrame": 222,
+      "endFrame": 265,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 222,
+          "endFrame": 235
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 235,
+          "endFrame": 247
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 247,
+          "endFrame": 253
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 253,
+          "endFrame": 265
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "startFrame": 265,
+      "endFrame": 285,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 265,
+          "endFrame": 271
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 271,
+          "endFrame": 285
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "startFrame": 312,
+      "endFrame": 362,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 312,
+          "endFrame": 320
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 320,
+          "endFrame": 336
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 336,
+          "endFrame": 347
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 347,
+          "endFrame": 362
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "startFrame": 362,
+      "endFrame": 413,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 362,
+          "endFrame": 373
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 373,
+          "endFrame": 381
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 381,
+          "endFrame": 395
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 395,
+          "endFrame": 413
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "startFrame": 413,
+      "endFrame": 451,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 413,
+          "endFrame": 419
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 419,
+          "endFrame": 426
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 426,
+          "endFrame": 436
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 436,
+          "endFrame": 451
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "startFrame": 451,
+      "endFrame": 479,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 451,
+          "endFrame": 461
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 461,
+          "endFrame": 479
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "startFrame": 479,
+      "endFrame": 522,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 479,
+          "endFrame": 488
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 488,
+          "endFrame": 503
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 503,
+          "endFrame": 512
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 512,
+          "endFrame": 522
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "startFrame": 522,
+      "endFrame": 565,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 522,
+          "endFrame": 535
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 535,
+          "endFrame": 547
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 547,
+          "endFrame": 553
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 553,
+          "endFrame": 565
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "startFrame": 565,
+      "endFrame": 585,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 565,
+          "endFrame": 571
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 571,
+          "endFrame": 585
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "startFrame": 612,
+      "endFrame": 662,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 612,
+          "endFrame": 620
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 620,
+          "endFrame": 636
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 636,
+          "endFrame": 647
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 647,
+          "endFrame": 662
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "startFrame": 662,
+      "endFrame": 713,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 662,
+          "endFrame": 673
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 673,
+          "endFrame": 681
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 681,
+          "endFrame": 695
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 695,
+          "endFrame": 713
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "startFrame": 713,
+      "endFrame": 751,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 713,
+          "endFrame": 719
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 719,
+          "endFrame": 726
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 726,
+          "endFrame": 736
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 736,
+          "endFrame": 751
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "startFrame": 751,
+      "endFrame": 779,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 751,
+          "endFrame": 761
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 761,
+          "endFrame": 779
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "startFrame": 779,
+      "endFrame": 822,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 779,
+          "endFrame": 788
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 788,
+          "endFrame": 803
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 803,
+          "endFrame": 812
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 812,
+          "endFrame": 822
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "startFrame": 822,
+      "endFrame": 865,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 822,
+          "endFrame": 835
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 835,
+          "endFrame": 847
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 847,
+          "endFrame": 853
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 853,
+          "endFrame": 865
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "startFrame": 865,
+      "endFrame": 885,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 865,
+          "endFrame": 871
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 871,
+          "endFrame": 885
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "startFrame": 912,
+      "endFrame": 962,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 912,
+          "endFrame": 920
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 920,
+          "endFrame": 936
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 936,
+          "endFrame": 947
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 947,
+          "endFrame": 962
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "startFrame": 962,
+      "endFrame": 1013,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 962,
+          "endFrame": 973
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 973,
+          "endFrame": 981
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 981,
+          "endFrame": 995
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 995,
+          "endFrame": 1013
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "startFrame": 1013,
+      "endFrame": 1051,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 1013,
+          "endFrame": 1019
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 1019,
+          "endFrame": 1026
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 1026,
+          "endFrame": 1036
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 1036,
+          "endFrame": 1051
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "startFrame": 1051,
+      "endFrame": 1079,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 1051,
+          "endFrame": 1061
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 1061,
+          "endFrame": 1079
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "startFrame": 1079,
+      "endFrame": 1122,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 1079,
+          "endFrame": 1088
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 1088,
+          "endFrame": 1103
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 1103,
+          "endFrame": 1112
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 1112,
+          "endFrame": 1122
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "startFrame": 1122,
+      "endFrame": 1165,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 1122,
+          "endFrame": 1135
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 1135,
+          "endFrame": 1147
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 1147,
+          "endFrame": 1153
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 1153,
+          "endFrame": 1165
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "startFrame": 1165,
+      "endFrame": 1185,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 1165,
+          "endFrame": 1171
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 1171,
+          "endFrame": 1185
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "startFrame": 1212,
+      "endFrame": 1262,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 1212,
+          "endFrame": 1220
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 1220,
+          "endFrame": 1236
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 1236,
+          "endFrame": 1247
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 1247,
+          "endFrame": 1262
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "startFrame": 1262,
+      "endFrame": 1313,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 1262,
+          "endFrame": 1273
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 1273,
+          "endFrame": 1281
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 1281,
+          "endFrame": 1295
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 1295,
+          "endFrame": 1313
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "startFrame": 1313,
+      "endFrame": 1351,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 1313,
+          "endFrame": 1319
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 1319,
+          "endFrame": 1326
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 1326,
+          "endFrame": 1336
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 1336,
+          "endFrame": 1351
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "startFrame": 1351,
+      "endFrame": 1379,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 1351,
+          "endFrame": 1361
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 1361,
+          "endFrame": 1379
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "startFrame": 1379,
+      "endFrame": 1422,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 1379,
+          "endFrame": 1388
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 1388,
+          "endFrame": 1403
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 1403,
+          "endFrame": 1412
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 1412,
+          "endFrame": 1422
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "startFrame": 1422,
+      "endFrame": 1465,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 1422,
+          "endFrame": 1435
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 1435,
+          "endFrame": 1447
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 1447,
+          "endFrame": 1453
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 1453,
+          "endFrame": 1465
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "startFrame": 1465,
+      "endFrame": 1485,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 1465,
+          "endFrame": 1471
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 1471,
+          "endFrame": 1485
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "startFrame": 1512,
+      "endFrame": 1562,
+      "tokens": [
+        {
+          "index": 0,
+          "text": "Порт",
+          "startFrame": 1512,
+          "endFrame": 1520
+        },
+        {
+          "index": 1,
+          "text": "просыпается",
+          "startFrame": 1520,
+          "endFrame": 1536
+        },
+        {
+          "index": 2,
+          "text": "раньше",
+          "startFrame": 1536,
+          "endFrame": 1547
+        },
+        {
+          "index": 3,
+          "text": "города.",
+          "startFrame": 1547,
+          "endFrame": 1562
+        }
+      ]
+    },
+    {
+      "index": 36,
+      "startFrame": 1562,
+      "endFrame": 1613,
+      "tokens": [
+        {
+          "index": 4,
+          "text": "Первый",
+          "startFrame": 1562,
+          "endFrame": 1573
+        },
+        {
+          "index": 5,
+          "text": "кран",
+          "startFrame": 1573,
+          "endFrame": 1581
+        },
+        {
+          "index": 6,
+          "text": "поднимает",
+          "startFrame": 1581,
+          "endFrame": 1595
+        },
+        {
+          "index": 7,
+          "text": "контейнер,",
+          "startFrame": 1595,
+          "endFrame": 1613
+        }
+      ]
+    },
+    {
+      "index": 37,
+      "startFrame": 1613,
+      "endFrame": 1651,
+      "tokens": [
+        {
+          "index": 8,
+          "text": "и",
+          "startFrame": 1613,
+          "endFrame": 1619
+        },
+        {
+          "index": 9,
+          "text": "над",
+          "startFrame": 1619,
+          "endFrame": 1626
+        },
+        {
+          "index": 10,
+          "text": "водой",
+          "startFrame": 1626,
+          "endFrame": 1636
+        },
+        {
+          "index": 11,
+          "text": "загорается",
+          "startFrame": 1636,
+          "endFrame": 1651
+        }
+      ]
+    },
+    {
+      "index": 38,
+      "startFrame": 1651,
+      "endFrame": 1679,
+      "tokens": [
+        {
+          "index": 12,
+          "text": "полоса",
+          "startFrame": 1651,
+          "endFrame": 1661
+        },
+        {
+          "index": 13,
+          "text": "рассвета.",
+          "startFrame": 1661,
+          "endFrame": 1679
+        }
+      ]
+    },
+    {
+      "index": 39,
+      "startFrame": 1679,
+      "endFrame": 1722,
+      "tokens": [
+        {
+          "index": 14,
+          "text": "Здесь",
+          "startFrame": 1679,
+          "endFrame": 1688
+        },
+        {
+          "index": 15,
+          "text": "начинается",
+          "startFrame": 1688,
+          "endFrame": 1703
+        },
+        {
+          "index": 16,
+          "text": "путь",
+          "startFrame": 1703,
+          "endFrame": 1712
+        },
+        {
+          "index": 17,
+          "text": "каждой",
+          "startFrame": 1712,
+          "endFrame": 1722
+        }
+      ]
+    },
+    {
+      "index": 40,
+      "startFrame": 1722,
+      "endFrame": 1765,
+      "tokens": [
+        {
+          "index": 18,
+          "text": "вещи,",
+          "startFrame": 1722,
+          "endFrame": 1735
+        },
+        {
+          "index": 19,
+          "text": "которую",
+          "startFrame": 1735,
+          "endFrame": 1747
+        },
+        {
+          "index": 20,
+          "text": "ты",
+          "startFrame": 1747,
+          "endFrame": 1753
+        },
+        {
+          "index": 21,
+          "text": "держишь",
+          "startFrame": 1753,
+          "endFrame": 1765
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "startFrame": 1765,
+      "endFrame": 1785,
+      "tokens": [
+        {
+          "index": 22,
+          "text": "в",
+          "startFrame": 1765,
+          "endFrame": 1771
+        },
+        {
+          "index": 23,
+          "text": "руках.",
+          "startFrame": 1771,
+          "endFrame": 1785
+        }
+      ]
+    }
+  ]
+};

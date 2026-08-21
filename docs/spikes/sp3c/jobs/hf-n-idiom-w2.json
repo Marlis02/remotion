@@ -1,0 +1,82 @@
+[
+  {
+    "runId": "hfN-idiom-final-w2-gpu-r1",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfN-idiom-final-w2-gpu-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w2-gpu-r2",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfN-idiom-final-w2-gpu-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w2-gpu-r3",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfN-idiom-final-w2-gpu-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w2-gpu-r4",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfN-idiom-final-w2-gpu-r4.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w2-gpu-r5",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfN-idiom-final-w2-gpu-r5.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w1-sw-r1",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "sw",
+    "outputPath": "out/hfN-idiom-final-w1-sw-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w1-sw-r2",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "sw",
+    "outputPath": "out/hfN-idiom-final-w1-sw-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfN-idiom-final-w1-sw-r3",
+    "profile": "final",
+    "project": "src-idiomatic",
+    "workers": 1,
+    "gpu": "sw",
+    "outputPath": "out/hfN-idiom-final-w1-sw-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  }
+]

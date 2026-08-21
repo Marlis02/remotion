@@ -1,0 +1,38 @@
+[
+  {
+    "runId": "hfF-final-w8-gpu",
+    "outputPath": "out/hfF-final-w8-gpu.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 8,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfF-draftHalf-w4-gpu-r1",
+    "outputPath": "out/hfF-draftHalf-w4-gpu-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draftHalf",
+    "workers": 4,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfF-draftHalf-w4-gpu-r2",
+    "outputPath": "out/hfF-draftHalf-w4-gpu-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draftHalf",
+    "workers": 4,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfF-draftHalf-w4-gpu-r3",
+    "outputPath": "out/hfF-draftHalf-w4-gpu-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draftHalf",
+    "workers": 4,
+    "gpu": "gpu"
+  }
+]

@@ -1,0 +1,165 @@
+{
+  "schema": "sp3c-pixeldiff/1",
+  "capturedAt": "2026-08-21T05:11:59.611Z",
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "a": {
+    "label": "hyperframes-r1",
+    "dir": "out/hfE-png-w4-gpu-r1",
+    "pngCount": 300
+  },
+  "b": {
+    "label": "hyperframes-r2",
+    "dir": "out/hfE-png-w4-gpu-r2",
+    "pngCount": 300
+  },
+  "frameRange": [
+    100,
+    119
+  ],
+  "frames": [
+    {
+      "index": 100,
+      "fileA": "frame_000101.png",
+      "fileB": "frame_000101.png",
+      "identical": true
+    },
+    {
+      "index": 101,
+      "fileA": "frame_000102.png",
+      "fileB": "frame_000102.png",
+      "identical": true
+    },
+    {
+      "index": 102,
+      "fileA": "frame_000103.png",
+      "fileB": "frame_000103.png",
+      "identical": true
+    },
+    {
+      "index": 103,
+      "fileA": "frame_000104.png",
+      "fileB": "frame_000104.png",
+      "identical": true
+    },
+    {
+      "index": 104,
+      "fileA": "frame_000105.png",
+      "fileB": "frame_000105.png",
+      "identical": true
+    },
+    {
+      "index": 105,
+      "fileA": "frame_000106.png",
+      "fileB": "frame_000106.png",
+      "identical": true
+    },
+    {
+      "index": 106,
+      "fileA": "frame_000107.png",
+      "fileB": "frame_000107.png",
+      "identical": true
+    },
+    {
+      "index": 107,
+      "fileA": "frame_000108.png",
+      "fileB": "frame_000108.png",
+      "identical": true
+    },
+    {
+      "index": 108,
+      "fileA": "frame_000109.png",
+      "fileB": "frame_000109.png",
+      "identical": true
+    },
+    {
+      "index": 109,
+      "fileA": "frame_000110.png",
+      "fileB": "frame_000110.png",
+      "identical": true
+    },
+    {
+      "index": 110,
+      "fileA": "frame_000111.png",
+      "fileB": "frame_000111.png",
+      "identical": true
+    },
+    {
+      "index": 111,
+      "fileA": "frame_000112.png",
+      "fileB": "frame_000112.png",
+      "identical": true
+    },
+    {
+      "index": 112,
+      "fileA": "frame_000113.png",
+      "fileB": "frame_000113.png",
+      "identical": true
+    },
+    {
+      "index": 113,
+      "fileA": "frame_000114.png",
+      "fileB": "frame_000114.png",
+      "identical": true
+    },
+    {
+      "index": 114,
+      "fileA": "frame_000115.png",
+      "fileB": "frame_000115.png",
+      "identical": true
+    },
+    {
+      "index": 115,
+      "fileA": "frame_000116.png",
+      "fileB": "frame_000116.png",
+      "identical": true
+    },
+    {
+      "index": 116,
+      "fileA": "frame_000117.png",
+      "fileB": "frame_000117.png",
+      "identical": true
+    },
+    {
+      "index": 117,
+      "fileA": "frame_000118.png",
+      "fileB": "frame_000118.png",
+      "identical": true
+    },
+    {
+      "index": 118,
+      "fileA": "frame_000119.png",
+      "fileB": "frame_000119.png",
+      "identical": true
+    },
+    {
+      "index": 119,
+      "fileA": "frame_000120.png",
+      "fileB": "frame_000120.png",
+      "identical": true
+    }
+  ],
+  "summary": {
+    "framesCompared": 20,
+    "identicalFrames": 20,
+    "differingFrames": 0,
+    "maxAbsDiffOverall": 0,
+    "maxDifferingSharePercent": 0,
+    "medianDifferingSharePercent": null,
+    "minPsnrDb": null,
+    "medianPsnrDb": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "sp3c-startup/1",
+  "capturedAt": "2026-08-21T05:34:30.749Z",
+  "note": "Медианы по прогонам блока A (HyperFrames, beginFrame + аппаратный GPU) и по контрольным прогонам Remotion. Для Remotion колонки называются как в SP-3: бандл — тёплый, selectComposition — выбор композиции.",
+  "measurements": {
+    "голый старт node (медиана 5)": 24,
+    "hyperframes --version, то есть загрузка модулей CLI (медиана 5)": 420,
+    "HyperFrames: компиляция HTML (compile)": 63,
+    "HyperFrames: проба браузера (browser_probe)": 4,
+    "HyperFrames: файловый сервер (file_server)": 7,
+    "HyperFrames: от старта конвейера до старта захвата": 358,
+    "HyperFrames: СТАРТ НА СЕГМЕНТ (node + CLI + всё до первого кадра)": 1115,
+    "HyperFrames: хвост после конвейера": 743,
+    "HyperFrames: сборка (assemble)": 24,
+    "Remotion (контроль здесь же): boot node": 216,
+    "Remotion (контроль здесь же): тёплый бандл": 1165,
+    "Remotion (контроль здесь же): проба старта Chrome": 80,
+    "Remotion (контроль здесь же): выбор композиции": 519,
+    "Remotion (контроль здесь же): СТАРТ НА СЕГМЕНТ (до первого кадра)": 2071,
+    "Remotion (контроль здесь же): хвост мукса": 1441,
+    "проверка framemd5 сегмента 300 кадров 1080×1920": 1347,
+    "проверка ffprobe сегмента": 7
+  },
+  "sampleSizes": {
+    "hyperframesBlockA": 18,
+    "remotionControl": 29
+  }
+}

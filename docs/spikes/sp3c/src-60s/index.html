@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- 1080x1920, 30 fps, 300 кадров — один-в-один с композицией SP-3 (docs/spikes/sp3/src/Short.tsx). -->
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>SP-3c short 60s</title>
+
+    <!-- GSAP локально (npm), не с CDN: V9 запрещает сеть в рендере. -->
+    <script src="./gsap.min.js"></script>
+    <!-- Предвычисленные помадровые значения Ken Burns и затемнения (V9: рендерер ничего не считает). -->
+    <script src="./motion.js"></script>
+    <!-- captions.json из SP-3, байт-в-байт, обёрнутый в присваивание. -->
+    <script src="./captions.js"></script>
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      /* Точная копия remotion AbsoluteFill: position absolute, все нули,
+         100%x100%, display flex, flex-direction column. */
+      .absfill {
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Шрифт — ассет (V10). Локальный файл, сети нет. */
+      @font-face {
+        font-family: 'SP3Sans';
+        src: url('./DejaVuSans-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+      }
+
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background-color: #000; }
+
+      #kb-wrap { overflow: hidden; background-color: #000; }
+      #kb-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform-origin: 52% 46%;
+      }
+
+      #scrim {
+        background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 26%, rgba(0,0,0,0.12) 52%, rgba(0,0,0,0.28) 100%);
+      }
+      #vignette {
+        background: radial-gradient(circle at 50% 44%, rgba(0,0,0,0) 42%, rgba(0,0,0,0.55) 100%);
+      }
+      #fade { background-color: #000; }
+
+      /* Безопасные зоны Shorts — из fixtures/minimal/profiles/compile.yaml, как в SP-3. */
+      #captions {
+        justify-content: flex-end;
+        align-items: center;
+        padding-bottom: 320px;
+        padding-left: 60px;
+        padding-right: 60px;
+      }
+      #caption-page {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0 22px;
+        font-family: 'SP3Sans', sans-serif;
+        font-weight: 700;
+        font-size: 82px;
+        line-height: 1.18;
+        text-align: center;
+      }
+      #caption-page span { display: inline-block; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="short" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+      <div id="kb-wrap" class="absfill">
+        <img id="kb-img" src="./backdrop.jpg" alt="" />
+      </div>
+      <div id="scrim" class="absfill"></div>
+      <div id="vignette" class="absfill"></div>
+      <div id="fade" class="absfill"></div>
+      <div id="captions" class="absfill">
+        <div id="caption-page"></div>
+      </div>
+    </div>
+
+    <script>
+      /*
+       * Единственная логика композиции: кадр → уже посчитанные значения.
+       * Таблица MOTION сгенерирована офлайн из remotion interpolate/Easing
+       * (gen-motion.mjs), поэтому геометрия совпадает с SP-3 не «похоже», а точно.
+       * Date.now / Math.random / сеть — не используются (правило HyperFrames = V8/V9).
+       */
+      (function () {
+        var FPS = 30;
+        var LAST = MOTION.durationInFrames - 1;
+
+        var kbImg = document.getElementById('kb-img');
+        var fadeEl = document.getElementById('fade');
+        var pageEl = document.getElementById('caption-page');
+
+        // Токены страниц строятся один раз; переключается только текст и стиль.
+        var pages = CAPTIONS.pages;
+        var renderedPageIndex = -2;
+        var spans = [];
+
+        function buildPage(page) {
+          pageEl.textContent = '';
+          spans = [];
+          if (!page) return;
+          for (var i = 0; i < page.tokens.length; i++) {
+            var s = document.createElement('span');
+            s.textContent = page.tokens[i].text;
+            pageEl.appendChild(s);
+            spans.push(s);
+          }
+        }
+
+        var lastFrame = -1;
+        function renderFrame(frame) {
+          if (frame === lastFrame) return;
+          lastFrame = frame;
+
+          kbImg.style.transform =
+            'scale(' + MOTION.scale[frame] + ') translate(' + MOTION.tx[frame] + 'px, ' + MOTION.ty[frame] + 'px)';
+          fadeEl.style.opacity = String(MOTION.fade[frame]);
+
+          var pi = MOTION.pageIndex[frame];
+          if (pi !== renderedPageIndex) {
+            renderedPageIndex = pi;
+            buildPage(pi < 0 ? null : pages[pi]);
+          }
+          if (pi < 0) {
+            document.getElementById('captions').style.display = 'none';
+            return;
+          }
+          document.getElementById('captions').style.display = 'flex';
+
+          var appear = MOTION.appear[frame];
+          pageEl.style.opacity = String(appear);
+          pageEl.style.transform = 'translateY(' + (1 - appear) * 26 + 'px)';
+
+          var tokens = pages[pi].tokens;
+          for (var i = 0; i < tokens.length; i++) {
+            var active = frame >= tokens[i].startFrame && frame < tokens[i].endFrame;
+            var st = spans[i].style;
+            st.color = active ? '#ffd166' : 'rgba(255,255,255,0.86)';
+            st.transform = 'scale(' + (active ? 1.07 : 1) + ')';
+            st.textShadow = active
+              ? '0 6px 26px rgba(0,0,0,0.85), 0 0 14px rgba(255,209,102,0.45)'
+              : '0 6px 22px rgba(0,0,0,0.85)';
+            st.webkitTextStroke = active ? '2px rgba(0,0,0,0.35)' : '0px transparent';
+          }
+        }
+
+        function frameOf(t) {
+          var f = Math.round(t * FPS);
+          if (f < 0) f = 0;
+          if (f > LAST) f = LAST;
+          return f;
+        }
+
+        var proxy = { t: 0 };
+        var tl = gsap.timeline({
+          paused: true,
+          onUpdate: function () { renderFrame(frameOf(tl.time())); },
+        });
+        tl.to(proxy, { t: 60, duration: 60, ease: 'none' }, 0);
+
+        renderFrame(0);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines['short'] = tl;
+      })();
+    </script>
+  </body>
+</html>

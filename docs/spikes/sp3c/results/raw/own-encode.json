@@ -1,0 +1,81 @@
+{
+  "schema": "sp3c-encode/1",
+  "capturedAt": "2026-08-21T05:06:25.401Z",
+  "recipe": "libx264, preset medium, bt709, yuv420p, -g 30, -fflags +bitexact -flags:v +bitexact (docs/spikes/sp3/lib/profiles.mjs)",
+  "encodes": [
+    {
+      "framesDir": "out/hfE-png-w4-gpu-r1",
+      "frames": 300,
+      "threads4_encode1": {
+        "ms": 13006,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t4-e1.mp4",
+        "bytes": 15790396,
+        "sha256": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t4-e1.mp4",
+        "frames": 300
+      },
+      "threads4_encode2": {
+        "ms": 12901,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t4-e2.mp4",
+        "bytes": 15790396,
+        "sha256": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t4-e2.mp4",
+        "frames": 300
+      },
+      "threads1_encode1": {
+        "ms": 36663,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t1-e1.mp4",
+        "bytes": 15790658,
+        "sha256": "62708b4b4fe35e624c0899485fcd5ebc1f94d31a97b9fdb1c7a2ad1761b83843",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t1-e1.mp4",
+        "frames": 300
+      },
+      "encoderDeterministic": true,
+      "threads1VsThreads4Equal": false,
+      "framemd5OfOwnEncode": {
+        "ms": 1334,
+        "file": "/home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/own-hfE-png-w4-gpu-r1-t4.framemd5",
+        "frameLines": 300,
+        "sha256": "ee553854a837dd46ac216347e8662189506240f782f007264f6a9a093b5dbb70",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-hfE-png-w4-gpu-r1-t4-e1.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/own-hfE-png-w4-gpu-r1-t4.framemd5"
+      }
+    },
+    {
+      "framesDir": "out/ctlP-png-c4-angle",
+      "frames": 300,
+      "threads4_encode1": {
+        "ms": 13086,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t4-e1.mp4",
+        "bytes": 15616276,
+        "sha256": "3486458b297ea4fcc35c83844cd51f94fa36a851400894d3ff98c2dc81e37821",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 0 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/ctlP-png-c4-angle/element-%03d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t4-e1.mp4",
+        "frames": 300
+      },
+      "threads4_encode2": {
+        "ms": 13030,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t4-e2.mp4",
+        "bytes": 15616276,
+        "sha256": "3486458b297ea4fcc35c83844cd51f94fa36a851400894d3ff98c2dc81e37821",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 0 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/ctlP-png-c4-angle/element-%03d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t4-e2.mp4",
+        "frames": 300
+      },
+      "threads1_encode1": {
+        "ms": 36916,
+        "outPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t1-e1.mp4",
+        "bytes": 15617934,
+        "sha256": "12a0f0c6a8e3a7e2a2b3bfda5d6241cace2b837d4d840953d169ab1cb710f111",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 0 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/ctlP-png-c4-angle/element-%03d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t1-e1.mp4",
+        "frames": 300
+      },
+      "encoderDeterministic": true,
+      "threads1VsThreads4Equal": false,
+      "framemd5OfOwnEncode": {
+        "ms": 1331,
+        "file": "/home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/own-ctlP-png-c4-angle-t4.framemd5",
+        "frameLines": 300,
+        "sha256": "390c3b91aee3f27c1a1c0efc5e0ae805665f2189e0ec6458b61acf1ce802d767",
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/own-ctlP-png-c4-angle-t4-e1.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/own-ctlP-png-c4-angle-t4.framemd5"
+      }
+    }
+  ]
+}

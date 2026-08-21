@@ -1,0 +1,92 @@
+[
+  {
+    "runId": "hfG-final-w4-gpu-x01",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x01.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x02",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x02.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x03",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x03.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x04",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x04.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x05",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x05.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x06",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x06.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x07",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x07.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x08",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x08.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x09",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x09.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfG-final-w4-gpu-x10",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "outputPath": "out/hfG-final-w4-gpu-x10.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  }
+]

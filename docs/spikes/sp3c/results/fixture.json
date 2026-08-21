@@ -1,0 +1,152 @@
+{
+  "schema": "sp3c-fixture/1",
+  "capturedAt": "2026-08-21T05:46:29.313Z",
+  "composition": {
+    "id": "short",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationInFrames": 300,
+    "captionPages": 7,
+    "captionTokens": 24
+  },
+  "files": [
+    {
+      "path": "src/index.html",
+      "bytes": 6843,
+      "sha256": "0fbe971fb12c79051036f849e8a2f9faf53c555202c0dd98a76e30b6376aae08"
+    },
+    {
+      "path": "src/motion.js",
+      "bytes": 19347,
+      "sha256": "e7986af6616febda0f99e3a3d92693836900b92b7c6e24fcd96543edaa693cb7"
+    },
+    {
+      "path": "src/motion.json",
+      "bytes": 28385,
+      "sha256": "2f7978509d296a718dd8a690ea65ee2930818497f7134d4679a650a5f2dd60f1"
+    },
+    {
+      "path": "src/captions.js",
+      "bytes": 3966,
+      "sha256": "4747d5d59397a68c49b38bdb478b8e14da3a7fea202cb971e530946aa900bf3a"
+    },
+    {
+      "path": "src/captions.json",
+      "bytes": 3947,
+      "sha256": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d"
+    },
+    {
+      "path": "src/backdrop.jpg",
+      "bytes": 2704308,
+      "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+    },
+    {
+      "path": "src/DejaVuSans-Bold.ttf",
+      "bytes": 705684,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    },
+    {
+      "path": "src/gsap.min.js",
+      "bytes": 72927,
+      "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+    },
+    {
+      "path": "src-draft/index.html",
+      "bytes": 6912,
+      "sha256": "04f9f326595f59d9108c4fc77b9d340a1d9ceff0d1a03baccf89134765c6db83"
+    },
+    {
+      "path": "src-60s/index.html",
+      "bytes": 6847,
+      "sha256": "cfc494164bff1a74cc84fc8f0f8f3d6911800a89bd03848f17939befd0b1377e"
+    },
+    {
+      "path": "src-60s/captions.json",
+      "bytes": 23673,
+      "sha256": "22d0da159d349e731a96c1b4c8332e5c9e5eb3af8886b945ef4d27bc822b37a3"
+    },
+    {
+      "path": "gen-motion.mjs",
+      "bytes": 3581,
+      "sha256": "456ad79f8bc42143c1282436d1b527ee9697b2ba312fe4107c379c9e6839b9c9"
+    },
+    {
+      "path": "gen-variants.mjs",
+      "bytes": 5538,
+      "sha256": "46ee02cd3ded99708e281b9e137d27cf834390b75600d3745e41da7381bcbec2"
+    },
+    {
+      "path": "run-one.mjs",
+      "bytes": 11378,
+      "sha256": "49ce9076dc7a109bb0a5b27c9d37f57173ead5c2f1967e739ba8146a5b08bf46"
+    },
+    {
+      "path": "matrix.mjs",
+      "bytes": 4970,
+      "sha256": "f1f287f824b986addd51ef2c151e1d582f50ce24140f1f2c7fc9bcb9f9af45e6"
+    },
+    {
+      "path": "control/runner.mjs",
+      "bytes": 11724,
+      "sha256": "917a765db53cb2d64e42c5c239174064cee748bb38170fdb8127a0c63787b030"
+    },
+    {
+      "path": "lib/hfprofiles.mjs",
+      "bytes": 2528,
+      "sha256": "d8ea80495700a68322bd2804d1e4051aff572d51cb92c18a8872a277cfad6e2d"
+    },
+    {
+      "path": "lib/env.mjs",
+      "bytes": 1478,
+      "sha256": "12458f29b6d439091e95a9e402e6bf25b12f22b47545e381f925e15205c2b092"
+    },
+    {
+      "path": "package.json",
+      "bytes": 461,
+      "sha256": "b4834ea505181d8e6a7b357a3bef8b906e287d43180dad2ec7eb11aadc415018"
+    }
+  ],
+  "sharedWithSp3": [
+    {
+      "path": "docs/spikes/sp3/src/Short.tsx",
+      "sha256": "6a554523a3a1816a1ef51ddee49aa7b6a91dd45dbb3525d8e6961a19ec3beb46"
+    },
+    {
+      "path": "docs/spikes/sp3/src/Root.tsx",
+      "sha256": "2f9e99f592edfeeaef8a8eda785938391ab77f55c49cd29da9dac0145970007c"
+    },
+    {
+      "path": "docs/spikes/sp3/src/captions.json",
+      "sha256": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d"
+    },
+    {
+      "path": "docs/spikes/sp3/assets/backdrop.jpg",
+      "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+    },
+    {
+      "path": "docs/spikes/sp3/assets/DejaVuSans-Bold.ttf",
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    }
+  ],
+  "assetIdentityWithSp3": [
+    {
+      "sp3c": "src/backdrop.jpg",
+      "sp3": "assets/backdrop.jpg",
+      "equal": true,
+      "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+    },
+    {
+      "sp3c": "src/DejaVuSans-Bold.ttf",
+      "sp3": "assets/DejaVuSans-Bold.ttf",
+      "equal": true,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    },
+    {
+      "sp3c": "src/captions.json",
+      "sp3": "src/captions.json",
+      "equal": true,
+      "sha256": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d"
+    }
+  ]
+}

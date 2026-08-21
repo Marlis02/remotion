@@ -1,0 +1,18 @@
+# Спайковый код выбрасывается, зависимости и артефакты — тем более.
+node_modules/
+out/
+bin/
+.cache/
+package-lock.json
+.bundle/
+.webpack-cache*/
+
+# Двоичные ассеты композиции — побайтовые копии файлов SP-3 и файла из npm-пакета gsap.
+# В git не идут: их sha256 записан в results/fixture.json, а восстанавливаются они одной
+# командой (см. README, «Как повторить»):
+#   cp ../sp3/assets/{backdrop.jpg,DejaVuSans-Bold.ttf} src/
+#   cp node_modules/gsap/dist/gsap.min.js src/
+#   node gen-motion.mjs && node gen-variants.mjs && node gen-idiomatic.mjs
+src*/backdrop.jpg
+src*/DejaVuSans-Bold.ttf
+src*/gsap.min.js

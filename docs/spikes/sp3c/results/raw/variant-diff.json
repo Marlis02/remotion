@@ -1,0 +1,543 @@
+{
+  "schema": "sp3c-variant-diff/1",
+  "capturedAt": "2026-08-21T05:34:09.089Z",
+  "note": "Сравниваются готовые mp4 разных вариантов одной и той же настройки: сначала framemd5 (первый разошедшийся кадр), затем покадровый PSNR, затем сырые пиксели на узком диапазоне.",
+  "pairs": [
+    {
+      "setting": "remotion|final||2|angle|0|{}",
+      "a": {
+        "runId": "ctlA-final-c2-angle-r1",
+        "sha256": "864f10d2ea49d27b0d271ca46a038507f5950f7b66f291caae16ca489636b346"
+      },
+      "b": {
+        "runId": "ctlA-final-c2-angle-r2",
+        "sha256": "398fd1ba23543a724414e8d52403ef91ea00a144e05680dd6a3a3d60c1811ae6"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 177,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 236,
+        "differingFrames": 64,
+        "differingShare": 21.3,
+        "psnrMinDb": 50.13,
+        "psnrP05Db": 50.57,
+        "psnrP50Db": 53.97,
+        "psnrP95Db": 57.39,
+        "psnrMaxDb": 62.36,
+        "maxMse": 0.63,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 0
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 177,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 624990,
+        "differingSharePercent": 10.0468,
+        "maxAbsDiff": 21,
+        "histogramOfAbsDiff": {
+          "1": 354770,
+          "2": 159773,
+          "3": 56253,
+          "4": 24981,
+          "5": 12427,
+          "6": 7118,
+          "7": 4510,
+          "8": 2131,
+          "9": 1371,
+          "10": 693,
+          "11": 435,
+          "12": 229
+        }
+      }
+    },
+    {
+      "setting": "remotion|draft||4|swangle|0|{}",
+      "a": {
+        "runId": "ctlB-draft-c4-swangle-r1",
+        "sha256": "7d090e7d670cc5f67b64897ca8685d9fa2878488c4423c90af792ac289b7d602"
+      },
+      "b": {
+        "runId": "ctlB-draft-c4-swangle-r2",
+        "sha256": "36d49f345821b050a684f94d6a7485c77a2b1aa0175172c82d9cd8c7b3cda345"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 42.43,
+        "psnrP05Db": 43.22,
+        "psnrP50Db": 44.63,
+        "psnrP95Db": 50.16,
+        "psnrMaxDb": 68.98,
+        "maxMse": 3.72,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 283
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 1555200,
+        "differingSubpixels": 18038,
+        "differingSharePercent": 1.1599,
+        "maxAbsDiff": 3,
+        "histogramOfAbsDiff": {
+          "1": 15403,
+          "2": 2593,
+          "3": 42
+        }
+      }
+    },
+    {
+      "setting": "remotion|final||1|swangle|0|{}",
+      "a": {
+        "runId": "ctlB-final-c1-swangle-r1",
+        "sha256": "1e4cd0382b22efcbfd3f571b2c504a19d64ff01ef7b4077c3a16e5ec610ff324"
+      },
+      "b": {
+        "runId": "ctlB-final-c1-swangle-r2",
+        "sha256": "ebf5aaf8ad8af81e7fd073829deb29dc01c6de0e6d087834031866f762c92cc7"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 43.14,
+        "psnrP05Db": 43.31,
+        "psnrP50Db": 43.92,
+        "psnrP95Db": 48.49,
+        "psnrMaxDb": 62.11,
+        "maxMse": 3.16,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 288
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 346962,
+        "differingSharePercent": 5.5774,
+        "maxAbsDiff": 5,
+        "histogramOfAbsDiff": {
+          "1": 269082,
+          "2": 70414,
+          "3": 6901,
+          "4": 512,
+          "5": 53
+        }
+      }
+    },
+    {
+      "setting": "remotion|final||4|swangle|0|{}",
+      "a": {
+        "runId": "ctlB-final-c4-swangle-r1",
+        "sha256": "ebf5aaf8ad8af81e7fd073829deb29dc01c6de0e6d087834031866f762c92cc7"
+      },
+      "b": {
+        "runId": "ctlB-final-c4-swangle-r2",
+        "sha256": "1513ac8ba7f876b9118456e3abe278f57081a21c9b19f52aa9659b65e4788c6c"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 43.18,
+        "psnrP05Db": 43.34,
+        "psnrP50Db": 44,
+        "psnrP95Db": 48.57,
+        "psnrMaxDb": 62.11,
+        "maxMse": 3.12,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 288
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 347480,
+        "differingSharePercent": 5.5858,
+        "maxAbsDiff": 6,
+        "histogramOfAbsDiff": {
+          "1": 269781,
+          "2": 70265,
+          "3": 6886,
+          "4": 489,
+          "5": 56,
+          "6": 3
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|draft|src|4|gpu|0|{}",
+      "a": {
+        "runId": "hfA-draft-w4-gpu-r1",
+        "sha256": "9463de47b084b0ed172d7b8f19543f650dc3533dbd6ee7fe80106f642eb21dc1"
+      },
+      "b": {
+        "runId": "hfA-draft-w4-gpu-r3",
+        "sha256": "04d003102066a5cd59e73162c760b5918a8c166f12dfa75e5921a65e3ecded2b"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 51,
+        "differingFrames": 249,
+        "differingShare": 83,
+        "psnrMinDb": 40.72,
+        "psnrP05Db": 40.77,
+        "psnrP50Db": 41.68,
+        "psnrP95Db": 42.68,
+        "psnrMaxDb": 60.99,
+        "maxMse": 5.51,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 245
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 419204,
+        "differingSharePercent": 6.7387,
+        "maxAbsDiff": 6,
+        "histogramOfAbsDiff": {
+          "1": 315987,
+          "2": 88310,
+          "3": 13747,
+          "4": 466,
+          "5": 672,
+          "6": 22
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|final|src|4|gpu|6|{}",
+      "a": {
+        "runId": "hfC-final-w4-gpu-load6-r1",
+        "sha256": "8afcca5a08a1b0ff8b14690ee575f62e544d2a8db25ef43d2a44ab069897e4cd"
+      },
+      "b": {
+        "runId": "hfC-final-w4-gpu-load6-r3",
+        "sha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 50,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 100,
+        "differingFrames": 200,
+        "differingShare": 66.7,
+        "psnrMinDb": 44.4,
+        "psnrP05Db": 44.53,
+        "psnrP50Db": 44.79,
+        "psnrP95Db": 47.79,
+        "psnrMaxDb": 55.8,
+        "maxMse": 2.36,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 197
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 50,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 705837,
+        "differingSharePercent": 11.3464,
+        "maxAbsDiff": 15,
+        "histogramOfAbsDiff": {
+          "1": 424071,
+          "2": 183431,
+          "3": 60769,
+          "4": 22528,
+          "5": 9182,
+          "6": 3659,
+          "7": 1432,
+          "8": 480,
+          "9": 175,
+          "10": 67,
+          "11": 25,
+          "12": 14
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|final|src|4|gpu|0|{\"PRODUCER_FORCE_SCREENSHOT\":\"true\"}",
+      "a": {
+        "runId": "hfD-final-w4-gpu-shot-r1",
+        "sha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50"
+      },
+      "b": {
+        "runId": "hfD-final-w4-gpu-shot-r2",
+        "sha256": "53c98bf8bfd78cd45452d7ab5b0940ed09f8e7e7d0956cea5e77ba28f3d66b19"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 51,
+        "differingFrames": 249,
+        "differingShare": 83,
+        "psnrMinDb": 44.64,
+        "psnrP05Db": 44.68,
+        "psnrP50Db": 45.1,
+        "psnrP95Db": 46.6,
+        "psnrMaxDb": 61.15,
+        "maxMse": 2.23,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 243
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 476966,
+        "differingSharePercent": 7.6673,
+        "maxAbsDiff": 7,
+        "histogramOfAbsDiff": {
+          "1": 347654,
+          "2": 114492,
+          "3": 13407,
+          "4": 1189,
+          "5": 216,
+          "6": 6,
+          "7": 2
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|draftHalf|src-draft|4|gpu|0|{}",
+      "a": {
+        "runId": "hfF-draftHalf-w4-gpu-r1",
+        "sha256": "4ea8da5330ebf9e3c6087a478cc116796f487a22c39faef3b1aa6329f0aa1e49"
+      },
+      "b": {
+        "runId": "hfF-draftHalf-w4-gpu-r3",
+        "sha256": "d7ac56a9b96981fec663d5627bf57b70b6928c19686ed30eb1a9156ec3fb4a0b"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 51,
+        "differingFrames": 249,
+        "differingShare": 83,
+        "psnrMinDb": 48.14,
+        "psnrP05Db": 48.47,
+        "psnrP50Db": 48.97,
+        "psnrP95Db": 51.38,
+        "psnrMaxDb": 63.46,
+        "maxMse": 1,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 226
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 1555200,
+        "differingSubpixels": 48456,
+        "differingSharePercent": 3.1157,
+        "maxAbsDiff": 5,
+        "histogramOfAbsDiff": {
+          "1": 31234,
+          "2": 13189,
+          "3": 2525,
+          "4": 1146,
+          "5": 362
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|final|src-idiomatic|4|gpu|0|{}",
+      "a": {
+        "runId": "hfI-idiom-final-w4-gpu-r1",
+        "sha256": "bdf81c6f7a2cc9b89bde072f9c7a05f5d969ce12b19b582082fd5a7e9da7f472"
+      },
+      "b": {
+        "runId": "hfI-idiom-final-w4-gpu-r2",
+        "sha256": "db3e58ef6bbda754ec73c0bb6919a51496cb65ae07c917c30d7ee2c42a39e3dc"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 140,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 143,
+        "differingFrames": 157,
+        "differingShare": 52.3,
+        "psnrMinDb": 42.52,
+        "psnrP05Db": 42.55,
+        "psnrP50Db": 43.44,
+        "psnrP95Db": 48.05,
+        "psnrMaxDb": 55.88,
+        "maxMse": 3.64,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 153
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 140,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 535419,
+        "differingSharePercent": 8.6069,
+        "maxAbsDiff": 19,
+        "histogramOfAbsDiff": {
+          "1": 303675,
+          "2": 139403,
+          "3": 48910,
+          "4": 21762,
+          "5": 10973,
+          "6": 5452,
+          "7": 2938,
+          "8": 1154,
+          "9": 604,
+          "10": 286,
+          "11": 124,
+          "12": 73
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|final|src-idiomatic|4|sw|0|{}",
+      "a": {
+        "runId": "hfM-idiom-final-w4-sw-r1",
+        "sha256": "710be65f3f945ddb335ed2ed48a11f333239daa4930d2da6744f7aa000f1de4c"
+      },
+      "b": {
+        "runId": "hfM-idiom-final-w4-sw-r2",
+        "sha256": "076591e901ae282a44e47afe3ff38b3dcfd14495956f9504bbe29379bf4ddb8c"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 150,
+        "differingFrames": 150,
+        "differingShare": 50,
+        "psnrMinDb": 34.8,
+        "psnrP05Db": 35.23,
+        "psnrP50Db": 43.03,
+        "psnrP95Db": 44.59,
+        "psnrMaxDb": 67.9,
+        "maxMse": 21.52,
+        "framesBelow40Db": 61,
+        "framesBelow50Db": 147
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 85781,
+        "differingSharePercent": 1.3789,
+        "maxAbsDiff": 6,
+        "histogramOfAbsDiff": {
+          "1": 67908,
+          "2": 15580,
+          "3": 2011,
+          "4": 216,
+          "5": 64,
+          "6": 2
+        }
+      }
+    },
+    {
+      "setting": "hyperframes|final|src-idiomatic|1|sw|0|{}",
+      "a": {
+        "runId": "hfN-idiom-final-w1-sw-r1",
+        "sha256": "eadb6a5c3cabfbf60e88970e0220067ebb595c01f0d2015a9d1e3cf8e828349b"
+      },
+      "b": {
+        "runId": "hfN-idiom-final-w1-sw-r3",
+        "sha256": "710be65f3f945ddb335ed2ed48a11f333239daa4930d2da6744f7aa000f1de4c"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 1,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 2,
+        "differingFrames": 298,
+        "differingShare": 99.3,
+        "psnrMinDb": 34.73,
+        "psnrP05Db": 35.1,
+        "psnrP50Db": 35.95,
+        "psnrP95Db": 42.85,
+        "psnrMaxDb": 67.9,
+        "maxMse": 21.89,
+        "framesBelow40Db": 268,
+        "framesBelow50Db": 293
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 1,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 85781,
+        "differingSharePercent": 1.3789,
+        "maxAbsDiff": 6,
+        "histogramOfAbsDiff": {
+          "1": 67908,
+          "2": 15580,
+          "3": 2011,
+          "4": 216,
+          "5": 64,
+          "6": 2
+        }
+      }
+    },
+    {
+      "setting": "эталон без нагрузки против варианта под нагрузкой",
+      "a": {
+        "runId": "hfA-final-w4-gpu-r1",
+        "sha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50"
+      },
+      "b": {
+        "runId": "hfC-final-w4-gpu-load6-r1",
+        "sha256": "8afcca5a08a1b0ff8b14690ee575f62e544d2a8db25ef43d2a44ab069897e4cd"
+      },
+      "framemd5Equal": false,
+      "firstDiffFrame": 50,
+      "framesCompared": 300,
+      "psnrDistribution": {
+        "frames": 300,
+        "identicalFrames": 100,
+        "differingFrames": 200,
+        "differingShare": 66.7,
+        "psnrMinDb": 44.4,
+        "psnrP05Db": 44.53,
+        "psnrP50Db": 44.79,
+        "psnrP95Db": 47.79,
+        "psnrMaxDb": 55.8,
+        "maxMse": 2.36,
+        "framesBelow40Db": 0,
+        "framesBelow50Db": 197
+      },
+      "pixelsOnFirstDiffFrame": {
+        "frame": 50,
+        "totalSubpixels": 6220800,
+        "differingSubpixels": 705837,
+        "differingSharePercent": 11.3464,
+        "maxAbsDiff": 15,
+        "histogramOfAbsDiff": {
+          "1": 424071,
+          "2": 183431,
+          "3": 60769,
+          "4": 22528,
+          "5": 9182,
+          "6": 3659,
+          "7": 1432,
+          "8": 480,
+          "9": 175,
+          "10": 67,
+          "11": 25,
+          "12": 14
+        }
+      }
+    }
+  ]
+}

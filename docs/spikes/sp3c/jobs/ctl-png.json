@@ -1,0 +1,26 @@
+[
+  {
+    "runId": "ctlP-png-c4-angle",
+    "script": "control/runner.mjs",
+    "gl": "angle",
+    "concurrency": 4,
+    "profile": "final",
+    "mode": "frames",
+    "framesOutDir": "out/ctlP-png-c4-angle",
+    "outputPath": "out/ctlP-png-c4-angle",
+    "timeoutSec": 1200,
+    "skipIfDone": true
+  },
+  {
+    "runId": "ctlP-png-c4-swangle",
+    "script": "control/runner.mjs",
+    "gl": "swangle",
+    "concurrency": 4,
+    "profile": "final",
+    "mode": "frames",
+    "framesOutDir": "out/ctlP-png-c4-swangle",
+    "outputPath": "out/ctlP-png-c4-swangle",
+    "timeoutSec": 1200,
+    "skipIfDone": true
+  }
+]

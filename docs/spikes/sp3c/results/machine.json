@@ -1,0 +1,102 @@
+{
+  "schema": "sp3c-machine/1",
+  "capturedAt": "2026-08-21T05:34:30.876Z",
+  "machine": {
+    "cpuModel": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+    "cpuLogical": 12,
+    "cpuPhysicalCores": 6,
+    "threadsPerCore": 2,
+    "cpuMaxMhz": 4300,
+    "cpuGovernor": "powersave",
+    "ramTotalBytes": 33465974784,
+    "ramTotalGiB": 31.17,
+    "swapTotalKb": 8388604,
+    "os": "Ubuntu 24.04.3 LTS",
+    "kernel": "7.0.0-28-generic",
+    "arch": "x64",
+    "hostClass": "local",
+    "gpuPresent": true,
+    "gpuDevices": [
+      "by-path",
+      "card1",
+      "card2",
+      "renderD128",
+      "renderD129"
+    ]
+  },
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "state": {
+    "loadAvg": [
+      13.45,
+      10.83,
+      10.29
+    ],
+    "freeMemBytes": 14432915456,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 63
+  },
+  "sp3Machine": {
+    "note": "Машина, на которой снят SP-3. Приведена целиком, потому что это ДРУГАЯ машина.",
+    "machine": {
+      "cpuModel": "AMD Ryzen 5 5600H with Radeon Graphics",
+      "cpuLogical": 12,
+      "cpuPhysicalCores": 6,
+      "threadsPerCore": 2,
+      "cpuMaxMhz": 4280,
+      "cpuGovernor": "powersave",
+      "ramTotalBytes": 16138244096,
+      "ramTotalGiB": 15.03,
+      "swapTotalKb": 2097148,
+      "os": "Ubuntu 22.04.5 LTS",
+      "kernel": "6.8.0-136-generic",
+      "arch": "x64",
+      "hostClass": "local",
+      "gpuPresent": true,
+      "gpuDevices": [
+        "by-path",
+        "card1",
+        "card2",
+        "renderD128",
+        "renderD129"
+      ]
+    },
+    "versions": {
+      "node": "v22.22.1",
+      "remotion": "4.0.513",
+      "react": "19.2.0",
+      "chromeHeadlessShell": "Chromium 149.0.7790.0",
+      "chromeBuildTag": "149.0.7790.0",
+      "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers",
+      "ffprobe": "ffprobe version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2007-2021 the FFmpeg developers",
+      "remotionCompositor": "compositor-linux-x64-gnu"
+    }
+  },
+  "notes": [
+    "ВАЖНО: SP-3 и SP-3c сняты на РАЗНЫХ машинах. SP-3 — AMD Ryzen 5 5600H, ноутбук, 15.03 GiB, Ubuntu 22.04.5, kernel 6.8.0-136, governor powersave, батарея есть. SP-3c — Intel Core i5-10400, стационарный ПК (ASUS, chassis_type 3), 31 GiB, Ubuntu 24.04.3, kernel 7.0.0-28, батареи нет.",
+    "Поэтому кадров/с из SP-3 и кадров/с из SP-3c НЕ сравнимы напрямую. Для сравнения на одном железе в спайке снят контрольный прогон Remotion 4.0.513 здесь же (results/raw/ctl-*.json).",
+    "Детерминизм — свойство рендерера, а не железа, и переносится; кадров/с — свойство железа и не переносится.",
+    "Прогон от батареи не выполнялся: батареи нет физически (/sys/class/power_supply пуст). Это не долг, а отсутствие объекта измерения.",
+    "ffmpeg/ffprobe на машине не установлены и passwordless sudo нет: взяты статические сборки из npm (ffmpeg-static 6.0-static, ffprobe-static 4.0.2-static). У SP-3 был системный ffmpeg 4.4.2. Битстримы двух разных сборок libx264 сравнивать между спайками нельзя; внутри SP-3c энкодер один и тот же.",
+    "cpuGovernor важен: при powersave частоты плавают, повтор замера в другой день может отличаться на единицы процентов (FACT SP-3 §2.2: разброс день-ко-дню 10–13 %).",
+    "gpuDevices присутствуют. В отличие от SP-3, где профиль final ходил через gl=swangle, у HyperFrames путь по умолчанию (browserGpuMode=auto) выбирает АППАРАТНЫЙ GPU. Обе ветки измерены отдельно."
+  ]
+}

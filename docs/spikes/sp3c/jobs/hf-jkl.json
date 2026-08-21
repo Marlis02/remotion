@@ -1,0 +1,155 @@
+[
+  {
+    "runId": "hfJ-final-w4-sw-load6-r1",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "cpuLoad": 6,
+    "outputPath": "out/hfJ-final-w4-sw-load6-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfJ-final-w4-sw-load6-r2",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "cpuLoad": 6,
+    "outputPath": "out/hfJ-final-w4-sw-load6-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfJ-final-w4-sw-load6-r3",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "cpuLoad": 6,
+    "outputPath": "out/hfJ-final-w4-sw-load6-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r4.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r5",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r5.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r6",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r6.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r7",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r7.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r8",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r8.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfK-final-w4-gpu-load6-r9",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "gpu",
+    "cpuLoad": 6,
+    "outputPath": "out/hfK-final-w4-gpu-load6-r9.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x04",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x04.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x05",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x05.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x06",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x06.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x07",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x07.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x08",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x08.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x09",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x09.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  },
+  {
+    "runId": "hfL-final-w2-gpu-x10",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "gpu",
+    "outputPath": "out/hfL-final-w2-gpu-x10.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true
+  }
+]

@@ -1,0 +1,68 @@
+{
+  "schema": "sp3c-build/1",
+  "capturedAt": "2026-08-21T05:11:54.641Z",
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "compositionHashes": {
+    "src": [
+      "5c05d8c4637e8a1c"
+    ],
+    "src-draft": [
+      "90c3dc85631da223"
+    ]
+  },
+  "coldCompiles": [
+    {
+      "tag": "cold1",
+      "ms": 11203,
+      "exitCode": 0,
+      "compositionHash": "5c05d8c4637e8a1c",
+      "outputSha256": "0c16d22e78abb61a827cdcd550b35ba72093a4a2e1c8dec38319ac30664e99a2",
+      "outputBytes": 10153577
+    },
+    {
+      "tag": "cold2",
+      "ms": 11107,
+      "exitCode": 0,
+      "compositionHash": "5c05d8c4637e8a1c",
+      "outputSha256": "0c16d22e78abb61a827cdcd550b35ba72093a4a2e1c8dec38319ac30664e99a2",
+      "outputBytes": 10153577
+    }
+  ],
+  "sizesMb": {
+    "sp3c/node_modules (hyperframes + gsap + ffmpeg-static)": 1447.2,
+    "sp3c/node_modules/hyperframes + @hyperframes": 110.7,
+    "chrome-headless-shell (puppeteer cache)": 259.9,
+    "puppeteer chrome (полный, скачан заодно)": 389.2,
+    "ffmpeg-static + ffprobe-static": 410.3,
+    "композиция целиком (src/, вместе с фоном и шрифтом)": 3.4,
+    "из неё: index.html": 0,
+    "из неё: motion.js (предвычисленные кадры)": 0,
+    "контроль: control/node_modules (remotion)": 286.3,
+    "контроль: chrome remotion (.remotion)": null,
+    "контроль: бандл remotion (.bundle/main)": 23.8
+  },
+  "summary": {
+    "разных compositionHash у src/ за все прогоны": 1,
+    "compositionHash холодной компиляции 1": "5c05d8c4637e8a1c",
+    "compositionHash холодной компиляции 2": "5c05d8c4637e8a1c",
+    "две холодные компиляции дали один compositionHash": true,
+    "две холодные компиляции дали побайтово равный mp4": true,
+    "node_modules HyperFrames, МБ": 1447.2,
+    "chrome-headless-shell, МБ": 259.9,
+    "композиция целиком, МБ": 3.4
+  }
+}

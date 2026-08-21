@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>SP-3c short (идиоматичный вариант)</title>
+    <script src="./gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      @font-face {
+        font-family: 'SP3Sans';
+        src: url('./DejaVuSans-Bold.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+      }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background-color: #000; }
+      .absfill { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; }
+      #kb-wrap { overflow: hidden; background-color: #000; }
+      #kb-img { width: 100%; height: 100%; object-fit: cover; transform-origin: 52% 46%; }
+      #scrim { background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.55) 26%, rgba(0,0,0,0.12) 52%, rgba(0,0,0,0.28) 100%); }
+      #vignette { background: radial-gradient(circle at 50% 44%, rgba(0,0,0,0) 42%, rgba(0,0,0,0.55) 100%); }
+      #fade { background-color: #000; }
+      .page {
+        position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column;
+        justify-content: flex-end; align-items: center;
+        padding-bottom: 320px; padding-left: 60px; padding-right: 60px;
+        visibility: hidden;
+      }
+      .page-inner {
+        display: flex; flex-wrap: wrap; justify-content: center; gap: 0 22px;
+        font-family: 'SP3Sans', sans-serif; font-weight: 700; font-size: 82px;
+        line-height: 1.18; text-align: center;
+      }
+      .tok { display: inline-block; color: rgba(255,255,255,0.86); text-shadow: 0 6px 22px rgba(0,0,0,0.85); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="short" data-start="0" data-duration="10" data-width="1080" data-height="1920">
+      <div id="kb-wrap" class="absfill"><img id="kb-img" src="./backdrop.jpg" alt="" /></div>
+      <div id="scrim" class="absfill"></div>
+      <div id="vignette" class="absfill"></div>
+      <div id="fade" class="absfill"></div>
+        <div class="clip page" id="page-0" data-start="0.4" data-duration="1.6666666666666667" data-track-index="3">
+          <div class="page-inner" id="page-inner-0">
+            <span id="tok-0" class="tok">Порт</span>
+            <span id="tok-1" class="tok">просыпается</span>
+            <span id="tok-2" class="tok">раньше</span>
+            <span id="tok-3" class="tok">города.</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-1" data-start="2.066666666666667" data-duration="1.7" data-track-index="3">
+          <div class="page-inner" id="page-inner-1">
+            <span id="tok-4" class="tok">Первый</span>
+            <span id="tok-5" class="tok">кран</span>
+            <span id="tok-6" class="tok">поднимает</span>
+            <span id="tok-7" class="tok">контейнер,</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-2" data-start="3.7666666666666666" data-duration="1.2666666666666666" data-track-index="3">
+          <div class="page-inner" id="page-inner-2">
+            <span id="tok-8" class="tok">и</span>
+            <span id="tok-9" class="tok">над</span>
+            <span id="tok-10" class="tok">водой</span>
+            <span id="tok-11" class="tok">загорается</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-3" data-start="5.033333333333333" data-duration="0.9333333333333333" data-track-index="3">
+          <div class="page-inner" id="page-inner-3">
+            <span id="tok-12" class="tok">полоса</span>
+            <span id="tok-13" class="tok">рассвета.</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-4" data-start="5.966666666666667" data-duration="1.4333333333333333" data-track-index="3">
+          <div class="page-inner" id="page-inner-4">
+            <span id="tok-14" class="tok">Здесь</span>
+            <span id="tok-15" class="tok">начинается</span>
+            <span id="tok-16" class="tok">путь</span>
+            <span id="tok-17" class="tok">каждой</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-5" data-start="7.4" data-duration="1.4333333333333333" data-track-index="3">
+          <div class="page-inner" id="page-inner-5">
+            <span id="tok-18" class="tok">вещи,</span>
+            <span id="tok-19" class="tok">которую</span>
+            <span id="tok-20" class="tok">ты</span>
+            <span id="tok-21" class="tok">держишь</span>
+          </div>
+        </div>
+        <div class="clip page" id="page-6" data-start="8.833333333333334" data-duration="0.6666666666666666" data-track-index="3">
+          <div class="page-inner" id="page-inner-6">
+            <span id="tok-22" class="tok">в</span>
+            <span id="tok-23" class="tok">руках.</span>
+          </div>
+        </div>
+    </div>
+
+    <script>
+      (function () {
+        var ACTIVE_SHADOW = '0 6px 26px rgba(0,0,0,0.85), 0 0 14px rgba(255,209,102,0.45)';
+        var IDLE_SHADOW = '0 6px 22px rgba(0,0,0,0.85)';
+        var tl = gsap.timeline({ paused: true });
+
+        // Ken Burns родным ease GSAP. Ближайший по смыслу к Remotion
+        // Easing.inOut(Easing.ease) — power1.inOut; совпадения не заявляется.
+        tl.fromTo('#kb-img', {scale: 1, x: 0, y: 0},
+          {scale: 1.15, x: -36, y: 28, duration: 10, ease: 'power1.inOut'}, 0);
+
+        // Затемнение: вход и выход, линейно, как в SP-3.
+        tl.fromTo('#fade', {opacity: 1}, {opacity: 0, duration: 0.5, ease: 'none'}, 0);
+        tl.to('#fade', {opacity: 1, duration: 0.5, ease: 'none'}, 9.466666666666667);
+
+        tl.fromTo('#page-inner-0', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 0.4);
+        tl.fromTo('#page-inner-1', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 2.066666666666667);
+        tl.fromTo('#page-inner-2', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 3.7666666666666666);
+        tl.fromTo('#page-inner-3', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 5.033333333333333);
+        tl.fromTo('#page-inner-4', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 5.966666666666667);
+        tl.fromTo('#page-inner-5', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 7.4);
+        tl.fromTo('#page-inner-6', {opacity: 0, y: 26}, {opacity: 1, y: 0, duration: 0.13333333333333333, ease: 'none'}, 8.833333333333334);
+        tl.set('#tok-0', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 0.4);
+        tl.set('#tok-0', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 0.6666666666666666);
+        tl.set('#tok-1', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 0.6666666666666666);
+        tl.set('#tok-1', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 1.2);
+        tl.set('#tok-2', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 1.2);
+        tl.set('#tok-2', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 1.5666666666666667);
+        tl.set('#tok-3', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 1.5666666666666667);
+        tl.set('#tok-3', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 2.066666666666667);
+        tl.set('#tok-4', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 2.066666666666667);
+        tl.set('#tok-4', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 2.433333333333333);
+        tl.set('#tok-5', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 2.433333333333333);
+        tl.set('#tok-5', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 2.7);
+        tl.set('#tok-6', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 2.7);
+        tl.set('#tok-6', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 3.1666666666666665);
+        tl.set('#tok-7', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 3.1666666666666665);
+        tl.set('#tok-7', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 3.7666666666666666);
+        tl.set('#tok-8', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 3.7666666666666666);
+        tl.set('#tok-8', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 3.966666666666667);
+        tl.set('#tok-9', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 3.966666666666667);
+        tl.set('#tok-9', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 4.2);
+        tl.set('#tok-10', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 4.2);
+        tl.set('#tok-10', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 4.533333333333333);
+        tl.set('#tok-11', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 4.533333333333333);
+        tl.set('#tok-11', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 5.033333333333333);
+        tl.set('#tok-12', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 5.033333333333333);
+        tl.set('#tok-12', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 5.366666666666666);
+        tl.set('#tok-13', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 5.366666666666666);
+        tl.set('#tok-13', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 5.966666666666667);
+        tl.set('#tok-14', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 5.966666666666667);
+        tl.set('#tok-14', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 6.266666666666667);
+        tl.set('#tok-15', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 6.266666666666667);
+        tl.set('#tok-15', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 6.766666666666667);
+        tl.set('#tok-16', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 6.766666666666667);
+        tl.set('#tok-16', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 7.066666666666666);
+        tl.set('#tok-17', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 7.066666666666666);
+        tl.set('#tok-17', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 7.4);
+        tl.set('#tok-18', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 7.4);
+        tl.set('#tok-18', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 7.833333333333333);
+        tl.set('#tok-19', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 7.833333333333333);
+        tl.set('#tok-19', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 8.233333333333333);
+        tl.set('#tok-20', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 8.233333333333333);
+        tl.set('#tok-20', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 8.433333333333334);
+        tl.set('#tok-21', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 8.433333333333334);
+        tl.set('#tok-21', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 8.833333333333334);
+        tl.set('#tok-22', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 8.833333333333334);
+        tl.set('#tok-22', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 9.033333333333333);
+        tl.set('#tok-23', {color: '#ffd166', scale: 1.07, textShadow: ACTIVE_SHADOW, webkitTextStroke: '2px rgba(0,0,0,0.35)'}, 9.033333333333333);
+        tl.set('#tok-23', {color: 'rgba(255,255,255,0.86)', scale: 1, textShadow: IDLE_SHADOW, webkitTextStroke: '0px transparent'}, 9.5);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines['short'] = tl;
+      })();
+    </script>
+  </body>
+</html>

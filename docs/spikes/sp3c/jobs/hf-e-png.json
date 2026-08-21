@@ -1,0 +1,56 @@
+[
+  {
+    "runId": "hfE-png-w4-gpu-r1",
+    "outputPath": "out/hfE-png-w4-gpu-r1",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 4,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfE-png-w4-gpu-r2",
+    "outputPath": "out/hfE-png-w4-gpu-r2",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 4,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfE-png-w4-gpu-r3",
+    "outputPath": "out/hfE-png-w4-gpu-r3",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 4,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfE-png-w1-gpu",
+    "outputPath": "out/hfE-png-w1-gpu",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 1,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfE-png-w2-gpu",
+    "outputPath": "out/hfE-png-w2-gpu",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 2,
+    "gpu": "gpu"
+  },
+  {
+    "runId": "hfE-png-w4-sw",
+    "outputPath": "out/hfE-png-w4-sw",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "pngseq",
+    "workers": 4,
+    "gpu": "sw"
+  }
+]

@@ -1,0 +1,330 @@
+{
+  "schema": "sp3c-run/1",
+  "runId": "ctlB-final-c1-swangle-r2",
+  "renderer": "remotion",
+  "status": "OK",
+  "startedAt": "2026-08-21T04:56:53.916Z",
+  "config": {
+    "gl": "swangle",
+    "concurrency": 1,
+    "profile": "final",
+    "mode": "media",
+    "compositionId": "short",
+    "compositionSource": "spikes/sp3/src/index.ts",
+    "profileParams": {
+      "profileId": "final",
+      "crf": 18,
+      "scale": 1,
+      "imageFormat": "jpeg",
+      "jpegQuality": 90,
+      "x264Preset": "medium",
+      "pixelFormat": "yuv420p",
+      "colorSpace": "bt709",
+      "encoderThreads": 4,
+      "gopSize": 30,
+      "disallowParallelEncoding": false,
+      "offthreadVideoCacheSizeInBytes": 536870912
+    },
+    "cpuLoadProcesses": 0
+  },
+  "versions": {
+    "node": "v25.6.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShellPath": "/home/ct/Desktop/remotion/docs/spikes/sp3c/control/node_modules/.remotion/chrome-headless-shell/linux64/chrome-headless-shell-linux64/chrome-headless-shell"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      9.84,
+      8.11,
+      8.16
+    ],
+    "freeMemBytes": 15475183616,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 64
+  },
+  "timings": {
+    "nodeBootMs": 213,
+    "ensureBrowserMs": 5,
+    "bundleMs": 1181,
+    "chromeStartProbeMs": 77,
+    "selectCompositionMs": 221,
+    "toFirstFrameMs": 98,
+    "renderCallMs": 69546,
+    "renderPhaseMs": 69448,
+    "framesRenderPhaseMs": 67963,
+    "stitchTailMs": 1485,
+    "totalMs": 71045,
+    "preRenderOverheadMs": 1810
+  },
+  "render": {
+    "frameCount": 300,
+    "compositionSize": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "renderedFrames": 300,
+    "fps": {
+      "renderPhase": 4.32,
+      "framesOnly": 4.414,
+      "endToEnd": 4.223
+    }
+  },
+  "warnings": [],
+  "ffmpeg": {
+    "invocations": [
+      {
+        "type": "pre-stitcher",
+        "patched": [
+          "-r",
+          30,
+          "-f",
+          "image2pipe",
+          "-s",
+          "1080x1920",
+          "-vcodec",
+          "mjpeg",
+          "-i",
+          "-",
+          "-c:v",
+          "libx264",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-vf",
+          "zscale=matrix=709:matrixin=709:range=limited",
+          "-pix_fmt",
+          "yuv420p",
+          "-preset",
+          "medium",
+          "-video_track_timescale",
+          "90000",
+          "-crf",
+          "18",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/tmp/react-motion-renderyh56nH/pre-encode.mp4"
+        ]
+      },
+      {
+        "type": "stitcher",
+        "patched": [
+          "-i",
+          "/tmp/react-motion-renderyh56nH/pre-encode.mp4",
+          "-an",
+          "-c:v",
+          "copy",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-movflags",
+          "faststart",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Made with Remotion 4.0.513",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/home/ct/Desktop/remotion/docs/spikes/sp3c/out/ctlB-final-c1-swangle-r2.mp4"
+        ]
+      }
+    ]
+  },
+  "memory": {
+    "intervalMs": 200,
+    "samples": 353,
+    "errors": 0,
+    "peakRssSumMb": 1519.1,
+    "peakPssSumMb": 1192.3,
+    "peakSingleProcRssMb": 517.2,
+    "peakProcessCount": 8,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 1297.9,
+        "procs": 8
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 1387.9,
+        "procs": 8
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 1519.1,
+        "procs": 8
+      },
+      {
+        "tSec": 15,
+        "rssSumMb": 1350.6,
+        "procs": 8
+      },
+      {
+        "tSec": 20,
+        "rssSumMb": 1369.1,
+        "procs": 8
+      },
+      {
+        "tSec": 25,
+        "rssSumMb": 1373.9,
+        "procs": 8
+      },
+      {
+        "tSec": 30,
+        "rssSumMb": 1363.2,
+        "procs": 8
+      },
+      {
+        "tSec": 35,
+        "rssSumMb": 1362.2,
+        "procs": 8
+      },
+      {
+        "tSec": 40,
+        "rssSumMb": 1361.3,
+        "procs": 8
+      },
+      {
+        "tSec": 45,
+        "rssSumMb": 1365.1,
+        "procs": 8
+      },
+      {
+        "tSec": 50,
+        "rssSumMb": 1370.2,
+        "procs": 8
+      },
+      {
+        "tSec": 55,
+        "rssSumMb": 1368.7,
+        "procs": 8
+      },
+      {
+        "tSec": 60,
+        "rssSumMb": 1371.4,
+        "procs": 8
+      },
+      {
+        "tSec": 65,
+        "rssSumMb": 1286.1,
+        "procs": 8
+      },
+      {
+        "tSec": 70,
+        "rssSumMb": 610.8,
+        "procs": 3
+      }
+    ]
+  },
+  "verification": {
+    "framemd5": {
+      "ms": 1335,
+      "file": "results/framemd5/ctlB-final-c1-swangle-r2.framemd5",
+      "frameLines": 300,
+      "sha256": "0f339ca604cd1d06d331f9bdc72cc97eaa9975f6e0dc77171332f8707dd3e2bf",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i out/ctlB-final-c1-swangle-r2.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3c/results/framemd5/ctlB-final-c1-swangle-r2.framemd5"
+    },
+    "ffprobe": {
+      "ms": 9,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json out/ctlB-final-c1-swangle-r2.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 16318439
+      }
+    },
+    "keyframes": {
+      "ms": 2925,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 out/ctlB-final-c1-swangle-r2.mp4",
+      "frameCount": 300,
+      "keyframeCount": 11,
+      "keyframeIndexes": [
+        0,
+        3,
+        33,
+        63,
+        93,
+        123,
+        152,
+        181,
+        211,
+        241,
+        271
+      ],
+      "gopSizes": [
+        3,
+        29,
+        30
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "ebf5aaf8ad8af81e7fd073829deb29dc01c6de0e6d087834031866f762c92cc7",
+    "outputBytes": 20398049
+  },
+  "derived": {
+    "frames": 300,
+    "framesPerSecond_framesOnly": 4.414,
+    "framesPerSecond_renderPhase": 4.32,
+    "framesPerSecond_endToEnd": 4.223,
+    "wallTimeSec": 71.045,
+    "ac2ProjectedMinutes_renderPhase": 6.94,
+    "ac2ProjectedMinutes_endToEnd": 7.1
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      7.87,
+      7.81,
+      8.05
+    ],
+    "freeMemBytes": 15394705408,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 66
+  },
+  "finishedAt": "2026-08-21T04:58:09.280Z"
+}

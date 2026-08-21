@@ -1,0 +1,164 @@
+[
+  {
+    "runId": "hfB-final-w1-sw-r1",
+    "outputPath": "out/hfB-final-w1-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w1-sw-r2",
+    "outputPath": "out/hfB-final-w1-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w1-sw-r3",
+    "outputPath": "out/hfB-final-w1-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w2-sw-r1",
+    "outputPath": "out/hfB-final-w2-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w2-sw-r2",
+    "outputPath": "out/hfB-final-w2-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w2-sw-r3",
+    "outputPath": "out/hfB-final-w2-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w4-sw-r1",
+    "outputPath": "out/hfB-final-w4-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w4-sw-r2",
+    "outputPath": "out/hfB-final-w4-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-final-w4-sw-r3",
+    "outputPath": "out/hfB-final-w4-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w1-sw-r1",
+    "outputPath": "out/hfB-draft-w1-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w1-sw-r2",
+    "outputPath": "out/hfB-draft-w1-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w1-sw-r3",
+    "outputPath": "out/hfB-draft-w1-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 1,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w2-sw-r1",
+    "outputPath": "out/hfB-draft-w2-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w2-sw-r2",
+    "outputPath": "out/hfB-draft-w2-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w2-sw-r3",
+    "outputPath": "out/hfB-draft-w2-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 2,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w4-sw-r1",
+    "outputPath": "out/hfB-draft-w4-sw-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 4,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w4-sw-r2",
+    "outputPath": "out/hfB-draft-w4-sw-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 4,
+    "gpu": "sw"
+  },
+  {
+    "runId": "hfB-draft-w4-sw-r3",
+    "outputPath": "out/hfB-draft-w4-sw-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "draft",
+    "workers": 4,
+    "gpu": "sw"
+  }
+]

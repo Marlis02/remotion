@@ -1,0 +1,16 @@
+{
+  "name": "sp3c-hyperframes-spike",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "SP-3c spike: HyperFrames determinism (AC4) and frame budget (AC2), measured next to SP-3 numbers.",
+  "dependencies": {
+    "@hyperframes/core": "0.8.5",
+    "@hyperframes/engine": "0.8.5",
+    "@hyperframes/producer": "0.8.5",
+    "ffmpeg-static": "5.2.0",
+    "ffprobe-static": "3.1.0",
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.5"
+  }
+}
