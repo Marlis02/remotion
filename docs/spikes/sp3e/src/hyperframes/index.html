@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>SP-3e motion bench (HyperFrames)</title>
+    <script src="./gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0b1220; }
+      @font-face { font-family: 'SP3Sans'; src: url('./DejaVuSans-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background-color: #0b1220; }
+      .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; }
+      .bar { position: absolute; background-color: #4cc9f0; border-radius: 10px; transform: scaleY(0); transform-origin: 50% 100%; }
+      .bar-label { position: absolute; text-align: center; font-family: 'SP3Sans', sans-serif; font-weight: 700; font-size: 34px; color: rgba(255,255,255,0.72); }
+      #counter { position: absolute; left: 0; top: 210px; width: 1080px; display: flex; justify-content: center;
+        font-family: 'SP3Sans', sans-serif; font-weight: 700; font-size: 160px; color: #ffd166; }
+      #counter span { display: inline-block; width: 104px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="motion" data-start="0" data-duration="10" data-width="1080" data-height="1920">
+
+      <div class="layer" id="g-bars">
+        <div class="bar" id="bar-0" style="left:120px;top:1521.4px;width:118.33333333333333px;height:178.6px"></div>
+        <div class="bar-label" style="left:120px;top:1718px;width:118.33333333333333px">JAN</div>
+        <div class="bar" id="bar-1" style="left:264.3333333333333px;top:1408.6px;width:118.33333333333333px;height:291.4px"></div>
+        <div class="bar-label" style="left:264.3333333333333px;top:1718px;width:118.33333333333333px">FEB</div>
+        <div class="bar" id="bar-2" style="left:408.66666666666663px;top:1479.1px;width:118.33333333333333px;height:220.89999999999998px"></div>
+        <div class="bar-label" style="left:408.66666666666663px;top:1718px;width:118.33333333333333px">MAR</div>
+        <div class="bar" id="bar-3" style="left:553px;top:1272.3px;width:118.33333333333333px;height:427.7px"></div>
+        <div class="bar-label" style="left:553px;top:1718px;width:118.33333333333333px">APR</div>
+        <div class="bar" id="bar-4" style="left:697.3333333333333px;top:1441.5px;width:118.33333333333333px;height:258.5px"></div>
+        <div class="bar-label" style="left:697.3333333333333px;top:1718px;width:118.33333333333333px">MAY</div>
+        <div class="bar" id="bar-5" style="left:841.6666666666665px;top:1352.2px;width:118.33333333333333px;height:347.8px"></div>
+        <div class="bar-label" style="left:841.6666666666665px;top:1718px;width:118.33333333333333px">JUN</div>
+      </div>
+
+      <div class="layer" id="g-counter"><div id="counter"></div></div>
+
+      <div class="layer" id="g-line">
+        <svg width="1080" height="1920">
+          <defs>
+            <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(247,37,133,0.55)" />
+              <stop offset="100%" stop-color="rgba(247,37,133,0.02)" />
+            </linearGradient>
+            <clipPath id="lineClip">
+              <rect id="lineClipRect" x="100" y="990" width="0" height="380" />
+            </clipPath>
+          </defs>
+          <g clip-path="url(#lineClip)"><path d="M100.000 1210.400 L122.564 1199.000 L145.128 1214.200 L167.692 1187.600 L190.256 1168.600 L212.821 1180.000 L235.385 1153.400 L257.949 1138.200 L280.513 1149.600 L303.077 1126.800 L325.641 1107.800 L348.205 1119.200 L370.769 1096.400 L393.333 1104.000 L415.897 1081.200 L438.462 1062.200 L461.026 1073.600 L483.590 1088.800 L506.154 1069.800 L528.718 1047.000 L551.282 1054.600 L573.846 1035.600 L596.410 1050.800 L618.974 1028.000 L641.538 1039.400 L664.103 1020.400 L686.667 1031.800 L709.231 1012.800 L731.795 1024.200 L754.359 1005.200 L776.923 1016.600 L799.487 1028.000 L822.051 1009.000 L844.615 1020.400 L867.179 1001.400 L889.744 1012.800 L912.308 993.800 L934.872 1005.200 L957.436 990.000 L980.000 997.600 L980.000 1370 L100.000 1370 Z" fill="url(#lineFill)" /></g>
+          <path id="line-stroke" d="M100.000 1210.400 L122.564 1199.000 L145.128 1214.200 L167.692 1187.600 L190.256 1168.600 L212.821 1180.000 L235.385 1153.400 L257.949 1138.200 L280.513 1149.600 L303.077 1126.800 L325.641 1107.800 L348.205 1119.200 L370.769 1096.400 L393.333 1104.000 L415.897 1081.200 L438.462 1062.200 L461.026 1073.600 L483.590 1088.800 L506.154 1069.800 L528.718 1047.000 L551.282 1054.600 L573.846 1035.600 L596.410 1050.800 L618.974 1028.000 L641.538 1039.400 L664.103 1020.400 L686.667 1031.800 L709.231 1012.800 L731.795 1024.200 L754.359 1005.200 L776.923 1016.600 L799.487 1028.000 L822.051 1009.000 L844.615 1020.400 L867.179 1001.400 L889.744 1012.800 L912.308 993.800 L934.872 1005.200 L957.436 990.000 L980.000 997.600" fill="none" stroke="#f72585" stroke-width="7"
+                stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" />
+        </svg>
+      </div>
+
+      <div class="layer" id="g-grid">
+        <svg width="1080" height="1920">
+        <circle id="dot-0" cx="141" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-1" cx="183" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-2" cx="225" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-3" cx="267" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-4" cx="309" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-5" cx="351" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-6" cx="393" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-7" cx="435" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-8" cx="477" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-9" cx="519" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-10" cx="561" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-11" cx="603" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-12" cx="645" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-13" cx="687" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-14" cx="729" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-15" cx="771" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-16" cx="813" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-17" cx="855" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-18" cx="897" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-19" cx="939" cy="1206" r="15" fill="#4361ee" />
+        <circle id="dot-20" cx="141" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-21" cx="183" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-22" cx="225" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-23" cx="267" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-24" cx="309" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-25" cx="351" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-26" cx="393" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-27" cx="435" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-28" cx="477" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-29" cx="519" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-30" cx="561" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-31" cx="603" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-32" cx="645" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-33" cx="687" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-34" cx="729" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-35" cx="771" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-36" cx="813" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-37" cx="855" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-38" cx="897" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-39" cx="939" cy="1258" r="15" fill="#4361ee" />
+        <circle id="dot-40" cx="141" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-41" cx="183" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-42" cx="225" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-43" cx="267" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-44" cx="309" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-45" cx="351" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-46" cx="393" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-47" cx="435" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-48" cx="477" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-49" cx="519" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-50" cx="561" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-51" cx="603" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-52" cx="645" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-53" cx="687" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-54" cx="729" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-55" cx="771" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-56" cx="813" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-57" cx="855" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-58" cx="897" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-59" cx="939" cy="1310" r="15" fill="#4361ee" />
+        <circle id="dot-60" cx="141" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-61" cx="183" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-62" cx="225" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-63" cx="267" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-64" cx="309" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-65" cx="351" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-66" cx="393" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-67" cx="435" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-68" cx="477" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-69" cx="519" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-70" cx="561" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-71" cx="603" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-72" cx="645" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-73" cx="687" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-74" cx="729" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-75" cx="771" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-76" cx="813" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-77" cx="855" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-78" cx="897" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-79" cx="939" cy="1362" r="15" fill="#4361ee" />
+        <circle id="dot-80" cx="141" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-81" cx="183" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-82" cx="225" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-83" cx="267" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-84" cx="309" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-85" cx="351" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-86" cx="393" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-87" cx="435" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-88" cx="477" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-89" cx="519" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-90" cx="561" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-91" cx="603" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-92" cx="645" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-93" cx="687" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-94" cx="729" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-95" cx="771" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-96" cx="813" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-97" cx="855" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-98" cx="897" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-99" cx="939" cy="1414" r="15" fill="#4361ee" />
+        <circle id="dot-100" cx="141" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-101" cx="183" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-102" cx="225" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-103" cx="267" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-104" cx="309" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-105" cx="351" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-106" cx="393" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-107" cx="435" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-108" cx="477" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-109" cx="519" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-110" cx="561" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-111" cx="603" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-112" cx="645" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-113" cx="687" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-114" cx="729" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-115" cx="771" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-116" cx="813" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-117" cx="855" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-118" cx="897" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-119" cx="939" cy="1466" r="15" fill="#4361ee" />
+        <circle id="dot-120" cx="141" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-121" cx="183" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-122" cx="225" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-123" cx="267" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-124" cx="309" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-125" cx="351" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-126" cx="393" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-127" cx="435" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-128" cx="477" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-129" cx="519" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-130" cx="561" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-131" cx="603" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-132" cx="645" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-133" cx="687" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-134" cx="729" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-135" cx="771" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-136" cx="813" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-137" cx="855" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-138" cx="897" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-139" cx="939" cy="1518" r="15" fill="#4361ee" />
+        <circle id="dot-140" cx="141" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-141" cx="183" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-142" cx="225" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-143" cx="267" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-144" cx="309" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-145" cx="351" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-146" cx="393" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-147" cx="435" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-148" cx="477" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-149" cx="519" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-150" cx="561" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-151" cx="603" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-152" cx="645" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-153" cx="687" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-154" cx="729" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-155" cx="771" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-156" cx="813" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-157" cx="855" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-158" cx="897" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-159" cx="939" cy="1570" r="15" fill="#4361ee" />
+        <circle id="dot-160" cx="141" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-161" cx="183" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-162" cx="225" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-163" cx="267" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-164" cx="309" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-165" cx="351" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-166" cx="393" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-167" cx="435" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-168" cx="477" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-169" cx="519" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-170" cx="561" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-171" cx="603" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-172" cx="645" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-173" cx="687" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-174" cx="729" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-175" cx="771" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-176" cx="813" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-177" cx="855" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-178" cx="897" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-179" cx="939" cy="1622" r="15" fill="#4361ee" />
+        <circle id="dot-180" cx="141" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-181" cx="183" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-182" cx="225" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-183" cx="267" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-184" cx="309" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-185" cx="351" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-186" cx="393" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-187" cx="435" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-188" cx="477" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-189" cx="519" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-190" cx="561" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-191" cx="603" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-192" cx="645" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-193" cx="687" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-194" cx="729" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-195" cx="771" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-196" cx="813" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-197" cx="855" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-198" cx="897" cy="1674" r="15" fill="#4361ee" />
+        <circle id="dot-199" cx="939" cy="1674" r="15" fill="#4361ee" />
+        </svg>
+      </div>
+
+      <div class="layer" id="g-morph">
+        <svg width="1080" height="1920"><path id="morph-path" d="" fill="#06d6a0" /></svg>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var D = {"schema":"sp3e-data/1","comment":"SP-3e: все значения композиции. Один файл на оба рендерера. Никакого Math.random/Date.now (V8).","fps":30,"durationInFrames":300,"width":1080,"height":1920,"background":"#0b1220","palette":{"bar":"#4cc9f0","barLabel":"rgba(255,255,255,0.72)","counter":"#ffd166","line":"#f72585","lineFillTop":"rgba(247,37,133,0.55)","lineFillBottom":"rgba(247,37,133,0.02)","dotA":"#4361ee","dotB":"#ffd166","morph":"#06d6a0"},"windows":{"bars":{"from":0,"to":120},"counter":{"from":30,"to":90},"line":{"from":90,"to":210},"grid":{"from":150,"to":240},"morph":{"from":210,"to":300}},"bars":{"values":[0.38,0.62,0.47,0.91,0.55,0.74],"labels":["JAN","FEB","MAR","APR","MAY","JUN"],"staggerFrames":4,"growFrames":40,"x":120,"width":840,"baselineY":1700,"maxHeight":470,"gap":26},"counter":{"target":1793,"startFrame":30,"frames":60,"fontPx":160,"digitWidthPx":104,"centerX":540,"y":210},"line":{"x":100,"y":990,"width":880,"height":380,"drawFrames":120,"points":[0.42,0.45,0.41,0.48,0.53,0.5,0.57,0.61,0.58,0.64,0.69,0.66,0.72,0.7,0.76,0.81,0.78,0.74,0.79,0.85,0.83,0.88,0.84,0.9,0.87,0.92,0.89,0.94,0.91,0.96,0.93,0.9,0.95,0.92,0.97,0.94,0.99,0.96,1,0.98]},"grid":{"cols":20,"rows":10,"count":200,"x":120,"y":1180,"cellW":42,"cellH":52,"radius":15,"waveDelayFrames":2,"popFrames":12,"recolorFrame":225},"morph":{"cx":540,"cy":700,"outerR":200,"innerR":84,"nodes":10,"toStarFrames":45,"backFrames":45}};
+        var F = function (n) { return n / D.fps; };
+        var tl = gsap.timeline({ paused: true });
+
+        // --- окна видимости: слой включается на своём отрезке и выключается после него
+        var W = D.windows;
+        Object.keys(W).forEach(function (k) {
+          var id = '#g-' + k;
+          tl.set(id, {opacity: 1}, F(W[k].from));
+          tl.set(id, {opacity: 0}, F(W[k].to));
+        });
+
+        // --- 1. столбчатая диаграмма: back.out — родной оверлет GSAP, сдвиг 4 кадра
+        for (var i = 0; i < D.bars.values.length; i++) {
+          tl.fromTo('#bar-' + i, {scaleY: 0},
+            {scaleY: 1, duration: F(D.bars.growFrames), ease: 'back.out(1.7)'},
+            F(W.bars.from + i * D.bars.staggerFrames));
+        }
+
+        // --- 2. счётчик: прокси-объект + onUpdate; цифры в боксах фиксированной ширины
+        var counterEl = document.getElementById('counter');
+        var proxy = {v: 0};
+        var renderCounter = function () {
+          var s = String(Math.round(proxy.v));
+          var out = '';
+          for (var d = 0; d < s.length; d++) out += '<span>' + s[d] + '</span>';
+          counterEl.innerHTML = out;
+        };
+        renderCounter();
+        tl.fromTo(proxy, {v: 0},
+          {v: D.counter.target, duration: F(D.counter.frames), ease: 'power3.out', onUpdate: renderCounter},
+          F(D.counter.startFrame));
+
+        // --- 3. линейный график: прорисовка stroke-dashoffset + подъезжающий клип заливки
+        tl.fromTo('#line-stroke', {strokeDashoffset: 1},
+          {strokeDashoffset: 0, duration: F(D.line.drawFrames), ease: 'none'}, F(W.line.from));
+        tl.fromTo('#lineClipRect', {attr: {width: 0}},
+          {attr: {width: D.line.width}, duration: F(D.line.drawFrames), ease: 'none'}, F(W.line.from));
+
+        // --- 4. stagger-сетка: волна по диагонали, затем одновременная смена цвета
+        for (var j = 0; j < D.grid.count; j++) {
+          var col = j % D.grid.cols, row = Math.floor(j / D.grid.cols);
+          var cx = D.grid.x + col * D.grid.cellW + D.grid.cellW / 2;
+          var cy = D.grid.y + row * D.grid.cellH + D.grid.cellH / 2;
+          tl.fromTo('#dot-' + j, {scale: 0, svgOrigin: cx + ' ' + cy},
+            {scale: 1, svgOrigin: cx + ' ' + cy, duration: F(D.grid.popFrames), ease: 'back.out(1.7)'},
+            F(W.grid.from + (col + row) * D.grid.waveDelayFrames));
+        }
+        tl.set('#g-grid circle', {attr: {fill: D.palette.dotB}}, F(D.grid.recolorFrame));
+
+        // --- 5. SVG-морфинг: один путь, 10 узлов, круг(десятиугольник) → звезда → обратно
+        var morphEl = document.getElementById('morph-path');
+        var mp = {p: 0};
+        var renderMorph = function () {
+          var parts = [];
+          for (var k = 0; k < D.morph.nodes; k++) {
+            var a = (-90 + (k * 360) / D.morph.nodes) * (Math.PI / 180);
+            var r = k % 2 === 0 ? D.morph.outerR : D.morph.outerR + (D.morph.innerR - D.morph.outerR) * mp.p;
+            var x = D.morph.cx + r * Math.cos(a);
+            var y = D.morph.cy + r * Math.sin(a);
+            parts.push((k === 0 ? 'M' : 'L') + x.toFixed(3) + ' ' + y.toFixed(3));
+          }
+          morphEl.setAttribute('d', parts.join(' ') + ' Z');
+        };
+        renderMorph();
+        tl.fromTo(mp, {p: 0}, {p: 1, duration: F(D.morph.toStarFrames), ease: 'power2.inOut', onUpdate: renderMorph}, F(W.morph.from));
+        tl.to(mp, {p: 0, duration: F(D.morph.backFrames), ease: 'power2.inOut', onUpdate: renderMorph}, F(W.morph.from + D.morph.toStarFrames));
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines['motion'] = tl;
+      })();
+    </script>
+  </body>
+</html>

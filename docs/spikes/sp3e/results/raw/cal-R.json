@@ -1,0 +1,242 @@
+{
+  "schema": "sp3e-run/1",
+  "runId": "cal-R",
+  "renderer": "remotion",
+  "status": "OK",
+  "startedAt": "2026-08-21T08:26:39.876Z",
+  "config": {
+    "profile": "final",
+    "concurrency": 4,
+    "gl": "angle",
+    "project": "src/remotion",
+    "outputPath": "out/cal-R.mp4",
+    "profileParams": {
+      "profileId": "final",
+      "crf": 18,
+      "scale": 1,
+      "imageFormat": "jpeg",
+      "jpegQuality": 90,
+      "x264Preset": "medium",
+      "pixelFormat": "yuv420p",
+      "colorSpace": "bt709",
+      "encoderThreads": 4,
+      "gopSize": 30,
+      "disallowParallelEncoding": false,
+      "offthreadVideoCacheSizeInBytes": 536870912
+    }
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      1.45,
+      4.01,
+      9.77
+    ],
+    "freeMemBytes": 20114636800,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 53
+  },
+  "timings": {
+    "nodeBootMs": 240,
+    "bundleMs": 5445,
+    "selectCompositionMs": 539,
+    "renderCallMs": 8355,
+    "renderPhaseMs": 8236,
+    "framesRenderPhaseMs": 7981,
+    "stitchTailMs": 255,
+    "totalMs": 14353,
+    "preRenderOverheadMs": 6357
+  },
+  "warnings": [],
+  "memory": {
+    "intervalMs": 200,
+    "samples": 54,
+    "errors": 0,
+    "peakRssSumMb": 2442.6,
+    "peakPssSumMb": 1901.2,
+    "peakSingleProcRssMb": 994.5,
+    "peakProcessCount": 12,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 843,
+        "procs": 2
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 2031.9,
+        "procs": 12
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 2442.6,
+        "procs": 12
+      }
+    ]
+  },
+  "browserLogCount": 0,
+  "browserLogs": [],
+  "ffmpeg": {
+    "invocations": [
+      {
+        "type": "pre-stitcher",
+        "patched": [
+          "-r",
+          30,
+          "-f",
+          "image2pipe",
+          "-s",
+          "1080x1920",
+          "-vcodec",
+          "mjpeg",
+          "-i",
+          "-",
+          "-c:v",
+          "libx264",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-vf",
+          "zscale=matrix=709:matrixin=709:range=limited",
+          "-pix_fmt",
+          "yuv420p",
+          "-preset",
+          "medium",
+          "-video_track_timescale",
+          "90000",
+          "-crf",
+          "18",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/tmp/react-motion-renderHTMmgf/pre-encode.mp4"
+        ]
+      },
+      {
+        "type": "stitcher",
+        "patched": [
+          "-i",
+          "/tmp/react-motion-renderHTMmgf/pre-encode.mp4",
+          "-an",
+          "-c:v",
+          "copy",
+          "-colorspace:v",
+          "bt709",
+          "-color_primaries:v",
+          "bt709",
+          "-color_trc:v",
+          "bt709",
+          "-color_range",
+          "tv",
+          "-movflags",
+          "faststart",
+          "-map_metadata",
+          "-1",
+          "-metadata",
+          "comment=Made with Remotion 4.0.513",
+          "-y",
+          "-g",
+          "30",
+          "-threads",
+          "4",
+          "-fflags",
+          "+bitexact",
+          "-flags:v",
+          "+bitexact",
+          "/home/ct/Desktop/remotion/docs/spikes/sp3e/out/cal-R.mp4"
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "framemd5": {
+      "ms": 1321,
+      "file": "results/framemd5/cal-R.framemd5",
+      "frameLines": 300,
+      "sha256": "fee8658c49040172cfb967b9e7d88c112dff97485baffebf1feaa2de8616b3d5",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i out/cal-R.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3e/results/framemd5/cal-R.framemd5"
+    },
+    "ffprobe": {
+      "ms": 18,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json out/cal-R.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/90000",
+        "colorSpace": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 2,
+        "durationSec": 10,
+        "bitRate": 744726
+      }
+    },
+    "keyframes": {
+      "ms": 640,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 out/cal-R.mp4",
+      "frameCount": 300,
+      "keyframeCount": 10,
+      "keyframeIndexes": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180,
+        210,
+        240,
+        270
+      ],
+      "gopSizes": [
+        30
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "6b7a813a65dc2c9cb25ea8eb691097e53beaab1cb5c2dee638ad460415dac4f7",
+    "outputBytes": 930908
+  },
+  "derived": {
+    "frames": 300,
+    "framesPerSecond_framesOnly": 37.589,
+    "framesPerSecond_renderPhase": 36.425,
+    "framesPerSecond_endToEnd": 20.902,
+    "wallTimeSec": 14.353
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      1.82,
+      3.96,
+      9.66
+    ],
+    "freeMemBytes": 19124965376,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 52
+  },
+  "finishedAt": "2026-08-21T08:26:56.211Z"
+}

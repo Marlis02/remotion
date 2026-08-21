@@ -1,0 +1,27 @@
+MR-c4-r1	OK	11.7s	fps=38.427	sha=6b7a813a65dc2c9c
+MR-c4-r2	OK	11.6s	fps=38.74	sha=6b7a813a65dc2c9c
+MR-c4-r3	OK	11.4s	fps=39.751	sha=6b7a813a65dc2c9c
+MR-c4-r4	OK	11.2s	fps=41.209	sha=6b7a813a65dc2c9c
+MR-c4-r5	OK	11.7s	fps=37.888	sha=6b7a813a65dc2c9c
+MR-c4-r6	OK	11.9s	fps=37.807	sha=6b7a813a65dc2c9c
+MR-c4-r7	OK	11.6s	fps=38.65	sha=6b7a813a65dc2c9c
+MR-c4-r8	OK	11.8s	fps=37.486	sha=6b7a813a65dc2c9c
+MR-c4-r9	OK	11s	fps=42.046	sha=6b7a813a65dc2c9c
+MR-c4-r10	OK	11.8s	fps=37.927	sha=6b7a813a65dc2c9c
+MH-w4-r1	OK	9.8s	fps=42.147	sha=74a867748a4a316a
+MH-w4-r2	OK	9s	fps=47.536	sha=3f38b3a219178219
+MH-w4-r3	OK	8.9s	fps=48	sha=442f59d5f5d6c91f
+MH-w4-r4	OK	10.1s	fps=40.399	sha=3f38b3a219178219
+MH-w4-r5	OK	8.9s	fps=48.154	sha=3f38b3a219178219
+MH-w4-r6	OK	9.1s	fps=47.088	sha=3f38b3a219178219
+MH-w4-r7	OK	9s	fps=47.423	sha=3f38b3a219178219
+MH-w4-r8	OK	10.1s	fps=40.247	sha=c38555b286a108e5
+MH-w4-r9	OK	9s	fps=47.438	sha=3f38b3a219178219
+MH-w4-r10	OK	9s	fps=47.401	sha=3f38b3a219178219
+MR1-c1-r1	OK	24.8s	fps=14.316	sha=6b7a813a65dc2c9c
+MR1-c1-r2	OK	26.1s	fps=13.508	sha=6b7a813a65dc2c9c
+MR1-c1-r3	OK	25.4s	fps=13.944	sha=6b7a813a65dc2c9c
+MH1-w1-r1	OK	19.7s	fps=17.629	sha=707a36f9f124dea9
+MH1-w1-r2	OK	18.8s	fps=18.669	sha=d13779e897a7fe51
+MH1-w1-r3	OK	20.8s	fps=16.568	sha=a15171cebb49346a
+матрица закончена

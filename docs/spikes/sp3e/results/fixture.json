@@ -1,0 +1,52 @@
+{
+  "schema": "sp3e-fixture/1",
+  "takenAt": "2026-08-21T08:29:18.635Z",
+  "data": {
+    "file": "data.json",
+    "sha256": "39bf48df98db3dce121a6f1139d38ed12b0facd95178d60a0690f214b9dc209a"
+  },
+  "remotion": [
+    {
+      "file": "src/remotion/index.ts",
+      "bytes": 101,
+      "sha256": "7792c2cb3f3aa49d379aa5fccc044ea5ec019b1edb3f2f1cdc08981ee008f33b"
+    },
+    {
+      "file": "src/remotion/Motion.tsx",
+      "bytes": 7423,
+      "sha256": "9382c5f04d5533791e2059b0d8d8b117fc70203cd762ddfbf515c3af596a8c9d"
+    },
+    {
+      "file": "src/remotion/public/DejaVuSans-Bold.ttf",
+      "bytes": 705684,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    },
+    {
+      "file": "src/remotion/Root.tsx",
+      "bytes": 472,
+      "sha256": "eedd611149ee9b06729839250adc826e6e78c71a00ae830032caeffd8a4dcd92"
+    },
+    {
+      "file": "src/remotion/shared.ts",
+      "bytes": 2997,
+      "sha256": "d4a98162ca62128931b9588b5cd9bad69ce3b0f07830e31ad8959ec4699568b0"
+    }
+  ],
+  "hyperframes": [
+    {
+      "file": "src/hyperframes/DejaVuSans-Bold.ttf",
+      "bytes": 705684,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+    },
+    {
+      "file": "src/hyperframes/gsap.min.js",
+      "bytes": 72927,
+      "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+    },
+    {
+      "file": "src/hyperframes/index.html",
+      "bytes": 25523,
+      "sha256": "f2426106c15baecffa94e43f8f4517d16ff54a4d200398b5c722befb7300a028"
+    }
+  ]
+}

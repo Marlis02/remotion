@@ -1,0 +1,79 @@
+{
+  "schema": "sp3e-machine/1",
+  "takenAt": "2026-08-21T08:40:34.856Z",
+  "spike": "SP-3e — моушн-бенч: графики, счётчики, stagger на обоих рендерерах",
+  "hardware": {
+    "cpuModel": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+    "cpuLogical": 12,
+    "cpuPhysicalCores": 6,
+    "threadsPerCore": 2,
+    "cpuMaxMhz": 4300,
+    "cpuGovernor": "powersave",
+    "ramTotalBytes": 33465974784,
+    "ramTotalGiB": 31.17,
+    "swapTotalKb": 8388604,
+    "os": "Ubuntu 24.04.3 LTS",
+    "kernel": "7.0.0-28-generic",
+    "arch": "x64",
+    "hostClass": "local",
+    "gpuPresent": true,
+    "gpuDevices": [
+      "by-path",
+      "card1",
+      "card2",
+      "renderD128",
+      "renderD129"
+    ]
+  },
+  "cpuGovernor": "powersave",
+  "sysinfo": {
+    "node": "v25.6.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": null,
+    "chromeBuildTag": null,
+    "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      3.2,
+      3.61,
+      6.06
+    ],
+    "freeMemBytes": 19983310848,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 47
+  },
+  "renderers": {
+    "remotion": {
+      "packages": {
+        "@remotion/bundler": "4.0.513",
+        "@remotion/renderer": "4.0.513",
+        "react": "19.2.0",
+        "react-dom": "19.2.0",
+        "remotion": "4.0.513"
+      },
+      "note": "пакеты и Chrome берутся из sp3/node_modules (символьная ссылка sp3e/node_modules)",
+      "chromeHeadlessShell": ""
+    },
+    "hyperframes": {
+      "cli": "/home/ct/Desktop/remotion/docs/spikes/sp3c/node_modules/.bin/hyperframes",
+      "version": "0.8.5",
+      "license": "Apache-2.0",
+      "mode": "локальный софтверный путь (--no-browser-gpu), НЕ Docker"
+    }
+  },
+  "ffmpeg": {
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "source": "статические сборки из sp3c/bin (системного ffmpeg на машине нет)"
+  },
+  "node": "v25.6.1"
+}

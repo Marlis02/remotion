@@ -1,0 +1,194 @@
+{
+  "schema": "sp3e-where/1",
+  "pairs": [
+    {
+      "pair": [
+        "MH-w4-r1",
+        "MH-w4-r10"
+      ],
+      "differingFrames": 140,
+      "totalFrames": 300,
+      "firstDiffFrame": 11,
+      "lastDiffFrame": 150,
+      "byWindow": {
+        "bars": {
+          "window": [
+            0,
+            120
+          ],
+          "framesInWindow": 120,
+          "differing": 109,
+          "share": 90.8
+        },
+        "counter": {
+          "window": [
+            30,
+            90
+          ],
+          "framesInWindow": 60,
+          "differing": 60,
+          "share": 100
+        },
+        "line": {
+          "window": [
+            90,
+            210
+          ],
+          "framesInWindow": 120,
+          "differing": 61,
+          "share": 50.8
+        },
+        "grid": {
+          "window": [
+            150,
+            240
+          ],
+          "framesInWindow": 90,
+          "differing": 1,
+          "share": 1.1
+        },
+        "morph": {
+          "window": [
+            210,
+            300
+          ],
+          "framesInWindow": 90,
+          "differing": 0,
+          "share": 0
+        }
+      },
+      "runs": [
+        [
+          11,
+          150
+        ]
+      ]
+    },
+    {
+      "pair": [
+        "MH-w4-r1",
+        "MH-w4-r8"
+      ],
+      "differingFrames": 140,
+      "totalFrames": 300,
+      "firstDiffFrame": 11,
+      "lastDiffFrame": 150,
+      "byWindow": {
+        "bars": {
+          "window": [
+            0,
+            120
+          ],
+          "framesInWindow": 120,
+          "differing": 109,
+          "share": 90.8
+        },
+        "counter": {
+          "window": [
+            30,
+            90
+          ],
+          "framesInWindow": 60,
+          "differing": 60,
+          "share": 100
+        },
+        "line": {
+          "window": [
+            90,
+            210
+          ],
+          "framesInWindow": 120,
+          "differing": 61,
+          "share": 50.8
+        },
+        "grid": {
+          "window": [
+            150,
+            240
+          ],
+          "framesInWindow": 90,
+          "differing": 1,
+          "share": 1.1
+        },
+        "morph": {
+          "window": [
+            210,
+            300
+          ],
+          "framesInWindow": 90,
+          "differing": 0,
+          "share": 0
+        }
+      },
+      "runs": [
+        [
+          11,
+          150
+        ]
+      ]
+    },
+    {
+      "pair": [
+        "MH1-w1-r1",
+        "MH1-w1-r2"
+      ],
+      "differingFrames": 140,
+      "totalFrames": 300,
+      "firstDiffFrame": 11,
+      "lastDiffFrame": 150,
+      "byWindow": {
+        "bars": {
+          "window": [
+            0,
+            120
+          ],
+          "framesInWindow": 120,
+          "differing": 109,
+          "share": 90.8
+        },
+        "counter": {
+          "window": [
+            30,
+            90
+          ],
+          "framesInWindow": 60,
+          "differing": 60,
+          "share": 100
+        },
+        "line": {
+          "window": [
+            90,
+            210
+          ],
+          "framesInWindow": 120,
+          "differing": 61,
+          "share": 50.8
+        },
+        "grid": {
+          "window": [
+            150,
+            240
+          ],
+          "framesInWindow": 90,
+          "differing": 1,
+          "share": 1.1
+        },
+        "morph": {
+          "window": [
+            210,
+            300
+          ],
+          "framesInWindow": 90,
+          "differing": 0,
+          "share": 0
+        }
+      },
+      "runs": [
+        [
+          11,
+          150
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+CTL-R-exact-c4-r1	OK	25.5s	fps=19.765	sha=ed786a41d7918b10
+CTL-R-exact-c4-r2	OK	21.4s	fps=19.55	sha=ed786a41d7918b10
+CTL-R-exact-c4-r3	OK	21.4s	fps=19.737	sha=f0c445b263f401d2
+CTL-H-exact-w4-r1	OK	23.2s	fps=18.75	sha=d0f3fe7e0b8e3c8d
+CTL-H-exact-w4-r2	OK	23.2s	fps=18.743	sha=d0f3fe7e0b8e3c8d
+CTL-H-exact-w4-r3	OK	23.2s	fps=18.748	sha=d0f3fe7e0b8e3c8d
+CTL-H-idiom-w4-r1	OK	23.7s	fps=18.017	sha=710be65f3f945ddb
+CTL-H-idiom-w4-r2	OK	23.7s	fps=17.964	sha=710be65f3f945ddb
+CTL-H-idiom-w4-r3	OK	23.4s	fps=18.047	sha=076591e901ae282a
+матрица закончена

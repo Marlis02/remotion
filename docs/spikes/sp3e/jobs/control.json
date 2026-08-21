@@ -1,0 +1,80 @@
+[
+ {
+  "runId": "CTL-R-exact-c4-r1",
+  "renderer": "remotion",
+  "concurrency": 4,
+  "gl": "angle",
+  "profile": "final",
+  "entryPoint": "../sp3/src/index.ts",
+  "publicDir": "../sp3/assets",
+  "compositionId": "short",
+  "bundleOutDir": ".bundle/ctl",
+  "webpackCachePath": ".webpack-cache-ctl"
+ },
+ {
+  "runId": "CTL-R-exact-c4-r2",
+  "renderer": "remotion",
+  "concurrency": 4,
+  "gl": "angle",
+  "profile": "final",
+  "entryPoint": "../sp3/src/index.ts",
+  "publicDir": "../sp3/assets",
+  "compositionId": "short",
+  "bundleOutDir": ".bundle/ctl",
+  "webpackCachePath": ".webpack-cache-ctl"
+ },
+ {
+  "runId": "CTL-R-exact-c4-r3",
+  "renderer": "remotion",
+  "concurrency": 4,
+  "gl": "angle",
+  "profile": "final",
+  "entryPoint": "../sp3/src/index.ts",
+  "publicDir": "../sp3/assets",
+  "compositionId": "short",
+  "bundleOutDir": ".bundle/ctl",
+  "webpackCachePath": ".webpack-cache-ctl"
+ },
+ {
+  "runId": "CTL-H-exact-w4-r1",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src"
+ },
+ {
+  "runId": "CTL-H-exact-w4-r2",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src"
+ },
+ {
+  "runId": "CTL-H-exact-w4-r3",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src"
+ },
+ {
+  "runId": "CTL-H-idiom-w4-r1",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src-idiomatic"
+ },
+ {
+  "runId": "CTL-H-idiom-w4-r2",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src-idiomatic"
+ },
+ {
+  "runId": "CTL-H-idiom-w4-r3",
+  "renderer": "hyperframes",
+  "workers": 4,
+  "gpu": "sw",
+  "project": "../sp3c/src-idiomatic"
+ }
+]

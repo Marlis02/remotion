@@ -1,0 +1,53 @@
+{
+  "schema": "sp3e-data/1",
+  "comment": "SP-3e: все значения композиции. Один файл на оба рендерера. Никакого Math.random/Date.now (V8).",
+  "fps": 30,
+  "durationInFrames": 300,
+  "width": 1080,
+  "height": 1920,
+  "background": "#0b1220",
+  "palette": {
+    "bar": "#4cc9f0",
+    "barLabel": "rgba(255,255,255,0.72)",
+    "counter": "#ffd166",
+    "line": "#f72585",
+    "lineFillTop": "rgba(247,37,133,0.55)",
+    "lineFillBottom": "rgba(247,37,133,0.02)",
+    "dotA": "#4361ee",
+    "dotB": "#ffd166",
+    "morph": "#06d6a0"
+  },
+  "windows": {
+    "bars":    {"from": 0,   "to": 120},
+    "counter": {"from": 30,  "to": 90},
+    "line":    {"from": 90,  "to": 210},
+    "grid":    {"from": 150, "to": 240},
+    "morph":   {"from": 210, "to": 300}
+  },
+  "bars": {
+    "values": [0.38, 0.62, 0.47, 0.91, 0.55, 0.74],
+    "labels": ["JAN", "FEB", "MAR", "APR", "MAY", "JUN"],
+    "staggerFrames": 4,
+    "growFrames": 40,
+    "x": 120, "width": 840, "baselineY": 1700, "maxHeight": 470, "gap": 26
+  },
+  "counter": {"target": 1793, "startFrame": 30, "frames": 60, "fontPx": 160, "digitWidthPx": 104, "centerX": 540, "y": 210},
+  "line": {
+    "x": 100, "y": 990, "width": 880, "height": 380, "drawFrames": 120,
+    "points": [
+      0.42, 0.45, 0.41, 0.48, 0.53, 0.50, 0.57, 0.61, 0.58, 0.64,
+      0.69, 0.66, 0.72, 0.70, 0.76, 0.81, 0.78, 0.74, 0.79, 0.85,
+      0.83, 0.88, 0.84, 0.90, 0.87, 0.92, 0.89, 0.94, 0.91, 0.96,
+      0.93, 0.90, 0.95, 0.92, 0.97, 0.94, 0.99, 0.96, 1.00, 0.98
+    ]
+  },
+  "grid": {
+    "cols": 20, "rows": 10, "count": 200,
+    "x": 120, "y": 1180, "cellW": 42, "cellH": 52, "radius": 15,
+    "waveDelayFrames": 2, "popFrames": 12, "recolorFrame": 225
+  },
+  "morph": {
+    "cx": 540, "cy": 700, "outerR": 200, "innerR": 84, "nodes": 10,
+    "toStarFrames": 45, "backFrames": 45
+  }
+}

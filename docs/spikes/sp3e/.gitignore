@@ -1,0 +1,20 @@
+# Спайковый код выбрасывается, зависимости и артефакты — тем более.
+node_modules
+out/
+.bundle/
+.cache/
+.webpack-cache*/
+package-lock.json
+
+# Chrome (chromium-headless-shell), скачанный ensureBrowser один раз ДО прогонов.
+# ~200 МБ двоичных файлов; версия зафиксирована в results/machine.json.
+.remotion/
+
+# Двоичные ассеты композиции — побайтовые копии файлов SP-3 и файла из npm-пакета gsap.
+# В git не идут: их sha256 записан в results/fixture.json, восстанавливаются одной командой
+# (см. README, «Как повторить»):
+#   cp ../sp3/assets/DejaVuSans-Bold.ttf src/remotion/public/ && cp ../sp3/assets/DejaVuSans-Bold.ttf src/hyperframes/
+#   cp ../sp3c/src/gsap.min.js src/hyperframes/
+src/remotion/public/DejaVuSans-Bold.ttf
+src/hyperframes/DejaVuSans-Bold.ttf
+src/hyperframes/gsap.min.js

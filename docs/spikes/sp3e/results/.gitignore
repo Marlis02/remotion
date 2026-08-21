@@ -1,0 +1,3 @@
+# Сырые тексты PSNR (по 300 строк на пару) — промежуточные, числа из них сведены
+# в raw/determinism.json, raw/where.json и summary.md.
+raw/psnr-*.txt

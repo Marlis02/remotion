@@ -1,0 +1,505 @@
+{
+  "schema": "sp3e-determinism/1",
+  "generatedFrom": "35 прогонов со статусом OK",
+  "groups": [
+    {
+      "key": "идиоматичная(SP-3c) | hyperframes/w4",
+      "runs": 3,
+      "distinctOutputs": 2,
+      "distinctFramemd5": 2,
+      "sizes": [
+        43382723,
+        40628418
+      ],
+      "shaShort": [
+        "710be65f3f945ddb",
+        "076591e901ae282a"
+      ],
+      "energyLevels": [
+        5.351251,
+        5.359388
+      ],
+      "energyPerRun": [
+        {
+          "runId": "CTL-H-idiom-w4-r1",
+          "energy": 5.359388
+        },
+        {
+          "runId": "CTL-H-idiom-w4-r2",
+          "energy": 5.359388
+        },
+        {
+          "runId": "CTL-H-idiom-w4-r3",
+          "energy": 5.351251
+        }
+      ],
+      "fpsRenderPhaseMedian": 18.017,
+      "fpsFramesOnlyMedian": 34.602,
+      "fpsEndToEndMedian": 17.194,
+      "wallSecMedian": 17.448,
+      "peakRssSumMbMedian": 3035.9,
+      "peakPssSumMbMedian": 1237.4,
+      "loadavg1AtStart": [
+        5.14,
+        5.59,
+        5.99
+      ],
+      "diverging": [
+        {
+          "pair": [
+            "CTL-H-idiom-w4-r1",
+            "CTL-H-idiom-w4-r3"
+          ],
+          "framemd5": {
+            "equal": false,
+            "firstDiffIndex": 1,
+            "firstDiffFrame": 1,
+            "framesCompared": 300,
+            "lengths": [
+              300,
+              300
+            ]
+          },
+          "psnr": {
+            "frames": 300,
+            "identicalFrames": 150,
+            "differingFrames": 150,
+            "differingShare": 50,
+            "psnrMinDb": 34.8,
+            "psnrP05Db": 35.23,
+            "psnrP50Db": 43.03,
+            "psnrP95Db": 44.59,
+            "psnrMaxDb": 67.9,
+            "maxMse": 21.52,
+            "framesBelow40Db": 61,
+            "framesBelow50Db": 147
+          }
+        }
+      ]
+    },
+    {
+      "key": "моушн(SP-3e) | hyperframes/w1",
+      "runs": 3,
+      "distinctOutputs": 3,
+      "distinctFramemd5": 3,
+      "sizes": [
+        1185961,
+        1185910,
+        1186247
+      ],
+      "shaShort": [
+        "707a36f9f124dea9",
+        "d13779e897a7fe51",
+        "a15171cebb49346a"
+      ],
+      "energyLevels": [
+        0.12015,
+        0.120228,
+        0.12027
+      ],
+      "energyPerRun": [
+        {
+          "runId": "MH1-w1-r1",
+          "energy": 0.12027
+        },
+        {
+          "runId": "MH1-w1-r2",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH1-w1-r3",
+          "energy": 0.120228
+        }
+      ],
+      "fpsRenderPhaseMedian": 17.629,
+      "fpsFramesOnlyMedian": 17.646,
+      "fpsEndToEndMedian": 16.773,
+      "wallSecMedian": 17.886,
+      "peakRssSumMbMedian": 1589.7,
+      "peakPssSumMbMedian": 1227.3,
+      "loadavg1AtStart": [
+        2.89,
+        2.6,
+        2.08
+      ],
+      "diverging": [
+        {
+          "pair": [
+            "MH1-w1-r1",
+            "MH1-w1-r2"
+          ],
+          "framemd5": {
+            "equal": false,
+            "firstDiffIndex": 11,
+            "firstDiffFrame": 11,
+            "framesCompared": 300,
+            "lengths": [
+              300,
+              300
+            ]
+          },
+          "psnr": {
+            "frames": 300,
+            "identicalFrames": 160,
+            "differingFrames": 140,
+            "differingShare": 46.7,
+            "psnrMinDb": 59.87,
+            "psnrP05Db": 62.8,
+            "psnrP50Db": 68.86,
+            "psnrP95Db": 87.05,
+            "psnrMaxDb": 87.05,
+            "maxMse": 0.07,
+            "framesBelow40Db": 0,
+            "framesBelow50Db": 0
+          }
+        }
+      ]
+    },
+    {
+      "key": "моушн(SP-3e) | hyperframes/w4",
+      "runs": 10,
+      "distinctOutputs": 4,
+      "distinctFramemd5": 4,
+      "sizes": [
+        1186253,
+        1186139,
+        1185831,
+        1186134
+      ],
+      "shaShort": [
+        "74a867748a4a316a",
+        "3f38b3a219178219",
+        "442f59d5f5d6c91f",
+        "c38555b286a108e5"
+      ],
+      "energyLevels": [
+        0.12012,
+        0.12015
+      ],
+      "energyPerRun": [
+        {
+          "runId": "MH-w4-r1",
+          "energy": 0.12012
+        },
+        {
+          "runId": "MH-w4-r10",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r2",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r3",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r4",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r5",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r6",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r7",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r8",
+          "energy": 0.12015
+        },
+        {
+          "runId": "MH-w4-r9",
+          "energy": 0.12015
+        }
+      ],
+      "fpsRenderPhaseMedian": 47.412,
+      "fpsFramesOnlyMedian": 67.966,
+      "fpsEndToEndMedian": 41.67,
+      "wallSecMedian": 7.2,
+      "peakRssSumMbMedian": 2542.65,
+      "peakPssSumMbMedian": 987.8,
+      "loadavg1AtStart": [
+        2.54,
+        6.16,
+        2.62,
+        3.15,
+        3.35,
+        3.5,
+        3.3,
+        3.27,
+        5.95,
+        5.52
+      ],
+      "diverging": [
+        {
+          "pair": [
+            "MH-w4-r1",
+            "MH-w4-r10"
+          ],
+          "framemd5": {
+            "equal": false,
+            "firstDiffIndex": 11,
+            "firstDiffFrame": 11,
+            "framesCompared": 300,
+            "lengths": [
+              300,
+              300
+            ]
+          },
+          "psnr": {
+            "frames": 300,
+            "identicalFrames": 160,
+            "differingFrames": 140,
+            "differingShare": 46.7,
+            "psnrMinDb": 60.27,
+            "psnrP05Db": 62.33,
+            "psnrP50Db": 68.67,
+            "psnrP95Db": 92.45,
+            "psnrMaxDb": 92.45,
+            "maxMse": 0.06,
+            "framesBelow40Db": 0,
+            "framesBelow50Db": 0
+          }
+        }
+      ]
+    },
+    {
+      "key": "моушн(SP-3e) | remotion/c1",
+      "runs": 3,
+      "distinctOutputs": 1,
+      "distinctFramemd5": 1,
+      "sizes": [
+        930908
+      ],
+      "shaShort": [
+        "6b7a813a65dc2c9c"
+      ],
+      "energyLevels": [
+        0.36984
+      ],
+      "energyPerRun": [
+        {
+          "runId": "MR1-c1-r1",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR1-c1-r2",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR1-c1-r3",
+          "energy": 0.36984
+        }
+      ],
+      "fpsRenderPhaseMedian": 13.944,
+      "fpsFramesOnlyMedian": 14.088,
+      "fpsEndToEndMedian": 12.918,
+      "wallSecMedian": 23.224,
+      "peakRssSumMbMedian": 1414.5,
+      "peakPssSumMbMedian": 1144,
+      "loadavg1AtStart": [
+        5.51,
+        4.08,
+        3.14
+      ],
+      "diverging": []
+    },
+    {
+      "key": "моушн(SP-3e) | remotion/c4",
+      "runs": 10,
+      "distinctOutputs": 1,
+      "distinctFramemd5": 1,
+      "sizes": [
+        930908
+      ],
+      "shaShort": [
+        "6b7a813a65dc2c9c"
+      ],
+      "energyLevels": [
+        0.36984
+      ],
+      "energyPerRun": [
+        {
+          "runId": "MR-c4-r1",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r10",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r2",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r3",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r4",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r5",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r6",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r7",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r8",
+          "energy": 0.36984
+        },
+        {
+          "runId": "MR-c4-r9",
+          "energy": 0.36984
+        }
+      ],
+      "fpsRenderPhaseMedian": 38.539,
+      "fpsFramesOnlyMedian": 39.72,
+      "fpsEndToEndMedian": 31.594,
+      "wallSecMedian": 9.496,
+      "peakRssSumMbMedian": 1879.6,
+      "peakPssSumMbMedian": 1324.2,
+      "loadavg1AtStart": [
+        1.26,
+        2.47,
+        1.3,
+        1.67,
+        2.03,
+        1.95,
+        2.01,
+        1.94,
+        2.04,
+        2.1
+      ],
+      "diverging": []
+    },
+    {
+      "key": "точная(SP-3/3c) | hyperframes/w4",
+      "runs": 3,
+      "distinctOutputs": 1,
+      "distinctFramemd5": 1,
+      "sizes": [
+        45378917
+      ],
+      "shaShort": [
+        "d0f3fe7e0b8e3c8d"
+      ],
+      "energyLevels": [
+        5.328127
+      ],
+      "energyPerRun": [
+        {
+          "runId": "CTL-H-exact-w4-r1",
+          "energy": 5.328127
+        },
+        {
+          "runId": "CTL-H-exact-w4-r2",
+          "energy": 5.328127
+        },
+        {
+          "runId": "CTL-H-exact-w4-r3",
+          "energy": 5.328127
+        }
+      ],
+      "fpsRenderPhaseMedian": 18.748,
+      "fpsFramesOnlyMedian": 38.432,
+      "fpsEndToEndMedian": 17.893,
+      "wallSecMedian": 16.766,
+      "peakRssSumMbMedian": 2791.8,
+      "peakPssSumMbMedian": 1122.6,
+      "loadavg1AtStart": [
+        2.91,
+        3.77,
+        5.04
+      ],
+      "diverging": []
+    },
+    {
+      "key": "точная(SP-3/3c) | remotion/c4",
+      "runs": 3,
+      "distinctOutputs": 2,
+      "distinctFramemd5": 2,
+      "sizes": [
+        20020262,
+        20020092
+      ],
+      "shaShort": [
+        "ed786a41d7918b10",
+        "f0c445b263f401d2"
+      ],
+      "energyLevels": [
+        3.661557
+      ],
+      "energyPerRun": [
+        {
+          "runId": "CTL-R-exact-c4-r1",
+          "energy": 3.661557
+        },
+        {
+          "runId": "CTL-R-exact-c4-r2",
+          "energy": 3.661557
+        },
+        {
+          "runId": "CTL-R-exact-c4-r3",
+          "energy": 3.661557
+        }
+      ],
+      "fpsRenderPhaseMedian": 19.737,
+      "fpsFramesOnlyMedian": 26.302,
+      "fpsEndToEndMedian": 17.598,
+      "wallSecMedian": 17.047,
+      "peakRssSumMbMedian": 2300.8,
+      "peakPssSumMbMedian": 1687.3,
+      "loadavg1AtStart": [
+        1.27,
+        2.2,
+        2.41
+      ],
+      "diverging": [
+        {
+          "pair": [
+            "CTL-R-exact-c4-r1",
+            "CTL-R-exact-c4-r3"
+          ],
+          "framemd5": {
+            "equal": false,
+            "firstDiffIndex": 34,
+            "firstDiffFrame": 34,
+            "framesCompared": 300,
+            "lengths": [
+              300,
+              300
+            ]
+          },
+          "psnr": {
+            "frames": 300,
+            "identicalFrames": 272,
+            "differingFrames": 28,
+            "differingShare": 9.3,
+            "psnrMinDb": 58.7,
+            "psnrP05Db": 58.75,
+            "psnrP50Db": 59.95,
+            "psnrP95Db": 74.69,
+            "psnrMaxDb": 75.43,
+            "maxMse": 0.09,
+            "framesBelow40Db": 0,
+            "framesBelow50Db": 0
+          }
+        }
+      ]
+    }
+  ]
+}

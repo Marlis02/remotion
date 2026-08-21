@@ -1,0 +1,87 @@
+{
+  "schema": "sp3e-loc/2",
+  "note": "пустые строки и строки-комментарии не считаются; границы блоков — заголовочные комментарии элементов в коде",
+  "rows": [
+    {
+      "el": "1. Столбчатая диаграмма (6 столбцов, отскок, сдвиг 4 кадра, подписи)",
+      "remotion": {
+        "logic": 46,
+        "markup": 10,
+        "total": 56
+      },
+      "hyperframes": {
+        "logic": 5,
+        "markup": 14,
+        "total": 19
+      },
+      "remotionPrimitives": "spring({frame, fps, config}); transform: scaleY + transformOrigin",
+      "hfPrimitives": "gsap.fromTo scaleY, ease 'back.out(1.7)', позиция таймлайна в секундах"
+    },
+    {
+      "el": "2. Счётчик 0 → 1793, 160 px, моноширинная раскладка",
+      "remotion": {
+        "logic": 33,
+        "markup": 0,
+        "total": 33
+      },
+      "hyperframes": {
+        "logic": 12,
+        "markup": 3,
+        "total": 15
+      },
+      "remotionPrimitives": "interpolate + Easing.out(Easing.cubic); <span> фиксированной ширины",
+      "hfPrimitives": "gsap.fromTo по прокси-объекту + onUpdate → innerHTML; ease power3.out"
+    },
+    {
+      "el": "3. Линейный график (40 точек, прорисовка, градиентная заливка)",
+      "remotion": {
+        "logic": 35,
+        "markup": 17,
+        "total": 52
+      },
+      "hyperframes": {
+        "logic": 4,
+        "markup": 27,
+        "total": 31
+      },
+      "remotionPrimitives": "pathLength=1 + strokeDasharray/strokeDashoffset; clipPath, ширина от кадра",
+      "hfPrimitives": "gsap.fromTo strokeDashoffset; второй твин на attr.width клипа"
+    },
+    {
+      "el": "4. Stagger-сетка (200 кружков, волна по диагонали, смена цвета)",
+      "remotion": {
+        "logic": 25,
+        "markup": 12,
+        "total": 37
+      },
+      "hyperframes": {
+        "logic": 9,
+        "markup": 4,
+        "total": 13
+      },
+      "remotionPrimitives": "spring() на каждый из 200; transform translate/scale/translate",
+      "hfPrimitives": "gsap.fromTo scale + svgOrigin на каждый из 200; tl.set attr.fill одним селектором"
+    },
+    {
+      "el": "5. SVG-морфинг (один путь, 10 узлов, туда и обратно)",
+      "remotion": {
+        "logic": 16,
+        "markup": 12,
+        "total": 28
+      },
+      "hyperframes": {
+        "logic": 16,
+        "markup": 0,
+        "total": 16
+      },
+      "remotionPrimitives": "interpolate ×2 + Easing.inOut(Easing.ease); путь пересобирается от p",
+      "hfPrimitives": "gsap.fromTo/to по прокси p + onUpdate → setAttribute(\"d\"); ease power2.inOut"
+    }
+  ],
+  "files": {
+    "src/remotion/Motion.tsx": 207,
+    "src/remotion/shared.ts": 53,
+    "src/hyperframes/index.html (сгенерирован)": 323,
+    "gen-hyperframes.mjs (генератор)": 156
+  }
+}
