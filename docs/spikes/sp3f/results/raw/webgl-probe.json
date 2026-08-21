@@ -1,0 +1,12 @@
+{
+  "schema": "sp3f-webgl-probe/2",
+  "method": "композиция src-probe рисует три полосы по 640 px: зелёная — возможность доступна, красная — нет (сверху вниз: WebGL-контекст, SplitText зарегистрирован, MorphSVGPlugin зарегистрирован). Рендерится тем же CLI и теми же флагами (--no-browser-gpu), затем читаются пиксели (536,320), (536,960), (536,1600) кадра 0",
+  "runs": ["PROBE (одноцветная версия, только WebGL)", "PROBE2 (три полосы)"],
+  "outputSha256Equal": "PROBE и PROBE2 дали один sha256 fe0682b36344fb46 — три зелёные полосы визуально неотличимы от сплошного зелёного экрана первой версии",
+  "bands": [
+    {"what": "WebGL (webgl2 → webgl)", "pixelRgb": [0, 160, 0], "available": true},
+    {"what": "SplitText (GSAP 3.15.0)", "pixelRgb": [0, 160, 0], "available": true},
+    {"what": "MorphSVGPlugin (GSAP 3.15.0)", "pixelRgb": [0, 160, 0], "available": true}
+  ],
+  "conclusion": "все три доступны: шейдерный фон остался на GLSL, разбивка на слова сделана SplitText, морфинг иконки — MorphSVGPlugin. Ни один откат из заготовленных (CSS-градиенты, ручная разбивка на span, пересборка пути) не сработал"
+}

@@ -1,0 +1,1056 @@
+{
+  "schema": "sp3f-determinism/1",
+  "generatedFrom": "20 прогонов со статусом OK",
+  "groups": [
+    {
+      "key": "сцена/draftHalf/w4",
+      "runs": 3,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        390735
+      ],
+      "fpsRenderPhaseMedian": 33.886,
+      "fpsFramesOnlyMedian": 44.776,
+      "fpsEndToEndMedian": 31.865,
+      "wallSecMedian": 14.122,
+      "peakRssMb": 3179.6,
+      "peakPssMb": 1431.4,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [
+        {
+          "runId": "Vd-w4-r1",
+          "f20": 0,
+          "f150": 0,
+          "f250": 0,
+          "f400": 0
+        },
+        {
+          "runId": "Vd-w4-r2",
+          "f20": 0,
+          "f150": 0,
+          "f250": 0,
+          "f400": 0
+        },
+        {
+          "runId": "Vd-w4-r3",
+          "f20": 0,
+          "f150": 0,
+          "f250": 0,
+          "f400": 0
+        }
+      ],
+      "uniqueEnergyLevels": {
+        "f20": [
+          0
+        ],
+        "f150": [
+          0
+        ],
+        "f250": [
+          0
+        ],
+        "f400": [
+          0
+        ]
+      },
+      "runIds": [
+        "Vd-w4-r1",
+        "Vd-w4-r2",
+        "Vd-w4-r3"
+      ],
+      "sha256": [
+        "e2ecf34f928c1a94",
+        "e2ecf34f928c1a94",
+        "e2ecf34f928c1a94"
+      ],
+      "psnr": [
+        {
+          "pair": [
+            "Vd-w4-r1",
+            "Vd-w4-r2"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "Vd-w4-r1",
+            "Vd-w4-r3"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "Vd-w4-r2",
+            "Vd-w4-r3"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        }
+      ],
+      "minPsnrAcrossPairs": null
+    },
+    {
+      "key": "сцена/final/w4",
+      "runs": 10,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        9042460
+      ],
+      "fpsRenderPhaseMedian": 5.669,
+      "fpsFramesOnlyMedian": 6.091,
+      "fpsEndToEndMedian": 5.611,
+      "wallSecMedian": 80.211,
+      "peakRssMb": 3744.9,
+      "peakPssMb": 1809.2,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [
+        {
+          "runId": "V-w4-r1",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r10",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r2",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r3",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r4",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r5",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r6",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r7",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r8",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        },
+        {
+          "runId": "V-w4-r9",
+          "f20": 2.333411,
+          "f150": 5.651306,
+          "f250": 3.646808,
+          "f400": 1.041387
+        }
+      ],
+      "uniqueEnergyLevels": {
+        "f20": [
+          2.333411
+        ],
+        "f150": [
+          5.651306
+        ],
+        "f250": [
+          3.646808
+        ],
+        "f400": [
+          1.041387
+        ]
+      },
+      "runIds": [
+        "V-w4-r1",
+        "V-w4-r10",
+        "V-w4-r2",
+        "V-w4-r3",
+        "V-w4-r4",
+        "V-w4-r5",
+        "V-w4-r6",
+        "V-w4-r7",
+        "V-w4-r8",
+        "V-w4-r9"
+      ],
+      "sha256": [
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6",
+        "250f2d220a2255f6"
+      ],
+      "psnr": [
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r10"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r2"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r3"
+          ],
+          "identical": true,
+          "differingFrames": 0,
+          "totalFrames": 450,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r4"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r5"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r1",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r2"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r3"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r4"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r5"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r10",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r3"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r4"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r5"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r2",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r4"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r5"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r3",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r4",
+            "V-w4-r5"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r4",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r4",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r4",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r4",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r5",
+            "V-w4-r6"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r5",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r5",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r5",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r6",
+            "V-w4-r7"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r6",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r6",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r7",
+            "V-w4-r8"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r7",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        },
+        {
+          "pair": [
+            "V-w4-r8",
+            "V-w4-r9"
+          ],
+          "identical": true,
+          "skipped": "побайтово равны, PSNR не считался",
+          "differingFrames": 0,
+          "totalFrames": null,
+          "minPsnrAvg": null,
+          "medianPsnrAvg": null,
+          "framesBelow40Db": 0
+        }
+      ],
+      "minPsnrAcrossPairs": null
+    },
+    {
+      "key": "цена слоёв/L-full60/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        1898268
+      ],
+      "fpsRenderPhaseMedian": 1.641,
+      "fpsFramesOnlyMedian": 1.8,
+      "fpsEndToEndMedian": 1.603,
+      "wallSecMedian": 37.426,
+      "peakRssMb": 3102.7,
+      "peakPssMb": 1347.7,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L-full60"
+      ],
+      "sha256": [
+        "5a011c7ef98d154b"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L-noglass/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        1898268
+      ],
+      "fpsRenderPhaseMedian": 1.385,
+      "fpsFramesOnlyMedian": 1.531,
+      "fpsEndToEndMedian": 1.354,
+      "wallSecMedian": 44.321,
+      "peakRssMb": 3112.4,
+      "peakPssMb": 1361.9,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L-noglass"
+      ],
+      "sha256": [
+        "5a011c7ef98d154b"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L-noparticles/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        1898366
+      ],
+      "fpsRenderPhaseMedian": 1.615,
+      "fpsFramesOnlyMedian": 1.814,
+      "fpsEndToEndMedian": 1.579,
+      "wallSecMedian": 37.995,
+      "peakRssMb": 3004.4,
+      "peakPssMb": 1249.6,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L-noparticles"
+      ],
+      "sha256": [
+        "5a9997638a52f6a5"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L-noshader/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        1941152
+      ],
+      "fpsRenderPhaseMedian": 1.715,
+      "fpsFramesOnlyMedian": 1.893,
+      "fpsEndToEndMedian": 1.676,
+      "wallSecMedian": 35.802,
+      "peakRssMb": 3066.6,
+      "peakPssMb": 1352.6,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L-noshader"
+      ],
+      "sha256": [
+        "fdeb9742fb06b290"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L450-noglass/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        8097334
+      ],
+      "fpsRenderPhaseMedian": 5.64,
+      "fpsFramesOnlyMedian": 6.026,
+      "fpsEndToEndMedian": 5.581,
+      "wallSecMedian": 80.63,
+      "peakRssMb": 3712.5,
+      "peakPssMb": 1776.1,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L450-noglass"
+      ],
+      "sha256": [
+        "296948fe1315214d"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L450-noparticles/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        7656922
+      ],
+      "fpsRenderPhaseMedian": 5.936,
+      "fpsFramesOnlyMedian": 6.372,
+      "fpsEndToEndMedian": 5.871,
+      "wallSecMedian": 76.648,
+      "peakRssMb": 3556.9,
+      "peakPssMb": 1639.5,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L450-noparticles"
+      ],
+      "sha256": [
+        "90c686f17fb1c43a"
+      ],
+      "psnr": null
+    },
+    {
+      "key": "цена слоёв/L450-noshader/w4",
+      "runs": 1,
+      "uniqueSha256": 1,
+      "uniqueFramemd5": 1,
+      "bytes": [
+        8788064
+      ],
+      "fpsRenderPhaseMedian": 6.14,
+      "fpsFramesOnlyMedian": 6.685,
+      "fpsEndToEndMedian": 6.069,
+      "wallSecMedian": 74.143,
+      "peakRssMb": 3659.1,
+      "peakPssMb": 1762.8,
+      "peakProcessCount": 25,
+      "captureMode": [
+        "screenshot"
+      ],
+      "energies": [],
+      "uniqueEnergyLevels": {
+        "f20": [],
+        "f150": [],
+        "f250": [],
+        "f400": []
+      },
+      "runIds": [
+        "L450-noshader"
+      ],
+      "sha256": [
+        "2ab189d810ec1b37"
+      ],
+      "psnr": null
+    }
+  ]
+}

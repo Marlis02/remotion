@@ -1,0 +1,60 @@
+{
+  "schema": "sp3f-fixture/1",
+  "comment": "Двоичные файлы композиции в git не идут (.gitignore): они восстанавливаются prepare.sh. Здесь их sha256, чтобы восстановление было проверяемым — так же, как в SP-3c.",
+  "files": [
+    {
+      "path": "src/assets/backdrop.jpg",
+      "bytes": 2704308,
+      "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f",
+      "note": "четыре depth-*.jpg — производные backdrop.jpg (prepare.sh); backdrop.jpg — побайтовая копия docs/spikes/sp3/assets/backdrop.jpg"
+    },
+    {
+      "path": "src/assets/depth-0.jpg",
+      "bytes": 28219,
+      "sha256": "c747eb1b890159b79c636bd5ac539fe7fe6301baca55676273ea3a4e2678ebae",
+      "note": "четыре depth-*.jpg — производные backdrop.jpg (prepare.sh); backdrop.jpg — побайтовая копия docs/spikes/sp3/assets/backdrop.jpg"
+    },
+    {
+      "path": "src/assets/depth-1.jpg",
+      "bytes": 36810,
+      "sha256": "2a63a3c01541bd577bc499501f5c28b163cc280215df68bf47a1f224d1261ecd",
+      "note": "четыре depth-*.jpg — производные backdrop.jpg (prepare.sh); backdrop.jpg — побайтовая копия docs/spikes/sp3/assets/backdrop.jpg"
+    },
+    {
+      "path": "src/assets/depth-2.jpg",
+      "bytes": 61352,
+      "sha256": "48c49e4ac6cb72075ae69b427c1d5a31231b3dc59034428241af7bb3dc4d734f",
+      "note": "четыре depth-*.jpg — производные backdrop.jpg (prepare.sh); backdrop.jpg — побайтовая копия docs/spikes/sp3/assets/backdrop.jpg"
+    },
+    {
+      "path": "src/assets/depth-3.jpg",
+      "bytes": 202934,
+      "sha256": "508383b43dc3ba44b88effe1919a0a64472edaec528cd56badcf99168b2a8717",
+      "note": "четыре depth-*.jpg — производные backdrop.jpg (prepare.sh); backdrop.jpg — побайтовая копия docs/spikes/sp3/assets/backdrop.jpg"
+    },
+    {
+      "path": "src/vendor/MorphSVGPlugin.min.js",
+      "bytes": 21195,
+      "sha256": "19c891a412240d8521b13330813d9b551ea5b0f707907c365ffecaf1dfa0f5cf",
+      "note": "побайтовые копии из sp3c/node_modules/gsap/dist (gsap 3.15.0)"
+    },
+    {
+      "path": "src/vendor/SplitText.min.js",
+      "bytes": 7732,
+      "sha256": "419f7027a5f086a12cb7988736d8fdd3a6ed2200229661de25b6628ca7ced344",
+      "note": "побайтовые копии из sp3c/node_modules/gsap/dist (gsap 3.15.0)"
+    },
+    {
+      "path": "src/vendor/gsap.min.js",
+      "bytes": 72927,
+      "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
+      "note": "побайтовые копии из sp3c/node_modules/gsap/dist (gsap 3.15.0)"
+    },
+    {
+      "path": "src/fonts/DejaVuSans-Bold.ttf",
+      "bytes": 705684,
+      "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b",
+      "note": "побайтовая копия docs/spikes/sp3/assets/DejaVuSans-Bold.ttf"
+    }
+  ]
+}

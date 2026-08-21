@@ -1,0 +1,160 @@
+{
+  "schema": "sp3f-machine/1",
+  "takenAt": "2026-08-21T12:22:29.563Z",
+  "spike": "SP-3f — цельный фрагмент реального ролика на HyperFrames (Visual Ceiling)",
+  "hardware": {
+    "cpuModel": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+    "cpuLogical": 12,
+    "cpuPhysicalCores": 6,
+    "threadsPerCore": 2,
+    "cpuMaxMhz": 4300,
+    "cpuGovernor": "powersave",
+    "ramTotalBytes": 33465974784,
+    "ramTotalGiB": 31.17,
+    "swapTotalKb": 8388604,
+    "os": "Ubuntu 24.04.3 LTS",
+    "kernel": "7.0.0-28-generic",
+    "arch": "x64",
+    "hostClass": "local",
+    "gpuPresent": true,
+    "gpuDevices": [
+      "by-path",
+      "card1",
+      "card2",
+      "renderD128",
+      "renderD129"
+    ]
+  },
+  "cpuGovernor": "powersave",
+  "sysinfo": {
+    "node": "v25.6.1",
+    "remotion": "4.0.513",
+    "react": "19.2.0",
+    "chromeHeadlessShell": null,
+    "chromeBuildTag": null,
+    "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 6.1.1-3ubuntu5 Copyright (c) 2007-2023 the FFmpeg developers",
+    "remotionCompositor": "compositor-linux-x64-gnu"
+  },
+  "state": {
+    "loadAvg": [
+      2.13,
+      3.39,
+      3.59
+    ],
+    "freeMemBytes": 17417781248,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 48
+  },
+  "renderers": {
+    "remotion": {
+      "note": "SP-3f — только HyperFrames; Remotion в этом спайке не участвует (задание)"
+    },
+    "hyperframes": {
+      "cli": "/home/ct/Desktop/remotion/docs/spikes/sp3c/node_modules/.bin/hyperframes",
+      "version": "0.8.5",
+      "license": "Apache-2.0",
+      "mode": "локальный софтверный путь (--no-browser-gpu), НЕ Docker",
+      "webglProbe": {
+        "schema": "sp3f-webgl-probe/2",
+        "method": "композиция src-probe рисует три полосы по 640 px: зелёная — возможность доступна, красная — нет (сверху вниз: WebGL-контекст, SplitText зарегистрирован, MorphSVGPlugin зарегистрирован). Рендерится тем же CLI и теми же флагами (--no-browser-gpu), затем читаются пиксели (536,320), (536,960), (536,1600) кадра 0",
+        "runs": [
+          "PROBE (одноцветная версия, только WebGL)",
+          "PROBE2 (три полосы)"
+        ],
+        "outputSha256Equal": "PROBE и PROBE2 дали один sha256 fe0682b36344fb46 — три зелёные полосы визуально неотличимы от сплошного зелёного экрана первой версии",
+        "bands": [
+          {
+            "what": "WebGL (webgl2 → webgl)",
+            "pixelRgb": [
+              0,
+              160,
+              0
+            ],
+            "available": true
+          },
+          {
+            "what": "SplitText (GSAP 3.15.0)",
+            "pixelRgb": [
+              0,
+              160,
+              0
+            ],
+            "available": true
+          },
+          {
+            "what": "MorphSVGPlugin (GSAP 3.15.0)",
+            "pixelRgb": [
+              0,
+              160,
+              0
+            ],
+            "available": true
+          }
+        ],
+        "conclusion": "все три доступны: шейдерный фон остался на GLSL, разбивка на слова сделана SplitText, морфинг иконки — MorphSVGPlugin. Ни один откат из заготовленных (CSS-градиенты, ручная разбивка на span, пересборка пути) не сработал"
+      }
+    }
+  },
+  "ffmpeg": {
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "source": "статические сборки из sp3c/bin (системного ffmpeg на машине нет)"
+  },
+  "node": "v25.6.1",
+  "vendored": {
+    "gsap": "3.15.0",
+    "gsapLicense": "Standard 'no charge' license: https://gsap.com/standard-license.",
+    "plugins": [
+      "SplitText.min.js",
+      "MorphSVGPlugin.min.js"
+    ],
+    "three": "НЕ установлен и не устанавливался: частицы сделаны на canvas 2D",
+    "files": [
+      {
+        "file": "MorphSVGPlugin.min.js",
+        "bytes": 21195
+      },
+      {
+        "file": "SplitText.min.js",
+        "bytes": 7732
+      },
+      {
+        "file": "gsap.min.js",
+        "bytes": 72927
+      }
+    ]
+  },
+  "assets": [
+    {
+      "file": "backdrop.jpg",
+      "bytes": 2704308,
+      "derivedFrom": "docs/spikes/sp3/assets/backdrop.jpg (побайтовая копия)"
+    },
+    {
+      "file": "depth-0.jpg",
+      "bytes": 28219,
+      "derivedFrom": "backdrop.jpg через ffmpeg (crop+scale+gblur+eq)"
+    },
+    {
+      "file": "depth-1.jpg",
+      "bytes": 36810,
+      "derivedFrom": "backdrop.jpg через ffmpeg (crop+scale+gblur+eq)"
+    },
+    {
+      "file": "depth-2.jpg",
+      "bytes": 61352,
+      "derivedFrom": "backdrop.jpg через ffmpeg (crop+scale+gblur+eq)"
+    },
+    {
+      "file": "depth-3.jpg",
+      "bytes": 202934,
+      "derivedFrom": "backdrop.jpg через ffmpeg (crop+scale+gblur+eq)"
+    }
+  ]
+}

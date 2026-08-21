@@ -1,0 +1,47 @@
+{
+  "schema": "sp3f-t8/2",
+  "file": "out/V-w4-r1.mp4",
+  "crop": {
+    "w": 960,
+    "h": 140,
+    "x": 60,
+    "y": 1446
+  },
+  "framesRead": 450,
+  "threshold": 0.5,
+  "madOnBoundary": {
+    "min": 2.366078869047619,
+    "p50": 6.258177083333333,
+    "max": 16.17938988095238,
+    "count": 37
+  },
+  "madOffBoundary": {
+    "min": 0,
+    "p50": 0.00029761904761904765,
+    "p95": 0.021488095238095237,
+    "max": 0.19657738095238095,
+    "count": 412
+  },
+  "expectedChanges": 37,
+  "observedChanges": 37,
+  "missing": [],
+  "extra": [],
+  "pass": true,
+  "pageBoundaries": [
+    40,
+    84,
+    128,
+    161,
+    205,
+    249,
+    293,
+    315,
+    348,
+    392
+  ],
+  "pageBoundariesHit": 10,
+  "wordBoundariesHit": 36,
+  "totalWords": 36,
+  "totalPages": 10,
+  "note": "expected = {startFrame каждого слова} ∪ {endFrame последнего}; смена страницы — подмножество"
+}

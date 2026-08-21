@@ -1,0 +1,6 @@
+[
+{"runId":"PROBE2","renderer":"hyperframes","workers":4,"gpu":"sw","project":"src-probe","frames":2},
+{"runId":"L450-noshader","renderer":"hyperframes","workers":4,"gpu":"sw","project":"src-L450-noshader","frames":450},
+{"runId":"L450-noparticles","renderer":"hyperframes","workers":4,"gpu":"sw","project":"src-L450-noparticles","frames":450},
+{"runId":"L450-noglass","renderer":"hyperframes","workers":4,"gpu":"sw","project":"src-L450-noglass","frames":450}
+]

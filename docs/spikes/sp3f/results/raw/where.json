@@ -1,0 +1,203 @@
+{
+  "schema": "sp3f-where/1",
+  "pairs": [
+    {
+      "pair": [
+        "V-w4-r1",
+        "V-w4-r10"
+      ],
+      "differingFrames": 0,
+      "totalFrames": 450,
+      "firstDiffFrame": null,
+      "lastDiffFrame": null,
+      "byWindow": {
+        "bg": {
+          "window": [
+            0,
+            450
+          ],
+          "framesInWindow": 450,
+          "differing": 0,
+          "share": 0
+        },
+        "depth": {
+          "window": [
+            0,
+            360
+          ],
+          "framesInWindow": 360,
+          "differing": 0,
+          "share": 0
+        },
+        "type": {
+          "window": [
+            30,
+            160
+          ],
+          "framesInWindow": 130,
+          "differing": 0,
+          "share": 0
+        },
+        "particles": {
+          "window": [
+            120,
+            215
+          ],
+          "framesInWindow": 95,
+          "differing": 0,
+          "share": 0
+        },
+        "card": {
+          "window": [
+            200,
+            305
+          ],
+          "framesInWindow": 105,
+          "differing": 0,
+          "share": 0
+        },
+        "melt": {
+          "window": [
+            290,
+            362
+          ],
+          "framesInWindow": 72,
+          "differing": 0,
+          "share": 0
+        },
+        "final": {
+          "window": [
+            300,
+            450
+          ],
+          "framesInWindow": 150,
+          "differing": 0,
+          "share": 0
+        },
+        "captions": {
+          "window": [
+            40,
+            447
+          ],
+          "framesInWindow": 407,
+          "differing": 0,
+          "share": 0
+        }
+      },
+      "bboxAtFrames": {
+        "20": {
+          "identical": true
+        },
+        "150": {
+          "identical": true
+        },
+        "250": {
+          "identical": true
+        },
+        "400": {
+          "identical": true
+        }
+      },
+      "runs": []
+    },
+    {
+      "pair": [
+        "V-w4-r1",
+        "V-w4-r5"
+      ],
+      "differingFrames": 0,
+      "totalFrames": 450,
+      "firstDiffFrame": null,
+      "lastDiffFrame": null,
+      "byWindow": {
+        "bg": {
+          "window": [
+            0,
+            450
+          ],
+          "framesInWindow": 450,
+          "differing": 0,
+          "share": 0
+        },
+        "depth": {
+          "window": [
+            0,
+            360
+          ],
+          "framesInWindow": 360,
+          "differing": 0,
+          "share": 0
+        },
+        "type": {
+          "window": [
+            30,
+            160
+          ],
+          "framesInWindow": 130,
+          "differing": 0,
+          "share": 0
+        },
+        "particles": {
+          "window": [
+            120,
+            215
+          ],
+          "framesInWindow": 95,
+          "differing": 0,
+          "share": 0
+        },
+        "card": {
+          "window": [
+            200,
+            305
+          ],
+          "framesInWindow": 105,
+          "differing": 0,
+          "share": 0
+        },
+        "melt": {
+          "window": [
+            290,
+            362
+          ],
+          "framesInWindow": 72,
+          "differing": 0,
+          "share": 0
+        },
+        "final": {
+          "window": [
+            300,
+            450
+          ],
+          "framesInWindow": 150,
+          "differing": 0,
+          "share": 0
+        },
+        "captions": {
+          "window": [
+            40,
+            447
+          ],
+          "framesInWindow": 407,
+          "differing": 0,
+          "share": 0
+        }
+      },
+      "bboxAtFrames": {
+        "20": {
+          "identical": true
+        },
+        "150": {
+          "identical": true
+        },
+        "250": {
+          "identical": true
+        },
+        "400": {
+          "identical": true
+        }
+      },
+      "runs": []
+    }
+  ]
+}

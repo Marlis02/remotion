@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>SP-3f — hook scene (HyperFrames)</title>
+    <script src="./vendor/gsap.min.js"></script>
+    <script src="./vendor/SplitText.min.js"></script>
+    <script src="./vendor/MorphSVGPlugin.min.js"></script>
+    <script src="./data/hook.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #05070c; }
+      @font-face { font-family: 'SP3Sans'; src: url('./fonts/DejaVuSans-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background-color: #05070c;
+        font-family: 'SP3Sans', sans-serif; font-weight: 700; -webkit-font-smoothing: antialiased; transform-origin: 0 0; }
+      .layer { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+
+      /* --- 1. шейдерный фон --- */
+      #g-bg { z-index: 1; }
+      #cv-shader { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      .cssgrad { position: absolute; left: -20%; top: -10%; width: 140%; height: 120%; opacity: 0; }
+      #grad-a { background: radial-gradient(48% 34% at 58% 26%, rgba(255,122,47,0.46) 0%, rgba(255,122,47,0.16) 42%, rgba(5,7,12,0) 72%); }
+      #grad-b { background: radial-gradient(52% 40% at 32% 78%, rgba(20,46,96,0.62) 0%, rgba(20,46,96,0.22) 46%, rgba(5,7,12,0) 74%); }
+
+      /* --- 2. 2.5D-параллакс --- */
+      #g-depth { z-index: 2; }
+      .dl { position: absolute; left: 50%; top: 50%; width: 1300px; height: 2311px; margin-left: -650px; margin-top: -1155.5px;
+        background-size: cover; background-position: 50% 50%; opacity: 0; will-change: transform; }
+      #depth-grade { position: absolute; inset: 0; z-index: 3;
+        background: linear-gradient(180deg, rgba(5,7,12,0.86) 0%, rgba(5,7,12,0.10) 26%, rgba(5,7,12,0.16) 58%, rgba(5,7,12,0.92) 100%); }
+
+      /* --- 3. кинетическая типографика --- */
+      #g-type { z-index: 6; opacity: 0; }
+      #typeBox { position: absolute; left: 90px; top: 560px; width: 900px; }
+      .hookline { font-size: 96px; line-height: 1.12; letter-spacing: -1.5px; color: #dff3ff; text-align: left;
+        text-shadow: 0 10px 46px rgba(0,0,0,0.75); }
+      #hookLine .w { display: inline-block; will-change: transform, filter; }
+      #hookLine .kw { color: #ff9a45; font-size: 132px; letter-spacing: -3px;
+        text-shadow: 0 0 60px rgba(255,122,47,0.55), 0 10px 46px rgba(0,0,0,0.8); }
+      #hookShine { position: absolute; left: 0; top: 0; width: 900px; color: transparent;
+        background-image: linear-gradient(100deg, rgba(255,255,255,0) 38%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0) 62%);
+        background-size: 280% 100%; background-repeat: no-repeat; background-position: 200% 0;
+        -webkit-background-clip: text; background-clip: text; opacity: 0; pointer-events: none; }
+      #typeRule { position: absolute; left: 90px; top: 512px; width: 0px; height: 3px;
+        background: linear-gradient(90deg, rgba(255,122,47,0.95), rgba(255,210,138,0.15)); }
+
+      /* --- 4. частицы --- */
+      #g-particles { z-index: 5; opacity: 0; }
+      #cv-particles { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+
+      /* --- 5. стеклянная карточка + морфинг иконки --- */
+      #g-card { z-index: 7; opacity: 0; }
+      #cardWrap { position: absolute; left: 70px; top: 700px; width: 940px; height: 520px; perspective: 1500px; }
+      #card { position: absolute; inset: 0; border-radius: 34px; padding: 1.6px; transform-origin: 20% 50%;
+        background: linear-gradient(140deg, rgba(255,190,120,0.90) 0%, rgba(255,255,255,0.10) 38%, rgba(120,190,255,0.62) 100%);
+        box-shadow: 0 46px 120px rgba(0,0,0,0.62), 0 0 0 1px rgba(255,255,255,0.03); }
+      #cardInner { position: relative; width: 100%; height: 100%; border-radius: 32.4px; overflow: hidden;
+        background: linear-gradient(150deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.035) 55%, rgba(255,150,70,0.07) 100%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%); padding: 62px 66px; }
+      #cardKicker { font-size: 30px; letter-spacing: 9px; color: rgba(255,190,130,0.88); margin-bottom: 26px; }
+      #cardText { font-size: 62px; line-height: 1.22; letter-spacing: -0.6px; color: #eef7ff; text-shadow: 0 6px 30px rgba(0,0,0,0.55); }
+      #cardIcon { position: absolute; right: 44px; bottom: 36px; width: 132px; height: 132px; }
+      #iconPath { fill: none; stroke: #ffb347; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round;
+        filter: drop-shadow(0 0 22px rgba(255,140,60,0.7)); }
+
+      /* --- 6. luma-переход --- */
+      #g-melt { z-index: 8; opacity: 0; }
+      #cv-melt { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+
+      /* --- 7. финальный кадр --- */
+      #g-final { z-index: 9; opacity: 0; }
+      #finalBox { position: absolute; left: 90px; top: 620px; width: 900px; }
+      #finalRule { width: 160px; height: 3px; margin-bottom: 44px;
+        background: linear-gradient(90deg, rgba(255,122,47,1), rgba(255,122,47,0)); }
+      #finalText { font-size: 74px; line-height: 1.18; letter-spacing: -1.2px; color: #eaf5ff;
+        text-shadow: 0 12px 54px rgba(0,0,0,0.8); }
+      #finalGlow { position: absolute; left: -20%; top: 20%; width: 140%; height: 70%;
+        background: radial-gradient(46% 32% at 50% 46%, rgba(255,122,47,0.20) 0%, rgba(5,7,12,0) 70%); }
+
+      /* --- атмосфера: виньетка и зерно (статические, цены за кадр нет) --- */
+      #g-atmo { z-index: 11; pointer-events: none; }
+      #vignette { position: absolute; inset: 0;
+        background: radial-gradient(72% 52% at 50% 44%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%); }
+      #grain { position: absolute; inset: 0; opacity: 0.055; mix-blend-mode: overlay;
+        background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.9) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 3px),
+                          repeating-linear-gradient(90deg, rgba(255,255,255,0.7) 0px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 4px); }
+
+      /* --- 8. субтитры (над переходом: слой компоузинга, как в монтаже) --- */
+      #g-caps { z-index: 12; }
+      #capScrim { position: absolute; left: 0; width: 1080px;
+        background: linear-gradient(180deg, rgba(5,7,12,0) 0%, rgba(5,7,12,0.72) 42%, rgba(5,7,12,1) 100%); }
+      #capPlate { position: absolute; left: 0; width: 1080px; background: #05070c; }
+      .capPage { position: absolute; left: 60px; width: 960px; text-align: center; opacity: 0;
+        display: flex; justify-content: center; align-items: baseline; gap: 16px; }
+      .cw { position: relative; display: inline-block; }
+      .cw .dim { color: rgba(223,243,255,0.40); }
+      .cw .hot { position: absolute; left: 0; top: 0; color: #ffb347; opacity: 0; white-space: pre;
+        text-shadow: 0 0 26px rgba(255,140,60,0.55); }
+
+      #probe { position: absolute; inset: 0; z-index: 99; display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="hook" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+      <div class="layer" id="g-bg"><canvas id="cv-shader"></canvas><div class="cssgrad" id="grad-a"></div><div class="cssgrad" id="grad-b"></div></div>
+      <div class="layer" id="g-depth"><div id="depth-grade"></div></div>
+      <div class="layer" id="g-particles"><canvas id="cv-particles" width="1080" height="1920"></canvas></div>
+      <div class="layer" id="g-type">
+        <div id="typeRule"></div>
+        <div id="typeBox"><div class="hookline" id="hookLine"></div><div class="hookline" id="hookShine"></div></div>
+      </div>
+      <div class="layer" id="g-card">
+        <div id="cardWrap"><div id="card"><div id="cardInner">
+          <div id="cardKicker">THE HOOK</div>
+          <p id="cardText"></p>
+          <svg id="cardIcon" viewBox="0 0 120 120"><path id="iconPath" d=""></path></svg>
+        </div></div></div>
+      </div>
+      <div class="layer" id="g-melt"><canvas id="cv-melt"></canvas></div>
+      <div class="layer" id="g-final"><div id="finalGlow"></div><div id="finalBox"><div id="finalRule"></div><div id="finalText"></div></div></div>
+      <div class="layer" id="g-atmo"><div id="vignette"></div><div id="grain"></div></div>
+      <div class="layer" id="g-caps"><div id="capScrim"></div><div id="capPlate"></div></div>
+      <div id="probe"></div>
+    </div>
+
+    <script>
+      (function () {
+        var D = window.__HOOK;
+        var F = function (n) { return n / D.fps; };          // адаптер кадр → секунда (ADR-0003; HyperFrames квантует Math.floor(t*fps+1e-9)/fps)
+        var W = D.windows, P = D.palette, L = D.layers;
+        var root = document.getElementById('root');
+        root.setAttribute('data-duration', String(D.durationInFrames / D.fps));
+        root.setAttribute('data-width', String(Math.round(D.width * D.scale)));
+        root.setAttribute('data-height', String(Math.round(D.height * D.scale)));
+        if (D.scale !== 1) { root.style.transform = 'scale(' + D.scale + ')'; document.documentElement.style.width = document.body.style.width = (D.width * D.scale) + 'px'; document.documentElement.style.height = document.body.style.height = (D.height * D.scale) + 'px'; }
+
+        /** Детерминированный шум: хэш от (индекс, поток) → [0,1). Никакого Math.random (Charter V8/V9). */
+        var h32 = function (a, b) {
+          var x = (a * 374761393 + b * 668265263) | 0;
+          x = (x ^ (x >>> 13)) * 1274126177 | 0;
+          return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+        };
+        var clamp01 = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+        var outCubic = function (p) { var q = 1 - p; return 1 - q * q * q; };
+        var inOutSine = function (p) { return 0.5 - 0.5 * Math.cos(Math.PI * p); };
+
+        // ================= 1. шейдерный фон: GLSL на WebGL, откат — CSS-градиенты =================
+        var gl = null, glProg = null, uT = null, shaderCanvas = document.getElementById('cv-shader');
+        var initShader = function () {
+          shaderCanvas.width = D.shader.w; shaderCanvas.height = D.shader.h;
+          var ctx = null;
+          try { ctx = shaderCanvas.getContext('webgl2', {antialias: false, preserveDrawingBuffer: true}) || shaderCanvas.getContext('webgl', {antialias: false, preserveDrawingBuffer: true}); } catch (e) { ctx = null; }
+          if (!ctx) return false;
+          var vs = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.0,1.0);}';
+          var fs = [
+            'precision highp float;uniform vec2 u_res;uniform float u_t;',
+            'float n2(vec2 p){return sin(p.x*1.7+u_t*0.31)*sin(p.y*1.3-u_t*0.22)+0.5*sin(p.x*3.1-u_t*0.17)*sin(p.y*2.7+u_t*0.29);}',
+            'void main(){vec2 uv=gl_FragCoord.xy/u_res;vec2 q=uv*2.0-1.0;q.y*=u_res.y/u_res.x;',
+            'float f=n2(q*2.2)*0.24;',
+            'vec2 c1=vec2(0.14*sin(u_t*0.19),-0.62+0.10*cos(u_t*0.23));',
+            'vec2 c2=vec2(-0.34+0.12*cos(u_t*0.13),0.92+0.14*sin(u_t*0.11));',
+            'float d1=length(q-c1)+f;float d2=length(q-c2)+f*0.7;',
+            'float g1=exp(-d1*d1*1.30);float g2=exp(-d2*d2*1.75);',
+            'float breathe=0.72+0.28*sin(u_t*0.42);',
+            'vec3 col=vec3(0.020,0.027,0.047)+vec3(1.000,0.478,0.184)*g1*0.44*breathe+vec3(0.078,0.180,0.376)*g2*0.52;',
+            'col+=vec3(0.030,0.035,0.050)*(1.0-min(length(q)*0.45,1.0));',
+            'gl_FragColor=vec4(col,1.0);}'].join('\n');
+          var mk = function (t, s) { var sh = ctx.createShader(t); ctx.shaderSource(sh, s); ctx.compileShader(sh); return ctx.getShaderParameter(sh, ctx.COMPILE_STATUS) ? sh : null; };
+          var v = mk(ctx.VERTEX_SHADER, vs), fsh = mk(ctx.FRAGMENT_SHADER, fs);
+          if (!v || !fsh) return false;
+          var pr = ctx.createProgram(); ctx.attachShader(pr, v); ctx.attachShader(pr, fsh); ctx.linkProgram(pr);
+          if (!ctx.getProgramParameter(pr, ctx.LINK_STATUS)) return false;
+          ctx.useProgram(pr);
+          var buf = ctx.createBuffer(); ctx.bindBuffer(ctx.ARRAY_BUFFER, buf);
+          ctx.bufferData(ctx.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), ctx.STATIC_DRAW);
+          var loc = ctx.getAttribLocation(pr, 'p'); ctx.enableVertexAttribArray(loc); ctx.vertexAttribPointer(loc, 2, ctx.FLOAT, false, 0, 0);
+          ctx.uniform2f(ctx.getUniformLocation(pr, 'u_res'), D.shader.w, D.shader.h);
+          uT = ctx.getUniformLocation(pr, 'u_t');
+          ctx.viewport(0, 0, D.shader.w, D.shader.h);
+          gl = ctx; glProg = pr;
+          return true;
+        };
+        var shaderOk = L.shader ? initShader() : false;
+        window.__SP3F_WEBGL = shaderOk;
+        if (!shaderOk) shaderCanvas.style.display = 'none';
+        var drawShader = function (fr) {
+          if (!gl) return;
+          gl.uniform1f(uT, fr / D.fps);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        };
+
+        // ================= 2. 2.5D-параллакс: 4 слоя, camera.depthPush =================
+        var depthEls = [];
+        if (L.depth) {
+          var grade = document.getElementById('depth-grade');
+          D.depth.layers.forEach(function (ly, i) {
+            var el = document.createElement('div');
+            el.className = 'dl'; el.id = 'dl-' + i;
+            el.style.backgroundImage = 'url(./assets/' + ly.file + ')';
+            if (ly.blurPx > 0) el.style.filter = 'blur(' + ly.blurPx + 'px)';
+            document.getElementById('g-depth').insertBefore(el, grade);
+            depthEls.push(el);
+          });
+        }
+
+        // ================= 3. кинетическая типографика: SplitText, откат — ручные <span> =================
+        var typeWords = [], splitMode = 'none';
+        (function () {
+          if (!L.type) return;
+          var line = document.getElementById('hookLine');
+          line.textContent = D.type.text;
+          var ok = false;
+          try {
+            if (typeof SplitText !== 'undefined') {
+              gsap.registerPlugin(SplitText);
+              var sp = new SplitText(line, {type: 'words', wordsClass: 'w'});
+              typeWords = sp.words; ok = typeWords && typeWords.length > 0;
+            }
+          } catch (e) { ok = false; }
+          if (!ok) {
+            line.innerHTML = '';
+            D.type.text.split(/\s+/).forEach(function (w, i) {
+              var s = document.createElement('span'); s.className = 'w'; s.textContent = w;
+              line.appendChild(s); typeWords.push(s);
+              if (i < D.type.text.split(/\s+/).length - 1) line.appendChild(document.createTextNode(' '));
+            });
+            splitMode = 'manual';
+          } else { splitMode = 'SplitText'; }
+          typeWords.forEach(function (el, i) {
+            el.id = 'tw-' + i;
+            if (el.textContent.replace(/[^0-9A-Za-z]/g, '') === D.type.keyword) el.classList.add('kw');
+          });
+          document.getElementById('hookShine').textContent = D.type.text;
+        })();
+
+        // ================= 4. частицы: сборка хаоса в силуэт факела =================
+        var pcv = document.getElementById('cv-particles'), pctx = null, PART = [];
+        if (L.particles) {
+          pctx = pcv.getContext('2d');
+          var C = D.particles, baseY = C.cy + C.flameH * 0.5;
+          for (var i = 0; i < C.count; i++) {
+            var isHandle = h32(i, 11) < 0.14;
+            var tx, ty, s;
+            if (isHandle) {                                   // рукоять факела — узкая сужающаяся полоса
+              s = h32(i, 12);
+              tx = C.cx + (h32(i, 13) * 2 - 1) * (34 - 12 * s);
+              ty = baseY + 26 + s * 300;
+            } else {                                          // пламя: полуширина w(s) = sin(pi*s^0.72)*(1-0.3s)
+              s = Math.pow(h32(i, 12), 0.62);
+              var halfW = C.flameW * 0.5 * Math.sin(Math.PI * Math.pow(s, 0.72)) * (1 - 0.30 * s);
+              tx = C.cx + (h32(i, 13) * 2 - 1) * halfW * Math.sqrt(h32(i, 14)) + Math.sin(s * 5.1) * 18 * s;
+              ty = baseY - s * C.flameH;
+            }
+            var a = h32(i, 21) * Math.PI * 2, r = C.chaosR * (0.30 + 0.70 * h32(i, 22));
+            PART.push({sx: C.cx + Math.cos(a) * r, sy: C.cy + Math.sin(a) * r * 1.30,
+              tx: tx, ty: ty, d: h32(i, 23) * 0.42, s: isHandle ? 0 : s, k: h32(i, 24)});
+          }
+        }
+        var drawParticles = function (fr) {
+          if (!pctx) return;
+          pctx.clearRect(0, 0, 1080, 1920);
+          var C = D.particles;
+          var rel = fr - W.particles.from;
+          if (rel < 0 || fr >= W.particles.to + 4) return;
+          var Pg = clamp01(rel / C.assembleFrames);
+          var fade = rel <= C.assembleFrames + C.holdFrames ? 1
+            : clamp01(1 - (rel - C.assembleFrames - C.holdFrames) / C.outFrames);
+          pctx.globalCompositeOperation = 'lighter';
+          for (var i = 0; i < PART.length; i++) {
+            var p = PART[i];
+            var lp = outCubic(clamp01((Pg - p.d) / (1 - p.d)));
+            var x = p.sx + (p.tx - p.sx) * lp, y = p.sy + (p.ty - p.sy) * lp;
+            x += Math.sin(fr * 0.13 + i * 0.71) * 2.6 * lp;   // живой дрейф: функция (кадр, индекс)
+            y -= Math.sin(fr * 0.11 + i * 0.37) * 3.4 * lp * p.s;
+            var warm = 0.25 + 0.75 * p.s;
+            var al = (0.20 + 0.80 * lp) * fade * (0.60 + 0.40 * p.k);
+            pctx.fillStyle = 'rgba(' + Math.round(255) + ',' + Math.round(96 + 128 * warm) + ',' + Math.round(18 + 130 * warm * warm) + ',' + al.toFixed(3) + ')';
+            var d = C.dotPx * (0.6 + 0.9 * p.k);
+            pctx.fillRect(x, y, d, d);
+          }
+          pctx.globalCompositeOperation = 'source-over';
+        };
+
+        // ================= 5. стеклянная карточка + морфинг иконки (молния → пламя) =================
+        var BOLT = [[66,6],[74,10],[52,48],[76,44],[84,50],[52,114],[46,110],[62,68],[38,70],[32,64],[46,30],[56,12]];
+        var FLAME = [[60,4],[72,20],[76,42],[90,58],[92,80],[80,104],[60,116],[40,104],[28,80],[32,58],[46,44],[52,20]];
+        var pathOf = function (pts) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join(' ') + ' Z'; };
+        var iconEl = document.getElementById('iconPath'), morphMode = 'none';
+        if (L.card) {
+          document.getElementById('cardText').textContent = D.card.text;
+          iconEl.setAttribute('d', pathOf(BOLT));
+          try { if (typeof MorphSVGPlugin !== 'undefined') { gsap.registerPlugin(MorphSVGPlugin); morphMode = gsap.plugins && gsap.plugins.morphSVG ? 'MorphSVGPlugin' : 'manual'; } } catch (e) { morphMode = 'manual'; }
+          if (morphMode === 'none') morphMode = 'manual';
+        }
+        window.__SP3F_MORPH = morphMode;
+        var mp = {p: 0};
+        var renderMorph = function () {
+          var pts = [];
+          for (var k = 0; k < BOLT.length; k++) pts.push([BOLT[k][0] + (FLAME[k][0] - BOLT[k][0]) * mp.p, BOLT[k][1] + (FLAME[k][1] - BOLT[k][1]) * mp.p]);
+          iconEl.setAttribute('d', pathOf(pts));
+        };
+
+        // ================= 6. luma-переход: порог по процедурному шуму 0 → 1 =================
+        var mcv = document.getElementById('cv-melt'), mctx = null, mimg = null, noise = null;
+        if (L.melt) {
+          mcv.width = D.melt.w; mcv.height = D.melt.h;
+          mctx = mcv.getContext('2d');
+          mimg = mctx.createImageData(D.melt.w, D.melt.h);
+          noise = new Float32Array(D.melt.w * D.melt.h);
+          var vn = function (x, y, cell, seed) {           // сглаженный value-noise на решётке
+            var gx = x / cell, gy = y / cell, x0 = Math.floor(gx), y0 = Math.floor(gy);
+            var fx = gx - x0, fy = gy - y0;
+            var sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+            var a = h32(x0 * 7919 + y0, seed), b = h32((x0 + 1) * 7919 + y0, seed);
+            var c = h32(x0 * 7919 + y0 + 1, seed), d2 = h32((x0 + 1) * 7919 + y0 + 1, seed);
+            return (a + (b - a) * sx) + ((c + (d2 - c) * sx) - (a + (b - a) * sx)) * sy;
+          };
+          for (var y = 0; y < D.melt.h; y++) {
+            for (var x = 0; x < D.melt.w; x++) {
+              var n = 0.62 * vn(x, y, 26, 31) + 0.26 * vn(x, y, 11, 37) + 0.12 * vn(x, y, 4.5, 41);
+              noise[y * D.melt.w + x] = clamp01(n * 0.82 + 0.20 * (y / D.melt.h));  // лёгкий градиент сверху вниз
+            }
+          }
+          var dta = mimg.data;
+          for (var q = 0; q < D.melt.w * D.melt.h; q++) { dta[q * 4] = 5; dta[q * 4 + 1] = 7; dta[q * 4 + 2] = 12; dta[q * 4 + 3] = 0; }
+        }
+        var drawMelt = function (fr) {
+          if (!mctx) return;
+          var rel = fr - W.melt.from;
+          var t = clamp01(rel / D.melt.thresholdFrames);
+          var edge = 0.16, th = t * (1 + edge);
+          var dt = mimg.data;
+          for (var q = 0; q < noise.length; q++) {
+            var a = (th - noise[q]) / edge;
+            dt[q * 4 + 3] = a <= 0 ? 0 : a >= 1 ? 255 : (a * 255) | 0;
+          }
+          mctx.putImageData(mimg, 0, 0);
+        };
+
+        // ================= 7. финальный кадр =================
+        if (L.melt || true) document.getElementById('finalText').textContent = D.final.text;
+
+        // ================= 8. субтитры: страницы по 2..4 слова, смена — на границе кадра =================
+        (function () {
+          if (!L.captions) return;
+          var c = D.captions;
+          var scrim = document.getElementById('capScrim'), plate = document.getElementById('capPlate');
+          scrim.style.top = c.scrimTop + 'px'; scrim.style.height = (c.plateTop - c.scrimTop) + 'px';
+          plate.style.top = c.plateTop + 'px'; plate.style.height = (1920 - c.plateTop) + 'px';
+          var host = document.getElementById('g-caps');
+          c.pages.forEach(function (pg) {
+            var el = document.createElement('div');
+            el.className = 'capPage'; el.id = 'cp-' + pg.index;
+            el.style.top = c.bandTop + 'px'; el.style.height = (c.bandBottom - c.bandTop) + 'px';
+            el.style.fontSize = c.fontPx + 'px'; el.style.alignItems = 'center';
+            pg.words.forEach(function (wi) {
+              var w = c.words[wi];
+              var wrap = document.createElement('span'); wrap.className = 'cw';
+              var dim = document.createElement('span'); dim.className = 'dim'; dim.textContent = w.text;
+              var hot = document.createElement('span'); hot.className = 'hot'; hot.id = 'cwh-' + wi; hot.textContent = w.text;
+              wrap.appendChild(dim); wrap.appendChild(hot);
+              el.appendChild(wrap);
+            });
+            host.appendChild(el);
+          });
+        })();
+
+        // ================= режим пробы WebGL: экран целиком зелёный/красный =================
+        if (D.probe) {
+          var pr2 = document.getElementById('probe');
+          pr2.style.display = 'block';
+          pr2.innerHTML = '';
+          [shaderOk, splitMode === 'SplitText', morphMode === 'MorphSVGPlugin'].forEach(function (ok, i) {
+            var b = document.createElement('div');
+            b.style.cssText = 'position:absolute;left:0;width:1080px;height:640px;top:' + (i * 640) + 'px;background:' + (ok ? '#00c000' : '#c00000');
+            pr2.appendChild(b);
+          });
+        }
+
+        // ================= таймлайн =================
+        var tl = gsap.timeline({paused: true});
+
+        // окна видимости слоёв
+        [['type', '#g-type'], ['particles', '#g-particles'], ['card', '#g-card'], ['melt', '#g-melt'], ['final', '#g-final']].forEach(function (pair) {
+          var w = W[pair[0]];
+          tl.set(pair[1], {opacity: 1}, F(w.from));
+          if (w.to < D.durationInFrames) tl.set(pair[1], {opacity: 0}, F(w.to));
+        });
+
+        // --- 1. шейдерный фон: WebGL гонится драйвером; откат — два градиентных слоя, «дыхание» тюнами
+        if (!shaderOk && L.shader) {
+          tl.set('#grad-a', {opacity: 1}, 0); tl.set('#grad-b', {opacity: 1}, 0);
+          tl.fromTo('#grad-a', {x: -26, y: 18, scale: 1.00, opacity: 0.72},
+            {x: 34, y: -22, scale: 1.16, opacity: 1.0, duration: F(D.shader.breatheFrames), ease: 'sine.inOut'}, 0);
+          tl.fromTo('#grad-b', {x: 30, y: -14, scale: 1.10, opacity: 0.85},
+            {x: -28, y: 26, scale: 1.00, opacity: 1.0, duration: F(D.shader.breatheFrames), ease: 'sine.inOut'}, 0);
+        }
+
+        // --- 2. 2.5D-параллакс: проявление из темноты + camera.depthPush (разные коэффициенты на слой)
+        depthEls.forEach(function (el, i) {
+          var ly = D.depth.layers[i];
+          tl.fromTo(el, {opacity: 0}, {opacity: ly.opacity, duration: F(ly.fadeFrames), ease: 'power2.out'}, F(i * 3));
+          tl.fromTo(el, {scale: ly.scaleFrom, y: ly.yFrom},
+            {scale: ly.scaleTo, y: ly.yTo, duration: F(D.depth.pushFrames), ease: 'power1.inOut'}, 0);
+          tl.to(el, {opacity: 0, duration: F(30), ease: 'power2.in'}, F(W.depth.to - 30));
+        });
+
+        // --- 3. кинетическая типографика: слово за словом, подъём + размытие движения, затем блик
+        typeWords.forEach(function (el, i) {
+          tl.fromTo(el, {opacity: 0, y: D.type.riseY, scale: 0.94, filter: 'blur(' + D.type.blurPx + 'px)'},
+            {opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: F(D.type.riseFrames), ease: 'power3.out'},
+            F(W.type.from + i * D.type.staggerFrames));
+        });
+        tl.fromTo('#typeRule', {width: 0}, {width: 260, duration: F(24), ease: 'power2.out'}, F(W.type.from));
+        var shine = {p: 0}, shineEl = document.getElementById('hookShine');
+        var renderShine = function () { shineEl.style.backgroundPosition = (200 - 300 * shine.p).toFixed(2) + '% 0'; };
+        renderShine();
+        tl.set('#hookShine', {opacity: 1}, F(D.type.shineFrom));
+        tl.fromTo(shine, {p: 0}, {p: 1, duration: F(D.type.shineFrames), ease: 'power1.inOut', onUpdate: renderShine}, F(D.type.shineFrom));
+        tl.set('#hookShine', {opacity: 0}, F(D.type.shineFrom + D.type.shineFrames));
+        tl.to('#typeBox', {opacity: 0, y: -46, duration: F(D.type.outFrames), ease: 'power2.in'}, F(D.type.outFrom));
+        tl.to('#typeRule', {opacity: 0, duration: F(D.type.outFrames), ease: 'power2.in'}, F(D.type.outFrom));
+
+        // --- 5. стеклянная карточка: 3D-въезд + морфинг иконки в углу
+        if (L.card) {
+          tl.fromTo('#card', {rotationY: D.card.rotYFrom, x: D.card.xFrom, opacity: 0, scale: 0.96},
+            {rotationY: 0, x: 0, opacity: 1, scale: 1, duration: F(D.card.inFrames), ease: 'power3.out'}, F(W.card.from));
+          if (morphMode === 'MorphSVGPlugin') {
+            tl.to('#iconPath', {morphSVG: {shape: pathOf(FLAME)}, duration: F(D.card.morphFrames), ease: 'power2.inOut'}, F(D.card.morphFrom));
+          } else {
+            tl.fromTo(mp, {p: 0}, {p: 1, duration: F(D.card.morphFrames), ease: 'power2.inOut', onUpdate: renderMorph}, F(D.card.morphFrom));
+          }
+          tl.to('#card', {rotationY: -14, x: -120, opacity: 0, duration: F(D.card.outFrames), ease: 'power2.in'}, F(D.card.outFrom));
+        }
+
+        // --- 7. финальный кадр: строка одной репликой
+        tl.fromTo('#finalBox', {opacity: 0, y: 40}, {opacity: 1, y: 0, duration: F(D.final.inFrames), ease: 'power3.out'}, F(D.final.inFrom));
+        tl.fromTo('#finalRule', {width: 0}, {width: 160, duration: F(26), ease: 'power2.out'}, F(D.final.inFrom));
+
+        // --- 8. субтитры: страница включается на своём кадре, активное слово — на своём
+        if (L.captions) {
+          D.captions.pages.forEach(function (pg) {
+            tl.set('#cp-' + pg.index, {opacity: 1}, F(pg.startFrame));
+            tl.set('#cp-' + pg.index, {opacity: 0}, F(pg.endFrame));
+          });
+          D.captions.words.forEach(function (w) {
+            tl.set('#cwh-' + w.i, {opacity: 1}, F(w.startFrame));
+            tl.set('#cwh-' + w.i, {opacity: 0}, F(w.endFrame));
+          });
+        }
+
+        // --- драйвер канвасов: один тюн на всю длительность, кадр берётся из времени таймлайна
+        var driver = {v: 0};
+        var drawAll = function (fr) { drawShader(fr); drawParticles(fr); drawMelt(fr); };
+        tl.to(driver, {v: 1, duration: F(D.durationInFrames), ease: 'none',
+          onUpdate: function () { drawAll(Math.floor(tl.time() * D.fps + 1e-9)); }}, 0);
+        drawAll(0);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[D.compositionId] = tl;
+      })();
+    </script>
+  </body>
+</html>

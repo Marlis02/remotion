@@ -1,0 +1,23 @@
+L-full60	OK	40.2s	fps=1.641	sha=5a011c7ef98d154b
+L-noshader	OK	38.6s	fps=1.715	sha=fdeb9742fb06b290
+L-noparticles	OK	41.1s	fps=1.615	sha=5a9997638a52f6a5
+L-noglass	OK	47.4s	fps=1.385	sha=5a011c7ef98d154b
+V-w4-r1	OK	87s	fps=5.487	sha=250f2d220a2255f6
+V-w4-r2	OK	83.6s	fps=5.699	sha=250f2d220a2255f6
+V-w4-r3	OK	84.5s	fps=5.64	sha=250f2d220a2255f6
+V-w4-r4	OK	85.2s	fps=5.591	sha=250f2d220a2255f6
+V-w4-r5	OK	84.7s	fps=5.63	sha=250f2d220a2255f6
+Vd-w4-r1	OK	18.4s	fps=30.641	sha=e2ecf34f928c1a94
+V-w4-r6	OK	82.6s	fps=5.803	sha=250f2d220a2255f6
+V-w4-r7	OK	88.6s	fps=5.371	sha=250f2d220a2255f6
+Vd-w4-r2	OK	16.2s	fps=35.289	sha=e2ecf34f928c1a94
+V-w4-r8	OK	81.3s	fps=5.871	sha=250f2d220a2255f6
+V-w4-r9	OK	80.9s	fps=5.9	sha=250f2d220a2255f6
+Vd-w4-r3	OK	16.8s	fps=33.886	sha=e2ecf34f928c1a94
+V-w4-r10	OK	82.8s	fps=5.764	sha=250f2d220a2255f6
+матрица закончена
+PROBE2	OK	12.5s	fps=0.216	sha=fe0682b36344fb46
+L450-noshader	OK	78.3s	fps=6.14	sha=2ab189d810ec1b37
+L450-noparticles	OK	80.4s	fps=5.936	sha=90c686f17fb1c43a
+L450-noglass	OK	84.4s	fps=5.64	sha=296948fe1315214d
+матрица закончена

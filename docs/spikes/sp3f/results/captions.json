@@ -1,0 +1,424 @@
+{
+  "schema": "sp3f-captions/1",
+  "fps": 30,
+  "wordFrames": 11,
+  "note": "Границы страниц и слов — целые кадры. Проверяется прибором captiontest.mjs (ADR-0003 T8).",
+  "words": [
+    {
+      "i": 0,
+      "text": "The",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 40,
+      "endFrame": 51
+    },
+    {
+      "i": 1,
+      "text": "morning",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 51,
+      "endFrame": 62
+    },
+    {
+      "i": 2,
+      "text": "began",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 62,
+      "endFrame": 73
+    },
+    {
+      "i": 3,
+      "text": "the",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 73,
+      "endFrame": 84
+    },
+    {
+      "i": 4,
+      "text": "same",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 84,
+      "endFrame": 95
+    },
+    {
+      "i": 5,
+      "text": "way",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 95,
+      "endFrame": 106
+    },
+    {
+      "i": 6,
+      "text": "for",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 106,
+      "endFrame": 117
+    },
+    {
+      "i": 7,
+      "text": "almost",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 117,
+      "endFrame": 128
+    },
+    {
+      "i": 8,
+      "text": "200",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 128,
+      "endFrame": 139
+    },
+    {
+      "i": 9,
+      "text": "years",
+      "sentence": 0,
+      "lastInSentence": false,
+      "startFrame": 139,
+      "endFrame": 150
+    },
+    {
+      "i": 10,
+      "text": "running.",
+      "sentence": 0,
+      "lastInSentence": true,
+      "startFrame": 150,
+      "endFrame": 161
+    },
+    {
+      "i": 11,
+      "text": "Ships",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 161,
+      "endFrame": 172
+    },
+    {
+      "i": 12,
+      "text": "came",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 172,
+      "endFrame": 183
+    },
+    {
+      "i": 13,
+      "text": "in",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 183,
+      "endFrame": 194
+    },
+    {
+      "i": 14,
+      "text": "on",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 194,
+      "endFrame": 205
+    },
+    {
+      "i": 15,
+      "text": "the",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 205,
+      "endFrame": 216
+    },
+    {
+      "i": 16,
+      "text": "night",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 216,
+      "endFrame": 227
+    },
+    {
+      "i": 17,
+      "text": "tide,",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 227,
+      "endFrame": 238
+    },
+    {
+      "i": 18,
+      "text": "and",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 238,
+      "endFrame": 249
+    },
+    {
+      "i": 19,
+      "text": "the",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 249,
+      "endFrame": 260
+    },
+    {
+      "i": 20,
+      "text": "town",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 260,
+      "endFrame": 271
+    },
+    {
+      "i": 21,
+      "text": "woke",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 271,
+      "endFrame": 282
+    },
+    {
+      "i": 22,
+      "text": "to",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 282,
+      "endFrame": 293
+    },
+    {
+      "i": 23,
+      "text": "their",
+      "sentence": 1,
+      "lastInSentence": false,
+      "startFrame": 293,
+      "endFrame": 304
+    },
+    {
+      "i": 24,
+      "text": "horns.",
+      "sentence": 1,
+      "lastInSentence": true,
+      "startFrame": 304,
+      "endFrame": 315
+    },
+    {
+      "i": 25,
+      "text": "The",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 315,
+      "endFrame": 326
+    },
+    {
+      "i": 26,
+      "text": "harbour",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 326,
+      "endFrame": 337
+    },
+    {
+      "i": 27,
+      "text": "warehouses",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 337,
+      "endFrame": 348
+    },
+    {
+      "i": 28,
+      "text": "held",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 348,
+      "endFrame": 359
+    },
+    {
+      "i": 29,
+      "text": "goods",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 359,
+      "endFrame": 370
+    },
+    {
+      "i": 30,
+      "text": "that",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 370,
+      "endFrame": 381
+    },
+    {
+      "i": 31,
+      "text": "nobody",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 381,
+      "endFrame": 392
+    },
+    {
+      "i": 32,
+      "text": "in",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 392,
+      "endFrame": 403
+    },
+    {
+      "i": 33,
+      "text": "town",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 403,
+      "endFrame": 414
+    },
+    {
+      "i": 34,
+      "text": "ever",
+      "sentence": 2,
+      "lastInSentence": false,
+      "startFrame": 414,
+      "endFrame": 425
+    },
+    {
+      "i": 35,
+      "text": "bought.",
+      "sentence": 2,
+      "lastInSentence": true,
+      "startFrame": 425,
+      "endFrame": 436
+    }
+  ],
+  "pages": [
+    {
+      "index": 0,
+      "words": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "chars": 21,
+      "startFrame": 40,
+      "endFrame": 84,
+      "text": "The morning began the"
+    },
+    {
+      "index": 1,
+      "words": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "chars": 19,
+      "startFrame": 84,
+      "endFrame": 128,
+      "text": "same way for almost"
+    },
+    {
+      "index": 2,
+      "words": [
+        8,
+        9,
+        10
+      ],
+      "chars": 18,
+      "startFrame": 128,
+      "endFrame": 161,
+      "text": "200 years running."
+    },
+    {
+      "index": 3,
+      "words": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "chars": 16,
+      "startFrame": 161,
+      "endFrame": 205,
+      "text": "Ships came in on"
+    },
+    {
+      "index": 4,
+      "words": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "chars": 19,
+      "startFrame": 205,
+      "endFrame": 249,
+      "text": "the night tide, and"
+    },
+    {
+      "index": 5,
+      "words": [
+        19,
+        20,
+        21,
+        22
+      ],
+      "chars": 16,
+      "startFrame": 249,
+      "endFrame": 293,
+      "text": "the town woke to"
+    },
+    {
+      "index": 6,
+      "words": [
+        23,
+        24
+      ],
+      "chars": 12,
+      "startFrame": 293,
+      "endFrame": 315,
+      "text": "their horns."
+    },
+    {
+      "index": 7,
+      "words": [
+        25,
+        26,
+        27
+      ],
+      "chars": 22,
+      "startFrame": 315,
+      "endFrame": 348,
+      "text": "The harbour warehouses"
+    },
+    {
+      "index": 8,
+      "words": [
+        28,
+        29,
+        30,
+        31
+      ],
+      "chars": 22,
+      "startFrame": 348,
+      "endFrame": 392,
+      "text": "held goods that nobody"
+    },
+    {
+      "index": 9,
+      "words": [
+        32,
+        33,
+        34,
+        35
+      ],
+      "chars": 20,
+      "startFrame": 392,
+      "endFrame": 436,
+      "text": "in town ever bought."
+    }
+  ]
+}

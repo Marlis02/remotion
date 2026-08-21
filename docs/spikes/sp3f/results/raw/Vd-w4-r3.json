@@ -1,0 +1,405 @@
+{
+  "schema": "sp3f-run/1",
+  "runId": "Vd-w4-r3",
+  "renderer": "hyperframes",
+  "status": "OK",
+  "startedAt": "2026-08-21T12:02:25.977Z",
+  "config": {
+    "profile": "draftHalf",
+    "frames": 450,
+    "workers": 4,
+    "gpu": "sw",
+    "project": "src-draft",
+    "outputPath": "out/Vd-w4-r3.mp4"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      4.53,
+      5.12,
+      4
+    ],
+    "freeMemBytes": 17587785728,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 61
+  },
+  "timings": {
+    "cliWallMs": 14122,
+    "pipelineMs": 13360,
+    "toCaptureStartMs": 80,
+    "captureMs": 10008,
+    "encodeMs": 3254,
+    "renderPhaseMs": 13280,
+    "preRenderOverheadMs": 842
+  },
+  "trace": [
+    {
+      "phase": "pipeline",
+      "status": "checkpoint",
+      "elapsedMs": 4,
+      "message": "started",
+      "format": "mp4",
+      "quality": "standard",
+      "browserGpuMode": "software",
+      "forceScreenshot": true,
+      "protocolTimeoutMs": 300000,
+      "pageNavigationTimeoutMs": 60000,
+      "playerReadyTimeoutMs": 45000,
+      "requestedWorkers": 4
+    },
+    {
+      "phase": "compile",
+      "status": "start",
+      "elapsedMs": 5,
+      "needsAlpha": false
+    },
+    {
+      "phase": "compile",
+      "status": "end",
+      "elapsedMs": 56,
+      "durationMs": 51,
+      "needsAlpha": false
+    },
+    {
+      "phase": "compile",
+      "status": "checkpoint",
+      "elapsedMs": 58,
+      "message": "composition metadata resolved",
+      "width": 1080,
+      "height": 1920,
+      "videoCount": 0,
+      "audioCount": 0,
+      "imageCount": 0,
+      "deviceScaleFactor": 1,
+      "forceScreenshot": true,
+      "compositionHash": "2351da69354ef33a"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "start",
+      "elapsedMs": 58,
+      "forceScreenshot": true,
+      "stagePhase": "calibrating"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "end",
+      "elapsedMs": 62,
+      "durationMs": 4,
+      "forceScreenshot": true,
+      "stagePhase": "calibrating"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "checkpoint",
+      "elapsedMs": 64,
+      "message": "duration resolved",
+      "durationSeconds": 15,
+      "totalFrames": 450,
+      "compositionHash": "2351da69354ef33a",
+      "beginFrameStalled": false
+    },
+    {
+      "phase": "video_extract",
+      "status": "start",
+      "elapsedMs": 64,
+      "videoCount": 0
+    },
+    {
+      "phase": "video_extract",
+      "status": "end",
+      "elapsedMs": 64,
+      "durationMs": 0,
+      "videoCount": 0
+    },
+    {
+      "phase": "video_extract",
+      "status": "checkpoint",
+      "elapsedMs": 66,
+      "message": "frames resolved",
+      "videoCount": 0,
+      "extractedVideoCount": 0,
+      "totalFramesExtracted": 0,
+      "maxFramesPerVideo": 0,
+      "avgFramesPerExtractedVideo": null,
+      "vfrPreflightCount": null,
+      "vfrPreflightMs": null,
+      "cacheHits": null,
+      "cacheMisses": null,
+      "transientRetries": null,
+      "minVideoFrameCoverageRatio": null,
+      "authoredTimedClipCount": 1
+    },
+    {
+      "phase": "hdr_detection",
+      "status": "checkpoint",
+      "elapsedMs": 67,
+      "message": "resolved",
+      "requestedHdrMode": "auto",
+      "effectiveHdr": "sdr",
+      "nativeHdrVideoCount": 0,
+      "nativeHdrImageCount": 0
+    },
+    {
+      "phase": "audio_process",
+      "status": "start",
+      "elapsedMs": 67,
+      "audioCount": 0
+    },
+    {
+      "phase": "audio_process",
+      "status": "end",
+      "elapsedMs": 67,
+      "durationMs": 0,
+      "audioCount": 0
+    },
+    {
+      "phase": "file_server",
+      "status": "start",
+      "elapsedMs": 67,
+      "reused": false
+    },
+    {
+      "phase": "file_server",
+      "status": "end",
+      "elapsedMs": 76,
+      "durationMs": 9
+    },
+    {
+      "phase": "capture_calibration",
+      "status": "checkpoint",
+      "elapsedMs": 77,
+      "message": "skipped",
+      "requestedWorkers": 4,
+      "totalFrames": 450,
+      "htmlInCanvasDetected": false,
+      "lowMemoryMode": false,
+      "deInversionEligible": false,
+      "deParallelRouterEligible": false
+    },
+    {
+      "phase": "worker_resolution",
+      "status": "checkpoint",
+      "elapsedMs": 79,
+      "message": "resolved",
+      "workerCount": 4
+    },
+    {
+      "phase": "capture_strategy",
+      "status": "checkpoint",
+      "elapsedMs": 80,
+      "message": "resolved",
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "captureBeyondViewport": null,
+      "useStreamingEncode": false,
+      "useLayeredComposite": false,
+      "usePageSideCompositing": false,
+      "hasHdrContent": false,
+      "hasShaderTransitions": false,
+      "isPngSequence": false
+    },
+    {
+      "phase": "capture_disk",
+      "status": "start",
+      "elapsedMs": 80,
+      "stagePhase": "capturing",
+      "needsAlpha": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 0,
+      "captureMode": "screenshot",
+      "captureOperation": "captureScreenshot"
+    },
+    {
+      "phase": "capture_disk",
+      "status": "end",
+      "elapsedMs": 10088,
+      "durationMs": 10008,
+      "stagePhase": "capturing",
+      "needsAlpha": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 450,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "encode",
+      "status": "start",
+      "elapsedMs": 10089,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "isPngSequence": false,
+      "isGif": false,
+      "chunkedEncode": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 450,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "encode",
+      "status": "end",
+      "elapsedMs": 13343,
+      "durationMs": 3254,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "isPngSequence": false,
+      "isGif": false,
+      "chunkedEncode": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 450,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "assemble",
+      "status": "start",
+      "elapsedMs": 13343,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 450,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "assemble",
+      "status": "end",
+      "elapsedMs": 13360,
+      "durationMs": 17,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 450,
+      "framesCompleted": 450,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "pipeline",
+      "status": "checkpoint",
+      "elapsedMs": 13363,
+      "message": "artifact validated",
+      "totalElapsedMs": 13360
+    }
+  ],
+  "warnings": [],
+  "commandLine": "hyperframes render src-draft -o out/Vd-w4-r3.mp4 --workers 4 --quality standard --format mp4 --fps 30 --crf 28 --no-browser-gpu --quiet",
+  "memory": {
+    "intervalMs": 200,
+    "samples": 71,
+    "errors": 0,
+    "peakRssSumMb": 3179.6,
+    "peakPssSumMb": 1431.4,
+    "peakSingleProcRssMb": 760.8,
+    "peakProcessCount": 25,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 3138.5,
+        "procs": 22
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 3179.6,
+        "procs": 22
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 1743.1,
+        "procs": 12
+      }
+    ]
+  },
+  "cliExitCode": 0,
+  "captureMode": "screenshot",
+  "workerCount": 4,
+  "forceScreenshot": true,
+  "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+  "logTail": "[initSession:screenshot] page.goto complete (301ms)\n[initSession:screenshot] GSAP proxy flush complete (322ms)\n[Browser:WARN] [.WebGL-0x1ccc00160a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels\n[initSession:screenshot] pollHfReady complete (326ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (329ms)\n[initSession:screenshot] applyVideoMetadataHints complete (329ms)\n[initSession:screenshot] media + fonts + tailwind ready (337ms)\n[initSession:screenshot] static-frame dedup: disabled (canvas/webgl) (346ms)\n[Browser:WARN] [.WebGL-0x254c00164a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)\n[Browser:WARN] [.WebGL-0x1e6c00164a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)\n[Browser:WARN] [.WebGL-0x16640015ce00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)\n[Browser:WARN] [.WebGL-0x1ccc00160a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels\n[Browser:WARN] [.WebGL-0x1ccc00160a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"capture_disk\",\"status\":\"end\",\"elapsedMs\":10088,\"durationMs\":10008,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":450,\"framesCompleted\":450,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"encode\",\"status\":\"start\",\"elapsedMs\":10089,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":450,\"framesCompleted\":450,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"encode\",\"status\":\"end\",\"elapsedMs\":13343,\"durationMs\":3254,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":450,\"framesCompleted\":450,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":13343,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":450,\"framesCompleted\":450,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":13360,\"durationMs\":17,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":450,\"framesCompleted\":450,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"3a142be8-b5a4-40c3-ad94-628d8b328ad8\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":13363,\"message\":\"artifact validated\",\"totalElapsedMs\":13360}\n",
+  "verification": {
+    "framemd5": {
+      "ms": 1973,
+      "file": "results/framemd5/Vd-w4-r3.framemd5",
+      "frameLines": 450,
+      "sha256": "4bd01e17fd123c55d79f37903ea29ea6bb9cec31249a3741511596866c1b1785",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i out/Vd-w4-r3.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3f/results/framemd5/Vd-w4-r3.framemd5"
+    },
+    "ffprobe": {
+      "ms": 8,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json out/Vd-w4-r3.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "450",
+        "hasBFrames": 0,
+        "durationSec": 15,
+        "bitRate": 208392
+      }
+    },
+    "keyframes": {
+      "ms": 698,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 out/Vd-w4-r3.mp4",
+      "frameCount": 450,
+      "keyframeCount": 2,
+      "keyframeIndexes": [
+        0,
+        250
+      ],
+      "gopSizes": [
+        250
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "e2ecf34f928c1a948fdc176becabd28bdec81eea45ad4483e41ef7ad023f51b4",
+    "outputBytes": 390735
+  },
+  "derived": {
+    "frames": 450,
+    "framesPerSecond_framesOnly": 44.964,
+    "framesPerSecond_renderPhase": 33.886,
+    "framesPerSecond_endToEnd": 31.865,
+    "wallTimeSec": 14.122
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      4.48,
+      5.08,
+      4
+    ],
+    "freeMemBytes": 17472028672,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 62
+  },
+  "finishedAt": "2026-08-21T12:02:42.784Z"
+}

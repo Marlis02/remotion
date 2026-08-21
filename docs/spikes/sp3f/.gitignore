@@ -1,0 +1,18 @@
+out/
+node_modules/
+results/raw/psnr-*.txt
+# порождаются gen.mjs из src/ — в git не нужны
+src-draft/
+src-full60/
+src-noshader/
+src-noparticles/
+src-noglass/
+src-probe/
+src-L450-noshader/
+src-L450-noparticles/
+src-L450-noglass/
+# двоичные ассеты и вендоренный GSAP: побайтовые копии файлов SP-3 и npm-пакета gsap,
+# восстанавливаются prepare.sh; sha256 и версии — в results/machine.json (как в SP-3c)
+src/assets/
+src/vendor/
+src/fonts/
