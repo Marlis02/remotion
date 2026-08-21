@@ -1,0 +1,92 @@
+[
+  {
+    "runId": "dE-local-sw-final-w1-r1",
+    "outputPath": "out/dE-local-sw-final-w1-r1.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w1-r2",
+    "outputPath": "out/dE-local-sw-final-w1-r2.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w1-r3",
+    "outputPath": "out/dE-local-sw-final-w1-r3.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w2-r1",
+    "outputPath": "out/dE-local-sw-final-w2-r1.mp4",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w2-r2",
+    "outputPath": "out/dE-local-sw-final-w2-r2.mp4",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w2-r3",
+    "outputPath": "out/dE-local-sw-final-w2-r3.mp4",
+    "profile": "final",
+    "workers": 2,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w4-r1",
+    "outputPath": "out/dE-local-sw-final-w4-r1.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w4-r2",
+    "outputPath": "out/dE-local-sw-final-w4-r2.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dE-local-sw-final-w4-r3",
+    "outputPath": "out/dE-local-sw-final-w4-r3.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  }
+]

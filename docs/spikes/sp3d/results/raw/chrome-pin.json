@@ -1,0 +1,40 @@
+{
+  "schema": "sp3d-chrome-pin/1",
+  "capturedAt": "2026-08-21T06:52:47.334Z",
+  "question": "Q3: чем пришпилена версия Chrome в образе и может ли она смениться без смены версии пакета hyperframes",
+  "method": "Dockerfile.render ставит chrome-headless-shell командой `npx @puppeteer/browsers install chrome-headless-shell@stable`. Здесь записано, во что `@stable` разрешается СЕЙЧАС — это подвижный указатель Chrome for Testing, а не версия.",
+  "chromeForTestingEndpoint": "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json",
+  "endpointResponse": {
+    "timestamp": "2026-08-20T21:18:32.619Z",
+    "channels": {
+      "Stable": {
+        "channel": "Stable",
+        "version": "152.0.7977.54",
+        "revision": "1669021"
+      },
+      "Beta": {
+        "channel": "Beta",
+        "version": "153.0.8010.5",
+        "revision": "1681091"
+      },
+      "Dev": {
+        "channel": "Dev",
+        "version": "153.0.7993.0",
+        "revision": "1674545"
+      },
+      "Canary": {
+        "channel": "Canary",
+        "version": "154.0.8014.0",
+        "revision": "1683041"
+      }
+    }
+  },
+  "versionInsideImage": "152.0.7977.54",
+  "stableNow": "152.0.7977.54",
+  "equalRightNow": true,
+  "localPathForComparison": {
+    "note": "Локальный путь SP-3c/SP-3d: chrome-headless-shell скачивает puppeteer своим postinstall, версия задана версией пакета puppeteer в package-lock.json.",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42"
+  }
+}

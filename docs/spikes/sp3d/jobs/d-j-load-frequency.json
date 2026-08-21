@@ -1,0 +1,156 @@
+[
+  {
+    "runId": "dJ-idiom-final-w4-load6-x04",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x04.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x05",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x05.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x06",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x06.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x07",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x07.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x08",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x08.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x09",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x09.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w4-load6-x10",
+    "outputPath": "out/dJ-idiom-final-w4-load6-x10.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w1-load6-r1",
+    "outputPath": "out/dJ-idiom-final-w1-load6-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w1-load6-r2",
+    "outputPath": "out/dJ-idiom-final-w1-load6-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-idiom-final-w1-load6-r3",
+    "outputPath": "out/dJ-idiom-final-w1-load6-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic",
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x04",
+    "outputPath": "out/dJ-final-w4-load6-x04.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x05",
+    "outputPath": "out/dJ-final-w4-load6-x05.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x06",
+    "outputPath": "out/dJ-final-w4-load6-x06.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x07",
+    "outputPath": "out/dJ-final-w4-load6-x07.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x08",
+    "outputPath": "out/dJ-final-w4-load6-x08.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  },
+  {
+    "runId": "dJ-final-w4-load6-x09",
+    "outputPath": "out/dJ-final-w4-load6-x09.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "cpuLoad": 6
+  }
+]

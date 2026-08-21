@@ -1,0 +1,156 @@
+{
+  "schema": "sp3d-bitstream/1",
+  "capturedAt": "2026-08-21T07:28:32.988Z",
+  "method": "Элементарный поток h264 вынут из mp4 без перекодирования (`-c copy -bsf:v h264_mp4toannexb -f h264`) и сравнён побайтово. Контейнер и его метаданные при этом отброшены — остаётся только то, что произвёл libx264.",
+  "pairs": [
+    {
+      "label": "точная final w4",
+      "docker": "sp3d/out/dA-final-w4-r1.mp4",
+      "local": "sp3c/out/hfB-final-w4-sw-r1.mp4",
+      "bytesDocker": 45376328,
+      "bytesLocal": 45376328,
+      "sameLength": true,
+      "differingBytes": 10,
+      "differingPositions": [
+        43,
+        44,
+        45,
+        47,
+        49,
+        50,
+        51,
+        52,
+        53,
+        99
+      ],
+      "differingRegion": [
+        43,
+        99
+      ],
+      "shareOfStreamPercent": 0.000022,
+      "contextDocker": "..H..,. .#..x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x2",
+      "contextLocal": "..H..,. .#..x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x2",
+      "verdict": "различия только в первом килобайте потока — это SEI с версией и параметрами x264, сами кодированные данные равны"
+    },
+    {
+      "label": "точная final w1",
+      "docker": "sp3d/out/dA-final-w1-r1.mp4",
+      "local": "sp3c/out/hfB-final-w1-sw-r1.mp4",
+      "bytesDocker": 45376328,
+      "bytesLocal": 45376328,
+      "sameLength": true,
+      "differingBytes": 10,
+      "differingPositions": [
+        43,
+        44,
+        45,
+        47,
+        49,
+        50,
+        51,
+        52,
+        53,
+        99
+      ],
+      "differingRegion": [
+        43,
+        99
+      ],
+      "shareOfStreamPercent": 0.000022,
+      "contextDocker": "..H..,. .#..x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x2",
+      "contextLocal": "..H..,. .#..x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x2",
+      "verdict": "различия только в первом килобайте потока — это SEI с версией и параметрами x264, сами кодированные данные равны"
+    },
+    {
+      "label": "точная draft w4",
+      "docker": "sp3d/out/dB-draft-w4-r1.mp4",
+      "local": "sp3c/out/hfB-draft-w4-sw-r1.mp4",
+      "bytesDocker": 4771798,
+      "bytesLocal": 4771798,
+      "sameLength": true,
+      "differingBytes": 10,
+      "differingPositions": [
+        43,
+        44,
+        45,
+        47,
+        49,
+        50,
+        51,
+        52,
+        53,
+        99
+      ],
+      "differingRegion": [
+        43,
+        99
+      ],
+      "shareOfStreamPercent": 0.0002096,
+      "contextDocker": "..H..,. .#..x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x2",
+      "contextLocal": "..H..,. .#..x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x2",
+      "verdict": "различия только в первом килобайте потока — это SEI с версией и параметрами x264, сами кодированные данные равны"
+    },
+    {
+      "label": "идиоматичная final w4",
+      "docker": "sp3d/out/dC-idiom-final-w4-r1.mp4",
+      "local": "sp3c/out/hfM-idiom-final-w4-sw-r1.mp4",
+      "bytesDocker": 43380118,
+      "bytesLocal": 43380118,
+      "sameLength": true,
+      "differingBytes": 10,
+      "differingPositions": [
+        43,
+        44,
+        45,
+        47,
+        49,
+        50,
+        51,
+        52,
+        53,
+        99
+      ],
+      "differingRegion": [
+        43,
+        99
+      ],
+      "shareOfStreamPercent": 0.0000231,
+      "contextDocker": "..H..,. .#..x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x2",
+      "contextLocal": "..H..,. .#..x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x2",
+      "verdict": "различия только в первом килобайте потока — это SEI с версией и параметрами x264, сами кодированные данные равны"
+    },
+    {
+      "label": "идиоматичная final w1, «лёгкое» состояние",
+      "docker": "sp3d/out/dH-idiom-final-w1-x06.mp4",
+      "local": "sp3c/out/hfN-idiom-final-w1-sw-r1.mp4",
+      "bytesDocker": 26530558,
+      "bytesLocal": 26530558,
+      "sameLength": true,
+      "differingBytes": 10,
+      "differingPositions": [
+        43,
+        44,
+        45,
+        47,
+        49,
+        50,
+        51,
+        52,
+        53,
+        99
+      ],
+      "differingRegion": [
+        43,
+        99
+      ],
+      "shareOfStreamPercent": 0.0000377,
+      "contextDocker": "..H..,. .#..x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x2",
+      "contextLocal": "..H..,. .#..x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x2",
+      "verdict": "различия только в первом килобайте потока — это SEI с версией и параметрами x264, сами кодированные данные равны"
+    }
+  ],
+  "x264Signature": {
+    "docker": "x264 - core 164 r3095 baee400 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options:",
+    "local": "x264 - core 164 r3106 eaa68fa - H.264/MPEG-4 AVC codec - Copyleft 2003-2023 - http://www.videolan.org/x264.html - options:"
+  }
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "runId": "dG-final-w4-x01",
+    "outputPath": "out/dG-final-w4-x01.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x02",
+    "outputPath": "out/dG-final-w4-x02.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x03",
+    "outputPath": "out/dG-final-w4-x03.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x04",
+    "outputPath": "out/dG-final-w4-x04.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x05",
+    "outputPath": "out/dG-final-w4-x05.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x06",
+    "outputPath": "out/dG-final-w4-x06.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x07",
+    "outputPath": "out/dG-final-w4-x07.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x08",
+    "outputPath": "out/dG-final-w4-x08.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x09",
+    "outputPath": "out/dG-final-w4-x09.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dG-final-w4-x10",
+    "outputPath": "out/dG-final-w4-x10.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  }
+]

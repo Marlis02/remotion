@@ -1,0 +1,20 @@
+[
+  {
+    "runId": "dP-docker-png-w4",
+    "outputPath": "out/dP-docker-png-w4",
+    "profile": "pngseq",
+    "workers": 4,
+    "timeoutSec": 2400,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dP-local-sw-png-w4",
+    "outputPath": "out/dP-local-sw-png-w4",
+    "profile": "pngseq",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 2400,
+    "skipIfDone": true
+  }
+]

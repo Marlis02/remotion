@@ -1,0 +1,220 @@
+{
+  "schema": "sp3d-png/1",
+  "capturedAt": "2026-08-21T07:51:48.932Z",
+  "method": "dirHash = sha256 по (имя + содержимое) всех PNG каталога в отсортированном порядке — прибор SP-3/SP-3c. Пофайловый sha256 позволяет сверяться с сиквенсом SP-3c, каталог которого удалён, но хэши записаны. Свой энкод — рецепт блока D SP-3 (sp3/lib/profiles.mjs) нашим ffmpeg 6.0-static.",
+  "sides": [
+    {
+      "label": "Docker, PNG-сиквенс, w4",
+      "runId": "dP-docker-png-w4",
+      "source": "sp3d",
+      "dirOnDisk": "sp3d/out/dP-docker-png-w4",
+      "dirHash": "47ed518df1aaef8b80f055811c17a333c44e3e899d2a5adefc9535226f10beff",
+      "fileCount": 300,
+      "totalBytes": 867556748,
+      "framemd5Sha256": "16985a7c9197bcb8a6e54d76282da0d5158739ab031cc3583774a70a1876d971",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)"
+    },
+    {
+      "label": "локально SwiftShader, PNG-сиквенс, w4 (сегодня)",
+      "runId": "dP-local-sw-png-w4",
+      "source": "sp3d",
+      "dirOnDisk": "sp3d/out/dP-local-sw-png-w4",
+      "dirHash": "47ed518df1aaef8b80f055811c17a333c44e3e899d2a5adefc9535226f10beff",
+      "fileCount": 300,
+      "totalBytes": 867556748,
+      "framemd5Sha256": "16985a7c9197bcb8a6e54d76282da0d5158739ab031cc3583774a70a1876d971",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)"
+    },
+    {
+      "label": "SP-3c локально SwiftShader, PNG-сиквенс, w4 (ночью)",
+      "runId": "hfE-png-w4-sw",
+      "source": "sp3c",
+      "dirOnDisk": null,
+      "dirHash": "47ed518df1aaef8b80f055811c17a333c44e3e899d2a5adefc9535226f10beff",
+      "fileCount": 300,
+      "totalBytes": 867556748,
+      "framemd5Sha256": "16985a7c9197bcb8a6e54d76282da0d5158739ab031cc3583774a70a1876d971",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)"
+    },
+    {
+      "label": "SP-3c локально аппаратный GPU, PNG-сиквенс, w4 (ночью)",
+      "runId": "hfE-png-w4-gpu-r1",
+      "source": "sp3c",
+      "dirOnDisk": "sp3c/out/hfE-png-w4-gpu-r1",
+      "dirHash": "2281ccb6a131dd019f37d263cf796cd5cdeab030300cb901ab5d8fb8f1aabfb1",
+      "fileCount": 300,
+      "totalBytes": 792893785,
+      "framemd5Sha256": "ed51b4878573522dba7ed70c0ade138813d5782ec197673607b986b7cc29334c",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=gl-egl, headlessShell=true, platform=linux)"
+    }
+  ],
+  "comparisons": [
+    {
+      "pair": "Docker, PNG-сиквенс, w4 против локально SwiftShader, PNG-сиквенс, w4 (сегодня)",
+      "dirHashEqual": true,
+      "framemd5Equal": true,
+      "filesCompared": 300,
+      "identicalFiles": 300,
+      "firstDifferentFile": null
+    },
+    {
+      "pair": "Docker, PNG-сиквенс, w4 против SP-3c локально SwiftShader, PNG-сиквенс, w4 (ночью)",
+      "dirHashEqual": true,
+      "framemd5Equal": true,
+      "filesCompared": 300,
+      "identicalFiles": 300,
+      "firstDifferentFile": null
+    },
+    {
+      "pair": "локально SwiftShader, PNG-сиквенс, w4 (сегодня) против SP-3c локально SwiftShader, PNG-сиквенс, w4 (ночью)",
+      "dirHashEqual": true,
+      "framemd5Equal": true,
+      "filesCompared": 300,
+      "identicalFiles": 300,
+      "firstDifferentFile": null
+    },
+    {
+      "pair": "Docker, PNG-сиквенс, w4 против SP-3c локально аппаратный GPU, PNG-сиквенс, w4 (ночью)",
+      "dirHashEqual": false,
+      "framemd5Equal": false,
+      "filesCompared": 300,
+      "identicalFiles": 2,
+      "firstDifferentFile": "frame_000002.png"
+    }
+  ],
+  "ownEncode": [
+    {
+      "side": "Docker, PNG-сиквенс, w4",
+      "runId": "dP-docker-png-w4",
+      "frames": 300,
+      "threads4_encode1": {
+        "ms": 21012,
+        "outPath": "out/own-dP-docker-png-w4-t4-e1.mp4",
+        "bytes": 25462026,
+        "sha256": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-docker-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-docker-png-w4-t4-e1.mp4"
+      },
+      "threads4_encode2": {
+        "ms": 20816,
+        "outPath": "out/own-dP-docker-png-w4-t4-e2.mp4",
+        "bytes": 25462026,
+        "sha256": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-docker-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-docker-png-w4-t4-e2.mp4"
+      },
+      "threads1_encode1": {
+        "ms": 60168,
+        "outPath": "out/own-dP-docker-png-w4-t1-e1.mp4",
+        "bytes": 25461349,
+        "sha256": "c8f8cdaf6527ea5f47565213104d38a7cc45ee846e32aa3b2aec0538f2421bb3",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-docker-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-docker-png-w4-t1-e1.mp4"
+      },
+      "encoderDeterministic": true,
+      "threads1VsThreads4Equal": false,
+      "framemd5OfOwnEncode": "8207ecc5bc69aa61832053788671eede811d4b4c33ab745167ff16bc9b8339f0"
+    },
+    {
+      "side": "локально SwiftShader, PNG-сиквенс, w4 (сегодня)",
+      "runId": "dP-local-sw-png-w4",
+      "frames": 300,
+      "threads4_encode1": {
+        "ms": 20773,
+        "outPath": "out/own-dP-local-sw-png-w4-t4-e1.mp4",
+        "bytes": 25462026,
+        "sha256": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-local-sw-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-local-sw-png-w4-t4-e1.mp4"
+      },
+      "threads4_encode2": {
+        "ms": 20793,
+        "outPath": "out/own-dP-local-sw-png-w4-t4-e2.mp4",
+        "bytes": 25462026,
+        "sha256": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-local-sw-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-local-sw-png-w4-t4-e2.mp4"
+      },
+      "threads1_encode1": {
+        "ms": 59851,
+        "outPath": "out/own-dP-local-sw-png-w4-t1-e1.mp4",
+        "bytes": 25461349,
+        "sha256": "c8f8cdaf6527ea5f47565213104d38a7cc45ee846e32aa3b2aec0538f2421bb3",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dP-local-sw-png-w4/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-dP-local-sw-png-w4-t1-e1.mp4"
+      },
+      "encoderDeterministic": true,
+      "threads1VsThreads4Equal": false,
+      "framemd5OfOwnEncode": "8207ecc5bc69aa61832053788671eede811d4b4c33ab745167ff16bc9b8339f0"
+    },
+    {
+      "side": "SP-3c локально SwiftShader, PNG-сиквенс, w4 (ночью)",
+      "skipped": "каталог PNG на диске отсутствует (удалён после сведения)"
+    },
+    {
+      "side": "SP-3c локально аппаратный GPU, PNG-сиквенс, w4 (ночью)",
+      "runId": "hfE-png-w4-gpu-r1",
+      "frames": 300,
+      "threads4_encode1": {
+        "ms": 18079,
+        "outPath": "out/own-hfE-png-w4-gpu-r1-t4-e1.mp4",
+        "bytes": 15790396,
+        "sha256": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-hfE-png-w4-gpu-r1-t4-e1.mp4"
+      },
+      "threads4_encode2": {
+        "ms": 18010,
+        "outPath": "out/own-hfE-png-w4-gpu-r1-t4-e2.mp4",
+        "bytes": 15790396,
+        "sha256": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-hfE-png-w4-gpu-r1-t4-e2.mp4"
+      },
+      "threads1_encode1": {
+        "ms": 51470,
+        "outPath": "out/own-hfE-png-w4-gpu-r1-t1-e1.mp4",
+        "bytes": 15790658,
+        "sha256": "62708b4b4fe35e624c0899485fcd5ebc1f94d31a97b9fdb1c7a2ad1761b83843",
+        "frames": 300,
+        "command": "ffmpeg -hide_banner -nostdin -loglevel error -framerate 30 -start_number 1 -i /home/ct/Desktop/remotion/docs/spikes/sp3c/out/hfE-png-w4-gpu-r1/frame_%06d.png -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 -g 30 -threads 1 -fflags +bitexact -flags:v +bitexact -y /home/ct/Desktop/remotion/docs/spikes/sp3d/out/own-hfE-png-w4-gpu-r1-t1-e1.mp4"
+      },
+      "encoderDeterministic": true,
+      "threads1VsThreads4Equal": false,
+      "framemd5OfOwnEncode": "ee553854a837dd46ac216347e8662189506240f782f007264f6a9a093b5dbb70"
+    }
+  ],
+  "ownEncodeCrossComparison": [
+    {
+      "pair": "Docker, PNG-сиквенс, w4 против локально SwiftShader, PNG-сиквенс, w4 (сегодня)",
+      "equal": true,
+      "shaA": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+      "shaB": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd"
+    },
+    {
+      "pair": "Docker, PNG-сиквенс, w4 против SP-3c локально аппаратный GPU, PNG-сиквенс, w4 (ночью)",
+      "equal": false,
+      "shaA": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+      "shaB": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888"
+    },
+    {
+      "pair": "локально SwiftShader, PNG-сиквенс, w4 (сегодня) против SP-3c локально аппаратный GPU, PNG-сиквенс, w4 (ночью)",
+      "equal": false,
+      "shaA": "8823e47816f51cf0028b4857c4b216d7b1cc79bcc4414dcd034a97b702f859cd",
+      "shaB": "d25b648ffe2c2ae935d3088f1564b19225058a7273ef8cb4bb78ae09a1f7a888"
+    }
+  ],
+  "pngDirsRemoved": {
+    "at": "2026-08-21T08:06:24.380Z",
+    "dirs": [
+      "out/dP-docker-png-w4",
+      "out/dP-local-sw-png-w4"
+    ],
+    "bytesEach": 867556748,
+    "reason": "диск на 97 %; доказательная часть не пострадала — dirHash, sha256 КАЖДОГО из 300 PNG и framemd5 записаны в results/raw/dP-*.json, а mp4 нашего энкода из обоих сиквенсов остались в out/. Каталоги восстанавливаются прогоном jobs/d-p-png.json."
+  }
+}

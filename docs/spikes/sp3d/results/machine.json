@@ -1,0 +1,285 @@
+{
+  "schema": "sp3d-machine/1",
+  "capturedAt": "2026-08-21T06:35:24.804Z",
+  "machine": {
+    "cpuModel": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+    "cpuLogical": 12,
+    "cpuPhysicalCores": 6,
+    "threadsPerCore": 2,
+    "cpuMaxMhz": 4300,
+    "cpuGovernor": "powersave",
+    "ramTotalBytes": 33465974784,
+    "ramTotalGiB": 31.17,
+    "swapTotalKb": 8388604,
+    "os": "Ubuntu 24.04.3 LTS",
+    "kernel": "7.0.0-28-generic",
+    "arch": "x64",
+    "hostClass": "local",
+    "gpuPresent": true,
+    "gpuDevices": [
+      "by-path",
+      "card1",
+      "card2",
+      "renderD128",
+      "renderD129"
+    ]
+  },
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "state": {
+    "loadAvg": [
+      12.7,
+      13.96,
+      15.78
+    ],
+    "freeMemBytes": 2408550400,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 71
+  },
+  "docker": {
+    "accessNote": "владелец состоит в группе docker (gid 983), но login-сессия старше выдачи группы: прямой вызов docker даёт EACCES на /var/run/docker.sock. Все вызовы спайка идут через `sg docker -c '...'` — подхват уже выданной группы, не sudo.",
+    "version": {
+      "Client": {
+        "Platform": {
+          "Name": "Docker Engine - Community"
+        },
+        "Version": "29.7.2",
+        "ApiVersion": "1.55",
+        "DefaultAPIVersion": "1.55",
+        "GitCommit": "a7dcaa6",
+        "GoVersion": "go1.26.5",
+        "Os": "linux",
+        "Arch": "amd64",
+        "BuildTime": "Wed Aug  5 18:28:53 2026",
+        "Context": "default"
+      },
+      "Server": {
+        "Platform": {
+          "Name": "Docker Engine - Community"
+        },
+        "Version": "29.7.2",
+        "ApiVersion": "1.55",
+        "MinAPIVersion": "1.40",
+        "Os": "linux",
+        "Arch": "amd64",
+        "Components": [
+          {
+            "Name": "Engine",
+            "Version": "29.7.2",
+            "Details": {
+              "ApiVersion": "1.55",
+              "Arch": "amd64",
+              "BuildTime": "Wed Aug  5 18:28:53 2026",
+              "Experimental": "false",
+              "GitCommit": "6a43e3d",
+              "GoVersion": "go1.26.5",
+              "KernelVersion": "7.0.0-28-generic",
+              "MinAPIVersion": "1.40",
+              "Module": "github.com/moby/moby/v2",
+              "ModuleVersion": "v2.0.0+unknown",
+              "Os": "linux"
+            }
+          },
+          {
+            "Name": "containerd",
+            "Version": "v2.3.3",
+            "Details": {
+              "GitCommit": "aad11006b869517fcd3009450b6f82da282e1a9b"
+            }
+          },
+          {
+            "Name": "runc",
+            "Version": "1.4.3",
+            "Details": {
+              "GitCommit": "v1.4.3-0-gbb14dabe"
+            }
+          },
+          {
+            "Name": "docker-init",
+            "Version": "0.19.0",
+            "Details": {
+              "GitCommit": "de40ad0"
+            }
+          }
+        ],
+        "GitCommit": "6a43e3d",
+        "GoVersion": "go1.26.5",
+        "KernelVersion": "7.0.0-28-generic",
+        "BuildTime": "2026-08-05T18:28:53.000000000+00:00"
+      }
+    },
+    "info": {
+      "ServerVersion": "29.7.2",
+      "Driver": "overlayfs",
+      "DriverStatus": [
+        [
+          "driver-type",
+          "io.containerd.snapshotter.v1"
+        ]
+      ],
+      "CgroupDriver": "systemd",
+      "CgroupVersion": "2",
+      "KernelVersion": "7.0.0-28-generic",
+      "OperatingSystem": "Ubuntu 24.04.3 LTS",
+      "OSType": "linux",
+      "OSVersion": "24.04",
+      "Architecture": "x86_64",
+      "NCPU": 12,
+      "MemTotal": 33465974784,
+      "DockerRootDir": "/var/lib/docker",
+      "LoggingDriver": "json-file",
+      "SecurityOptions": [
+        "name=apparmor",
+        "name=seccomp,profile=builtin",
+        "name=cgroupns"
+      ],
+      "DefaultRuntime": "runc",
+      "Runtimes": {
+        "io.containerd.runc.v2": {
+          "path": "runc",
+          "status": {
+            "org.opencontainers.runtime-spec.features": "{\"ociVersionMin\":\"1.0.0\",\"ociVersionMax\":\"1.3.0\",\"hooks\":[\"prestart\",\"createRuntime\",\"createContainer\",\"startContainer\",\"poststart\",\"poststop\"],\"mountOptions\":[\"async\",\"atime\",\"bind\",\"defaults\",\"dev\",\"diratime\",\"dirsync\",\"exec\",\"iversion\",\"lazytime\",\"loud\",\"mand\",\"noatime\",\"nodev\",\"nodiratime\",\"noexec\",\"noiversion\",\"nolazytime\",\"nomand\",\"norelatime\",\"nostrictatime\",\"nosuid\",\"nosymfollow\",\"private\",\"ratime\",\"rbind\",\"rdev\",\"rdiratime\",\"relatime\",\"remount\",\"rexec\",\"rnoatime\",\"rnodev\",\"rnodiratime\",\"rnoexec\",\"rnorelatime\",\"rnostrictatime\",\"rnosuid\",\"rnosymfollow\",\"ro\",\"rprivate\",\"rrelatime\",\"rro\",\"rrw\",\"rshared\",\"rslave\",\"rstrictatime\",\"rsuid\",\"rsymfollow\",\"runbindable\",\"rw\",\"shared\",\"silent\",\"slave\",\"strictatime\",\"suid\",\"symfollow\",\"sync\",\"tmpcopyup\",\"unbindable\"],\"linux\":{\"namespaces\":[\"cgroup\",\"ipc\",\"mount\",\"network\",\"pid\",\"time\",\"user\",\"uts\"],\"capabilities\":[\"CAP_CHOWN\",\"CAP_DAC_OVERRIDE\",\"CAP_DAC_READ_SEARCH\",\"CAP_FOWNER\",\"CAP_FSETID\",\"CAP_KILL\",\"CAP_SETGID\",\"CAP_SETUID\",\"CAP_SETPCAP\",\"CAP_LINUX_IMMUTABLE\",\"CAP_NET_BIND_SERVICE\",\"CAP_NET_BROADCAST\",\"CAP_NET_ADMIN\",\"CAP_NET_RAW\",\"CAP_IPC_LOCK\",\"CAP_IPC_OWNER\",\"CAP_SYS_MODULE\",\"CAP_SYS_RAWIO\",\"CAP_SYS_CHROOT\",\"CAP_SYS_PTRACE\",\"CAP_SYS_PACCT\",\"CAP_SYS_ADMIN\",\"CAP_SYS_BOOT\",\"CAP_SYS_NICE\",\"CAP_SYS_RESOURCE\",\"CAP_SYS_TIME\",\"CAP_SYS_TTY_CONFIG\",\"CAP_MKNOD\",\"CAP_LEASE\",\"CAP_AUDIT_WRITE\",\"CAP_AUDIT_CONTROL\",\"CAP_SETFCAP\",\"CAP_MAC_OVERRIDE\",\"CAP_MAC_ADMIN\",\"CAP_SYSLOG\",\"CAP_WAKE_ALARM\",\"CAP_BLOCK_SUSPEND\",\"CAP_AUDIT_READ\",\"CAP_PERFMON\",\"CAP_BPF\",\"CAP_CHECKPOINT_RESTORE\"],\"cgroup\":{\"v1\":true,\"v2\":true,\"systemd\":true,\"systemdUser\":true,\"rdma\":true},\"seccomp\":{\"enabled\":true,\"actions\":[\"SCMP_ACT_ALLOW\",\"SCMP_ACT_ERRNO\",\"SCMP_ACT_KILL\",\"SCMP_ACT_KILL_PROCESS\",\"SCMP_ACT_KILL_THREAD\",\"SCMP_ACT_LOG\",\"SCMP_ACT_NOTIFY\",\"SCMP_ACT_TRACE\",\"SCMP_ACT_TRAP\"],\"operators\":[\"SCMP_CMP_EQ\",\"SCMP_CMP_GE\",\"SCMP_CMP_GT\",\"SCMP_CMP_LE\",\"SCMP_CMP_LT\",\"SCMP_CMP_MASKED_EQ\",\"SCMP_CMP_NE\"],\"archs\":[\"SCMP_ARCH_AARCH64\",\"SCMP_ARCH_ARM\",\"SCMP_ARCH_LOONGARCH64\",\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64\",\"SCMP_ARCH_MIPS64N32\",\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64\",\"SCMP_ARCH_MIPSEL64N32\",\"SCMP_ARCH_PPC\",\"SCMP_ARCH_PPC64\",\"SCMP_ARCH_PPC64LE\",\"SCMP_ARCH_RISCV64\",\"SCMP_ARCH_S390\",\"SCMP_ARCH_S390X\",\"SCMP_ARCH_X32\",\"SCMP_ARCH_X86\",\"SCMP_ARCH_X86_64\"],\"knownFlags\":[\"SECCOMP_FILTER_FLAG_TSYNC\",\"SECCOMP_FILTER_FLAG_SPEC_ALLOW\",\"SECCOMP_FILTER_FLAG_LOG\"],\"supportedFlags\":[\"SECCOMP_FILTER_FLAG_TSYNC\",\"SECCOMP_FILTER_FLAG_SPEC_ALLOW\",\"SECCOMP_FILTER_FLAG_LOG\"]},\"apparmor\":{\"enabled\":true},\"selinux\":{\"enabled\":true},\"intelRdt\":{\"enabled\":true,\"schemata\":true,\"monitoring\":true},\"memoryPolicy\":{\"modes\":[\"MPOL_BIND\",\"MPOL_DEFAULT\",\"MPOL_INTERLEAVE\",\"MPOL_LOCAL\",\"MPOL_PREFERRED\",\"MPOL_PREFERRED_MANY\",\"MPOL_WEIGHTED_INTERLEAVE\"],\"flags\":[\"MPOL_F_NUMA_BALANCING\",\"MPOL_F_RELATIVE_NODES\",\"MPOL_F_STATIC_NODES\"]},\"mountExtensions\":{\"idmap\":{\"enabled\":true}},\"netDevices\":{\"enabled\":true}},\"annotations\":{\"io.github.seccomp.libseccomp.version\":\"2.5.5\",\"org.opencontainers.runc.checkpoint.enabled\":\"true\",\"org.opencontainers.runc.commit\":\"v1.4.3-0-gbb14dabe\",\"org.opencontainers.runc.version\":\"1.4.3\\n\"},\"potentiallyUnsafeConfigAnnotations\":[\"bundle\",\"org.systemd.property.\",\"org.criu.config\"]}"
+          }
+        },
+        "runc": {
+          "path": "runc",
+          "status": {
+            "org.opencontainers.runtime-spec.features": "{\"ociVersionMin\":\"1.0.0\",\"ociVersionMax\":\"1.3.0\",\"hooks\":[\"prestart\",\"createRuntime\",\"createContainer\",\"startContainer\",\"poststart\",\"poststop\"],\"mountOptions\":[\"async\",\"atime\",\"bind\",\"defaults\",\"dev\",\"diratime\",\"dirsync\",\"exec\",\"iversion\",\"lazytime\",\"loud\",\"mand\",\"noatime\",\"nodev\",\"nodiratime\",\"noexec\",\"noiversion\",\"nolazytime\",\"nomand\",\"norelatime\",\"nostrictatime\",\"nosuid\",\"nosymfollow\",\"private\",\"ratime\",\"rbind\",\"rdev\",\"rdiratime\",\"relatime\",\"remount\",\"rexec\",\"rnoatime\",\"rnodev\",\"rnodiratime\",\"rnoexec\",\"rnorelatime\",\"rnostrictatime\",\"rnosuid\",\"rnosymfollow\",\"ro\",\"rprivate\",\"rrelatime\",\"rro\",\"rrw\",\"rshared\",\"rslave\",\"rstrictatime\",\"rsuid\",\"rsymfollow\",\"runbindable\",\"rw\",\"shared\",\"silent\",\"slave\",\"strictatime\",\"suid\",\"symfollow\",\"sync\",\"tmpcopyup\",\"unbindable\"],\"linux\":{\"namespaces\":[\"cgroup\",\"ipc\",\"mount\",\"network\",\"pid\",\"time\",\"user\",\"uts\"],\"capabilities\":[\"CAP_CHOWN\",\"CAP_DAC_OVERRIDE\",\"CAP_DAC_READ_SEARCH\",\"CAP_FOWNER\",\"CAP_FSETID\",\"CAP_KILL\",\"CAP_SETGID\",\"CAP_SETUID\",\"CAP_SETPCAP\",\"CAP_LINUX_IMMUTABLE\",\"CAP_NET_BIND_SERVICE\",\"CAP_NET_BROADCAST\",\"CAP_NET_ADMIN\",\"CAP_NET_RAW\",\"CAP_IPC_LOCK\",\"CAP_IPC_OWNER\",\"CAP_SYS_MODULE\",\"CAP_SYS_RAWIO\",\"CAP_SYS_CHROOT\",\"CAP_SYS_PTRACE\",\"CAP_SYS_PACCT\",\"CAP_SYS_ADMIN\",\"CAP_SYS_BOOT\",\"CAP_SYS_NICE\",\"CAP_SYS_RESOURCE\",\"CAP_SYS_TIME\",\"CAP_SYS_TTY_CONFIG\",\"CAP_MKNOD\",\"CAP_LEASE\",\"CAP_AUDIT_WRITE\",\"CAP_AUDIT_CONTROL\",\"CAP_SETFCAP\",\"CAP_MAC_OVERRIDE\",\"CAP_MAC_ADMIN\",\"CAP_SYSLOG\",\"CAP_WAKE_ALARM\",\"CAP_BLOCK_SUSPEND\",\"CAP_AUDIT_READ\",\"CAP_PERFMON\",\"CAP_BPF\",\"CAP_CHECKPOINT_RESTORE\"],\"cgroup\":{\"v1\":true,\"v2\":true,\"systemd\":true,\"systemdUser\":true,\"rdma\":true},\"seccomp\":{\"enabled\":true,\"actions\":[\"SCMP_ACT_ALLOW\",\"SCMP_ACT_ERRNO\",\"SCMP_ACT_KILL\",\"SCMP_ACT_KILL_PROCESS\",\"SCMP_ACT_KILL_THREAD\",\"SCMP_ACT_LOG\",\"SCMP_ACT_NOTIFY\",\"SCMP_ACT_TRACE\",\"SCMP_ACT_TRAP\"],\"operators\":[\"SCMP_CMP_EQ\",\"SCMP_CMP_GE\",\"SCMP_CMP_GT\",\"SCMP_CMP_LE\",\"SCMP_CMP_LT\",\"SCMP_CMP_MASKED_EQ\",\"SCMP_CMP_NE\"],\"archs\":[\"SCMP_ARCH_AARCH64\",\"SCMP_ARCH_ARM\",\"SCMP_ARCH_LOONGARCH64\",\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64\",\"SCMP_ARCH_MIPS64N32\",\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64\",\"SCMP_ARCH_MIPSEL64N32\",\"SCMP_ARCH_PPC\",\"SCMP_ARCH_PPC64\",\"SCMP_ARCH_PPC64LE\",\"SCMP_ARCH_RISCV64\",\"SCMP_ARCH_S390\",\"SCMP_ARCH_S390X\",\"SCMP_ARCH_X32\",\"SCMP_ARCH_X86\",\"SCMP_ARCH_X86_64\"],\"knownFlags\":[\"SECCOMP_FILTER_FLAG_TSYNC\",\"SECCOMP_FILTER_FLAG_SPEC_ALLOW\",\"SECCOMP_FILTER_FLAG_LOG\"],\"supportedFlags\":[\"SECCOMP_FILTER_FLAG_TSYNC\",\"SECCOMP_FILTER_FLAG_SPEC_ALLOW\",\"SECCOMP_FILTER_FLAG_LOG\"]},\"apparmor\":{\"enabled\":true},\"selinux\":{\"enabled\":true},\"intelRdt\":{\"enabled\":true,\"schemata\":true,\"monitoring\":true},\"memoryPolicy\":{\"modes\":[\"MPOL_BIND\",\"MPOL_DEFAULT\",\"MPOL_INTERLEAVE\",\"MPOL_LOCAL\",\"MPOL_PREFERRED\",\"MPOL_PREFERRED_MANY\",\"MPOL_WEIGHTED_INTERLEAVE\"],\"flags\":[\"MPOL_F_NUMA_BALANCING\",\"MPOL_F_RELATIVE_NODES\",\"MPOL_F_STATIC_NODES\"]},\"mountExtensions\":{\"idmap\":{\"enabled\":true}},\"netDevices\":{\"enabled\":true}},\"annotations\":{\"io.github.seccomp.libseccomp.version\":\"2.5.5\",\"org.opencontainers.runc.checkpoint.enabled\":\"true\",\"org.opencontainers.runc.commit\":\"v1.4.3-0-gbb14dabe\",\"org.opencontainers.runc.version\":\"1.4.3\\n\"},\"potentiallyUnsafeConfigAnnotations\":[\"bundle\",\"org.systemd.property.\",\"org.criu.config\"]}"
+          }
+        }
+      },
+      "LiveRestoreEnabled": false,
+      "IndexServerAddress": "https://index.docker.io/v1/",
+      "RegistryConfig": {
+        "InsecureRegistryCIDRs": [
+          "::1/128",
+          "127.0.0.0/8"
+        ],
+        "IndexConfigs": {
+          "docker.io": {
+            "Name": "docker.io",
+            "Mirrors": [],
+            "Secure": true,
+            "Official": true
+          }
+        },
+        "Mirrors": []
+      },
+      "Isolation": "",
+      "Containers": 0,
+      "Images": 3
+    },
+    "infoRawFirstLines": "Client: Docker Engine - Community\n Version:    29.7.2\n Context:    default\n Debug Mode: false\n Plugins:\n  buildx: Docker Buildx (Docker Inc.)\n    Version:  v0.36.1\n    Path:     /usr/libexec/docker/cli-plugins/docker-buildx\n  compose: Docker Compose (Docker Inc.)\n    Version:  v5.5.0\n    Path:     /usr/libexec/docker/cli-plugins/docker-compose\n\nServer:\n Containers: 0\n  Running: 0\n  Paused: 0\n  Stopped: 0\n Images: 3\n Server Version: 29.7.2\n Storage Driver: overlayfs\n  driver-type: io.containerd.snapshotter.v1\n Logging Driver: json-file\n Cgroup Driver: systemd\n Cgroup Version: 2\n Plugins:\n  Volume: local\n  Network: bridge host ipvlan macvlan null overlay\n  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog\n CDI spec directories:\n  /etc/cdi\n  /var/run/cdi\n Swarm: inactive\n Runtimes: runc io.containerd.runc.v2\n Default Runtime: runc\n Init Binary: docker-init\n containerd version: aad11006b869517fcd3009450b6f82da282e1a9b\n runc version: v1.4.3-0-gbb14dabe\n init version: de40ad0\n Security Options:\n  apparmor\n  seccomp\n   Profile: builtin\n  cgroupns\n Kernel Version: 7.0.0-28-generic\n Operating System: Ubuntu 24.04.3 LTS\n OSType: linux\n Architecture: x86_64\n CPUs: 12\n Total Memory: 31.17GiB\n Name: linux\n ID: a484d617-3182-4e3d-a59b-878ebb3b0ddd\n Docker Root Dir: /var/lib/docker\n Debug Mode: false\n Experimental: false\n Insecure Registries:\n  ::1/128\n  127.0.0.0/8\n Live Restore Enabled: false\n Firewall Backend: iptables\n  EnableUserlandProxy: true"
+  },
+  "image": {
+    "howObtained": "НЕ docker pull. CLI собирает образ локально: ensureDockerImage() → `docker build --platform linux/amd64 --build-arg HYPERFRAMES_VERSION=<версия CLI> --build-arg TARGETARCH=amd64 -t <tag> <tmpdir с Dockerfile.render>` (hyperframes/dist/cli.js, ensureDockerImage/resolveDockerfilePath). Реестрового digest у такого образа нет: RepoDigests, если он не пуст, повторяет локальный Id.",
+    "tag": "hyperframes-renderer:0.8.5",
+    "id": "sha256:6fea83b084354e44f2a22317d423c41748fafa871414ac577d9eaded6702611b",
+    "repoTags": [
+      "hyperframes-renderer:0.8.5"
+    ],
+    "repoDigests": [
+      "hyperframes-renderer@sha256:6fea83b084354e44f2a22317d423c41748fafa871414ac577d9eaded6702611b"
+    ],
+    "created": "2026-08-21T12:27:09.463771656+06:00",
+    "architecture": "amd64/linux",
+    "sizeBytes": 1282935454,
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "NODE_VERSION=22.23.2",
+      "YARN_VERSION=1.22.22",
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true",
+      "PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium",
+      "CONTAINER=true"
+    ],
+    "entrypoint": [
+      "hf-render"
+    ],
+    "layerCount": 10,
+    "baseImage": {
+      "reference": "node:22-bookworm-slim (тег, не digest — строка FROM в Dockerfile.render)",
+      "id": "sha256:d649c27dae7ba0137b3cef5dd75baa422c08dc3d9e3fc0c23dfb172dc3cc6436",
+      "repoDigests": [
+        "node@sha256:d649c27dae7ba0137b3cef5dd75baa422c08dc3d9e3fc0c23dfb172dc3cc6436"
+      ],
+      "created": "2026-08-05T00:49:30.69781803Z"
+    },
+    "dockerfile": {
+      "path": "sp3c/node_modules/hyperframes/dist/docker/Dockerfile.render",
+      "bytes": 3356,
+      "sha256": "efafd83b9ddb0ca97b0030af66c29c57a7b4265c1b062544d78ba5d6268903f1",
+      "pinning": {
+        "base": "node:22-bookworm-slim — плавающий тег",
+        "aptPackages": "chromium, ffmpeg, fonts-* ставятся `apt-get install` без версий — плавающие",
+        "chromeHeadlessShell": "`npx @puppeteer/browsers install chrome-headless-shell@stable` — @stable, то есть плавающий",
+        "playwrightForArm64": "PLAYWRIGHT_VERSION=1.61.1 — единственная пришпиленная версия",
+        "hyperframes": "`npm install -g hyperframes@${HYPERFRAMES_VERSION}` — пришпилен к версии CLI на хосте"
+      }
+    }
+  },
+  "sp3cMachine": {
+    "note": "SP-3c снят на ЭТОЙ ЖЕ машине. Приведено для сверки, что окружение не менялось между спайками.",
+    "machine": {
+      "cpuModel": "Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+      "cpuLogical": 12,
+      "cpuPhysicalCores": 6,
+      "threadsPerCore": 2,
+      "cpuMaxMhz": 4300,
+      "cpuGovernor": "powersave",
+      "ramTotalBytes": 33465974784,
+      "ramTotalGiB": 31.17,
+      "swapTotalKb": 8388604,
+      "os": "Ubuntu 24.04.3 LTS",
+      "kernel": "7.0.0-28-generic",
+      "arch": "x64",
+      "hostClass": "local",
+      "gpuPresent": true,
+      "gpuDevices": [
+        "by-path",
+        "card1",
+        "card2",
+        "renderD128",
+        "renderD129"
+      ]
+    },
+    "versions": {
+      "node": "v25.6.1",
+      "hyperframesCli": "0.8.5",
+      "hyperframesCore": "0.8.5",
+      "hyperframesEngine": "0.8.5",
+      "hyperframesProducer": "0.8.5",
+      "gsap": "3.15.0",
+      "puppeteer": "25.8.0",
+      "chromeHeadlessShellDir": "linux-152.0.7977.42",
+      "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+      "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+      "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+      "remotionControl": "4.0.513",
+      "reactControl": "19.2.0"
+    }
+  },
+  "notes": [
+    "SP-3d выполнен на той же машине, что SP-3c (Intel Core i5-10400, 12 потоков, 31 GiB, Ubuntu 24.04.3). SP-3 снят на ДРУГОЙ машине (ноутбук AMD Ryzen 5 5600H) — его кадров/с сюда не переносятся.",
+    "Docker-режим всегда software (документация rendering.md: «Docker mode always uses software»), и CLI сам подставляет --no-browser-gpu внутрь контейнера. Аппаратной ветки в Docker нет — сравнивать Docker можно только с локальным софтверным путём (блок B SP-3c).",
+    "ffmpeg внутри контейнера — Debian bookworm (Lavc59.x), локально в SP-3c — ffmpeg-static 6.0 (Lavc60.x). Битстримы двух разных сборок libx264 несравнимы побайтово; поэтому Q4 закрывается framemd5 и PNG-сиквенсом, а не sha256 mp4.",
+    "Пик RSS контейнера снят НЕ тем же корнем, что локальные числа SP-3c: там корень дерева — процесс CLI, здесь — init-процесс контейнера (хостовый PID из docker inspect). Прибор тот же (sp3/lib/proctree.mjs), корень другой; в одной таблице с локальными числами эти величины не смешиваются."
+  ]
+}

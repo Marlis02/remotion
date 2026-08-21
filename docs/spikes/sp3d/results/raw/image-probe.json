@@ -1,0 +1,116 @@
+{
+  "schema": "sp3d-image-probe/1",
+  "capturedAt": "2026-08-21T06:35:25.062Z",
+  "image": "hyperframes-renderer:0.8.5",
+  "note": "Все пробы запущены в том же образе через --entrypoint sh и с --network none: образ не менялся, сеть контейнеру не нужна даже для чтения версий.",
+  "probes": {
+    "osRelease": {
+      "script": "cat /etc/os-release | head -4",
+      "ok": true,
+      "ms": 0,
+      "out": "PRETTY_NAME=\"Debian GNU/Linux 12 (bookworm)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"12\"\nVERSION=\"12 (bookworm)\""
+    },
+    "nodeVersion": {
+      "script": "node --version",
+      "ok": true,
+      "ms": 0,
+      "out": "v22.23.2"
+    },
+    "hyperframesVersion": {
+      "script": "npm ls -g --depth=0 2>/dev/null | tail -n +2",
+      "ok": true,
+      "ms": 0,
+      "out": "+-- corepack@0.34.6\n+-- hyperframes@0.8.5\n`-- npm@10.9.8"
+    },
+    "headlessShellPath": {
+      "script": "cat /usr/local/bin/hf-render",
+      "ok": true,
+      "ms": 0,
+      "out": "#!/bin/sh\nexport PRODUCER_HEADLESS_SHELL_PATH=/root/.cache/puppeteer/chrome-headless-shell/linux-152.0.7977.54/chrome-headless-shell-linux64/chrome-headless-shell\nexec hyperframes render \"$@\""
+    },
+    "headlessShellVersion": {
+      "script": "P=$(find /root/.cache/puppeteer /root/.cache/ms-playwright \\( -name chrome-headless-shell -o -name headless_shell \\) -type f 2>/dev/null | head -1); echo \"PATH=$P\"; \"$P\" --version",
+      "ok": true,
+      "ms": 0,
+      "out": "PATH=/root/.cache/puppeteer/chrome-headless-shell/linux-152.0.7977.54/chrome-headless-shell-linux64/chrome-headless-shell\nGoogle Chrome for Testing 152.0.7977.54"
+    },
+    "headlessShellSha256": {
+      "script": "P=$(find /root/.cache/puppeteer /root/.cache/ms-playwright \\( -name chrome-headless-shell -o -name headless_shell \\) -type f 2>/dev/null | head -1); sha256sum \"$P\"",
+      "ok": true,
+      "ms": 0,
+      "out": "8a3f72f9676736c45e94ae3279b4e2e6a1e323187f9a5e73c9a760e8cc1296ea  /root/.cache/puppeteer/chrome-headless-shell/linux-152.0.7977.54/chrome-headless-shell-linux64/chrome-headless-shell"
+    },
+    "chromiumVersion": {
+      "script": "chromium --version 2>/dev/null; dpkg -s chromium 2>/dev/null | grep ^Version",
+      "ok": true,
+      "ms": 0,
+      "out": "Chromium 151.0.7922.137 built on Debian GNU/Linux 12 (bookworm)\nVersion: 151.0.7922.137-1~deb12u1"
+    },
+    "ffmpegVersion": {
+      "script": "ffmpeg -version 2>&1 | head -3",
+      "ok": true,
+      "ms": 0,
+      "out": "ffmpeg version 5.1.9-0+deb12u1 Copyright (c) 2000-2026 the FFmpeg developers\nbuilt with gcc 12 (Debian 12.2.0-14+deb12u1)\nconfiguration: --prefix=/usr --extra-version=0+deb12u1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --enable-gnutls --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libjack --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libpulse --enable-librabbitmq --enable-librist --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-lv2 --enable-omx --enable-openal --enable-opencl --enable-opengl --enable-sdl2 --disable-sndio --enable-libjxl --enable-pocketsphinx --enable-librsvg --enable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-libx264 --enable-libplacebo --enable-librav1e --enable-shared"
+    },
+    "ffmpegX264": {
+      "script": "ffmpeg -hide_banner -encoders 2>/dev/null | grep -i \"libx264\" ",
+      "ok": true,
+      "ms": 0,
+      "out": "V....D libx264              libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (codec h264)\n V....D libx264rgb           libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 RGB (codec h264)"
+    },
+    "ffmpegPkg": {
+      "script": "dpkg -s ffmpeg 2>/dev/null | grep -E \"^(Version|Architecture)\"",
+      "ok": true,
+      "ms": 0,
+      "out": "Architecture: amd64\nVersion: 7:5.1.9-0+deb12u1"
+    },
+    "fontPackages": {
+      "script": "dpkg -l | grep -E \"^ii\\s+(fonts-|fontconfig)\" | awk '{print $2\" \"$3}'",
+      "ok": true,
+      "ms": 0,
+      "out": "fontconfig 2.14.1-4\nfontconfig-config 2.14.1-4\nfonts-dejavu-core 2.37-6\nfonts-freefont-ttf 20120503-10\nfonts-liberation 1:1.07.4-11\nfonts-noto-cjk 1:20220127+repack1-1\nfonts-noto-color-emoji 2.042-0+deb12u1\nfonts-noto-core 20201225-1\nfonts-noto-extra 20201225-1\nfonts-noto-ui-core 20201225-1"
+    },
+    "fontsCount": {
+      "script": "fc-list | wc -l",
+      "ok": true,
+      "ms": 0,
+      "out": "1909"
+    },
+    "fontFamilies": {
+      "script": "fc-list : family | tr \",\" \"\\n\" | sort -u | head -80",
+      "ok": true,
+      "ms": 0,
+      "out": "DejaVu Sans\nDejaVu Sans Mono\nDejaVu Serif\nFreeMono\nFreeSans\nFreeSerif\nLiberation Mono\nLiberation Sans\nLiberation Sans Narrow\nLiberation Serif\nNoto Color Emoji\nNoto Kufi Arabic\nNoto Kufi Arabic Black\nNoto Kufi Arabic Extra Bold\nNoto Kufi Arabic Extra Light\nNoto Kufi Arabic Light\nNoto Kufi Arabic Medium\nNoto Kufi Arabic Semi Bold\nNoto Kufi Arabic Thin\nNoto Looped Lao\nNoto Looped Lao Black\nNoto Looped Lao Bold\nNoto Looped Lao Cond Blk\nNoto Looped Lao Cond Bold\nNoto Looped Lao Cond ExBd\nNoto Looped Lao Cond ExLt\nNoto Looped Lao Cond Lt\nNoto Looped Lao Cond Med\nNoto Looped Lao Cond SmBd\nNoto Looped Lao Cond Thin\nNoto Looped Lao Condensed\nNoto Looped Lao ExCd Blk\nNoto Looped Lao ExCd Bold\nNoto Looped Lao ExCd ExBd\nNoto Looped Lao ExCd ExLt\nNoto Looped Lao ExCd Lt\nNoto Looped Lao ExCd Med\nNoto Looped Lao ExCd SmBd\nNoto Looped Lao ExCd Thin\nNoto Looped Lao ExtLight\nNoto Looped Lao ExtraBold\nNoto Looped Lao ExtraCond\nNoto Looped Lao Light\nNoto Looped Lao Medium\nNoto Looped Lao Regular\nNoto Looped Lao SemiBold\nNoto Looped Lao SemiCond\nNoto Looped Lao SmCd Blk\nNoto Looped Lao SmCd Bold\nNoto Looped Lao SmCd ExBd\nNoto Looped Lao SmCd ExtLt\nNoto Looped Lao SmCd Lt\nNoto Looped Lao SmCd Med\nNoto Looped Lao SmCd SmBd\nNoto Looped Lao SmCd Thin\nNoto Looped Lao Thin\nNoto Looped Lao UI\nNoto Looped Lao UI Bold\nNoto Looped Lao UI Regular\nNoto Looped Thai\nNoto Looped Thai Black\nNoto Looped Thai Bold\nNoto Looped Thai Cond Blk\nNoto Looped Thai Cond Bold\nNoto Looped Thai Cond ExBd\nNoto Looped Thai Cond ExLt\nNoto Looped Thai Cond Lt\nNoto Looped Thai Cond Med\nNoto Looped Thai Cond SmBd\nNoto Looped Thai Cond Thin\nNoto Looped Thai Condensed\nNoto Looped Thai ExCd Blk\nNoto Looped Thai ExCd Bold\nNoto Looped Thai ExCd ExBd\nNoto Looped Thai ExCd ExLt\nNoto Looped Thai ExCd Lt\nNoto Looped Thai ExCd Med\nNoto Looped Thai ExCd SmBd\nNoto Looped Thai ExCd Thin\nNoto Looped Thai ExtLight"
+    },
+    "dejaVuPresent": {
+      "script": "fc-list | grep -i dejavu | head -10",
+      "ok": true,
+      "ms": 0,
+      "out": "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf: DejaVu Serif:style=Bold\n/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf: DejaVu Sans Mono:style=Book\n/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf: DejaVu Sans:style=Book\n/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: DejaVu Sans:style=Bold\n/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf: DejaVu Sans Mono:style=Bold\n/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf: DejaVu Serif:style=Book"
+    },
+    "fontconfigCacheHash": {
+      "script": "find /usr/share/fonts -type f | sort | xargs sha256sum 2>/dev/null | sha256sum",
+      "ok": true,
+      "ms": 0,
+      "out": "b349160f30dc17ac151200420cbe690b1bb19a7205caa4bc55a792e237883610  -"
+    },
+    "aptSourcesPinned": {
+      "script": "cat /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null | head -20",
+      "ok": true,
+      "ms": 0,
+      "out": "Types: deb\n# http://snapshot.debian.org/archive/debian/20260803T000000Z\nURIs: http://deb.debian.org/debian\nSuites: bookworm bookworm-updates\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\n\nTypes: deb\n# http://snapshot.debian.org/archive/debian-security/20260803T000000Z\nURIs: http://deb.debian.org/debian-security\nSuites: bookworm-security\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg"
+    },
+    "chromeCacheTree": {
+      "script": "ls -R /root/.cache/puppeteer 2>/dev/null | head -20",
+      "ok": true,
+      "ms": 0,
+      "out": "/root/.cache/puppeteer:\nchrome-headless-shell\n\n/root/.cache/puppeteer/chrome-headless-shell:\nlinux-152.0.7977.54\n\n/root/.cache/puppeteer/chrome-headless-shell/linux-152.0.7977.54:\nchrome-headless-shell-linux64\n\n/root/.cache/puppeteer/chrome-headless-shell/linux-152.0.7977.54/chrome-headless-shell-linux64:\nABOUT\nLICENSE.headless_shell\nchrome-headless-shell\ndeb.deps\nheadless_command_resources.pak\nheadless_lib_data.pak\nheadless_lib_strings.pak\nhyphen-data\nicudtl.dat\nlibEGL.so"
+    },
+    "timezoneLocale": {
+      "script": "date -u; echo \"TZ=$TZ LANG=$LANG LC_ALL=$LC_ALL\"; locale 2>&1 | head -3",
+      "ok": true,
+      "ms": 0,
+      "out": "Fri Aug 21 06:35:43 UTC 2026\nTZ= LANG= LC_ALL=\nLANG=\nLANGUAGE=\nLC_CTYPE=\"POSIX\""
+    }
+  }
+}

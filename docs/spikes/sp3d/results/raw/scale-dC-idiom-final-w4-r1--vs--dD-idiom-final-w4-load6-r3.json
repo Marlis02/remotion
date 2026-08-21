@@ -1,0 +1,84 @@
+{
+  "schema": "sp3d-scale/1",
+  "capturedAt": "2026-08-21T08:01:27.078Z",
+  "a": {
+    "runId": "dC-idiom-final-w4-r1",
+    "spike": "sp3d",
+    "sha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+    "bytes": 43382724
+  },
+  "b": {
+    "runId": "dD-idiom-final-w4-load6-r3",
+    "spike": "sp3d",
+    "sha256": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+    "bytes": 40628419
+  },
+  "method": "psnrBetweenFiles + psnrDistribution из sp3/lib/media.mjs по всем кадрам обоих mp4; первый разошедшийся кадр — из framemd5; сырые кадры диапазона вынуты в PNG для pixeldiff.mjs",
+  "framemd5Compare": {
+    "equal": false,
+    "firstDiffIndex": 1,
+    "firstDiffFrame": 1,
+    "framesCompared": 300,
+    "lengths": [
+      300,
+      300
+    ]
+  },
+  "psnrDistribution": {
+    "frames": 300,
+    "identicalFrames": 150,
+    "differingFrames": 150,
+    "differingShare": 50,
+    "psnrMinDb": 34.8,
+    "psnrP05Db": 35.23,
+    "psnrP50Db": 43.03,
+    "psnrP95Db": 44.59,
+    "psnrMaxDb": 67.9,
+    "maxMse": 21.52,
+    "framesBelow40Db": 61,
+    "framesBelow50Db": 147
+  },
+  "psnrCommand": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dC-idiom-final-w4-r1.mp4 -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dD-idiom-final-w4-load6-r3.mp4 -lavfi psnr=stats_file=/home/ct/Desktop/remotion/docs/spikes/sp3d/out/psnr-dC-idiom-final-w4-r1--vs--dD-idiom-final-w4-load6-r3.log -f null -",
+  "worstFrames": [
+    {
+      "n": 16,
+      "psnrDb": 34.8,
+      "mse": 21.52
+    },
+    {
+      "n": 54,
+      "psnrDb": 35.05,
+      "mse": 20.35
+    },
+    {
+      "n": 17,
+      "psnrDb": 35.06,
+      "mse": 20.28
+    },
+    {
+      "n": 26,
+      "psnrDb": 35.14,
+      "mse": 19.91
+    },
+    {
+      "n": 50,
+      "psnrDb": 35.16,
+      "mse": 19.82
+    }
+  ],
+  "extractedFrames": {
+    "range": [
+      100,
+      119
+    ],
+    "a": {
+      "dir": "sp3d/out/.frames-dC-idiom-final-w4-r1",
+      "count": 20
+    },
+    "b": {
+      "dir": "sp3d/out/.frames-dD-idiom-final-w4-load6-r3",
+      "count": 20
+    },
+    "note": "это кадры ПОСЛЕ декодирования mp4, а не сырьё рендерера: разница энкодера в них уже сидит"
+  }
+}

@@ -1,0 +1,1669 @@
+{
+  "schema": "sp3d-determinism/1",
+  "capturedAt": "2026-08-21T07:51:43.003Z",
+  "method": {
+    "fileHash": "sha256 готового файла (mp4) или dirHash каталога PNG (имя+содержимое всех файлов)",
+    "framemd5": "ffmpeg -f framemd5 — md5 каждого декодированного кадра; сравнивается sha256 файла framemd5 и первый разошедшийся кадр"
+  },
+  "groups": [
+    {
+      "id": "repeat:dA-final-w1",
+      "title": "прогоны подряд одной настройки dA-final-w1",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w1-r1",
+        "dA-final-w1-r2",
+        "dA-final-w1-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w1-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 6.519,
+          "peakRssContainerMb": 1369.1
+        },
+        {
+          "runId": "dA-final-w1-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 3.392,
+          "peakRssContainerMb": 1157.2
+        },
+        {
+          "runId": "dA-final-w1-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 1.332,
+          "peakRssContainerMb": 1171.4
+        }
+      ]
+    },
+    {
+      "id": "repeat:dA-final-w2",
+      "title": "прогоны подряд одной настройки dA-final-w2",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w2-r1",
+        "dA-final-w2-r2",
+        "dA-final-w2-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w2-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 15.182,
+          "peakRssContainerMb": 1367.1
+        },
+        {
+          "runId": "dA-final-w2-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 14.113,
+          "peakRssContainerMb": 1389.4
+        },
+        {
+          "runId": "dA-final-w2-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 13.711,
+          "peakRssContainerMb": 1416.6
+        }
+      ]
+    },
+    {
+      "id": "repeat:dA-final-w4",
+      "title": "прогоны подряд одной настройки dA-final-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w4-r1",
+        "dA-final-w4-r2",
+        "dA-final-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 20.471,
+          "peakRssContainerMb": 2599.9
+        },
+        {
+          "runId": "dA-final-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 21.683,
+          "peakRssContainerMb": 2618.1
+        },
+        {
+          "runId": "dA-final-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2619
+        }
+      ]
+    },
+    {
+      "id": "repeat:dA-final-w8",
+      "title": "прогоны подряд одной настройки dA-final-w8",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w8-r1",
+        "dA-final-w8-r2",
+        "dA-final-w8-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w8-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 32.048,
+          "peakRssContainerMb": 5056.6
+        },
+        {
+          "runId": "dA-final-w8-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.076,
+          "peakRssContainerMb": 5008.8
+        },
+        {
+          "runId": "dA-final-w8-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.307,
+          "peakRssContainerMb": 4899.8
+        }
+      ]
+    },
+    {
+      "id": "repeat:dB-draft-w4",
+      "title": "прогоны подряд одной настройки dB-draft-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dB-draft-w4-r1",
+        "dB-draft-w4-r2",
+        "dB-draft-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d"
+      ],
+      "framemd5Hashes": [
+        "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dB-draft-w4-r1",
+          "fileHash": "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d",
+          "framemd5": "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910",
+          "fpsFramesOnly": 27.523,
+          "peakRssContainerMb": 2559.9
+        },
+        {
+          "runId": "dB-draft-w4-r2",
+          "fileHash": "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d",
+          "framemd5": "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910",
+          "fpsFramesOnly": 29.14,
+          "peakRssContainerMb": 2539.9
+        },
+        {
+          "runId": "dB-draft-w4-r3",
+          "fileHash": "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d",
+          "framemd5": "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910",
+          "fpsFramesOnly": 28.035,
+          "peakRssContainerMb": 2580.3
+        }
+      ]
+    },
+    {
+      "id": "repeat:dC-idiom-final-w1",
+      "title": "прогоны подряд одной настройки dC-idiom-final-w1",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dC-idiom-final-w1-r1",
+        "dC-idiom-final-w1-r2",
+        "dC-idiom-final-w1-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dC-idiom-final-w1-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.085,
+          "peakRssContainerMb": 1629.3
+        },
+        {
+          "runId": "dC-idiom-final-w1-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 7.664,
+          "peakRssContainerMb": 1622.7
+        },
+        {
+          "runId": "dC-idiom-final-w1-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 9.156,
+          "peakRssContainerMb": 2351.5
+        }
+      ]
+    },
+    {
+      "id": "repeat:dC-idiom-final-w4",
+      "title": "прогоны подряд одной настройки dC-idiom-final-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dC-idiom-final-w4-r1",
+        "dC-idiom-final-w4-r2",
+        "dC-idiom-final-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dC-idiom-final-w4-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 31.069,
+          "peakRssContainerMb": 3116.3
+        },
+        {
+          "runId": "dC-idiom-final-w4-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 33.011,
+          "peakRssContainerMb": 3121.2
+        },
+        {
+          "runId": "dC-idiom-final-w4-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 32.83,
+          "peakRssContainerMb": 3139.7
+        }
+      ]
+    },
+    {
+      "id": "repeat:dD-final-w4-load6",
+      "title": "прогоны подряд одной настройки dD-final-w4-load6",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dD-final-w4-load6-r1",
+        "dD-final-w4-load6-r2",
+        "dD-final-w4-load6-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dD-final-w4-load6-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.07,
+          "peakRssContainerMb": 2567.4
+        },
+        {
+          "runId": "dD-final-w4-load6-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.326,
+          "peakRssContainerMb": 2570
+        },
+        {
+          "runId": "dD-final-w4-load6-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 26.841,
+          "peakRssContainerMb": 2573.5
+        }
+      ]
+    },
+    {
+      "id": "repeat:dD-idiom-final-w4-load6",
+      "title": "прогоны подряд одной настройки dD-idiom-final-w4-load6",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dD-idiom-final-w4-load6-r1",
+        "dD-idiom-final-w4-load6-r2",
+        "dD-idiom-final-w4-load6-r3"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dD-idiom-final-w4-load6-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.73,
+          "peakRssContainerMb": 2832.2
+        },
+        {
+          "runId": "dD-idiom-final-w4-load6-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.944,
+          "peakRssContainerMb": 2830.9
+        },
+        {
+          "runId": "dD-idiom-final-w4-load6-r3",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 21.957,
+          "peakRssContainerMb": 2808.4
+        }
+      ]
+    },
+    {
+      "id": "repeat:dG-final-w4",
+      "title": "прогоны подряд одной настройки dG-final-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dG-final-w4-x01",
+        "dG-final-w4-x02",
+        "dG-final-w4-x03",
+        "dG-final-w4-x04",
+        "dG-final-w4-x05",
+        "dG-final-w4-x06",
+        "dG-final-w4-x07",
+        "dG-final-w4-x08",
+        "dG-final-w4-x09",
+        "dG-final-w4-x10"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dG-final-w4-x01",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.58,
+          "peakRssContainerMb": 2600.4
+        },
+        {
+          "runId": "dG-final-w4-x02",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.891,
+          "peakRssContainerMb": 2575.3
+        },
+        {
+          "runId": "dG-final-w4-x03",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 31.355,
+          "peakRssContainerMb": 2594.4
+        },
+        {
+          "runId": "dG-final-w4-x04",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 35.195,
+          "peakRssContainerMb": 2577.1
+        },
+        {
+          "runId": "dG-final-w4-x05",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 34.59,
+          "peakRssContainerMb": 2562.1
+        },
+        {
+          "runId": "dG-final-w4-x06",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.964,
+          "peakRssContainerMb": 2576.8
+        },
+        {
+          "runId": "dG-final-w4-x07",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2570.3
+        },
+        {
+          "runId": "dG-final-w4-x08",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 24.975,
+          "peakRssContainerMb": 2612.2
+        },
+        {
+          "runId": "dG-final-w4-x09",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.958,
+          "peakRssContainerMb": 2634.6
+        },
+        {
+          "runId": "dG-final-w4-x10",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.265,
+          "peakRssContainerMb": 2586.6
+        }
+      ]
+    },
+    {
+      "id": "repeat:dH-idiom-final-w1",
+      "title": "прогоны подряд одной настройки dH-idiom-final-w1",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dH-idiom-final-w1-x04",
+        "dH-idiom-final-w1-x05",
+        "dH-idiom-final-w1-x06",
+        "dH-idiom-final-w1-x07",
+        "dH-idiom-final-w1-x08",
+        "dH-idiom-final-w1-x09",
+        "dH-idiom-final-w1-x10"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dH-idiom-final-w1-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.607,
+          "peakRssContainerMb": 1676.8
+        },
+        {
+          "runId": "dH-idiom-final-w1-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.661,
+          "peakRssContainerMb": 1671.2
+        },
+        {
+          "runId": "dH-idiom-final-w1-x06",
+          "fileHash": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+          "framemd5": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+          "fpsFramesOnly": 6.958,
+          "peakRssContainerMb": 1640.3
+        },
+        {
+          "runId": "dH-idiom-final-w1-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.643,
+          "peakRssContainerMb": 1685.6
+        },
+        {
+          "runId": "dH-idiom-final-w1-x08",
+          "fileHash": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+          "framemd5": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+          "fpsFramesOnly": 6.74,
+          "peakRssContainerMb": 1665.9
+        },
+        {
+          "runId": "dH-idiom-final-w1-x09",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.404,
+          "peakRssContainerMb": 1679.6
+        },
+        {
+          "runId": "dH-idiom-final-w1-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.611,
+          "peakRssContainerMb": 1677.9
+        }
+      ]
+    },
+    {
+      "id": "repeat:dH-idiom-final-w4",
+      "title": "прогоны подряд одной настройки dH-idiom-final-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dH-idiom-final-w4-x04",
+        "dH-idiom-final-w4-x05",
+        "dH-idiom-final-w4-x06",
+        "dH-idiom-final-w4-x07",
+        "dH-idiom-final-w4-x08",
+        "dH-idiom-final-w4-x09",
+        "dH-idiom-final-w4-x10"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dH-idiom-final-w4-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.528,
+          "peakRssContainerMb": 2848.7
+        },
+        {
+          "runId": "dH-idiom-final-w4-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.834,
+          "peakRssContainerMb": 2839.8
+        },
+        {
+          "runId": "dH-idiom-final-w4-x06",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 22.36,
+          "peakRssContainerMb": 2804.6
+        },
+        {
+          "runId": "dH-idiom-final-w4-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 21.316,
+          "peakRssContainerMb": 2852.4
+        },
+        {
+          "runId": "dH-idiom-final-w4-x08",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 19.519,
+          "peakRssContainerMb": 2847.1
+        },
+        {
+          "runId": "dH-idiom-final-w4-x09",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.48,
+          "peakRssContainerMb": 2857.5
+        },
+        {
+          "runId": "dH-idiom-final-w4-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 25.023,
+          "peakRssContainerMb": 2861.9
+        }
+      ]
+    },
+    {
+      "id": "repeat:dJ-final-w4-load6",
+      "title": "прогоны подряд одной настройки dJ-final-w4-load6",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dJ-final-w4-load6-x04",
+        "dJ-final-w4-load6-x05",
+        "dJ-final-w4-load6-x06",
+        "dJ-final-w4-load6-x07",
+        "dJ-final-w4-load6-x08",
+        "dJ-final-w4-load6-x09"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dJ-final-w4-load6-x04",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 25.615,
+          "peakRssContainerMb": 2578.2
+        },
+        {
+          "runId": "dJ-final-w4-load6-x05",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 25.549,
+          "peakRssContainerMb": 2577.7
+        },
+        {
+          "runId": "dJ-final-w4-load6-x06",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 24.876,
+          "peakRssContainerMb": 2549.8
+        },
+        {
+          "runId": "dJ-final-w4-load6-x07",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 26.157,
+          "peakRssContainerMb": 2580.6
+        },
+        {
+          "runId": "dJ-final-w4-load6-x08",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 25.048,
+          "peakRssContainerMb": 2590.1
+        },
+        {
+          "runId": "dJ-final-w4-load6-x09",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 26.565,
+          "peakRssContainerMb": 2594.9
+        }
+      ]
+    },
+    {
+      "id": "repeat:dJ-idiom-final-w1-load6",
+      "title": "прогоны подряд одной настройки dJ-idiom-final-w1-load6",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dJ-idiom-final-w1-load6-r1",
+        "dJ-idiom-final-w1-load6-r2",
+        "dJ-idiom-final-w1-load6-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dJ-idiom-final-w1-load6-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.286,
+          "peakRssContainerMb": 1686.4
+        },
+        {
+          "runId": "dJ-idiom-final-w1-load6-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.243,
+          "peakRssContainerMb": 1668.9
+        },
+        {
+          "runId": "dJ-idiom-final-w1-load6-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.225,
+          "peakRssContainerMb": 1650.6
+        }
+      ]
+    },
+    {
+      "id": "repeat:dJ-idiom-final-w4-load6",
+      "title": "прогоны подряд одной настройки dJ-idiom-final-w4-load6",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dJ-idiom-final-w4-load6-x04",
+        "dJ-idiom-final-w4-load6-x05",
+        "dJ-idiom-final-w4-load6-x06",
+        "dJ-idiom-final-w4-load6-x07",
+        "dJ-idiom-final-w4-load6-x08",
+        "dJ-idiom-final-w4-load6-x09",
+        "dJ-idiom-final-w4-load6-x10"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dJ-idiom-final-w4-load6-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.521,
+          "peakRssContainerMb": 2851.4
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.073,
+          "peakRssContainerMb": 2839.2
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x06",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.767,
+          "peakRssContainerMb": 2833.6
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.507,
+          "peakRssContainerMb": 2851.3
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x08",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 23.948,
+          "peakRssContainerMb": 2798.3
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x09",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 23.301,
+          "peakRssContainerMb": 2789.4
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.412,
+          "peakRssContainerMb": 2860.7
+        }
+      ]
+    },
+    {
+      "id": "repeat:dK-docker-w1",
+      "title": "прогоны подряд одной настройки dK-docker-w1",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dK-docker-w1-r1",
+        "dK-docker-w1-r2",
+        "dK-docker-w1-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dK-docker-w1-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.251,
+          "peakRssContainerMb": 1567.8
+        },
+        {
+          "runId": "dK-docker-w1-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.224,
+          "peakRssContainerMb": 1611.9
+        },
+        {
+          "runId": "dK-docker-w1-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.458,
+          "peakRssContainerMb": 1610.7
+        }
+      ]
+    },
+    {
+      "id": "repeat:dK-docker-w4",
+      "title": "прогоны подряд одной настройки dK-docker-w4",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dK-docker-w4-r1",
+        "dK-docker-w4-r2",
+        "dK-docker-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dK-docker-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.882,
+          "peakRssContainerMb": 2620
+        },
+        {
+          "runId": "dK-docker-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.846,
+          "peakRssContainerMb": 2605.5
+        },
+        {
+          "runId": "dK-docker-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.385,
+          "peakRssContainerMb": 2626.4
+        }
+      ]
+    },
+    {
+      "id": "across-workers:dA-final-wX",
+      "title": "инвариантность к workers: dA-final-wX (1/2/4/8)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w1-r1",
+        "dA-final-w1-r2",
+        "dA-final-w1-r3",
+        "dA-final-w2-r1",
+        "dA-final-w2-r2",
+        "dA-final-w2-r3",
+        "dA-final-w4-r1",
+        "dA-final-w4-r2",
+        "dA-final-w4-r3",
+        "dA-final-w8-r1",
+        "dA-final-w8-r2",
+        "dA-final-w8-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w1-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 6.519,
+          "peakRssContainerMb": 1369.1
+        },
+        {
+          "runId": "dA-final-w1-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 3.392,
+          "peakRssContainerMb": 1157.2
+        },
+        {
+          "runId": "dA-final-w1-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 1.332,
+          "peakRssContainerMb": 1171.4
+        },
+        {
+          "runId": "dA-final-w2-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 15.182,
+          "peakRssContainerMb": 1367.1
+        },
+        {
+          "runId": "dA-final-w2-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 14.113,
+          "peakRssContainerMb": 1389.4
+        },
+        {
+          "runId": "dA-final-w2-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 13.711,
+          "peakRssContainerMb": 1416.6
+        },
+        {
+          "runId": "dA-final-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 20.471,
+          "peakRssContainerMb": 2599.9
+        },
+        {
+          "runId": "dA-final-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 21.683,
+          "peakRssContainerMb": 2618.1
+        },
+        {
+          "runId": "dA-final-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2619
+        },
+        {
+          "runId": "dA-final-w8-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 32.048,
+          "peakRssContainerMb": 5056.6
+        },
+        {
+          "runId": "dA-final-w8-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.076,
+          "peakRssContainerMb": 5008.8
+        },
+        {
+          "runId": "dA-final-w8-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.307,
+          "peakRssContainerMb": 4899.8
+        }
+      ]
+    },
+    {
+      "id": "across-workers:dC-idiom-final-wX",
+      "title": "инвариантность к workers: dC-idiom-final-wX (1/4)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dC-idiom-final-w1-r1",
+        "dC-idiom-final-w1-r2",
+        "dC-idiom-final-w1-r3",
+        "dC-idiom-final-w4-r1",
+        "dC-idiom-final-w4-r2",
+        "dC-idiom-final-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dC-idiom-final-w1-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.085,
+          "peakRssContainerMb": 1629.3
+        },
+        {
+          "runId": "dC-idiom-final-w1-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 7.664,
+          "peakRssContainerMb": 1622.7
+        },
+        {
+          "runId": "dC-idiom-final-w1-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 9.156,
+          "peakRssContainerMb": 2351.5
+        },
+        {
+          "runId": "dC-idiom-final-w4-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 31.069,
+          "peakRssContainerMb": 3116.3
+        },
+        {
+          "runId": "dC-idiom-final-w4-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 33.011,
+          "peakRssContainerMb": 3121.2
+        },
+        {
+          "runId": "dC-idiom-final-w4-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 32.83,
+          "peakRssContainerMb": 3139.7
+        }
+      ]
+    },
+    {
+      "id": "across-workers:dH-idiom-final-wX",
+      "title": "инвариантность к workers: dH-idiom-final-wX (1/4)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dH-idiom-final-w1-x04",
+        "dH-idiom-final-w1-x05",
+        "dH-idiom-final-w1-x06",
+        "dH-idiom-final-w1-x07",
+        "dH-idiom-final-w1-x08",
+        "dH-idiom-final-w1-x09",
+        "dH-idiom-final-w1-x10",
+        "dH-idiom-final-w4-x04",
+        "dH-idiom-final-w4-x05",
+        "dH-idiom-final-w4-x06",
+        "dH-idiom-final-w4-x07",
+        "dH-idiom-final-w4-x08",
+        "dH-idiom-final-w4-x09",
+        "dH-idiom-final-w4-x10"
+      ],
+      "distinctFileHashes": 3,
+      "distinctFramemd5": 3,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dH-idiom-final-w1-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.607,
+          "peakRssContainerMb": 1676.8
+        },
+        {
+          "runId": "dH-idiom-final-w1-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.661,
+          "peakRssContainerMb": 1671.2
+        },
+        {
+          "runId": "dH-idiom-final-w1-x06",
+          "fileHash": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+          "framemd5": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+          "fpsFramesOnly": 6.958,
+          "peakRssContainerMb": 1640.3
+        },
+        {
+          "runId": "dH-idiom-final-w1-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.643,
+          "peakRssContainerMb": 1685.6
+        },
+        {
+          "runId": "dH-idiom-final-w1-x08",
+          "fileHash": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+          "framemd5": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+          "fpsFramesOnly": 6.74,
+          "peakRssContainerMb": 1665.9
+        },
+        {
+          "runId": "dH-idiom-final-w1-x09",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.404,
+          "peakRssContainerMb": 1679.6
+        },
+        {
+          "runId": "dH-idiom-final-w1-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.611,
+          "peakRssContainerMb": 1677.9
+        },
+        {
+          "runId": "dH-idiom-final-w4-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.528,
+          "peakRssContainerMb": 2848.7
+        },
+        {
+          "runId": "dH-idiom-final-w4-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.834,
+          "peakRssContainerMb": 2839.8
+        },
+        {
+          "runId": "dH-idiom-final-w4-x06",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 22.36,
+          "peakRssContainerMb": 2804.6
+        },
+        {
+          "runId": "dH-idiom-final-w4-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 21.316,
+          "peakRssContainerMb": 2852.4
+        },
+        {
+          "runId": "dH-idiom-final-w4-x08",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 19.519,
+          "peakRssContainerMb": 2847.1
+        },
+        {
+          "runId": "dH-idiom-final-w4-x09",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.48,
+          "peakRssContainerMb": 2857.5
+        },
+        {
+          "runId": "dH-idiom-final-w4-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 25.023,
+          "peakRssContainerMb": 2861.9
+        }
+      ]
+    },
+    {
+      "id": "across-workers:dJ-idiom-final-wX-load6",
+      "title": "инвариантность к workers: dJ-idiom-final-wX-load6 (1/4)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dJ-idiom-final-w1-load6-r1",
+        "dJ-idiom-final-w1-load6-r2",
+        "dJ-idiom-final-w1-load6-r3",
+        "dJ-idiom-final-w4-load6-x04",
+        "dJ-idiom-final-w4-load6-x05",
+        "dJ-idiom-final-w4-load6-x06",
+        "dJ-idiom-final-w4-load6-x07",
+        "dJ-idiom-final-w4-load6-x08",
+        "dJ-idiom-final-w4-load6-x09",
+        "dJ-idiom-final-w4-load6-x10"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dJ-idiom-final-w1-load6-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.286,
+          "peakRssContainerMb": 1686.4
+        },
+        {
+          "runId": "dJ-idiom-final-w1-load6-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.243,
+          "peakRssContainerMb": 1668.9
+        },
+        {
+          "runId": "dJ-idiom-final-w1-load6-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 6.225,
+          "peakRssContainerMb": 1650.6
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x04",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.521,
+          "peakRssContainerMb": 2851.4
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x05",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.073,
+          "peakRssContainerMb": 2839.2
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x06",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.767,
+          "peakRssContainerMb": 2833.6
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x07",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 22.507,
+          "peakRssContainerMb": 2851.3
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x08",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 23.948,
+          "peakRssContainerMb": 2798.3
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x09",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 23.301,
+          "peakRssContainerMb": 2789.4
+        },
+        {
+          "runId": "dJ-idiom-final-w4-load6-x10",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.412,
+          "peakRssContainerMb": 2860.7
+        }
+      ]
+    },
+    {
+      "id": "across-workers:dK-docker-wX",
+      "title": "инвариантность к workers: dK-docker-wX (1/4)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dK-docker-w1-r1",
+        "dK-docker-w1-r2",
+        "dK-docker-w1-r3",
+        "dK-docker-w4-r1",
+        "dK-docker-w4-r2",
+        "dK-docker-w4-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dK-docker-w1-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.251,
+          "peakRssContainerMb": 1567.8
+        },
+        {
+          "runId": "dK-docker-w1-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.224,
+          "peakRssContainerMb": 1611.9
+        },
+        {
+          "runId": "dK-docker-w1-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 7.458,
+          "peakRssContainerMb": 1610.7
+        },
+        {
+          "runId": "dK-docker-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.882,
+          "peakRssContainerMb": 2620
+        },
+        {
+          "runId": "dK-docker-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.846,
+          "peakRssContainerMb": 2605.5
+        },
+        {
+          "runId": "dK-docker-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.385,
+          "peakRssContainerMb": 2626.4
+        }
+      ]
+    },
+    {
+      "id": "load:exact-w4",
+      "title": "точная композиция, w4 final: вхолостую против нагрузки 6 потоков",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w4-r1",
+        "dA-final-w4-r2",
+        "dA-final-w4-r3",
+        "dD-final-w4-load6-r1",
+        "dD-final-w4-load6-r2",
+        "dD-final-w4-load6-r3"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 20.471,
+          "peakRssContainerMb": 2599.9
+        },
+        {
+          "runId": "dA-final-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 21.683,
+          "peakRssContainerMb": 2618.1
+        },
+        {
+          "runId": "dA-final-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2619
+        },
+        {
+          "runId": "dD-final-w4-load6-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.07,
+          "peakRssContainerMb": 2567.4
+        },
+        {
+          "runId": "dD-final-w4-load6-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.326,
+          "peakRssContainerMb": 2570
+        },
+        {
+          "runId": "dD-final-w4-load6-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 26.841,
+          "peakRssContainerMb": 2573.5
+        }
+      ]
+    },
+    {
+      "id": "load:idiom-w4",
+      "title": "идиоматичная композиция, w4 final: вхолостую против нагрузки 6 потоков",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dC-idiom-final-w4-r1",
+        "dC-idiom-final-w4-r2",
+        "dC-idiom-final-w4-r3",
+        "dD-idiom-final-w4-load6-r1",
+        "dD-idiom-final-w4-load6-r2",
+        "dD-idiom-final-w4-load6-r3"
+      ],
+      "distinctFileHashes": 2,
+      "distinctFramemd5": 2,
+      "fileHashes": [
+        "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+        "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+      ],
+      "framemd5Hashes": [
+        "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+        "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6"
+      ],
+      "verdict": "разошлось на кадре 1",
+      "firstDiffFrame": 1,
+      "perRun": [
+        {
+          "runId": "dC-idiom-final-w4-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 31.069,
+          "peakRssContainerMb": 3116.3
+        },
+        {
+          "runId": "dC-idiom-final-w4-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 33.011,
+          "peakRssContainerMb": 3121.2
+        },
+        {
+          "runId": "dC-idiom-final-w4-r3",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 32.83,
+          "peakRssContainerMb": 3139.7
+        },
+        {
+          "runId": "dD-idiom-final-w4-load6-r1",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 23.73,
+          "peakRssContainerMb": 2832.2
+        },
+        {
+          "runId": "dD-idiom-final-w4-load6-r2",
+          "fileHash": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "framemd5": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+          "fpsFramesOnly": 24.944,
+          "peakRssContainerMb": 2830.9
+        },
+        {
+          "runId": "dD-idiom-final-w4-load6-r3",
+          "fileHash": "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f",
+          "framemd5": "2c735a2b0fb51a3cfea40e8889f00acb10239481263e6534c228deaf0cf83bf6",
+          "fpsFramesOnly": 21.957,
+          "peakRssContainerMb": 2808.4
+        }
+      ]
+    },
+    {
+      "id": "series:exact-w4-all",
+      "title": "точная композиция, w4 final, ВСЕ прогоны вхолостую (матрица + серия из 10)",
+      "expectation": "побайтово равные выходы",
+      "runs": [
+        "dA-final-w4-r1",
+        "dA-final-w4-r2",
+        "dA-final-w4-r3",
+        "dG-final-w4-x01",
+        "dG-final-w4-x02",
+        "dG-final-w4-x03",
+        "dG-final-w4-x04",
+        "dG-final-w4-x05",
+        "dG-final-w4-x06",
+        "dG-final-w4-x07",
+        "dG-final-w4-x08",
+        "dG-final-w4-x09",
+        "dG-final-w4-x10"
+      ],
+      "distinctFileHashes": 1,
+      "distinctFramemd5": 1,
+      "fileHashes": [
+        "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+      ],
+      "framemd5Hashes": [
+        "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5"
+      ],
+      "verdict": "совпало побайтово",
+      "firstDiffFrame": null,
+      "perRun": [
+        {
+          "runId": "dA-final-w4-r1",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 20.471,
+          "peakRssContainerMb": 2599.9
+        },
+        {
+          "runId": "dA-final-w4-r2",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 21.683,
+          "peakRssContainerMb": 2618.1
+        },
+        {
+          "runId": "dA-final-w4-r3",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2619
+        },
+        {
+          "runId": "dG-final-w4-x01",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.58,
+          "peakRssContainerMb": 2600.4
+        },
+        {
+          "runId": "dG-final-w4-x02",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.891,
+          "peakRssContainerMb": 2575.3
+        },
+        {
+          "runId": "dG-final-w4-x03",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 31.355,
+          "peakRssContainerMb": 2594.4
+        },
+        {
+          "runId": "dG-final-w4-x04",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 35.195,
+          "peakRssContainerMb": 2577.1
+        },
+        {
+          "runId": "dG-final-w4-x05",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 34.59,
+          "peakRssContainerMb": 2562.1
+        },
+        {
+          "runId": "dG-final-w4-x06",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 33.964,
+          "peakRssContainerMb": 2576.8
+        },
+        {
+          "runId": "dG-final-w4-x07",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 27.442,
+          "peakRssContainerMb": 2570.3
+        },
+        {
+          "runId": "dG-final-w4-x08",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 24.975,
+          "peakRssContainerMb": 2612.2
+        },
+        {
+          "runId": "dG-final-w4-x09",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 28.958,
+          "peakRssContainerMb": 2634.6
+        },
+        {
+          "runId": "dG-final-w4-x10",
+          "fileHash": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+          "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+          "fpsFramesOnly": 29.265,
+          "peakRssContainerMb": 2586.6
+        }
+      ]
+    }
+  ]
+}

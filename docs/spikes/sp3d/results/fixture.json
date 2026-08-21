@@ -1,0 +1,292 @@
+{
+  "schema": "sp3d-fixture/1",
+  "capturedAt": "2026-08-21T06:48:50.819Z",
+  "note": "Композиции взяты из SP-3c как есть: каталоги монтируются в контейнер read-only, ни один файл не копировался и не правился.",
+  "composition": {
+    "id": "short",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationInFrames": 300,
+    "captionPages": 7,
+    "captionTokens": 24
+  },
+  "projects": {
+    "src": {
+      "dir": "sp3c/src",
+      "files": [
+        {
+          "file": "DejaVuSans-Bold.ttf",
+          "bytes": 705684,
+          "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+        },
+        {
+          "file": "backdrop.jpg",
+          "bytes": 2704308,
+          "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+        },
+        {
+          "file": "captions.js",
+          "bytes": 3966,
+          "sha256": "4747d5d59397a68c49b38bdb478b8e14da3a7fea202cb971e530946aa900bf3a"
+        },
+        {
+          "file": "captions.json",
+          "bytes": 3947,
+          "sha256": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d"
+        },
+        {
+          "file": "gsap.min.js",
+          "bytes": 72927,
+          "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+        },
+        {
+          "file": "index.html",
+          "bytes": 6843,
+          "sha256": "0fbe971fb12c79051036f849e8a2f9faf53c555202c0dd98a76e30b6376aae08"
+        },
+        {
+          "file": "motion.js",
+          "bytes": 19347,
+          "sha256": "e7986af6616febda0f99e3a3d92693836900b92b7c6e24fcd96543edaa693cb7"
+        },
+        {
+          "file": "motion.json",
+          "bytes": 28385,
+          "sha256": "2f7978509d296a718dd8a690ea65ee2930818497f7134d4679a650a5f2dd60f1"
+        }
+      ]
+    },
+    "src-idiomatic": {
+      "dir": "sp3c/src-idiomatic",
+      "files": [
+        {
+          "file": "DejaVuSans-Bold.ttf",
+          "bytes": 705684,
+          "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+        },
+        {
+          "file": "backdrop.jpg",
+          "bytes": 2704308,
+          "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+        },
+        {
+          "file": "gsap.min.js",
+          "bytes": 72927,
+          "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+        },
+        {
+          "file": "index.html",
+          "bytes": 14280,
+          "sha256": "b953e02703f84f45c095603cccc5434482b270c883464306c8625e34a596cbff"
+        }
+      ]
+    },
+    "src-draft": {
+      "dir": "sp3c/src-draft",
+      "files": [
+        {
+          "file": "DejaVuSans-Bold.ttf",
+          "bytes": 705684,
+          "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+        },
+        {
+          "file": "backdrop.jpg",
+          "bytes": 2704308,
+          "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+        },
+        {
+          "file": "captions.js",
+          "bytes": 3966,
+          "sha256": "4747d5d59397a68c49b38bdb478b8e14da3a7fea202cb971e530946aa900bf3a"
+        },
+        {
+          "file": "gsap.min.js",
+          "bytes": 72927,
+          "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+        },
+        {
+          "file": "index.html",
+          "bytes": 6912,
+          "sha256": "04f9f326595f59d9108c4fc77b9d340a1d9ceff0d1a03baccf89134765c6db83"
+        },
+        {
+          "file": "motion.js",
+          "bytes": 19347,
+          "sha256": "e7986af6616febda0f99e3a3d92693836900b92b7c6e24fcd96543edaa693cb7"
+        }
+      ]
+    },
+    "src-60s": {
+      "dir": "sp3c/src-60s",
+      "files": [
+        {
+          "file": "DejaVuSans-Bold.ttf",
+          "bytes": 705684,
+          "sha256": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b"
+        },
+        {
+          "file": "backdrop.jpg",
+          "bytes": 2704308,
+          "sha256": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f"
+        },
+        {
+          "file": "captions.js",
+          "bytes": 23692,
+          "sha256": "8f37980f033417b55e7391764ef28c12a93c72279312c5d4bb052698dc0a3fec"
+        },
+        {
+          "file": "captions.json",
+          "bytes": 23673,
+          "sha256": "22d0da159d349e731a96c1b4c8332e5c9e5eb3af8886b945ef4d27bc822b37a3"
+        },
+        {
+          "file": "gsap.min.js",
+          "bytes": 72927,
+          "sha256": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb"
+        },
+        {
+          "file": "index.html",
+          "bytes": 6847,
+          "sha256": "cfc494164bff1a74cc84fc8f0f8f3d6911800a89bd03848f17939befd0b1377e"
+        },
+        {
+          "file": "motion.js",
+          "bytes": 115496,
+          "sha256": "c4afe3a1ab95cf5ba6bf46b9e2aefdc4f6b58abc51a6490d2c460c239767230e"
+        }
+      ]
+    }
+  },
+  "ownScripts": [
+    {
+      "path": "run-one.mjs",
+      "bytes": 11086,
+      "sha256": "39a7227af721c2cfb72ae28318bce311a876b8557e62486cd4931ee72bc407ff"
+    },
+    {
+      "path": "matrix.mjs",
+      "bytes": 5455,
+      "sha256": "52d2dc7948a57c5004670aa586034a8cde1765f982270134237c9164735f20b3"
+    },
+    {
+      "path": "jobs.mjs",
+      "bytes": 2590,
+      "sha256": "0621d33a15c8b9214c846fc1e386fe6550a68210135993f3fd76028ae2abb476"
+    },
+    {
+      "path": "machine.mjs",
+      "bytes": 7727,
+      "sha256": "b6e1edff73d74a0ba3713f7d5c9a80a2d0786ad625db57e2f8cc46143af744aa"
+    },
+    {
+      "path": "determinism.mjs",
+      "bytes": 5996,
+      "sha256": "08fe02eedfe43d05d1a864e61fa30574c6dabf4ef9938909cdc3d1185f75b90d"
+    },
+    {
+      "path": "q4-compare.mjs",
+      "bytes": 9652,
+      "sha256": "c29d795d78dc72f8f35a34b36038fc4167586a1dbc5abd1413b8b6ee96e4f0d9"
+    },
+    {
+      "path": "netcheck.mjs",
+      "bytes": 8926,
+      "sha256": "ae8e768335ee938a06f768d7f39c7d46396aba0d2823197c52fcdb0a85903352"
+    },
+    {
+      "path": "image-probe.mjs",
+      "bytes": 3751,
+      "sha256": "ec9f9cd20e03d974aaeab04ed2614baecc271d07e1c847423a8c6af29b59c682"
+    },
+    {
+      "path": "lib/env.mjs",
+      "bytes": 2317,
+      "sha256": "ee355537e324a1d28ee942df0d338fd70eabf91b1232fbba08ea73bf08c1b0f6"
+    },
+    {
+      "path": "lib/hfargs.mjs",
+      "bytes": 2130,
+      "sha256": "f403cd281ee086eb7d87ea560d59b79399b342ca1d4fc1986f12a268f96d8dcb"
+    },
+    {
+      "path": "lib/containermem.mjs",
+      "bytes": 4811,
+      "sha256": "700fa14df6b2f316ac52002052a311e9762e9ce311cc0ff8975a2d9bac8de17a"
+    },
+    {
+      "path": "lib/summary.mjs",
+      "bytes": 22224,
+      "sha256": "2da5b5a8c5a4a62cde0097099a6b6aa614468ba83ecfd484579e07ee8be560bd"
+    }
+  ],
+  "identityWithSp3c": [
+    {
+      "path": "src/index.html",
+      "sp3cRecorded": "0fbe971fb12c79051036f849e8a2f9faf53c555202c0dd98a76e30b6376aae08",
+      "now": "0fbe971fb12c79051036f849e8a2f9faf53c555202c0dd98a76e30b6376aae08",
+      "equal": true
+    },
+    {
+      "path": "src/motion.js",
+      "sp3cRecorded": "e7986af6616febda0f99e3a3d92693836900b92b7c6e24fcd96543edaa693cb7",
+      "now": "e7986af6616febda0f99e3a3d92693836900b92b7c6e24fcd96543edaa693cb7",
+      "equal": true
+    },
+    {
+      "path": "src/motion.json",
+      "sp3cRecorded": "2f7978509d296a718dd8a690ea65ee2930818497f7134d4679a650a5f2dd60f1",
+      "now": "2f7978509d296a718dd8a690ea65ee2930818497f7134d4679a650a5f2dd60f1",
+      "equal": true
+    },
+    {
+      "path": "src/captions.js",
+      "sp3cRecorded": "4747d5d59397a68c49b38bdb478b8e14da3a7fea202cb971e530946aa900bf3a",
+      "now": "4747d5d59397a68c49b38bdb478b8e14da3a7fea202cb971e530946aa900bf3a",
+      "equal": true
+    },
+    {
+      "path": "src/captions.json",
+      "sp3cRecorded": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d",
+      "now": "01ea6473be5115fbda64a04e0865497dc5cd04b7152f321f41e36c16c733e30d",
+      "equal": true
+    },
+    {
+      "path": "src/backdrop.jpg",
+      "sp3cRecorded": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f",
+      "now": "170a64ce8fa657782cbdd3554512d7f9d6d7df31eac0ca59b585eafe7aaa1b1f",
+      "equal": true
+    },
+    {
+      "path": "src/DejaVuSans-Bold.ttf",
+      "sp3cRecorded": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b",
+      "now": "d1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b",
+      "equal": true
+    },
+    {
+      "path": "src/gsap.min.js",
+      "sp3cRecorded": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
+      "now": "92bb9a96476f983d212a2bc4f54c889039c1696dd4461d40a736860938570fbb",
+      "equal": true
+    },
+    {
+      "path": "src-draft/index.html",
+      "sp3cRecorded": "04f9f326595f59d9108c4fc77b9d340a1d9ceff0d1a03baccf89134765c6db83",
+      "now": "04f9f326595f59d9108c4fc77b9d340a1d9ceff0d1a03baccf89134765c6db83",
+      "equal": true
+    },
+    {
+      "path": "src-60s/index.html",
+      "sp3cRecorded": "cfc494164bff1a74cc84fc8f0f8f3d6911800a89bd03848f17939befd0b1377e",
+      "now": "cfc494164bff1a74cc84fc8f0f8f3d6911800a89bd03848f17939befd0b1377e",
+      "equal": true
+    },
+    {
+      "path": "src-60s/captions.json",
+      "sp3cRecorded": "22d0da159d349e731a96c1b4c8332e5c9e5eb3af8886b945ef4d27bc822b37a3",
+      "now": "22d0da159d349e731a96c1b4c8332e5c9e5eb3af8886b945ef4d27bc822b37a3",
+      "equal": true
+    }
+  ],
+  "allComposionFilesUnchanged": true
+}

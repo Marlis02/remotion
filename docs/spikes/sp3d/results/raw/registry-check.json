@@ -1,0 +1,21 @@
+{
+  "schema": "sp3d-registry/1",
+  "capturedAt": "2026-08-21T07:03:56.178Z",
+  "question": "Q3: тянется ли образ из реестра и может ли docker pull подменить его без смены версии пакета hyperframes",
+  "checks": [
+    {
+      "id": "pull-by-tag",
+      "title": "docker pull hyperframes-renderer:0.8.5",
+      "ok": false,
+      "out": "",
+      "err": "Error response from daemon: pull access denied for hyperframes-renderer, repository does not exist or may require 'docker login'"
+    },
+    {
+      "id": "hub-search",
+      "title": "поиск hyperframes в Docker Hub",
+      "ok": true,
+      "out": "{\"count\":10,\"next\":\"\",\"previous\":\"\",\"results\":[{\"repo_name\":\"jovicsc/hyperframes\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":99,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"waltwhitezhou/custom-hyperframes-worker\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":1177,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"realmad/edprep-hyperframes\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":425,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"giperpetr/hyperframes-service\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":323,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"aniruddhudhi/hyperframes-cli\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":176,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"rishabhksagi/coder-sandbox-hyperframes\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":298,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"benito1988/hyperframes-render-api\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":157,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"dugudongfangshuo/hyperframes-engine\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":157,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"rushoptimus/hyperframes-serverless\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":174,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false},{\"repo_name\":\"matyas1/hyperframes-renderer\",\"short_description\":\"\",\"star_count\":0,\"pull_count\":78,\"repo_owner\":\"\",\"is_automated\":false,\"is_official\":false}]}\n"
+    }
+  ],
+  "conclusion": "Образа с таким именем в реестре нет: CLI собирает его локально из Dockerfile.render. Значит docker pull подменить его не может — но и зафиксировать нечего: воспроизводимость образа держится не на digest, а на кэше docker на конкретной машине."
+}

@@ -1,0 +1,673 @@
+{
+  "schema": "sp3d-crosscompare/1",
+  "capturedAt": "2026-08-21T07:51:43.129Z",
+  "method": "Числа SP-3c распарсены из docs/spikes/sp3c/results/summary.md, таблица «Сводка детерминизма по настройкам», без пересчёта и округления. Docker- и парные локальные числа посчитаны из sp3d/results/raw. «X из N» = X различных sha256 среди N прогонов настройки; 1 из N = нулевой порог AC4 держится.",
+  "note": "Локальная колонка SP-3c разделена на аппаратный GPU и SwiftShader: Docker-режим всегда software («Docker mode always uses software»), поэтому прямой аналог Docker — колонка SwiftShader, а колонка аппаратного GPU показывает, что теряется при отказе от него.",
+  "sp3cRowsParsed": 41,
+  "rows": [
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w1",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w1",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w1",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w1",
+            "condition": "вхолостую",
+            "capture": "screenshot",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "dockerSp3d": {
+        "runs": 6,
+        "distinct": 1,
+        "text": "1 из 6",
+        "hashes": [
+          "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 6,
+        "distinct": 1,
+        "text": "1 из 6",
+        "hashes": [
+          "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92"
+        ]
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w2",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 10",
+        "runs": 10,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w2",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 10,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w2",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 3,
+        "distinct": 1,
+        "text": "1 из 3",
+        "hashes": [
+          "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 3,
+        "distinct": 1,
+        "text": "1 из 3",
+        "hashes": [
+          "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92"
+        ]
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w4",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 13",
+        "runs": 13,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 13,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "2 из 3",
+        "runs": 3,
+        "distinct": 2,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "screenshot",
+            "runs": 3,
+            "distinct": 2
+          }
+        ]
+      },
+      "dockerSp3d": {
+        "runs": 16,
+        "distinct": 1,
+        "text": "1 из 16",
+        "hashes": [
+          "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 6,
+        "distinct": 1,
+        "text": "1 из 6",
+        "hashes": [
+          "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92"
+        ]
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w8",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 1",
+        "runs": 1,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w8",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 1,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 3,
+        "distinct": 1,
+        "text": "1 из 3",
+        "hashes": [
+          "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w1",
+      "condition": "нагрузка",
+      "sp3cHardware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w1",
+            "condition": "нагрузка 6",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w2",
+      "condition": "нагрузка",
+      "sp3cHardware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w2",
+            "condition": "нагрузка 6",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "final",
+      "workers": "w4",
+      "condition": "нагрузка",
+      "sp3cHardware": {
+        "text": "3 из 9",
+        "runs": 9,
+        "distinct": 3,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w4",
+            "condition": "нагрузка 6",
+            "capture": "beginFrame",
+            "runs": 9,
+            "distinct": 3
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w4",
+            "condition": "нагрузка 6",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 9,
+        "distinct": 1,
+        "text": "1 из 9",
+        "hashes": [
+          "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "точная",
+      "profile": "draft",
+      "workers": "w4",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "2 из 3",
+        "runs": 3,
+        "distinct": 2,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "draft",
+            "backend": "аппаратный",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 2
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "точная",
+            "profile": "draft",
+            "backend": "SwiftShader",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 3,
+        "distinct": 1,
+        "text": "1 из 3",
+        "hashes": [
+          "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "идиоматичная",
+      "profile": "final",
+      "workers": "w1",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 3",
+        "runs": 3,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "идиоматичная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w1",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "2 из 3",
+        "runs": 3,
+        "distinct": 2,
+        "rows": [
+          {
+            "composition": "идиоматичная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w1",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 2
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 10,
+        "distinct": 2,
+        "text": "2 из 10",
+        "hashes": [
+          "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "идиоматичная",
+      "profile": "final",
+      "workers": "w2",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "1 из 5",
+        "runs": 5,
+        "distinct": 1,
+        "rows": [
+          {
+            "composition": "идиоматичная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w2",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 5,
+            "distinct": 1
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "идиоматичная",
+      "profile": "final",
+      "workers": "w4",
+      "condition": "вхолостую",
+      "sp3cHardware": {
+        "text": "3 из 3",
+        "runs": 3,
+        "distinct": 3,
+        "rows": [
+          {
+            "composition": "идиоматичная",
+            "profile": "final",
+            "backend": "аппаратный",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 3
+          }
+        ]
+      },
+      "sp3cSoftware": {
+        "text": "2 из 3",
+        "runs": 3,
+        "distinct": 2,
+        "rows": [
+          {
+            "composition": "идиоматичная",
+            "profile": "final",
+            "backend": "SwiftShader",
+            "workers": "w4",
+            "condition": "вхолостую",
+            "capture": "beginFrame",
+            "runs": 3,
+            "distinct": 2
+          }
+        ]
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 10,
+        "distinct": 2,
+        "text": "2 из 10",
+        "hashes": [
+          "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    },
+    {
+      "composition": "идиоматичная",
+      "profile": "final",
+      "workers": "w4",
+      "condition": "нагрузка",
+      "sp3cHardware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cSoftware": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "sp3cHardwareForcedScreenshot": {
+        "text": "—",
+        "runs": 0,
+        "distinct": 0
+      },
+      "dockerSp3d": {
+        "runs": 10,
+        "distinct": 2,
+        "text": "2 из 10",
+        "hashes": [
+          "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+          "4ebb5bcc09a945a61a7c97e00a5c7cf5f0bbdd5611b0a172e7933b590e9c924f"
+        ]
+      },
+      "localSp3dToday": {
+        "runs": 0,
+        "distinct": 0,
+        "text": "—",
+        "hashes": []
+      }
+    }
+  ],
+  "markdown": "| композиция | профиль | workers | условие | локально SP-3c, аппаратный GPU | локально SP-3c, SwiftShader | локально SP-3d (сегодня), SwiftShader | Docker SP-3d |\n|---|---|---|---|---|---|---|---|\n| точная | final | w1 | вхолостую | 1 из 3 | 1 из 3 | 1 из 6 | **1 из 6** |\n| точная | final | w2 | вхолостую | 1 из 10 | 1 из 3 | 1 из 3 | **1 из 3** |\n| точная | final | w4 | вхолостую | 1 из 13 | 1 из 3 | 1 из 6 | **1 из 16** |\n| точная | final | w8 | вхолостую | 1 из 1 | — | — | **1 из 3** |\n| точная | final | w1 | нагрузка | 1 из 3 | — | — | **—** |\n| точная | final | w2 | нагрузка | 1 из 3 | — | — | **—** |\n| точная | final | w4 | нагрузка | 3 из 9 | 1 из 3 | — | **1 из 9** |\n| точная | draft | w4 | вхолостую | 2 из 3 | 1 из 3 | — | **1 из 3** |\n| идиоматичная | final | w1 | вхолостую | 1 из 3 | 2 из 3 | — | **2 из 10** |\n| идиоматичная | final | w2 | вхолостую | 1 из 5 | — | — | **—** |\n| идиоматичная | final | w4 | вхолостую | 3 из 3 | 2 из 3 | — | **2 из 10** |\n| идиоматичная | final | w4 | нагрузка | — | — | — | **2 из 10** |"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "runId": "dL-final-w4-60s",
+    "outputPath": "out/dL-final-w4-60s.mp4",
+    "timeoutSec": 2400,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-60s",
+    "frames": 1800
+  }
+]

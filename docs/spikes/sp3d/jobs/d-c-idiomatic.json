@@ -1,0 +1,56 @@
+[
+  {
+    "runId": "dC-idiom-final-w1-r1",
+    "outputPath": "out/dC-idiom-final-w1-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic"
+  },
+  {
+    "runId": "dC-idiom-final-w1-r2",
+    "outputPath": "out/dC-idiom-final-w1-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic"
+  },
+  {
+    "runId": "dC-idiom-final-w1-r3",
+    "outputPath": "out/dC-idiom-final-w1-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1,
+    "project": "src-idiomatic"
+  },
+  {
+    "runId": "dC-idiom-final-w4-r1",
+    "outputPath": "out/dC-idiom-final-w4-r1.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic"
+  },
+  {
+    "runId": "dC-idiom-final-w4-r2",
+    "outputPath": "out/dC-idiom-final-w4-r2.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic"
+  },
+  {
+    "runId": "dC-idiom-final-w4-r3",
+    "outputPath": "out/dC-idiom-final-w4-r3.mp4",
+    "timeoutSec": 600,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4,
+    "project": "src-idiomatic"
+  }
+]

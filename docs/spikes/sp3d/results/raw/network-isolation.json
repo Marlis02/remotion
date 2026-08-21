@@ -1,0 +1,106 @@
+{
+  "schema": "sp3d-network/1",
+  "capturedAt": "2026-08-21T07:23:19.011Z",
+  "image": "hyperframes-renderer:0.8.5",
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "state": {
+    "loadAvg": [
+      18.73,
+      18.83,
+      19.65
+    ],
+    "freeMemBytes": 6951669760,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 76
+  },
+  "facts": [
+    "CLI не даёт флага сетевого режима для контейнера: buildDockerRunArgs не содержит --network, поэтому по умолчанию контейнер идёт в сеть bridge (подтверждено docker inspect живого контейнера матрицы: NetworkMode=bridge).",
+    "Переменные HYPERFRAMES_NO_TELEMETRY / NO_UPDATE_CHECK / NO_FEEDBACK / SKIP_SKILLS внутрь контейнера НЕ пробрасываются (Config.Env контейнера: PATH, NODE_VERSION, YARN_VERSION, PUPPETEER_SKIP_CHROMIUM_DOWNLOAD, PUPPETEER_EXECUTABLE_PATH, CONTAINER). Значит внутренний CLI выполняет свои сетевые проверки при сетевом доступе, если его не отобрать явно.",
+    "Проект монтируется read-only (/project:ro), каталог вывода — на запись (/output). Файлы вывода создаются root: внутри контейнера пользователь не понижается (Config.User пуст)."
+  ],
+  "checks": [
+    {
+      "id": "default-network-posture",
+      "title": "Сеть контейнера при настройках, которые ставит сам CLI (NetworkMode=bridge)",
+      "expected": "сеть ДОСТУПНА — это исходное состояние, а не проверка на прочность",
+      "reachable": true,
+      "passed": null,
+      "raw": {
+        "ok": true,
+        "ms": 941,
+        "stdout": "NETWORK-REACHABLE 200\n",
+        "stderr": "",
+        "command": "docker run --rm --platform linux/amd64 --entrypoint sh hyperframes-renderer:0.8.5 -c node -e \"fetch('https://registry.npmjs.org/hyperframes',{signal:AbortSignal.timeout(8000)}).then(r=>{console.log('NETWORK-REACHABLE',r.status);process.exit(0)}).catch(e=>{console.log('NETWORK-BLOCKED',e.name);process.exit(3)})\""
+      }
+    },
+    {
+      "id": "negative-control",
+      "title": "HTTPS-запрос наружу из контейнера с --network none",
+      "expected": "запрос обязан провалиться",
+      "passed": true,
+      "raw": {
+        "ok": false,
+        "ms": 382,
+        "code": 3,
+        "stdout": "NETWORK-BLOCKED TypeError\n",
+        "stderr": "",
+        "command": "docker run --rm --platform linux/amd64 --network none --entrypoint sh hyperframes-renderer:0.8.5 -c node -e \"fetch('https://registry.npmjs.org/hyperframes',{signal:AbortSignal.timeout(8000)}).then(r=>{console.log('NETWORK-REACHABLE',r.status);process.exit(0)}).catch(e=>{console.log('NETWORK-BLOCKED',e.name);process.exit(3)})\""
+      }
+    },
+    {
+      "id": "render-network-none",
+      "title": "Полный рендер 300 кадров в контейнере с --network none",
+      "expected": "рендер обязан пройти полностью",
+      "passed": true,
+      "outputBytes": 45378918,
+      "wallSec": 29.1,
+      "raw": {
+        "ok": true,
+        "ms": 29070,
+        "stdout": "dard · 4 workers\n\n\u001b[?25l│\n◇  Browser: env\n\u001b[?25h  █░░░░░░░░░░░░░░░░░░░░░░░░  5%  Compiling composition\n  ██░░░░░░░░░░░░░░░░░░░░░░░  10%  Extracting video frames\n  █████░░░░░░░░░░░░░░░░░░░░  20%  Processing audio tracks\n  ██████░░░░░░░░░░░░░░░░░░░  25%  Starting frame capture\n[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)\n[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)\n[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)\n[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)\n[initSession:screenshot] page.goto start (1ms)\n[initSession:screenshot] page.goto start (0ms)\n[initSession:screenshot] page.goto start (0ms)\n[initSession:screenshot] page.goto start (0ms)\n[HyperFrames] render runtime fps [object Object]\n[HyperFrames] render runtime fps [object Object]\n[initSession:screenshot] page.goto complete (242ms)\n[initSession:screenshot] page.goto complete (239ms)\n[HyperFrames] render runtime fps [object Object]\n[HyperFrames] render runtime fps [object Object]\n[initSession:screenshot] page.goto complete (246ms)\n[initSession:screenshot] page.goto complete (245ms)\n[initSession:screenshot] GSAP proxy flush complete (256ms)\n[initSession:screenshot] GSAP proxy flush complete (277ms)\n[initSession:screenshot] GSAP proxy flush complete (266ms)\n[initSession:screenshot] GSAP proxy flush complete (273ms)\n[initSession:screenshot] pollHfReady complete (265ms)\n[initSession:screenshot] pollHfReady complete (283ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (270ms)\n[initSession:screenshot] applyVideoMetadataHints complete (270ms)\n[initSession:screenshot] pollHfReady complete (275ms)\n[initSession:screenshot] pollHfReady complete (282ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (290ms)\n[initSession:screenshot] applyVideoMetadataHints complete (290ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (278ms)\n[initSession:screenshot] applyVideoMetadataHints complete (278ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (287ms)\n[initSession:screenshot] applyVideoMetadataHints complete (287ms)\n[initSession:screenshot] media + fonts + tailwind ready (383ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (398ms)\n[initSession:screenshot] media + fonts + tailwind ready (397ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (405ms)\n[initSession:screenshot] media + fonts + tailwind ready (404ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (426ms)\n[initSession:screenshot] media + fonts + tailwind ready (435ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (447ms)\n  ███████░░░░░░░░░░░░░░░░░░  30%  Capturing frame 30/300 (4 workers)\n  ████████░░░░░░░░░░░░░░░░░  34%  Capturing frame 60/300 (4 workers)\n  █████████░░░░░░░░░░░░░░░░  39%  Capturing frame 90/300 (4 workers)\n  ██████████░░░░░░░░░░░░░░░  43%  Capturing frame 120/300 (4 workers)\n  ████████████░░░░░░░░░░░░░  48%  Capturing frame 150/300 (4 workers)\n  █████████████░░░░░░░░░░░░  52%  Capturing frame 180/300 (4 workers)\n  ██████████████░░░░░░░░░░░  57%  Capturing frame 210/300 (4 workers)\n  ███████████████░░░░░░░░░░  61%  Capturing frame 240/300 (4 workers)\n  ████████████████░░░░░░░░░  66%  Capturing frame 270/300 (4 workers)\n  █████████████████░░░░░░░░  70%  Capturing frame 300/300 (4 workers)\n  ██████████████████░░░░░░░  75%  Encoding video\n  ██████████████████████░░░  90%  Assembling final video\n  █████████████████████████  100%  Render complete\n\n◇  /output/netnone-final-w4.mp4\n   43.3 MB · 10.0s video · rendered in 27.4s\n",
+        "stderr": "stedHdrMode\":\"auto\",\"effectiveHdr\":\"sdr\",\"nativeHdrVideoCount\":0,\"nativeHdrImageCount\":0}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"audio_process\",\"status\":\"start\",\"elapsedMs\":3700,\"audioCount\":0}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"audio_process\",\"status\":\"end\",\"elapsedMs\":3700,\"durationMs\":0,\"audioCount\":0}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"file_server\",\"status\":\"start\",\"elapsedMs\":3701,\"reused\":false}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"file_server\",\"status\":\"end\",\"elapsedMs\":3707,\"durationMs\":6}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"capture_calibration\",\"status\":\"checkpoint\",\"elapsedMs\":3709,\"message\":\"skipped\",\"requestedWorkers\":4,\"totalFrames\":300,\"htmlInCanvasDetected\":false,\"lowMemoryMode\":false,\"deInversionEligible\":false,\"deParallelRouterEligible\":false}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"worker_resolution\",\"status\":\"checkpoint\",\"elapsedMs\":3710,\"message\":\"resolved\",\"workerCount\":4}\n[INFO] streaming-encode gate {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"enabled\":false,\"configFlag\":true,\"outputFormat\":\"mp4\",\"workerCount\":4,\"durationSeconds\":10,\"maxDurationSeconds\":240}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"capture_strategy\",\"status\":\"checkpoint\",\"elapsedMs\":3711,\"message\":\"resolved\",\"workerCount\":4,\"forceScreenshot\":true,\"captureBeyondViewport\":null,\"useStreamingEncode\":false,\"useLayeredComposite\":false,\"usePageSideCompositing\":false,\"hasHdrContent\":false,\"hasShaderTransitions\":false,\"isPngSequence\":false}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"capture_disk\",\"status\":\"start\",\"elapsedMs\":3712,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":0,\"captureMode\":\"screenshot\",\"captureOperation\":\"captureScreenshot\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"capture_disk\",\"status\":\"end\",\"elapsedMs\":14774,\"durationMs\":11062,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"encode\",\"status\":\"start\",\"elapsedMs\":14775,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"encode\",\"status\":\"end\",\"elapsedMs\":27208,\"durationMs\":12433,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":27209,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":27359,\"durationMs\":150,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"9f72e440-3dbd-47ac-9be3-a254c5195bc1\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":27362,\"message\":\"artifact validated\",\"totalElapsedMs\":27359}\n",
+        "command": "docker run --rm --platform linux/amd64 --shm-size=2g --network none -v /home/ct/Desktop/remotion/docs/spikes/sp3c/src:/project:ro -v /home/ct/Desktop/remotion/docs/spikes/sp3d/out:/output hyperframes-renderer:0.8.5 /project --output /output/netnone-final-w4.mp4 --fps 30 --quality standard --format mp4 --workers 4 --no-browser-gpu"
+      }
+    },
+    {
+      "id": "netnone-output-matches",
+      "title": "Кадры рендера без сети против эталона матрицы dA-final-w4-r1",
+      "expected": "побайтово равные кадры и равный sha256 mp4",
+      "passed": true,
+      "sha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "referenceSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "framemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "referenceFramemd5": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    }
+  ],
+  "verdict": "V9 для Docker-пути достижим: с --network none рендер проходит и даёт те же кадры; но флага для этого у CLI нет — строку запуска приходится собирать самому"
+}

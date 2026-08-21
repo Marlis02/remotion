@@ -1,0 +1,1116 @@
+{
+  "schema": "sp3d-q4/1",
+  "capturedAt": "2026-08-21T07:51:43.195Z",
+  "method": {
+    "fileHash": "sha256 mp4 целиком (контейнер + битстрим)",
+    "framemd5": "md5 каждого декодированного кадра (ffmpeg -f framemd5)",
+    "bitstream": "sha256 элементарного потока h264 после `-c copy -bsf:v h264_mp4toannexb -f h264`: контейнер и его метаданные отброшены"
+  },
+  "encoderFlags": {
+    "hyperframes": "-c:v libx264 -preset medium -crf 18 -bf 0 -x264-params aq-mode=3:aq-strength=0.8:deblock=1,1:colorprim=bt709:transfer=bt709:colormatrix=bt709 (chunkEncoder.ts; -g/-keyint_min/-sc_threshold ставятся ТОЛЬКО при lockGopForChunkConcat, а CLI его не выставляет)",
+    "hyperframesDockerVsLocal": "НАБОР ФЛАГОВ ОДИН И ТОТ ЖЕ: внутри контейнера работает тот же CLI той же версии и тот же chunkEncoder. Отличается только СБОРКА ffmpeg/libx264: в контейнере ffmpeg 5.1.9-0+deb12u1 (Debian bookworm), локально в SP-3c ffmpeg-static 6.0. Управлять флагами x264 через --docker можно ровно так же, как локально: CLI пробрасывает --quality/--crf/--video-bitrate/--vp9-cpu-used внутрь контейнера и больше ничего не даёт ни там, ни там.",
+    "sp3OwnRecipe": "-c:v libx264 -crf <profile> -preset medium -pix_fmt yuv420p -colorspace/-color_primaries/-color_trc bt709 -g 30 -threads 4 -fflags +bitexact -flags:v +bitexact (sp3/lib/profiles.mjs) — рецепт блока D SP-3, применяется к PNG-сиквенсу нашим ffmpeg, а не рендерером"
+  },
+  "sides": [
+    {
+      "label": "Docker w1 final",
+      "runId": "dA-final-w1-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dA-final-w1-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "recordedBytes": 45378918,
+      "framemd5File": "sp3d/results/framemd5/dA-final-w1-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c3e83d4e73f28a81ce4fcce9c8e48120856c9febd301482011349dfca932c9ce",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303134
+      },
+      "actualSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "actualBytes": 45378918
+    },
+    {
+      "label": "Docker w2 final",
+      "runId": "dA-final-w2-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dA-final-w2-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "recordedBytes": 45378918,
+      "framemd5File": "sp3d/results/framemd5/dA-final-w2-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 2,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c3e83d4e73f28a81ce4fcce9c8e48120856c9febd301482011349dfca932c9ce",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303134
+      },
+      "actualSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "actualBytes": 45378918
+    },
+    {
+      "label": "Docker w4 final",
+      "runId": "dA-final-w4-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dA-final-w4-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "recordedBytes": 45378918,
+      "framemd5File": "sp3d/results/framemd5/dA-final-w4-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c3e83d4e73f28a81ce4fcce9c8e48120856c9febd301482011349dfca932c9ce",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303134
+      },
+      "actualSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "actualBytes": 45378918
+    },
+    {
+      "label": "Docker w8 final",
+      "runId": "dA-final-w8-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dA-final-w8-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "recordedBytes": 45378918,
+      "framemd5File": "sp3d/results/framemd5/dA-final-w8-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 8,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c3e83d4e73f28a81ce4fcce9c8e48120856c9febd301482011349dfca932c9ce",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303134
+      },
+      "actualSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "actualBytes": 45378918
+    },
+    {
+      "label": "Docker w4 final под нагрузкой",
+      "runId": "dD-final-w4-load6-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dD-final-w4-load6-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "recordedBytes": 45378918,
+      "framemd5File": "sp3d/results/framemd5/dD-final-w4-load6-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c3e83d4e73f28a81ce4fcce9c8e48120856c9febd301482011349dfca932c9ce",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303134
+      },
+      "actualSha256": "5339fca603207613f6656bf3df02b8bd489ebce7bbdd784ccea32efad60fed29",
+      "actualBytes": 45378918
+    },
+    {
+      "label": "Docker w4 draft",
+      "runId": "dB-draft-w4-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dB-draft-w4-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d",
+      "recordedBytes": 4774136,
+      "framemd5File": "sp3d/results/framemd5/dB-draft-w4-r1.framemd5",
+      "framemd5Sha256": "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "docker-software",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "dec3c303414314ac09b17f75d215b9f22101bd19692b006e168a8327bff2a1ea",
+        "bytes": 4771798
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 3819308
+      },
+      "actualSha256": "182231cffcf396264fbd013385fc65a5512d9de7a1a6860b8b2acf015bf8692d",
+      "actualBytes": 4774136
+    },
+    {
+      "label": "Docker идиоматичная w1, «тяжёлое» состояние",
+      "runId": "dC-idiom-final-w1-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dC-idiom-final-w1-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+      "recordedBytes": 43382724,
+      "framemd5File": "sp3d/results/framemd5/dC-idiom-final-w1-r1.framemd5",
+      "framemd5Sha256": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "docker-software",
+      "project": "src-idiomatic",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "ed1f990d7ddbac5bd4f3c865636bf34f5a85a775fce62a853035add7c427fdd7",
+        "bytes": 43380118
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 34706179
+      },
+      "actualSha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+      "actualBytes": 43382724
+    },
+    {
+      "label": "Docker идиоматичная w1, «лёгкое» состояние",
+      "runId": "dH-idiom-final-w1-x06",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dH-idiom-final-w1-x06.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+      "recordedBytes": 26533152,
+      "framemd5File": "sp3d/results/framemd5/dH-idiom-final-w1-x06.framemd5",
+      "framemd5Sha256": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "docker-software",
+      "project": "src-idiomatic",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "2dbcfba850f65c0a087df422a46c601130bf5e766a11bcfc60b0249d8a240d37",
+        "bytes": 26530558
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 21226521
+      },
+      "actualSha256": "a49d80fead6f1727e8694af28fa25645dc65367e6cebf871b1cb4288af0582a5",
+      "actualBytes": 26533152
+    },
+    {
+      "label": "Docker идиоматичная w4",
+      "runId": "dC-idiom-final-w4-r1",
+      "spike": "sp3d",
+      "mp4": "sp3d/out/dC-idiom-final-w4-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+      "recordedBytes": 43382724,
+      "framemd5File": "sp3d/results/framemd5/dC-idiom-final-w4-r1.framemd5",
+      "framemd5Sha256": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "docker-software",
+      "project": "src-idiomatic",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc59.37.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf59.27.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "ed1f990d7ddbac5bd4f3c865636bf34f5a85a775fce62a853035add7c427fdd7",
+        "bytes": 43380118
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 34706179
+      },
+      "actualSha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+      "actualBytes": 43382724
+    },
+    {
+      "label": "SP-3c локально SwiftShader w1 final",
+      "runId": "hfB-final-w1-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfB-final-w1-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "recordedBytes": 45378917,
+      "framemd5File": "sp3c/results/framemd5/hfB-final-w1-sw-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "sw",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "fe58d29b0ff815ae3fc89b814119aea6655c600e94886c4871ebc5365bf0b4bf",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303133
+      },
+      "actualSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "actualBytes": 45378917
+    },
+    {
+      "label": "SP-3c локально SwiftShader w2 final",
+      "runId": "hfB-final-w2-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfB-final-w2-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "recordedBytes": 45378917,
+      "framemd5File": "sp3c/results/framemd5/hfB-final-w2-sw-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 2,
+      "gpu": "sw",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "fe58d29b0ff815ae3fc89b814119aea6655c600e94886c4871ebc5365bf0b4bf",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303133
+      },
+      "actualSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "actualBytes": 45378917
+    },
+    {
+      "label": "SP-3c локально SwiftShader w4 final",
+      "runId": "hfB-final-w4-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfB-final-w4-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "recordedBytes": 45378917,
+      "framemd5File": "sp3c/results/framemd5/hfB-final-w4-sw-r1.framemd5",
+      "framemd5Sha256": "5c55d6b0da0b361e7972b3583d25b34605b2766dc600e8b98283423a508600e5",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "sw",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "fe58d29b0ff815ae3fc89b814119aea6655c600e94886c4871ebc5365bf0b4bf",
+        "bytes": 45376328
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 36303133
+      },
+      "actualSha256": "d0f3fe7e0b8e3c8d0df9936531d0df52b27d9c08c3727ad3acd275a4d48f3b92",
+      "actualBytes": 45378917
+    },
+    {
+      "label": "SP-3c локально SwiftShader w4 draft",
+      "runId": "hfB-draft-w4-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfB-draft-w4-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "44679e4fb8f21988e17eb99ca531dff78dd4ecd05814c4adb02fb0fcd1219021",
+      "recordedBytes": 4774135,
+      "framemd5File": "sp3c/results/framemd5/hfB-draft-w4-sw-r1.framemd5",
+      "framemd5Sha256": "23b482e0793849f8f958f9d3d6a10bfad446854bb5373b2b45b6c7e12f605910",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "sw",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "a75fef59e39df2ca7f07e055e3bdc690d477050057c6b514a82f6fed4ed2f151",
+        "bytes": 4771798
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 3819308
+      },
+      "actualSha256": "44679e4fb8f21988e17eb99ca531dff78dd4ecd05814c4adb02fb0fcd1219021",
+      "actualBytes": 4774135
+    },
+    {
+      "label": "SP-3c локально аппаратный GPU w4 final",
+      "runId": "hfA-final-w4-gpu-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfA-final-w4-gpu-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "recordedBytes": 27858501,
+      "framemd5File": "sp3c/results/framemd5/hfA-final-w4-gpu-r1.framemd5",
+      "framemd5Sha256": "15ce608fb84fcc2ac896ca7710cb165a7756fb2e1548ea88f860e19474446a10",
+      "captureMode": "beginframe",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, beginframe, gl=--use-gl=angle --use-angle=gl-egl, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "gpu",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c8284523009cdceeedd166882d184e17da5c0cfaf56f8174e06e7129a0e494a6",
+        "bytes": 27855952
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 22286800
+      },
+      "actualSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "actualBytes": 27858501
+    },
+    {
+      "label": "SP-3c локально аппаратный GPU w1 final",
+      "runId": "hfA-final-w1-gpu-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfA-final-w1-gpu-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "recordedBytes": 27858501,
+      "framemd5File": "sp3c/results/framemd5/hfA-final-w1-gpu-r1.framemd5",
+      "framemd5Sha256": "15ce608fb84fcc2ac896ca7710cb165a7756fb2e1548ea88f860e19474446a10",
+      "captureMode": "beginframe",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, beginframe, gl=--use-gl=angle --use-angle=gl-egl, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "gpu",
+      "project": "src",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "c8284523009cdceeedd166882d184e17da5c0cfaf56f8174e06e7129a0e494a6",
+        "bytes": 27855952
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 22286800
+      },
+      "actualSha256": "8ada9f9b297e886a0375799b67487110ad18597699f319617e607047d5a46b50",
+      "actualBytes": 27858501
+    },
+    {
+      "label": "SP-3c локально SwiftShader идиоматичная w1",
+      "runId": "hfN-idiom-final-w1-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfN-idiom-final-w1-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "eadb6a5c3cabfbf60e88970e0220067ebb595c01f0d2015a9d1e3cf8e828349b",
+      "recordedBytes": 26533151,
+      "framemd5File": "sp3c/results/framemd5/hfN-idiom-final-w1-sw-r1.framemd5",
+      "framemd5Sha256": "3fda76f602289cadf9240e75b2eaf5965af4d00da15f9fa24216bad24148375f",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 1,
+      "gpu": "sw",
+      "project": "src-idiomatic",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "59803a1bdcf3b4e3e57b2bde763a6e0550efe1729673df0fae7c25e86f831e2b",
+        "bytes": 26530558
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 21226520
+      },
+      "actualSha256": "eadb6a5c3cabfbf60e88970e0220067ebb595c01f0d2015a9d1e3cf8e828349b",
+      "actualBytes": 26533151
+    },
+    {
+      "label": "SP-3c локально SwiftShader идиоматичная w4",
+      "runId": "hfM-idiom-final-w4-sw-r1",
+      "spike": "sp3c",
+      "mp4": "sp3c/out/hfM-idiom-final-w4-sw-r1.mp4",
+      "mp4Exists": true,
+      "recordedSha256": "710be65f3f945ddb335ed2ed48a11f333239daa4930d2da6744f7aa000f1de4c",
+      "recordedBytes": 43382723,
+      "framemd5File": "sp3c/results/framemd5/hfM-idiom-final-w4-sw-r1.framemd5",
+      "framemd5Sha256": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+      "captureMode": "screenshot",
+      "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7928.2, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+      "workers": 4,
+      "gpu": "sw",
+      "project": "src-idiomatic",
+      "encoderTag": {
+        "streams": [
+          {
+            "tags": {
+              "encoder": "Lavc60.3.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "tags": {
+            "encoder": "Lavf60.3.100"
+          }
+        }
+      },
+      "bitstream": {
+        "sha256": "044f4ab2a3b1d1fbd56c97a8e81f2b4dc5a7f37391768f892523ca650c197c84",
+        "bytes": 43380118
+      },
+      "ffprobe": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 34706178
+      },
+      "actualSha256": "710be65f3f945ddb335ed2ed48a11f333239daa4930d2da6744f7aa000f1de4c",
+      "actualBytes": 43382723
+    }
+  ],
+  "comparisons": [
+    {
+      "pair": "Docker w4 final против SP-3c локально SwiftShader w4 final",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w1 final против SP-3c локально SwiftShader w1 final",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w2 final против SP-3c локально SwiftShader w2 final",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w8 final против SP-3c локально SwiftShader w4 final",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w4 final под нагрузкой против SP-3c локально SwiftShader w4 final",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w4 draft против SP-3c локально SwiftShader w4 draft",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker w4 final против SP-3c локально аппаратный GPU w4 final",
+      "sha256Equal": false,
+      "bytesDelta": 17520417,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 17520376,
+      "framemd5Equal": false,
+      "framemd5Compare": {
+        "equal": false,
+        "firstDiffIndex": 1,
+        "firstDiffFrame": 1,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker идиоматичная w1, «тяжёлое» состояние против SP-3c локально SwiftShader идиоматичная w1",
+      "sha256Equal": false,
+      "bytesDelta": 16849573,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 16849560,
+      "framemd5Equal": false,
+      "framemd5Compare": {
+        "equal": false,
+        "firstDiffIndex": 1,
+        "firstDiffFrame": 1,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker идиоматичная w1, «лёгкое» состояние против SP-3c локально SwiftShader идиоматичная w1",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    },
+    {
+      "pair": "Docker идиоматичная w4 против SP-3c локально SwiftShader идиоматичная w4",
+      "sha256Equal": false,
+      "bytesDelta": 1,
+      "bitstreamEqual": false,
+      "bitstreamBytesDelta": 0,
+      "framemd5Equal": true,
+      "framemd5Compare": {
+        "equal": true,
+        "firstDiffIndex": null,
+        "firstDiffFrame": null,
+        "framesCompared": 300,
+        "lengths": [
+          300,
+          300
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,585 @@
+{
+  "schema": "sp3d-run/1",
+  "runId": "dJ-idiom-final-w4-load6-x06",
+  "renderer": "hyperframes",
+  "mode": "docker",
+  "status": "OK",
+  "startedAt": "2026-08-21T07:28:04.042Z",
+  "image": "hyperframes-renderer:0.8.5",
+  "config": {
+    "profile": "final",
+    "workers": 4,
+    "gpu": "docker-software",
+    "project": "src-idiomatic",
+    "outputPath": "/home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4",
+    "profileParams": {
+      "profileId": "final",
+      "project": "src",
+      "format": "mp4",
+      "quality": "standard",
+      "crf": null,
+      "expect": {
+        "width": 1080,
+        "height": 1920,
+        "crf": 18,
+        "preset": "medium"
+      }
+    },
+    "cpuLoadProcesses": 6,
+    "envOverrides": {},
+    "frames": 300
+  },
+  "versions": {
+    "node": "v25.6.1",
+    "hyperframesCli": "0.8.5",
+    "hyperframesCore": "0.8.5",
+    "hyperframesEngine": "0.8.5",
+    "hyperframesProducer": "0.8.5",
+    "gsap": "3.15.0",
+    "puppeteer": "25.8.0",
+    "chromeHeadlessShellDir": "linux-152.0.7977.42",
+    "chromeHeadlessShell": "Google Chrome for Testing 152.0.7977.42",
+    "ffmpeg": "ffmpeg version 6.0-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2023 the FFmpeg developers",
+    "ffprobe": "ffprobe version 4.0.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2007-2018 the FFmpeg developers",
+    "remotionControl": "4.0.513",
+    "reactControl": "19.2.0"
+  },
+  "stateAtStart": {
+    "loadAvg": [
+      25.95,
+      21.32,
+      20.36
+    ],
+    "freeMemBytes": 5706387456,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 79
+  },
+  "timings": {
+    "nodeBootMs": 55,
+    "cliWallMs": 39064,
+    "pipelineMs": 35687,
+    "toCaptureStartMs": 4362,
+    "captureMs": 13177,
+    "encodeMs": 18007,
+    "renderPhaseMs": 31325,
+    "assembleMs": 136,
+    "preRenderOverheadMs": 7739,
+    "postPipelineMs": 3377,
+    "containerAttachDelayMs": 1357
+  },
+  "trace": [
+    {
+      "phase": "pipeline",
+      "status": "checkpoint",
+      "elapsedMs": 4,
+      "message": "started",
+      "format": "mp4",
+      "quality": "standard",
+      "browserGpuMode": "software",
+      "forceScreenshot": true,
+      "protocolTimeoutMs": 300000,
+      "pageNavigationTimeoutMs": 60000,
+      "playerReadyTimeoutMs": 45000,
+      "requestedWorkers": 4
+    },
+    {
+      "phase": "compile",
+      "status": "start",
+      "elapsedMs": 6,
+      "needsAlpha": false
+    },
+    {
+      "phase": "compile",
+      "status": "end",
+      "elapsedMs": 4317,
+      "durationMs": 4311,
+      "needsAlpha": false
+    },
+    {
+      "phase": "compile",
+      "status": "checkpoint",
+      "elapsedMs": 4319,
+      "message": "composition metadata resolved",
+      "width": 1080,
+      "height": 1920,
+      "videoCount": 0,
+      "audioCount": 0,
+      "imageCount": 1,
+      "deviceScaleFactor": 1,
+      "forceScreenshot": true,
+      "compositionHash": "2abbf96ce1cd9e65"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "start",
+      "elapsedMs": 4320,
+      "forceScreenshot": true,
+      "stagePhase": "calibrating"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "end",
+      "elapsedMs": 4328,
+      "durationMs": 8,
+      "forceScreenshot": true,
+      "stagePhase": "calibrating"
+    },
+    {
+      "phase": "browser_probe",
+      "status": "checkpoint",
+      "elapsedMs": 4334,
+      "message": "duration resolved",
+      "durationSeconds": 10,
+      "totalFrames": 300,
+      "compositionHash": "2abbf96ce1cd9e65",
+      "beginFrameStalled": false
+    },
+    {
+      "phase": "video_extract",
+      "status": "start",
+      "elapsedMs": 4335,
+      "videoCount": 0
+    },
+    {
+      "phase": "video_extract",
+      "status": "end",
+      "elapsedMs": 4339,
+      "durationMs": 4,
+      "videoCount": 0
+    },
+    {
+      "phase": "video_extract",
+      "status": "checkpoint",
+      "elapsedMs": 4350,
+      "message": "frames resolved",
+      "videoCount": 0,
+      "extractedVideoCount": 0,
+      "totalFramesExtracted": 0,
+      "maxFramesPerVideo": 0,
+      "avgFramesPerExtractedVideo": null,
+      "vfrPreflightCount": null,
+      "vfrPreflightMs": null,
+      "cacheHits": null,
+      "cacheMisses": null,
+      "transientRetries": null,
+      "minVideoFrameCoverageRatio": null,
+      "authoredTimedClipCount": 8
+    },
+    {
+      "phase": "hdr_detection",
+      "status": "checkpoint",
+      "elapsedMs": 4351,
+      "message": "resolved",
+      "requestedHdrMode": "auto",
+      "effectiveHdr": "sdr",
+      "nativeHdrVideoCount": 0,
+      "nativeHdrImageCount": 0
+    },
+    {
+      "phase": "audio_process",
+      "status": "start",
+      "elapsedMs": 4351,
+      "audioCount": 0
+    },
+    {
+      "phase": "audio_process",
+      "status": "end",
+      "elapsedMs": 4352,
+      "durationMs": 1,
+      "audioCount": 0
+    },
+    {
+      "phase": "file_server",
+      "status": "start",
+      "elapsedMs": 4352,
+      "reused": false
+    },
+    {
+      "phase": "file_server",
+      "status": "end",
+      "elapsedMs": 4358,
+      "durationMs": 6
+    },
+    {
+      "phase": "capture_calibration",
+      "status": "checkpoint",
+      "elapsedMs": 4360,
+      "message": "skipped",
+      "requestedWorkers": 4,
+      "totalFrames": 300,
+      "htmlInCanvasDetected": false,
+      "lowMemoryMode": false,
+      "deInversionEligible": false,
+      "deParallelRouterEligible": false
+    },
+    {
+      "phase": "worker_resolution",
+      "status": "checkpoint",
+      "elapsedMs": 4361,
+      "message": "resolved",
+      "workerCount": 4
+    },
+    {
+      "phase": "capture_strategy",
+      "status": "checkpoint",
+      "elapsedMs": 4362,
+      "message": "resolved",
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "captureBeyondViewport": null,
+      "useStreamingEncode": false,
+      "useLayeredComposite": false,
+      "usePageSideCompositing": false,
+      "hasHdrContent": false,
+      "hasShaderTransitions": false,
+      "isPngSequence": false
+    },
+    {
+      "phase": "capture_disk",
+      "status": "start",
+      "elapsedMs": 4362,
+      "stagePhase": "capturing",
+      "needsAlpha": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 0,
+      "captureMode": "screenshot",
+      "captureOperation": "captureScreenshot"
+    },
+    {
+      "phase": "capture_disk",
+      "status": "end",
+      "elapsedMs": 17540,
+      "durationMs": 13177,
+      "stagePhase": "capturing",
+      "needsAlpha": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 300,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "encode",
+      "status": "start",
+      "elapsedMs": 17541,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "isPngSequence": false,
+      "isGif": false,
+      "chunkedEncode": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 300,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "encode",
+      "status": "end",
+      "elapsedMs": 35548,
+      "durationMs": 18007,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "isPngSequence": false,
+      "isGif": false,
+      "chunkedEncode": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 300,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "assemble",
+      "status": "start",
+      "elapsedMs": 35549,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 300,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "assemble",
+      "status": "end",
+      "elapsedMs": 35686,
+      "durationMs": 136,
+      "stagePhase": "capturing",
+      "hasAudio": false,
+      "workerCount": 4,
+      "forceScreenshot": true,
+      "totalFrames": 300,
+      "framesCompleted": 300,
+      "captureMode": "screenshot",
+      "captureOperation": "encode"
+    },
+    {
+      "phase": "pipeline",
+      "status": "checkpoint",
+      "elapsedMs": 35690,
+      "message": "artifact validated",
+      "totalElapsedMs": 35687
+    }
+  ],
+  "warnings": [],
+  "commandLine": "hyperframes render /home/ct/Desktop/remotion/docs/spikes/sp3c/src-idiomatic -o /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4 --docker --workers 4 --quality standard --format mp4 --fps 30",
+  "memoryHost": {
+    "intervalMs": 200,
+    "samples": 194,
+    "errors": 0,
+    "peakRssSumMb": 546.4,
+    "peakPssSumMb": 241,
+    "peakSingleProcRssMb": 158,
+    "peakProcessCount": 12,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 546.4,
+        "procs": 12
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 531.6,
+        "procs": 9
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 531.6,
+        "procs": 9
+      },
+      {
+        "tSec": 15,
+        "rssSumMb": 533,
+        "procs": 9
+      },
+      {
+        "tSec": 20,
+        "rssSumMb": 534.9,
+        "procs": 9
+      },
+      {
+        "tSec": 25,
+        "rssSumMb": 534.9,
+        "procs": 9
+      },
+      {
+        "tSec": 30,
+        "rssSumMb": 535,
+        "procs": 9
+      },
+      {
+        "tSec": 35,
+        "rssSumMb": 535.3,
+        "procs": 9
+      }
+    ]
+  },
+  "memoryContainer": {
+    "method": "корень дерева — хостовый PID init-процесса контейнера (docker inspect .State.Pid), далее тот же прибор sp3/lib/proctree.mjs (пик суммы VmRSS по дереву); независимо — memory.peak cgroup-v2 контейнера",
+    "containerId": "dc50de51733e",
+    "hostPid": 317851,
+    "cgroup": "/sys/fs/cgroup/system.slice/docker-dc50de51733e1f92a6b05d8073de5c5af8b05afb08b5c4712e741108e9190b8a.scope",
+    "attachDelayMs": 1357,
+    "cgroupPeakBytes": 1610076160,
+    "cgroupPeakMb": 1535.5,
+    "tree": {
+      "intervalMs": 200,
+      "samples": 185,
+      "errors": 0,
+      "peakRssSumMb": 2833.6,
+      "peakPssSumMb": 2833.6,
+      "peakSingleProcRssMb": 785,
+      "peakProcessCount": 21,
+      "seriesRssMb": [
+        {
+          "tSec": 0,
+          "rssSumMb": 233,
+          "procs": 1
+        },
+        {
+          "tSec": 5,
+          "rssSumMb": 2833.6,
+          "procs": 21
+        },
+        {
+          "tSec": 10,
+          "rssSumMb": 2827.8,
+          "procs": 21
+        },
+        {
+          "tSec": 15,
+          "rssSumMb": 2798.5,
+          "procs": 21
+        },
+        {
+          "tSec": 20,
+          "rssSumMb": 1022.8,
+          "procs": 5
+        },
+        {
+          "tSec": 25,
+          "rssSumMb": 1022.8,
+          "procs": 5
+        },
+        {
+          "tSec": 30,
+          "rssSumMb": 988.5,
+          "procs": 5
+        },
+        {
+          "tSec": 35,
+          "rssSumMb": 997.5,
+          "procs": 5
+        }
+      ]
+    },
+    "note": null
+  },
+  "memory": {
+    "intervalMs": 200,
+    "samples": 185,
+    "errors": 0,
+    "peakRssSumMb": 2833.6,
+    "peakPssSumMb": 2833.6,
+    "peakSingleProcRssMb": 785,
+    "peakProcessCount": 21,
+    "seriesRssMb": [
+      {
+        "tSec": 0,
+        "rssSumMb": 233,
+        "procs": 1
+      },
+      {
+        "tSec": 5,
+        "rssSumMb": 2833.6,
+        "procs": 21
+      },
+      {
+        "tSec": 10,
+        "rssSumMb": 2827.8,
+        "procs": 21
+      },
+      {
+        "tSec": 15,
+        "rssSumMb": 2798.5,
+        "procs": 21
+      },
+      {
+        "tSec": 20,
+        "rssSumMb": 1022.8,
+        "procs": 5
+      },
+      {
+        "tSec": 25,
+        "rssSumMb": 1022.8,
+        "procs": 5
+      },
+      {
+        "tSec": 30,
+        "rssSumMb": 988.5,
+        "procs": 5
+      },
+      {
+        "tSec": 35,
+        "rssSumMb": 997.5,
+        "procs": 5
+      }
+    ],
+    "source": "дерево процессов контейнера (sp3/lib/proctree.mjs от хостового PID контейнера)"
+  },
+  "cliExitCode": 0,
+  "captureMode": "screenshot",
+  "workerCount": 4,
+  "forceScreenshot": true,
+  "browserLaunchLine": "[BrowserManager] Browser launched (HeadlessChrome/152.0.7977.54, screenshot, gl=--use-gl=angle --use-angle=swiftshader, headlessShell=true, platform=linux)",
+  "dockerImageLine": "Docker image: hyperframes-renderer:0.8.5 (cached)",
+  "logTail": "[initSession:screenshot] pollSubCompositionTimelines complete (ready) (362ms)\n[initSession:screenshot] applyVideoMetadataHints complete (363ms)\n[initSession:screenshot] pollSubCompositionTimelines complete (ready) (318ms)\n[initSession:screenshot] applyVideoMetadataHints complete (318ms)\n[initSession:screenshot] media + fonts + tailwind ready (508ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (518ms)\n[initSession:screenshot] media + fonts + tailwind ready (561ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (567ms)\n[initSession:screenshot] media + fonts + tailwind ready (520ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (529ms)\n[initSession:screenshot] media + fonts + tailwind ready (580ms)\n[initSession:screenshot] static-frame dedup: disabled (eligible) (588ms)\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"capture_disk\",\"status\":\"end\",\"elapsedMs\":17540,\"durationMs\":13177,\"stagePhase\":\"capturing\",\"needsAlpha\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"encode\",\"status\":\"start\",\"elapsedMs\":17541,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"encode\",\"status\":\"end\",\"elapsedMs\":35548,\"durationMs\":18007,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"isPngSequence\":false,\"isGif\":false,\"chunkedEncode\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"assemble\",\"status\":\"start\",\"elapsedMs\":35549,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"assemble\",\"status\":\"end\",\"elapsedMs\":35686,\"durationMs\":136,\"stagePhase\":\"capturing\",\"hasAudio\":false,\"workerCount\":4,\"forceScreenshot\":true,\"totalFrames\":300,\"framesCompleted\":300,\"captureMode\":\"screenshot\",\"captureOperation\":\"encode\"}\n[INFO] [Render:trace] {\"renderJobId\":\"e8481034-ad5d-40a6-b3e6-b7f4c74bfed8\",\"phase\":\"pipeline\",\"status\":\"checkpoint\",\"elapsedMs\":35690,\"message\":\"artifact validated\",\"totalElapsedMs\":35687}\n\n◇  /output/dJ-idiom-final-w4-load6-x06.mp4\n   41.4 MB · 10.0s video · rendered in 35.7s\n\n◇  /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4\n   41.4 MB · rendered in 38.1s\n",
+  "verification": {
+    "framemd5": {
+      "ms": 2326,
+      "file": "results/framemd5/dJ-idiom-final-w4-load6-x06.framemd5",
+      "frameLines": 300,
+      "sha256": "1f0be781d7f847370230d8ea97ad46300020ec25ad8a79945f29891cf803555e",
+      "command": "ffmpeg -hide_banner -nostdin -loglevel error -i /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4 -an -f framemd5 -y /home/ct/Desktop/remotion/docs/spikes/sp3d/results/framemd5/dJ-idiom-final-w4-load6-x06.framemd5"
+    },
+    "ffprobe": {
+      "ms": 10,
+      "command": "ffprobe -hide_banner -v error -show_streams -show_format -of json /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4",
+      "fingerprint": {
+        "codec": "h264",
+        "profile": "High",
+        "level": 40,
+        "pixFmt": "yuv420p",
+        "width": 1080,
+        "height": 1920,
+        "rFrameRate": "30/1",
+        "timeBase": "1/15360",
+        "colorSpace": "bt709",
+        "colorPrimaries": "bt709",
+        "colorTransfer": "bt709",
+        "colorRange": "tv",
+        "nbFrames": "300",
+        "hasBFrames": 0,
+        "durationSec": 10,
+        "bitRate": 34706179
+      }
+    },
+    "keyframes": {
+      "ms": 6943,
+      "command": "ffprobe -hide_banner -v error -select_streams v:0 -show_entries frame=key_frame,pict_type,pkt_pts_time -of csv=p=0 /home/ct/Desktop/remotion/docs/spikes/sp3d/out/dJ-idiom-final-w4-load6-x06.mp4",
+      "frameCount": 300,
+      "keyframeCount": 3,
+      "keyframeIndexes": [
+        0,
+        151,
+        297
+      ],
+      "gopSizes": [
+        146,
+        151
+      ],
+      "firstFrameIsKey": true
+    },
+    "outputSha256": "14b800759214c7306ed09aa9dceeb0691b5dc35f1edc774d94cfb60cdaa819f9",
+    "outputBytes": 43382724
+  },
+  "derived": {
+    "frames": 300,
+    "framesPerSecond_framesOnly": 22.767,
+    "framesPerSecond_renderPhase": 9.577,
+    "framesPerSecond_endToEnd": 7.68,
+    "wallTimeSec": 39.064,
+    "encodeMs": 18007,
+    "ac2ProjectedMinutes_renderPhase": 3.13,
+    "ac2ProjectedMinutes_endToEnd": 3.91
+  },
+  "stateAtEnd": {
+    "loadAvg": [
+      27.32,
+      22.34,
+      20.76
+    ],
+    "freeMemBytes": 5517103104,
+    "power": {
+      "source": "unknown",
+      "acOnline": null,
+      "batteryStatus": null,
+      "batteryCapacity": null
+    },
+    "cpuTempC": 77
+  },
+  "finishedAt": "2026-08-21T07:28:52.647Z"
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "runId": "dK-docker-w1-r1",
+    "outputPath": "out/dK-docker-w1-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1
+  },
+  {
+    "runId": "dK-local-w1-r1",
+    "outputPath": "out/dK-local-w1-r1.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dK-docker-w1-r2",
+    "outputPath": "out/dK-docker-w1-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1
+  },
+  {
+    "runId": "dK-local-w1-r2",
+    "outputPath": "out/dK-local-w1-r2.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dK-docker-w1-r3",
+    "outputPath": "out/dK-docker-w1-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 1
+  },
+  {
+    "runId": "dK-local-w1-r3",
+    "outputPath": "out/dK-local-w1-r3.mp4",
+    "profile": "final",
+    "workers": 1,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dK-docker-w4-r1",
+    "outputPath": "out/dK-docker-w4-r1.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dK-local-w4-r1",
+    "outputPath": "out/dK-local-w4-r1.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dK-docker-w4-r2",
+    "outputPath": "out/dK-docker-w4-r2.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dK-local-w4-r2",
+    "outputPath": "out/dK-local-w4-r2.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  },
+  {
+    "runId": "dK-docker-w4-r3",
+    "outputPath": "out/dK-docker-w4-r3.mp4",
+    "timeoutSec": 900,
+    "skipIfDone": true,
+    "profile": "final",
+    "workers": 4
+  },
+  {
+    "runId": "dK-local-w4-r3",
+    "outputPath": "out/dK-local-w4-r3.mp4",
+    "profile": "final",
+    "workers": 4,
+    "gpu": "sw",
+    "script": "local-run.mjs",
+    "timeoutSec": 900,
+    "skipIfDone": true
+  }
+]
