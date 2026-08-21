@@ -309,6 +309,7 @@ T7 объявляет, что вся межчанковая тишина при�
 `FACT` r1 §0.6: `pcm_44100` требует Pro), `deliverySampleRate` (`audioProfile`;
 `FACT` r2 §7.5: у Remotion по умолчанию 48000), нативная частота провайдера (capability).
 Ресемплинг музыкальных ассетов — **один раз на ingest** в `projectSampleRate`, не на миксе.
+*Пометка 2026-08-21: упоминание Remotion историческое — рендерер v1 — **HyperFrames** ([sp3-closure.md](../spikes/sp3-closure.md)); текст выше не правится, разделение трёх частот от имени рендерера не зависит.*
 
 ## Alternatives
 

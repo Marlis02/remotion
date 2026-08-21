@@ -4,6 +4,7 @@
 * **Связь с Charter:** V1, V2, V3, V4, V9, V10
 * **Вход:** `PROJECT_CHARTER.md`, r1 §1/§3, r2 §8.1, r3 §3.4/§5
 * **Раздел архитектуры:** [core.md D1](../architecture/core.md#d1-domain-model)
+* *Пометка 2026-08-21: упоминания рендерера ниже — **исторические**. Рендерер v1 — **HyperFrames** (решение владельца 1, [sp3-closure.md](../spikes/sp3-closure.md)); Remotion в v1 не реализуется. Текст документа не правится.*
 
 ## Context
 
