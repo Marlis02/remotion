@@ -191,6 +191,38 @@ export function readSource(relPath: string): string {
   return fs.readFileSync(path.join(ROOT, relPath), 'utf8');
 }
 
+/**
+ * Строки файла с вырезанными комментариями; нумерация строк сохраняется.
+ *
+ * Нужен грепам правил (`C-01`): селекторы ESLint комментарии не разбирают, и текстовый греп
+ * не должен — иначе он краснеет на строке ADR, процитированной в JSDoc. Строковые литералы
+ * НЕ вырезаются: файл, где запрещённая форма живёт только в литерале, вносится в исключение
+ * поимённо и проверяется самим ESLint.
+ */
+export function codeLines(source: string): string[] {
+  const out: string[] = [];
+  let inBlock = false;
+  for (const line of source.split('\n')) {
+    let result = '';
+    let i = 0;
+    while (i < line.length) {
+      if (inBlock) {
+        const close = line.indexOf('*/', i);
+        if (close === -1) { i = line.length; break; }
+        inBlock = false;
+        i = close + 2;
+        continue;
+      }
+      if (line.startsWith('//', i)) break;
+      if (line.startsWith('/*', i)) { inBlock = true; i += 2; continue; }
+      result += line[i];
+      i += 1;
+    }
+    out.push(result);
+  }
+  return out;
+}
+
 // ── Программный запуск ESLint ───────────────────────────────────────────────
 
 export interface LintMessage {

@@ -1,0 +1,324 @@
+C-01 — ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ (2026-08-22)
+
+Node 25.6.1, pnpm 11.9.0 (~/.nvm/versions/node/v25.6.1/bin), TZ=UTC LC_ALL=C.
+Каждое нарушение вносилось руками, прогонялись ровно те файлы, что его охраняют, затем
+нарушение откатывалось из бэкапа. Классы нарушений: (а) ломается РЕАЛИЗАЦИЯ; (б) ломается
+САМ ОХРАННИК (правило в `eslint.config.js`); (в) нарушение вносится в НАСТОЯЩИЙ код;
+(г) исключение линта становится МЁРТВЫМ; (д) форма типа расходится со схемой — тогда
+краснеет `pnpm typecheck`, а не прогон тестов.
+
+Ниже — отфильтрованный вывод: строки FAIL, первое сообщение об ошибке и итог прогона.
+
+=================== T1 (реализация): `msToSamples` округляет ВВЕРХ вместо `floorDiv` ===================
+   файл: packages/core-model/src/time/ms.ts
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > точные значения на sampleRate=24000
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > точные значения на sampleRate=44100
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > точные значения на sampleRate=48000
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > дробный сэмпл усекается ВНИЗ, а не округляется
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > эталон `BigInt`: 3000 значений до десяти часов, sampleRate=24000
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > эталон `BigInt`: 3000 значений до десяти часов, sampleRate=44100
+ … ещё 6 строк того же вида
+ Test Files  1 failed (1)
+ Tests  12 failed | 3 passed (15)
+
+=================== T1 (реализация): отказ на отрицательных `ms` снят ===================
+   файл: packages/core-model/src/time/ms.ts
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > отрицательные миллисекунды ОТВЕРГАЮТСЯ, а не округляются к нулю
+ AssertionError: expected error to be instance of TimeModelError
+ RangeError {
+ Test Files  1 failed (1)
+ Tests  1 failed | 14 passed (15)
+
+=================== T2 (реализация): проверка произведения `ms · sampleRate` снята ===================
+   файл: packages/core-model/src/time/ms.ts
+ FAIL  packages/core-model/test/time-ms.test.ts > T1 — `msToSamples` единственная функция перевода > T2: произведение `ms · sampleRate` за 2^53 — ошибка с именем величины
+ AssertionError: expected [Function] to throw error matching /`ms · sampleRate`/ but got 'ADR-0003 T2: `floorDiv — делимое` = 4…'
+ Test Files  1 failed (1)
+ Tests  1 failed | 14 passed (15)
+
+=================== T1 (реализация): `floorDiv` переписан наивно через `Math.trunc(a / b)` ===================
+   файл: packages/core-model/src/time/integer.ts
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv/ceilDiv: краевые пары, включая обе границы безопасных целых
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv/ceilDiv: 4000 случайных пар со знаками (сид печатается при падении)
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv и ceilDiv совпадают ровно тогда, когда деление точное
+ AssertionError: краевая пара: floorDiv(0, -1) = 0: результат не должен быть `-0`: expected true to be false // Object.is equality
+ AssertionError: сид 0xc012026, розыгрыш 2: floorDiv(-554, 2154) = 0: expected false to be true // Object.is equality
+ Test Files  1 failed (1)
+ Tests  3 failed | 6 passed (9)
+
+=================== T1 (реализация): `ceilDiv` прибавляет единицу безусловно ===================
+   файл: packages/core-model/src/time/integer.ts
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv/ceilDiv: краевые пары, включая обе границы безопасных целых
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv/ceilDiv: 4000 случайных пар со знаками (сид печатается при падении)
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > floorDiv и ceilDiv совпадают ровно тогда, когда деление точное
+ AssertionError: краевая пара: ceilDiv(0, 1) = 1: expected false to be true // Object.is equality
+ AssertionError: сид 0xc012026, розыгрыш 2: ceilDiv(-554, 2154) = 1: expected false to be true // Object.is equality
+ Test Files  1 failed (1)
+ Tests  3 failed | 6 passed (9)
+
+=================== T2 (реализация): `mulExact` перестал проверять РЕЗУЛЬТАТ (только множители) ===================
+   файл: packages/core-model/src/time/integer.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — отказы называют величину, а не следствие > переполнение в frameStartSample называет `f · sampleRate`
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — отказы называют величину, а не следствие > переполнение в frameOfSample называет `2 · x · fpsNum`
+ FAIL  packages/core-model/test/time-integer.test.ts > T1/T2 — целочисленные помощники > T2: произведение за 2^53 — ошибка С ИМЕНЕМ ВЕЛИЧИНЫ, а не тихий float
+ AssertionError: expected [Function] to throw error matching /`f · sampleRate`/ but got 'ADR-0003 T2: `f · sampleRate · fpsDen…'
+ AssertionError: expected [Function] to throw error matching /`2 · x · fpsNum`/ but got 'ADR-0003 T2: `2 · x · fpsNum + sample…'
+ Test Files  2 failed (2)
+ Tests  3 failed | 154 passed (157)
+
+=================== T2 (реализация): round-half-up выродился в floor (снято `+ sampleRate · fpsDen`) ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — контрольные точки самого ADR-0003 > sampleRate=24000, fps=30 ⇒ frameOfSample(800)=1, (400)=1, (399)=0
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — контрольные точки самого ADR-0003 > round-half-up: ровно половина кадра округляется ВВЕРХ, а не к чётному и не вниз
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='30/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='60/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='24/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='30000/1001'
+ … ещё 46 строк того же вида
+ AssertionError: expected +0 to be 1 // Object.is equality
+ AssertionError: expected +0 to be 1 // Object.is equality
+ Test Files  1 failed (1)
+ Tests  52 failed | 96 passed (148)
+
+=================== T2 (реализация): знаменатель `frameOfSample` потерял двойку ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — контрольные точки самого ADR-0003 > sampleRate=24000, fps=30 ⇒ frameOfSample(800)=1, (400)=1, (399)=0
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — контрольные точки самого ADR-0003 > round-half-up: ровно половина кадра округляется ВВЕРХ, а не к чётному и не вниз
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='30/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='60/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='24/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — эталон `BigInt` на пятнадцати парах, до десяти часов > frameOfSample: sampleRate=24000, fps='30000/1001'
+ … ещё 56 строк того же вида
+ AssertionError: expected 3 to be 1 // Object.is equality
+ AssertionError: expected 1 to be +0 // Object.is equality
+ Test Files  1 failed (1)
+ Tests  62 failed | 86 passed (148)
+
+=================== T2 (реализация): `frameStartSample` округляет вверх ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — контрольные точки самого ADR-0003 > frameStartSample на целочисленной сетке — просто кратное
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > `frameStartSample(f) == floor(f · samplesPerFrame)`: sampleRate=24000, fps='30/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > `frameStartSample(f) == floor(f · samplesPerFrame)`: sampleRate=24000, fps='60/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > `frameStartSample(f) == floor(f · samplesPerFrame)`: sampleRate=24000, fps='24/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > `frameStartSample(f) == floor(f · samplesPerFrame)`: sampleRate=24000, fps='30000/1001'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > `frameStartSample(f) == floor(f · samplesPerFrame)`: sampleRate=24000, fps='24000/1001'
+ … ещё 72 строк того же вида
+ Test Files  1 failed (1)
+ Tests  78 failed | 70 passed (148)
+
+=================== T2 (реализация): `samplesPerFrame` округляет дробь до целого (возвращает «почти» величину) ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробный случай 48000 при 30000/1001 не превращается во float
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробь сокращена и знаменатель > 0: sampleRate=24000, fps='30000/1001'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробь сокращена и знаменатель > 0: sampleRate=44100, fps='24/1'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробь сокращена и знаменатель > 0: sampleRate=44100, fps='30000/1001'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробь сокращена и знаменатель > 0: sampleRate=44100, fps='24000/1001'
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — `samplesPerFrame` рационален и точен > дробь сокращена и знаменатель > 0: sampleRate=48000, fps='30000/1001'
+ … ещё 5 строк того же вида
+ AssertionError: expected +0 not to be +0 // Object.is equality
+ AssertionError: expected 801n to be 4004n // Object.is equality
+ Test Files  1 failed (1)
+ Tests  11 failed | 137 passed (148)
+
+=================== T2 (реализация): длина кадра объявлена постоянной — «сумма за секунду» рушится на дробном fps ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > sampleRate=24000, fps='30000/1001' — несколько периодов подряд
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > sampleRate=44100, fps='24/1' — несколько периодов подряд
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > sampleRate=44100, fps='30000/1001' — несколько периодов подряд
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > sampleRate=44100, fps='24000/1001' — несколько периодов подряд
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > sampleRate=48000, fps='30000/1001' — несколько периодов подряд
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — сумма длительностей кадров за секунду равна `sampleRate` точно > при дробном fps длительности кадров РАЗНЫЕ — иначе тест был бы тавтологией
+ AssertionError: sampleRate=24000, fps=30000/1001, период 0 (секунды 0…1001): expected 24030000n to be 24024000n // Object.is equality
+ AssertionError: sampleRate=44100, fps=24/1, период 0 (секунды 0…1): expected 44112n to be 44100n // Object.is equality
+ Test Files  1 failed (1)
+ Tests  6 failed | 142 passed (148)
+
+=================== T2 (реализация): сетка перестала проверяться на входе ===================
+   файл: packages/core-model/src/time/grid.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T2 — отказы называют величину, а не следствие > негодная сетка отвергается на входе каждой функции
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 147 passed (148)
+
+=================== T4 (реализация): конструктор интервала кадров пропускает пустой `[3, 3)` ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-frames.test.ts > T3 — `clipDurationInFrames` > нулевая длительность непредставима: интервал её не пропускает
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — интервалы полуоткрыты по построению > интервал кадров: пустой и вывернутый непредставимы
+ AssertionError: expected [Function] to throw an error
+ AssertionError: expected [Function] to throw an error
+ Test Files  2 failed (2)
+ Tests  2 failed | 172 passed (174)
+
+=================== T4 (реализация): конструктор интервала сэмплов пропускает пустой ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — интервалы полуоткрыты по построению > интервал сэмплов: пустой и вывернутый непредставимы
+ AssertionError: expected function to throw an error, but it didn't
+ Test Files  1 failed (1)
+ Tests  1 failed | 25 passed (26)
+
+=================== T4 (реализация): СНЯТ конъюнкт `frameStart < segmentDurationInFrames` — наивный round-half-up перестаёт ловиться ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ∀ clip: frameStart < segmentDurationInFrames — отдельный конъюнкт, отдельное сообщение
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор отвергает наивный round-half-up > пример из задания: sampleRate=24000, fps=30, L=1500, x=1300
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор отвергает наивный round-half-up > property: любая длина содержимого с непустой зоной ловится, sampleRate=24000, fps='30/1'
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор отвергает наивный round-half-up > property: любая длина содержимого с непустой зоной ловится, sampleRate=24000, fps='60/1'
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор отвергает наивный round-half-up > property: любая длина содержимого с непустой зоной ловится, sampleRate=24000, fps='24/1'
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор отвергает наивный round-half-up > property: любая длина содержимого с непустой зоной ловится, sampleRate=24000, fps='30000/1001'
+ … ещё 11 строк того же вида
+ AssertionError: expected [Function] to throw error matching /frameStart = 45 не меньше segmentDura…/ but got 'ADR-0003 T4: сегмент `sc:body`, клип …'
+ AssertionError: expected [Function] to throw error matching /frameStart = 2 не меньше segmentDurat…/ but got 'ADR-0003 T4: сегмент `sc:naive`, клип…'
+ Test Files  1 failed (1)
+ Tests  17 failed | 9 passed (26)
+
+=================== T4 (реализация): снят конъюнкт `frameEnd ≤ segmentDurationInFrames` ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ∀ clip: frameEnd ≤ segmentDurationInFrames
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ошибка называет СЕГМЕНТ и КЛИП, а не индекс в массиве
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > `assertClipWithinSegment` — та же проверка на одной паре
+ AssertionError: expected [Function] to throw an error
+ AssertionError: expected undefined to be an instance of TimeModelError
+ Test Files  1 failed (1)
+ Tests  3 failed | 23 passed (26)
+
+=================== T4 (реализация): снят квантор по сегментам (`segmentDurationInFrames ≥ 1`) ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ∀ segment: segmentDurationInFrames ≥ 1
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 25 passed (26)
+
+=================== T4 (реализация): ошибка перестала называть сегмент и клип ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ∀ clip: frameEnd ≤ segmentDurationInFrames
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > ошибка называет СЕГМЕНТ и КЛИП, а не индекс в массиве
+ FAIL  packages/core-model/test/time-interval.test.ts > T4 — валидатор с явными кванторами > `assertClipWithinSegment` — та же проверка на одной паре
+ AssertionError: expected [Function] to throw error matching /r:overrun/ but got 'ADR-0003 T4: клип: frameEnd = 46 боль…'
+ AssertionError: expected 'ADR-0003 T4: клип: frameEnd = 11 боль…' to contain 'сегмент `sc:outro`'
+ Test Files  1 failed (1)
+ Tests  3 failed | 23 passed (26)
+
+=================== ADR-0001 (реализация): `gridPoint` перестал отвергаться ===================
+   файл: packages/core-model/src/time/timepoint.ts
+ FAIL  packages/core-model/test/time-point.test.ts > ADR-0001 — три варианта `TimePoint`, `Duration`, отказ от `gridPoint` > вариант `gridPoint` отвергается с сообщением про v1
+ FAIL  packages/core-model/test/time-point.test.ts > ADR-0001 — три варианта `TimePoint`, `Duration`, отказ от `gridPoint` > `assertRealizable` СУЖАЕТ тип, а не только бросает
+ AssertionError: expected function to throw an error, but it didn't
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  2 failed | 6 passed (8)
+
+=================== ЛИНТ T1 (охранник): селекторы `* sampleRate` удалены из конфига ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (б) ESLint: правило срабатывает на `* sampleRate` в продакшн-коде
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (б) ESLint: правило срабатывает на `grid.sampleRate` — поле объекта, не только идентификатор
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (б) ESLint: у ТЕСТОВ исключения нет — правило действует и там
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > исключение УЗКОЕ: соседний файл в том же каталоге под правилом остаётся
+ AssertionError: Охранник T1 молчит на `ms * sampleRate`.: expected 0 to be greater than 0
+ AssertionError: Охранник T1 видит идентификатор, но не поле объекта.: expected 0 to be greater than 0
+ Test Files  1 failed | 1 passed (2)
+ Tests  4 failed | 15 passed (19)
+
+=================== ЛИНТ T1 (охранник): исключение расширено с ФАЙЛА на КАТАЛОГ ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > исключение УЗКОЕ: соседний файл в том же каталоге под правилом остаётся
+ AssertionError: Исключение выписано на каталог, а не на файл: сосед `ms.ts` тоже получил право писать вторую формулу перевода.: expected 0 to be great
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== ЛИНТ T1 (охранник): снято `:not([right.bigint])` — линт начинает красить `BigInt`-эталон ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (б) ESLint: `BigInt`-эталон под правило НЕ попадает — и по построению, а не по исключению
+ AssertionError: Линт покрасил `BigInt`-эталон. Эталон обязан быть НЕЗАВИСИМЫМ вычислением; если он запрещён, property-тест сравнивает формулу сам с со
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== ЛИНТ БРЕНДЫ (охранник): селекторы каста удалены из конфига ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: правило срабатывает на `as Samples` в продакшн-коде
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: правило срабатывает на `as Frames` в продакшн-коде
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: правило срабатывает на `as Sha256` в продакшн-коде
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: правило срабатывает на `as Blake3` в продакшн-коде
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: контейнер — та же фабрикация (`as Samples[]`)
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: у ТЕСТОВ исключения нет — правило действует и там
+ … ещё 1 строк того же вида
+ AssertionError: Охранник молчит на `as Samples`.: expected 0 to be greater than 0
+ AssertionError: Охранник молчит на `as Frames`.: expected 0 to be greater than 0
+ Test Files  1 failed | 1 passed (2)
+ Tests  7 failed | 12 passed (19)
+
+=================== ЛИНТ БРЕНДЫ (охранник): исключение расширено с ФАЙЛА на КАТАЛОГ ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > исключение УЗКОЕ: соседний файл в `types/` под правилом остаётся
+ AssertionError: Исключение выписано на каталог, а не на файл `brands.ts`.: expected 0 to be greater than 0
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== ЛИНТ ОБА (охранник): тестам вернули исключение (`no-restricted-syntax: off`) ===================
+   файл: eslint.config.js
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (б) ESLint: у ТЕСТОВ исключения нет — правило действует и там
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (б) ESLint: у ТЕСТОВ исключения нет — правило действует и там
+ AssertionError: Тест строит брендированные значения кастом. Тогда он проверяет арифметику на входах, которые продакшн-код получить не может: `asSample
+ AssertionError: Тест, написавший перевод времени во второй раз, — это не эталон, а копия проверяемой формулы. Исключения для тестов быть не должно.: e
+ Test Files  2 failed (2)
+ Tests  2 failed | 17 passed (19)
+
+=================== АРТЕФАКТ: `* sampleRate` внесён в `frames.ts` — греп и `pnpm lint` обязаны покраснеть ===================
+   файл: packages/core-model/src/time/frames.ts
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > (а) греп: `* sampleRate` и `/ 1000` встречаются ровно в одном файле репозитория
+ AssertionError: ADR-0003 T1 нарушен: перевод времени написан второй раз. Единственная разрешённая функция — `msToSamples` (packages/core-model/src/tim
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== АРТЕФАКТ: каст `as Samples` внесён в `interval.ts` — греп и `pnpm lint` обязаны покраснеть ===================
+   файл: packages/core-model/src/time/interval.ts
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > (а) греп: каст в бренд встречается ровно в одном файле репозитория
+ AssertionError: Бренд снят кастом. Единственный вход — `asSamples`/`asFrames`/`asSha256`/`asBlake3` (packages/schema/src/types/brands.ts). Найдено: pa
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== МЁРТВОЕ ИСКЛЮЧЕНИЕ: `ms.ts` больше не содержит запрещённой формы — исключение обязано быть снято ===================
+   файл: packages/core-model/src/time/ms.ts
+ FAIL  tests/lints/t1-ms-to-samples.test.ts > T1 — `msToSamples` единственная функция перевода времени > исключение НЕ мёртвое: `ms.ts` содержит запрещённую форму и при этом проходит линт
+ AssertionError: packages/core-model/src/time/ms.ts перестал содержать `* sampleRate` — исключение в eslint.config.js стало мёртвой конфигурацией и обя
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== ТИП-ТЕСТ: поле `anchor` переименовано в `TimePoint` — форма разошлась со схемой `direction/1` ===================
+   файл: packages/core-model/src/time/timepoint.ts
+ packages/core-model/test/time-point.test.ts(27,7): error TS2322: Type 'true' is not assignable to type 'never'.
+ packages/core-model/test/time-point.test.ts(42,11): error TS2322: Type '{ kind: "anchor"; anchor: string; } | { kind: "anchor"; anchor: string; }' is not assignable to type 'TimePoint'.
+ packages/core-model/test/time-point.test.ts(54,47): error TS2561: Object literal may only specify known properties, but 'anchor' does not exist in type 'AnchorTimePoint'. Did you mean to write 'anchorId'?
+ packages/core-model/test/time-point.test.ts(55,49): error TS2561: Object literal may only specify known properties, but 'anchor' does not exist in type 'AnchorTimePoint'. Did you mean to write 'anchorId'?
+ packages/core-model/test/time-point.test.ts(85,46): error TS2551: Property 'anchor' does not exist on type 'AnchorTimePoint'. Did you mean 'anchorId'?
+ packages/core-model/test/time-point.test.ts(87,40): error TS2561: Object literal may only specify known properties, but 'anchor' does not exist in type 'AnchorTimePoint'. Did you mean to write 'anchorId'?
+ `tsc --build` завершился с ненулевым кодом
+
+=================== ТИП-ТЕСТ: `Fps.den` стал необязательным — форма разошлась с `compile-profile/1` ===================
+   файл: packages/core-model/src/time/grid.ts
+ packages/core-model/src/time/frames.ts(39,45): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+ packages/core-model/src/time/frames.ts(50,38): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+ packages/core-model/src/time/frames.ts(83,47): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+ packages/core-model/src/time/grid.ts(54,18): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+ packages/core-model/src/time/grid.ts(63,40): error TS2375: Type '{ num: number; den: number | undefined; }' is not assignable to type 'Fps' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+ packages/core-model/test/time-interval.test.ts(199,34): error TS2345: Argument of type 'TimeGrid' is not assignable to parameter of type '{ sampleRate: number; fps: { num: number; den: number; }; }'.
+ … ещё 4 строк того же вида
+ `tsc --build` завершился с ненулевым кодом
+
+=================== МЁРТВОЕ ИСКЛЮЧЕНИЕ: в `brands.ts` не осталось кастов — исключение обязано быть снято ===================
+   файл: packages/schema/src/types/brands.ts
+ FAIL  tests/lints/brand-casts.test.ts > Бренды — единственный вход в тип это конструктор (`S-01` долг №3) > исключение НЕ мёртвое: `brands.ts` содержит касты и при этом проходит линт
+ AssertionError: packages/schema/src/types/brands.ts перестал содержать касты — исключение в eslint.config.js стало мёртвой конфигурацией и обязано быт
+ Test Files  1 failed | 1 passed (2)
+ Tests  1 failed | 18 passed (19)
+
+=================== СВЕРКА ПОСЛЕ ОТКАТА ===================
+ сверено с бэкапами: 5 путей (исходники, тесты, конфиг линта, brands.ts)
+ расхождений с бэкапами нет — каждое нарушение откачено
+
+ git status --porcelain fixtures/  ⇒  (пусто — фикстуры не тронуты)
+
+ контрольный прогон после отката:
+   pnpm lint        зелено
+   pnpm typecheck   зелено
+   pnpm test        зелено  Test Files  20 passed (20) | Tests  473 passed (473)
+
+ИТОГО НАРУШЕНИЙ: 31
