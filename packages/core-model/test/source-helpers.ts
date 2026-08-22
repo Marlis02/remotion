@@ -21,3 +21,14 @@ export function readFixture(): string {
 export function doc(...lines: string[]): string {
   return ['schema: source-dialect/1', ...lines].join('\n');
 }
+
+/**
+ * Номер строки, с которой начинается проза в документах `prose()`. Константа, а не счёт
+ * руками в каждом тесте: красные кейсы линта проверяют `строка:колонка` ЧИСЛАМИ.
+ */
+export const PROSE_LINE = 7;
+
+/** Минимальный законный документ: шапка, глава, сцена — и дальше проза с 7-й строки. */
+export function prose(...lines: string[]): string {
+  return doc('', '# chapter: main', '', '## scene: intro', '', ...lines);
+}

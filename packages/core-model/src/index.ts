@@ -54,9 +54,11 @@ export {
   type Span,
 } from './source/text.js';
 export {
+  chunksIn,
   chunksOf,
   displaySpanOf,
   spokenSpanOf,
+  tokensIn,
   type Chapter,
   type Chunk,
   type ChunkBreak,
@@ -72,3 +74,27 @@ export { lexBlocks, lexInline, lexMarker, type Block, type InlineItem, type RawM
 export { parseSource, type ParseOptions } from './source/parse.js';
 export { runAtSpoken, sourceToSpoken, spokenToLocation, spokenToSource } from './source/spanmap.js';
 export { dumpAst } from './source/dump.js';
+
+// `C-03` — линт прозы (ADR-0002 §3) и трансдьюсер `[say:]` (ADR-0010 §10).
+export {
+  ABBREVIATIONS,
+  assertProse,
+  lintProse,
+  lintShare,
+  PROSE_RULE_CODES,
+  type LintShare,
+  type ProseFinding,
+  type ProseRuleCode,
+} from './source/lint.js';
+export {
+  reconstructDisplay,
+  runAtSpokenIndex,
+  spokenOrigin,
+  transduceChunk,
+  transduceDocument,
+  TransducerError,
+  type ChunkText,
+  type SpokenOrigin,
+  type TextRun,
+  type TextRunKind,
+} from './source/transduce.js';

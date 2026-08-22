@@ -9,7 +9,8 @@
 //   * ledger, минт `w:` и `b:img-<alias>-<n>` — `C-04` (ADR-0002 §4, ADR-0004 §2a);
 //   * разворот `[img:]` в direction-запись — компилятор, `C-05`;
 //   * Timeline, сэмплы дефолтных gap'ов (T8) — `C-05`;
-//   * линт прозы и трансдьюсер `[say:]` как отдельная стадия — `C-03`.
+//   * линт прозы и трансдьюсер `[say:]` — `C-03`, но они ЖИВУТ РЯДОМ, а не здесь:
+//     `lint.ts` и `transduce.ts` — стадии НАД этим деревом, читают его и ничего в нём не меняют.
 
 import type { Samples } from '@vpe/schema';
 
@@ -190,4 +191,36 @@ export function spokenSpanOf(token: TokenNode): Span {
 /** Чанки абзаца без разрезов между ними. */
 export function chunksOf(paragraph: Paragraph): Chunk[] {
   return paragraph.parts.filter((part): part is Chunk => part.kind === 'chunk');
+}
+
+/**
+ * Все чанки документа в порядке исходника.
+ *
+ * `C-03`: и линт, и трансдьюсер — стадии НАД AST, обе обходят дерево одинаково. Обход живёт
+ * здесь, а не в каждой из них, чтобы «порядок исходника» был определён один раз.
+ */
+export function chunksIn(document: SourceDocument): Chunk[] {
+  const out: Chunk[] = [];
+  for (const chapter of document.chapters) {
+    for (const scene of chapter.scenes) {
+      for (const block of scene.blocks) {
+        if (block.kind !== 'paragraph') continue;
+        for (const part of block.parts) {
+          if (part.kind === 'chunk') out.push(part);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** Все токены документа в порядке исходника — обоих происхождений (`prose` и `say`). */
+export function tokensIn(document: SourceDocument): TokenNode[] {
+  const out: TokenNode[] = [];
+  for (const chunk of chunksIn(document)) {
+    for (const node of chunk.nodes) {
+      if (node.kind === 'token') out.push(node);
+    }
+  }
+  return out;
 }

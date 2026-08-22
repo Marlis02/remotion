@@ -1,0 +1,351 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `C-03` (линт прозы, трансдьюсер `[say:]`, охранник V13)
+==============================================================================
+Каждое нарушение вносится заменой полной строки кода, после чего файл восстанавливается
+ИЗ БЭКАПА (не обратной заменой). `fixtures/` не изменяется ни в одном нарушении: там, где
+нужен изменённый исходник, правится КОПИЯ во временном каталоге ВНЕ репозитория
+(нарушения 21–23 работают на `mkdtemp`, а не на `fixtures/`).
+Классы: (а) ломается реализация; (б) ломается сам охранник; (в) нарушение в настоящем коде.
+
+ПОКРЫТИЕ. 23 нарушения:
+  1–10  — каждый из ДЕСЯТИ запретов ADR-0002 §3 по отдельности (снят один — красный его кейс);
+  11–13 — свойства самого линта: область (только проза), точность позиции, «все нарушения»;
+  14–15 — подстановка `[say:]` в трансдьюсере;
+  16–18 — по одному на каждое из ТРЁХ property-свойств ADR-0010 §10
+          (16 — тотальность, 17 — монотонность, 18 — round-trip);
+  19–20 — два правила `C-02`, на которых стоит `C-03`: единица индексации и состав пробельных;
+  21–23 — сам охранник V13.
+
+ЧТО ПРОТОКОЛ НАШЁЛ В САМИХ ОХРАННИКАХ. Нарушение 19 (индексация в UTF-16 units вместо code
+points — ровно тот МОЛЧАЛИВЫЙ дефект, о котором предупреждает ADR-0010 §10) в первом прогоне
+уронило РОВНО ОДИН тест — property-свойство тотальности; ни один тест `C-02`, включая golden,
+его не увидел, потому что в фикстуре нет ни одного астрального символа. Кейс F13 при этом
+оставался зелёным: длины и монотонность после подмены единицы выглядели правдоподобно. F13
+усилен (добавлена сверка прообраза каждого символа с нормализованным потоком исходника), после
+чего нарушение 19 роняет два теста. Строка в прогоне ниже — уже после усиления.
+Ни один охранник не удалён и не ослаблен.
+
+--- НАРУШЕНИЕ 1 (а): снят запрет ЦИФР: `digit` не ищется
+    Ожидание: линт молчит на `In 1793 …`; красный кейс `digit` становится зелёным
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 7ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра 2ms
+    × находка одна на пару (токен, код): `2026` даёт одну цифровую находку, а не четыре 3ms
+    × находки идут в порядке исходника и покрывают весь файл, а не первую ошибку 2ms
+    × парсер принимает текст с цифрами и строит дамп; отвергает ЛИНТ 1ms
+    Tests  7 failed | 42 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > digit — цифра > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > digit — цифра > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находка одна на пару (токен, код): `2026` даёт одну цифровую находку, а не четыре
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находки идут в порядке исходника и покрывают весь файл, а не первую ошибку
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт — отдельная функция над AST, а не часть парсера > парсер принимает текст с цифрами и строит дамп; отвергает ЛИНТ
+    AssertionError: находок кода digit: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 2 (а): снят запрет `%`
+    Ожидание: линт молчит на `Only 5% remained.` в части `%`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × находки идут в порядке исходника и покрывают весь файл, а не первую ошибку 2ms
+    Tests  3 failed | 46 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находки идут в порядке исходника и покрывают весь файл, а не первую ошибку
+    AssertionError: находок кода percent: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 3 (а): снят запрет `$`
+    Ожидание: линт молчит на `It cost $5 …` в части `$`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × находки идут в порядке исходника и покрывают весь файл, а не первую ошибку 2ms
+    × `assertProse` бросает `SourceParseError` с правилом ADR-0002 §3 и местом первой ошибки 2ms
+    Tests  4 failed | 45 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > dollar — знак `$` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > dollar — знак `$` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находки идут в порядке исходника и покрывают весь файл, а не первую ошибку
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт — отдельная функция над AST, а не часть парсера > `assertProse` бросает `SourceParseError` с правилом ADR-0002 §3 и местом первой ошибки
+    AssertionError: находок кода dollar: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 4 (а): снят запрет `№`
+    Ожидание: линт молчит на `See № 7 …`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    Tests  2 failed | 47 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > numero — знак `№` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > numero — знак `№` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    AssertionError: находок кода numero: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 5 (а): снят запрет РИМСКИХ цифр
+    Ожидание: линт молчит на `The XIV century …` и на капсовом `DVD`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × капсовая аббревиатура из тех же букв краснеет — принятая цена решения владельца 1ms
+    Tests  3 failed | 46 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > roman — римская цифра > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > roman — римская цифра > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` границы правил — то, что НЕ ловится, названо явно > капсовая аббревиатура из тех же букв краснеет — принятая цена решения владельца
+    AssertionError: находок кода roman: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 6 (а): снят запрет СОКРАЩЕНИЙ с точкой
+    Ожидание: линт молчит на `Dr. Adams …`, `e.g.`, `i.e.`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    Tests  2 failed | 47 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > abbreviation — сокращение с точкой > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > abbreviation — сокращение с точкой > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    AssertionError: находок кода abbreviation: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 7 (а): снят запрет URL
+    Ожидание: линт молчит на `https://…`, `www.`, `mailto:`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × `www.` и `mailto:` ловятся как URL 1ms
+    Tests  3 failed | 46 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > url — URL > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > url — URL > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` границы правил — то, что НЕ ловится, названо явно > `www.` и `mailto:` ловятся как URL
+    AssertionError: находок кода url: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 8 (а): снят запрет `**жирного**`
+    Ожидание: линт молчит на `This is **very** important.`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 2ms
+    Tests  2 failed | 47 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > bold — `**жирный**` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > bold — `**жирный**` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    AssertionError: находок кода bold: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 9 (а): снят запрет СПИСКОВ (маркер в колонке 1 больше не маркер)
+    Ожидание: линт молчит на `- first item …` и на `1. …`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра 2ms
+    Tests  3 failed | 46 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > list — список > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > list — список > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра
+    AssertionError: находок кода list: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 10 (а): снят запрет ИНЛАЙН-КОДА
+    Ожидание: линт молчит на `Use the `value` here.`
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    Tests  2 failed | 47 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > inline-code — инлайн-код > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > inline-code — инлайн-код > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    AssertionError: находок кода inline-code: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 11 (а): снята ОБЛАСТЬ запрета: линт смотрит и на токены `[say:]`
+    Ожидание: все десять зелёных кейсов краснеют — escape-hatch перестаёт работать
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × тот же текст через `[say:]` — зелёный 8ms
+    × тот же текст через `[say:]` — зелёный 2ms
+    × тот же текст через `[say:]` — зелёный 1ms
+    × тот же текст через `[say:]` — зелёный 1ms
+    × тот же текст через `[say:]` — зелёный 1ms
+    × тот же текст через `[say:]` — зелёный 1ms
+    Tests  12 failed | 37 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > digit — цифра > тот же текст через `[say:]` — зелёный
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > тот же текст через `[say:]` — зелёный
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > dollar — знак `$` > тот же текст через `[say:]` — зелёный
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > numero — знак `№` > тот же текст через `[say:]` — зелёный
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > roman — римская цифра > тот же текст через `[say:]` — зелёный
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > abbreviation — сокращение с точкой > тот же текст через `[say:]` — зелёный
+    AssertionError: expected [ { code: 'digit', …(4) } ] to deeply equal []
+
+--- НАРУШЕНИЕ 12 (а): позиция находки — начало токена, а не первый нарушающий символ
+    Ожидание: красные кейсы с колонкой ВНУТРИ токена (`%`, `1.`, `2026`) дают чужое число
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 7ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × находки идут в порядке исходника и покрывают весь файл, а не первую ошибку 3ms
+    Tests  3 failed | 46 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находки идут в порядке исходника и покрывают весь файл, а не первую ошибку
+    AssertionError: expected 6 to be 7 // Object.is equality
+
+--- НАРУШЕНИЕ 13 (а): линт возвращает первую находку вместо всех
+    Ожидание: «покажи все нарушения файла» перестаёт выполняться
+    Прогон: pnpm vitest run packages/core-model/test/source-lint.test.ts
+    × в прозе отвергается, место указано числами 6ms
+    × сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3 1ms
+    × один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра 4ms
+    × находки идут в порядке исходника и покрывают весь файл, а не первую ошибку 2ms
+    × `assertProse` бросает `SourceParseError` с правилом ADR-0002 §3 и местом первой ошибки 4ms
+    Tests  5 failed | 44 passed (49)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > в прозе отвергается, место указано числами
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > percent — знак `%` > сообщение начинается с `файл:строка:колонка` и несёт escape-hatch по ADR-0002 §3
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > один токен может нарушить два правила разом: `1.` в начале строки — и список, и цифра
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт прозы — десять запретов ADR-0002 §3 > находки идут в порядке исходника и покрывают весь файл, а не первую ошибку
+    FAIL  packages/core-model/test/source-lint.test.ts > `C-03` линт — отдельная функция над AST, а не часть парсера > `assertProse` бросает `SourceParseError` с правилом ADR-0002 §3 и местом первой ошибки
+    AssertionError: находок кода percent: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 14 (а): прогон `[say:]` не распознаётся: карта остаётся картой `C-02`
+    Ожидание: display-текст становится равен spoken — субтитр `two hundred` вместо `200`
+    Прогон: pnpm vitest run packages/core-model/test/source-transduce.test.ts packages/core-model/test/source-transduce-property.test.ts
+    × и spoken, и display совпадают с ожиданием ГЕНЕРАТОРА, а не с выходом того же кода 6ms
+    × вставки в наборе есть — иначе round-trip проверял бы только тождество 1ms
+    × F2 — год цифрами `1793`: число входит в токен целиком 10ms
+    × F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два 2ms
+    × F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен 2ms
+    × F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен 2ms
+    Tests  12 failed | 13 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 3: ROUND-TRIP (ADR-0010 §10) > и spoken, и display совпадают с ожиданием ГЕНЕРАТОРА, а не с выходом того же кода
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 3: ROUND-TRIP (ADR-0010 §10) > вставки в наборе есть — иначе round-trip проверял бы только тождество
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F2 — год цифрами `1793`: число входит в токен целиком
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 15 (а): вставка берёт `s` вместо `d`: подставляется РЕЧЬ, а не субтитр
+    Ожидание: то же расхождение, но с другой стороны: display теряет исходную форму
+    Прогон: pnpm vitest run packages/core-model/test/source-transduce.test.ts packages/core-model/test/source-transduce-property.test.ts
+    × и spoken, и display совпадают с ожиданием ГЕНЕРАТОРА, а не с выходом того же кода 6ms
+    × вставки в наборе есть — иначе round-trip проверял бы только тождество 2ms
+    × F2 — год цифрами `1793`: число входит в токен целиком 8ms
+    × F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два 3ms
+    × F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен 2ms
+    × F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен 2ms
+    Tests  12 failed | 13 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 3: ROUND-TRIP (ADR-0010 §10) > и spoken, и display совпадают с ожиданием ГЕНЕРАТОРА, а не с выходом того же кода
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 3: ROUND-TRIP (ADR-0010 §10) > вставки в наборе есть — иначе round-trip проверял бы только тождество
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F2 — год цифрами `1793`: число входит в токен целиком
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 16 (а): символ из `s` больше НЕ помечен вставленным (`inserted: false` + ложный `displayIndex`)
+    Ожидание: свойство 1 (ТОТАЛЬНОСТЬ): вставка выдаётся за прообраз в display
+    Прогон: pnpm vitest run packages/core-model/test/source-transduce-property.test.ts packages/core-model/test/source-transduce.test.ts
+    × каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов) 11ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 1: ТОТАЛЬНОСТЬ (ADR-0010 §10) > каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов)
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 17 (а): `sourceOffset` не растёт внутри прогона (смещение внутри прогона отброшено)
+    Ожидание: свойство 2 (МОНОТОННОСТЬ) посимвольно + F13
+    Прогон: pnpm vitest run packages/core-model/test/source-transduce-property.test.ts packages/core-model/test/source-transduce.test.ts
+    × каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов) 11ms
+    × посимвольно: смещение в исходнике строго растёт вместе с индексом spoken 1ms
+    × F13 — эмодзи `🚢` и `👍🏽`: span-map монотонна в CODE POINTS, а не в UTF-16 units 6ms
+    Tests  3 failed | 22 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 1: ТОТАЛЬНОСТЬ (ADR-0010 §10) > каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов)
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 2: МОНОТОННОСТЬ span-map в CODE POINTS (ADR-0010 §10) > посимвольно: смещение в исходнике строго растёт вместе с индексом spoken
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F13 — эмодзи `🚢` и `👍🏽`: span-map монотонна в CODE POINTS, а не в UTF-16 units
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 18 (а): `reconstructDisplay` восстанавливает вставку ИЗ SPOKEN, а не из литерала
+    Ожидание: свойство 3 (ROUND-TRIP): display не восстанавливается побайтово
+    Прогон: pnpm vitest run packages/core-model/test/source-transduce-property.test.ts packages/core-model/test/source-transduce.test.ts
+    × `reconstructDisplay(spoken, runs)` восстанавливает display побайтово (200 документов) 6ms
+    × F2 — год цифрами `1793`: число входит в токен целиком 12ms
+    × F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два 4ms
+    × F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен 2ms
+    × F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен 3ms
+    × F6 — латинское сокращение `e.g.`/`i.e.`: две точки внутри одного токена 3ms
+    Tests  10 failed | 15 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 3: ROUND-TRIP (ADR-0010 §10) > `reconstructDisplay(spoken, runs)` восстанавливает display побайтово (200 документов)
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F2 — год цифрами `1793`: число входит в токен целиком
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F3 — порядковое `3rd`/`21st`: цифра+буквы — один токен, не два
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F4 — деньги `$5`: знак ПЕРЕД числом входит в тот же токен
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F5 — процент `5%`: знак ПОСЛЕ числа входит в тот же токен
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F6 — латинское сокращение `e.g.`/`i.e.`: две точки внутри одного токена
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 19 (а): индексация исходника в UTF-16 units вместо code points (`text.ts`, файл `C-02`)
+    Ожидание: ровно тот молчаливый дефект, о котором предупреждает ADR-0010 §10
+    Прогон: pnpm vitest run packages/core-model/test
+    × каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов) 8ms
+    × F13 — эмодзи `🚢` и `👍🏽`: span-map монотонна в CODE POINTS, а не в UTF-16 units 9ms
+    Tests  2 failed | 319 passed (321)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts > `C-03` property — свойство 1: ТОТАЛЬНОСТЬ (ADR-0010 §10) > каждый code point spoken имеет прообраз в исходнике либо помечен вставленным (200 документов)
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F13 — эмодзи `🚢` и `👍🏽`: span-map монотонна в CODE POINTS, а не в UTF-16 units
+    AssertionError: сид 201531430 (константа `FUZZ_SEED` в `test/source-fuzz.ts`), документ №0, чанк №0
+
+--- НАРУШЕНИЕ 20 (а): NBSP объявлен пробельным (`text.ts`, файл `C-02`)
+    Ожидание: F15: NBSP схлопывается в обычный пробел, spoken-байты меняются
+    Прогон: pnpm vitest run packages/core-model/test
+    × F15 — NBSP U+00A0 не схлопывается и доходит до обеих сторон 6ms
+    Tests  1 failed | 311 passed (312)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-transduce-property.test.ts [ packages/core-model/test/source-transduce-property.test.ts ]
+    FAIL  packages/core-model/test/source-transduce.test.ts > `C-03` fuzz F1–F16 (ADR-0010 §10) > F15 — NBSP U+00A0 не схлопывается и доходит до обеих сторон
+    SourceParseError: source/fuzz-71.md:7:26: ADR-0002 §2: `[say:]`: пустая spoken-часть (справа от `|`)
+
+--- НАРУШЕНИЕ 21 (б): диапазон кириллицы сужен до `[Ԁ-ԯ]` — охранник МОЛЧА перестаёт стеречь
+    Ожидание: три ловящих кейса V13 краснеют, главный остаётся зелёным
+    Прогон: pnpm vitest run tests/fixtures/v13-content-language.test.ts
+    × комментарии YAML под правило НЕ подпадают — и они в фикстуре русские 5ms
+    × кириллица в прозе копии — нарушение с файлом, строкой и самим символом 2ms
+    × кириллица в `title` копии — нарушение с именем поля 1ms
+    × кириллица в блочном скаляре `descriptionTemplate` копии — нарушение 1ms
+    Tests  4 failed | 5 passed (9)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — язык контента фикстур английский > комментарии YAML под правило НЕ подпадают — и они в фикстуре русские
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в прозе копии — нарушение с файлом, строкой и самим символом
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в `title` копии — нарушение с именем поля
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в блочном скаляре `descriptionTemplate` копии — нарушение
+    AssertionError: expected false to be true // Object.is equality
+
+--- НАРУШЕНИЕ 22 (б): `publish.yaml` выпадает из обхода
+    Ожидание: проверка «охранник не пуст» и оба кейса полей краснеют
+    Прогон: pnpm vitest run tests/fixtures/v13-content-language.test.ts
+    × охранник не пуст: он видит и прозу, и `publish.yaml` 3ms
+    × кириллица в `title` копии — нарушение с именем поля 3ms
+    × кириллица в блочном скаляре `descriptionTemplate` копии — нарушение 1ms
+    Tests  3 failed | 6 passed (9)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — язык контента фикстур английский > охранник не пуст: он видит и прозу, и `publish.yaml`
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в `title` копии — нарушение с именем поля
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в блочном скаляре `descriptionTemplate` копии — нарушение
+    AssertionError: expected 0 to be greater than 0
+
+--- НАРУШЕНИЕ 23 (б): проверяется ВЕСЬ `publish.yaml`, а не два контентных поля
+    Ожидание: охранник становится НЕВЕРНЫМ, а не строгим: краснеет на русских комментариях настоящей фикстуры
+    Прогон: pnpm vitest run tests/fixtures/v13-content-language.test.ts
+    × в `fixtures/**/source/*.md` и в `title`/`descriptionTemplate` нет кириллицы `[Ѐ-ӿ]` 8ms
+    × комментарии YAML под правило НЕ подпадают — и они в фикстуре русские 3ms
+    × чистая копия фикстуры проходит 2ms
+    × кириллица в прозе копии — нарушение с файлом, строкой и самим символом 2ms
+    × кириллица в `title` копии — нарушение с именем поля 2ms
+    × кириллица в блочном скаляре `descriptionTemplate` копии — нарушение 1ms
+    Tests  7 failed | 2 passed (9)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — язык контента фикстур английский > в `fixtures/**/source/*.md` и в `title`/`descriptionTemplate` нет кириллицы `[Ѐ-ӿ]`
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — язык контента фикстур английский > комментарии YAML под правило НЕ подпадают — и они в фикстуре русские
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > чистая копия фикстуры проходит
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в прозе копии — нарушение с файлом, строкой и самим символом
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в `title` копии — нарушение с именем поля
+    FAIL  tests/fixtures/v13-content-language.test.ts > V13 — охранник показан ловящим нарушение (`fixtures/` не изменяется) > кириллица в блочном скаляре `descriptionTemplate` копии — нарушение
+    AssertionError: expected 'fixtures/minimal/publish.yaml:1: весь…' to be '' // Object.is equality
