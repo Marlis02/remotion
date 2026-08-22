@@ -213,6 +213,26 @@ voiceKey = blake3( spokenChunkText, providerId, modelId, voiceId, seed, provider
   [ADR-0005](0005-project-format.md) §1, §1b). Роль несёт `voice_settings` и модель/голос
   **по умолчанию для роли**. `voice_id` в файл не попадает — в роли лежит **имя переменной
   окружения**, значение берётся только из `process.env` (CLAUDE.md §2);
+
+  *Уточнено: `S-02`, решение владельца, 2026-08-22.* До этой правки состав роли был назван,
+  а **контейнер и имена полей — нет**, и схема семейства была невыразима. Принятая форма:
+
+  ```yaml
+  schema: voice-roles/1
+  roles:                                   # СПИСОК, а не карта
+    - roleId: "narrator"
+      modelId: "eleven_multilingual_v2"    # НЕОБЯЗАТЕЛЕН: наследует project.yaml.voice.modelId
+      voice_id: "ELEVENLABS_VOICE_ID"      # ОБЯЗАТЕЛЕН; ИМЯ переменной, не значение
+      voice_settings: { }                  # providerOpts провайдера, не нормируются
+  ```
+
+  Три решения, входящие в форму: **список, а не карта** — порядок канонический и диффится
+  построчно; **`providerId` на роль отсутствует** — провайдер один на проект и берётся из
+  `project.yaml.voice`; **`modelId` опционален** — роль без него наследует модель проекта.
+  Валидатор `voice_id` требует форму имени переменной окружения (`^[A-Z][A-Z0-9_]*$`) и потому
+  отвергает настоящий идентификатор голоса провайдера — ровно ту ошибку, ради которой правило
+  написано. Схема — `packages/schema/src/families/voice-roles.ts`, охранник —
+  `packages/schema/test/canonical-form.test.ts`;
 * **как сцена ссылается:** записью `direction/NN-name.yaml` с `track: voice`:
 
 ```yaml

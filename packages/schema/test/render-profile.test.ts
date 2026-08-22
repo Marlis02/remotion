@@ -141,14 +141,19 @@ describe('render-profile/1 — три файла фикстуры', () => {
     );
   });
 
-  it('шапка проверяется до схемы: чужое семейство и отсутствие шапки — ошибка', () => {
+  // ИЗМЕНЕНО `S-02` (2026-08-22): заглушка `assertHeader` снесена, шапку читает общий
+  // `readFamily`. Сообщения стали точнее — «не то семейство» и «более новый движок» вместо
+  // одного «ожидалась `render-profile/1`». Охранник не ослаблен: проверок стало три вместо
+  // двух, и каждая называет свою причину. Старые тексты сообщений больше не существуют,
+  // поэтому ожидания переписаны, а не «подкручены».
+  it('шапка проверяется до схемы: чужое семейство, версия и отсутствие шапки — три разные ошибки', () => {
     const final = fixtureText('render.final.yaml');
     expect(() =>
       loadText('wrong-family', patch(final, 'schema: render-profile/1', 'schema: compile-profile/1')),
-    ).toThrow(/ожидалась `render-profile\/1`/);
+    ).toThrow(/ожидалось семейство `render-profile\/1`, а файл объявляет `compile-profile\/1`/);
     expect(() =>
       loadText('wrong-version', patch(final, 'schema: render-profile/1', 'schema: render-profile/2')),
-    ).toThrow(/ожидалась `render-profile\/1`/);
+    ).toThrow(/записан более новым движком/);
     expect(() =>
       loadText('no-header', patch(final, 'schema: render-profile/1\n', '')),
     ).toThrow(/нет шапки/);

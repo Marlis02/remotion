@@ -27,9 +27,6 @@
 // был бы решением, которого никто не принимал. P10 и K6 — правила про ИМЕНА полей, а не про
 // области значений.
 
-import { readFileSync } from 'node:fs';
-
-import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 
 /** Семейство файлов (ADR-0005 §3: `schema: <family>/N` в шапке). */
@@ -139,55 +136,3 @@ export const RenderProfileSchema = z
   .strict();
 
 export type RenderProfile = z.infer<typeof RenderProfileSchema>;
-
-/**
- * ЗАГЛУШКА, КОТОРУЮ ЗАМЕНИТ `S-02`.
- *
- * Настоящий читатель семейств — толерантный: одна функция на семейство, union-схема zod,
- * понимающая все исторические версии (ADR-0005 §4, roadmap §4.2 `S-02`). Здесь — минимум,
- * который нужен `R-02` и не больше: `split('/')` и строгое равенство. Никакой толерантности,
- * никакого union, никакого разбора «N старше/новее текущей».
- *
- * Проверка существует отдельно от `z.literal` в схеме намеренно: без неё файл чужого семейства
- * (`compile-profile/1`) дал бы стену `unrecognized_keys` вместо одной строки «не то семейство».
- *
- * `S-02` обязана снести эту функцию целиком, а не дописать в неё версии.
- */
-function assertHeader(document: unknown, filePath: string): void {
-  if (typeof document !== 'object' || document === null || Array.isArray(document)) {
-    throw new Error(
-      `${filePath}: ожидался YAML-маппинг с шапкой \`schema: ${RENDER_PROFILE_HEADER}\` (ADR-0005 §3, P1)`,
-    );
-  }
-
-  const header = (document as Record<string, unknown>)['schema'];
-  if (typeof header !== 'string') {
-    throw new Error(
-      `${filePath}: нет шапки \`schema: ${RENDER_PROFILE_HEADER}\` (ADR-0005 §3, P1)`,
-    );
-  }
-
-  const parts = header.split('/');
-  const family = parts[0];
-  const version = parts[1];
-  if (parts.length !== 2 || family !== RENDER_PROFILE_FAMILY || version !== String(RENDER_PROFILE_VERSION)) {
-    throw new Error(
-      `${filePath}: шапка \`schema: ${header}\` — ожидалась \`${RENDER_PROFILE_HEADER}\``,
-    );
-  }
-}
-
-/**
- * Читает и валидирует файл семейства `render-profile/1`.
- *
- * Парсер — `yaml` (YAML **1.2**), а не `js-yaml` (YAML 1.1), и это часть охранника P16:
- * в 1.1 `no` и `yes` становятся boolean, а `04:30` — числом 270. Схема тогда получала бы
- * значение нужного типа и не могла бы отличить его от написанного человеком.
- *
- * @throws ошибку чтения файла, ошибку шапки или `z.ZodError` с путём к полю.
- */
-export function loadRenderProfile(filePath: string): RenderProfile {
-  const document: unknown = parseYaml(readFileSync(filePath, 'utf8'));
-  assertHeader(document, filePath);
-  return RenderProfileSchema.parse(document);
-}

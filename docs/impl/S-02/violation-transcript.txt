@@ -1,0 +1,166 @@
+S-02 — ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ (2026-08-22)
+
+Семнадцать нарушений. Каждое вносилось руками, прогонялись ровно те файлы тестов, что его
+охраняют (`pnpm exec vitest run …`, TZ=UTC LC_ALL=C), затем нарушение откатывалось. В конце —
+сверка с бэкапами по всем одиннадцати затронутым файлам и `git status` по `fixtures/`:
+расхождений нет, `pnpm lint` / `pnpm typecheck` / `pnpm test` зелёные.
+
+ПРОТОКОЛ НАШЁЛ ДЕФЕКТ В САМОМ ОХРАННИКЕ, и это записано здесь, а не замолчано. Нарушение №7
+(`identifier()` переведён на `z.coerce.string()`, то есть начал ПРИВОДИТЬ `08` к строке `"8"`)
+в первой редакции теста P16 прошло НЕЗАМЕЧЕННЫМ: тест проверял только тип принятого значения,
+а тип у приведённой строки правильный. Тест усилен — принятое значение обязано совпадать с тем,
+что вернул парсер (`toStrictEqual(raw)`), — и после усиления нарушение красит 4 теста.
+То же с нарушением №14: первая редакция снимала только регулярное выражение, а второй охранник
+(`.refine` на `w:`) продолжал работать; нарушение переписано так, чтобы снимать оба.
+
+Классы нарушений: (а) ломается ЧИТАТЕЛЬ или ПИСАТЕЛЬ; (б) ломается АРТЕФАКТ (файл фикстуры);
+(в) ломается ПРАВИЛО, записанное в ADR (`track: voice`, `w:`, `voice_id`, M7).
+
+Ниже — отфильтрованный вывод: строки FAIL, сообщение ошибки и итог прогона.
+
+=================== P1 НАРУШЕНИЕ (читатель): требование шапки снято ===================
+ FAIL  packages/schema/test/families.test.ts > P1 — шапка обязательна, и каждая беда называет свою причину > файл без шапки отвергается
+ AssertionError: expected [Function] to throw error matching /нет шапки/ but got 'Cannot read properties of undefined (…'
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
+=================== P1 НАРУШЕНИЕ (артефакт): шапка удалена из fixtures/minimal/project.yaml ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > project.yaml: write(read(x)) идемпотентен
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > project.yaml: каноническая форма сама канонична и читается тем же читателем
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > project.yaml: расхождения только объяснимых категорий
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > ни одного расхождения по хвостовым пробелам — их и в фикстурах нет
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > порядок ключей расходится ТОЛЬКО в открытых картах, а не в объявленных схемой
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > комментарии — главная категория, и они есть почти в каждом файле
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > `checkCanonical` называет, какие проверки выполнялись — зелёный нельзя прочитать шире
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > writeFamily ставит кавычки там, где схема пометила поле идентификатором
+ … ещё 12 строк того же вида
+ Test Files  2 failed (2)
+ Tests  15 failed | 87 passed (102)
+
+=================== P10-класс НАРУШЕНИЕ (артефакт): лишнее поле в fixtures/minimal/project.yaml ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > project.yaml: write(read(x)) идемпотентен
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > project.yaml: каноническая форма сама канонична и читается тем же читателем
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > project.yaml: расхождения только объяснимых категорий
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > ни одного расхождения по хвостовым пробелам — их и в фикстурах нет
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > порядок ключей расходится ТОЛЬКО в открытых картах, а не в объявленных схемой
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > комментарии — главная категория, и они есть почти в каждом файле
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > `checkCanonical` называет, какие проверки выполнялись — зелёный нельзя прочитать шире
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > writeFamily ставит кавычки там, где схема пометила поле идентификатором
+ … ещё 2 строк того же вида
+ Test Files  2 failed (2)
+ Tests  10 failed | 92 passed (102)
+
+=================== ВЕРСИЯ НАРУШЕНИЕ: неизвестная версия молча берёт текущую схему ===================
+ FAIL  packages/schema/test/families.test.ts > P1 — шапка обязательна, и каждая беда называет свою причину > версия N+1 — «файл записан более новым движком», а не падение по undefined
+ AssertionError: expected ZodError: [
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
+=================== СЕМЕЙСТВО НАРУШЕНИЕ: `expectFamily` игнорируется — возвращается стена unrecognized_keys ===================
+ FAIL  packages/schema/test/families.test.ts > P1 — шапка обязательна, и каждая беда называет свою причину > чужое семейство — ОДНА строка, а не стена `unrecognized_keys`
+ AssertionError: expected ZodError: [
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
+=================== P16 НАРУШЕНИЕ: парсер переведён на YAML 1.1 — ровно поведение js-yaml ===================
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'profiles/render.final.yaml' → 'pixelProfile.browserGpu' принимает только 'boolean'
+ AssertionError: pixelProfile.browserGpu: no принято — значение обязано совпасть с разобранным: expected false to strictly equal 'no'
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'publish.yaml' → 'madeForKids' принимает только 'boolean'
+ AssertionError: madeForKids: no принято — значение обязано совпасть с разобранным: expected false to strictly equal 'no'
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'profiles/render.final.yaml' → 'pixelProfile.gopSize' принимает только 'number'
+ AssertionError: pixelProfile.gopSize: 04:30 принято — значение обязано совпасть с разобранным: expected 270 to strictly equal '04:30'
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'profiles/compile.yaml' → 'maxDurationFrames' принимает только 'number'
+ AssertionError: maxDurationFrames: 04:30 принято — значение обязано совпасть с разобранным: expected 270 to strictly equal '04:30'
+ … ещё 2 строк того же вида
+ Test Files  1 failed (1)
+ Tests  5 failed | 34 passed (39)
+
+=================== P16 НАРУШЕНИЕ: идентификатор начинает ПРИВОДИТЬ значение к строке вместо отказа ===================
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'project.yaml' → 'id' принимает только 'string'
+ AssertionError: id: 08 принято — значение обязано совпасть с разобранным: expected '8' to strictly equal 8
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'publish.yaml' → 'topic' принимает только 'string'
+ AssertionError: topic: 08 принято — значение обязано совпасть с разобранным: expected '8' to strictly equal 8
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'profiles/audio.yaml' → 'codec' принимает только 'string'
+ AssertionError: codec: 08 принято — значение обязано совпасть с разобранным: expected '8' to strictly equal 8
+ FAIL  packages/schema/test/families.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > 'profiles/compile.yaml' → 'templateRegistryVersion' принимает только 'string'
+ AssertionError: templateRegistryVersion: 08 принято — значение обязано совпасть с разобранным: expected '8' to strictly equal 8
+ Test Files  1 failed | 1 passed (2)
+ Tests  4 failed | 98 passed (102)
+
+=================== P17 НАРУШЕНИЕ: пометка `vpeIdentifier` снята — кавычки ставить некому ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > writeFamily ставит кавычки там, где схема пометила поле идентификатором
+ AssertionError: expected 'schema: project/1\nid: minimal\nchann…' to contain 'id: "minimal"'
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > checkCanonical сообщает про идентификатор без кавычек — с путём и номером строки
+ AssertionError: expected [] to include '`id` — идентификатор, а записан без к…'
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > список полей-идентификаторов берётся из схемы, а не угадывается по содержимому
+ AssertionError: expected 'schema: publish/1\ntitle: What the Ha…' to contain 'topic: "history"'
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — `voice-roles/1`: секрет не попадает в файл > имя переменной окружения принимается
+ AssertionError: expected 'schema: voice-roles/1\nroles:\n-\n  r…' to contain 'voice_id: "ELEVENLABS_VOICE_ID"'
+ Test Files  1 failed (1)
+ Tests  4 failed | 59 passed (63)
+
+=================== P17 НАРУШЕНИЕ: кавычки ставятся ПО СОДЕРЖИМОМУ (эвристика), а не по пометке схемы ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > P17 — значения-идентификаторы пишутся в кавычках > список полей-идентификаторов берётся из схемы, а не угадывается по содержимому
+ AssertionError: expected 'schema: "publish/1"\ntitle: "What the…' to contain 'title: What the Harbour Was Waiting F…'
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== ПОРЯДОК КЛЮЧЕЙ НАРУШЕНИЕ: писатель сортирует всё алфавитно, как canonicalJson ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > project.yaml: каноническая форма сама канонична и читается тем же читателем
+ AssertionError: [{"kind":"key-order","line":null,"message":"порядок ключей в `<корень>`: schema, id, channelId, fps, width, height, projectSampleRate, seedRoot, profiles, voice, store ⇒ channelId, fps, height, id, profil
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > publish.yaml: каноническая форма сама канонична и читается тем же читателем
+ AssertionError: [{"kind":"key-order","line":null,"message":"порядок ключей в `<корень>`: schema, title, descriptionTemplate, topic, voiceRole, madeForKids, disclosure, sources ⇒ descriptionTemplate, disclosure, madeForKi
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > store.lock: каноническая форма сама канонична и читается тем же читателем
+ AssertionError: [{"kind":"key-order","line":null,"message":"порядок ключей в `<корень>`: schema, lastVerifiedAt, entries ⇒ entries, lastVerifiedAt, schema"}]: expected [ { kind: 'key-order', …(2) } ] to deeply equal []
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > profiles/compile.yaml: каноническая форма сама канонична и читается тем же читателем
+ AssertionError: [{"kind":"key-order","line":null,"message":"порядок ключей в `<корень>`: schema, fps, width, height, projectSampleRate, templateRegistryVersion, safeAreas, defaultParagraphGapSamples, defaultSceneGapSampl
+ … ещё 13 строк того же вида
+ Test Files  1 failed (1)
+ Tests  11 failed | 52 passed (63)
+
+=================== checkCanonical НАРУШЕНИЕ: комментарии перестали замечаться ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > комментарии — главная категория, и они есть почти в каждом файле
+ AssertionError: expected 0 to be greater than or equal to 9
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== checkCanonical НАРУШЕНИЕ: список выполненных проверок врёт (зелёный читается шире) ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > `checkCanonical` называет, какие проверки выполнялись — зелёный нельзя прочитать шире
+ AssertionError: expected [ 'trailing-whitespace', …(4) ] to deeply equal [ 'trailing-whitespace' ]
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== ADR-0010 §3a-bis НАРУШЕНИЕ: запись `track: voice` начинает принимать `template` ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — `direction/1`: запись роли голоса отличается от записи шаблона > запись `track: voice` с `template` — ошибка
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== A1 НАРУШЕНИЕ: якорь `w:` разрешён в режиссуре (ADR-0004 §2) ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — `direction/1`: запись роли голоса отличается от записи шаблона > ссылка на `w:` отвергается схемой — правило ADR-0004 §2 (инвариант A1)
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== CLAUDE.md §2 НАРУШЕНИЕ: `voice_id` начинает принимать значение, а не имя переменной ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — `voice-roles/1`: секрет не попадает в файл > настоящий `voice_id` провайдера отвергается — CLAUDE.md §2
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 62 passed (63)
+
+=================== M7 НАРУШЕНИЕ: проза объявлена записываемой — писатель уничтожит сценарий ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — каноническая форма устойчива > писатель отказывается трогать прозу: `source-dialect/1` не записывается
+ AssertionError: expected function to throw an error, but it didn't
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02 — чем фикстуры отличаются от канона (решение: не приводить) > `checkCanonical` называет, какие проверки выполнялись — зелёный нельзя прочитать шире
+ AssertionError: expected false to be true // Object.is equality
+ FAIL  packages/schema/test/families.test.ts > S-02 — все файлы `fixtures/minimal` читаются > P3 — проза читается текущим читателем без переписывания: разбирается ТОЛЬКО шапка
+ AssertionError: expected true to be false // Object.is equality
+ Test Files  2 failed (2)
+ Tests  3 failed | 99 passed (102)
+
+=================== M7 НАРУШЕНИЕ: `neverMigrates` игнорируется — `source-dialect` становится мигрируемым ===================
+ FAIL  packages/schema/test/families.test.ts > S-02 — реестр и форма миграций (P2) > `source-dialect` не мигрируется никогда (M7) — даже «в ту же версию»
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
