@@ -1,0 +1,173 @@
+=================== M1 НАРУШЕНИЕ: hyperframes добавлен в devDependencies media ===================
+ FAIL  tests/boundaries/m1-hyperframes.test.ts > M1 — `hyperframes` только у `renderer-hyperframes` и `cli` > ни один посторонний package.json не объявляет hyperframes
+AssertionError: M1 (ADR-0009 тест 1) нарушен: `hyperframes` разрешён только в `@vpe/renderer-hyperframes` и `@vpe/cli`. Найдено: packages/media/package.json → devDependencies.hyperframes: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/media/package.json → devDependencies.hyperframes",
+ FAIL  tests/boundaries/m1-hyperframes.test.ts > M1 — `hyperframes` только у `renderer-hyperframes` и `cli` > media не объявляет hyperframes — склейка только ffmpeg
+AssertionError: M1: `media` не импортирует `hyperframes` — иначе склейка перестаёт быть «только ffmpeg».: expected [ 'hyperframes' ] to deeply equal []
+- Expected
++ Received
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+
+=================== M6 НАРУШЕНИЕ: gsap добавлен в dependencies compile ===================
+ FAIL  tests/boundaries/m6-gsap.test.ts > M6 — `gsap` только у `renderer-hyperframes` > ни один посторонний package.json не объявляет gsap
+AssertionError: M6 (ADR-0009 тест 2a) нарушен: `gsap` — источник кривых движения, его версия входит в `engineFingerprint` (R14) и в реестр easing (D5). Разрешён только в `@vpe/renderer-hyperframes`. Найдено: packages/compile/package.json → dependencies.gsap: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/compile/package.json → dependencies.gsap",
+ FAIL  tests/boundaries/m6-gsap.test.ts > M6 — `gsap` только у `renderer-hyperframes` > compile не объявляет gsap — иначе easing вычислялся бы в двух местах
+AssertionError: M6: протечка gsap в `compile`.: expected [ 'gsap' ] to deeply equal []
+- Expected
++ Received
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+
+=================== M2 НАРУШЕНИЕ (package.json): react добавлен в devDependencies schema ===================
+ FAIL  tests/boundaries/m2-react.test.ts > M2 — `react` и `react-dom` отсутствуют в проекте целиком > ни один package.json их не объявляет
+AssertionError: M2 (ADR-0009 тест 2) нарушен: `react`/`react-dom` в проекте нет ни у кого — композиции HyperFrames это HTML + GSAP. Найдено: packages/schema/package.json → devDependencies.react@19.2.0: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/schema/package.json → devDependencies.react@19.2.0",
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+
+=================== ADR-0009 ГРАФ НАРУШЕНИЕ: renderer-hyperframes → compile (лишняя стрелка) ===================
+ FAIL  tests/boundaries/adr0009-graph.test.ts > ADR-0009 — стрелки графа пакетов > renderer-hyperframes зависит ровно от [core-model, templates-spec]
+AssertionError: Граф ADR-0009 нарушен у `renderer-hyperframes`. Лишняя стрелка — это протёкшая граница, а не удобство: каждая стрелка соответствует строке «НЕ знает» из ADR-0001.: expected [ 'compile', 'core-model', …(1) ] to deeply equal [ 'core-model', 'templates-spec' ]
+- Expected
++ Received
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 passed (9)
+
+react в lockfile: 2 вхождений ключа
+=================== M2 НАРУШЕНИЕ (pnpm-lock.yaml): react после pnpm install --lockfile-only ===================
+ FAIL  tests/boundaries/m2-react.test.ts > M2 — `react` и `react-dom` отсутствуют в проекте целиком > ни один package.json их не объявляет
+AssertionError: M2 (ADR-0009 тест 2) нарушен: `react`/`react-dom` в проекте нет ни у кого — композиции HyperFrames это HTML + GSAP. Найдено: packages/schema/package.json → devDependencies.react@19.2.0: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/schema/package.json → devDependencies.react@19.2.0",
+ FAIL  tests/boundaries/m2-react.test.ts > M2 — `react` и `react-dom` отсутствуют в проекте целиком > их нет в pnpm-lock.yaml
+AssertionError: M2 нарушен: в pnpm-lock.yaml присутствует react. Пакет мог прийти транзитивно — проверьте `pnpm why`.: expected [ 'react' ] to deeply equal []
+- Expected
++ Received
++   "react",
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+
+=================== M1 НАРУШЕНИЕ (pnpm-lock.yaml): hyperframes у importer packages/media ===================
+ FAIL  tests/boundaries/m1-hyperframes.test.ts > M1 — `hyperframes` только у `renderer-hyperframes` и `cli` > ни один посторонний package.json не объявляет hyperframes
+AssertionError: M1 (ADR-0009 тест 1) нарушен: `hyperframes` разрешён только в `@vpe/renderer-hyperframes` и `@vpe/cli`. Найдено: packages/media/package.json → devDependencies.hyperframes: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/media/package.json → devDependencies.hyperframes",
+ FAIL  tests/boundaries/m1-hyperframes.test.ts > M1 — `hyperframes` только у `renderer-hyperframes` и `cli` > media не объявляет hyperframes — склейка только ffmpeg
+AssertionError: M1: `media` не импортирует `hyperframes` — иначе склейка перестаёт быть «только ffmpeg».: expected [ 'hyperframes' ] to deeply equal []
+- Expected
++ Received
++   "hyperframes",
+ FAIL  tests/boundaries/m1-hyperframes.test.ts > M1 — `hyperframes` только у `renderer-hyperframes` и `cli` > в pnpm-lock.yaml hyperframes объявлен только разрешёнными importer-ами
+AssertionError: M1: в pnpm-lock.yaml hyperframes объявлен посторонним пакетом: packages/media → hyperframes: expected [ 'packages/media → hyperframes' ] to deeply equal []
+- Expected
++ Received
++   "packages/media → hyperframes",
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+
+=================== M6 НАРУШЕНИЕ (pnpm-lock.yaml): gsap у importer packages/compile ===================
+ FAIL  tests/boundaries/m6-gsap.test.ts > M6 — `gsap` только у `renderer-hyperframes` > ни один посторонний package.json не объявляет gsap
+AssertionError: M6 (ADR-0009 тест 2a) нарушен: `gsap` — источник кривых движения, его версия входит в `engineFingerprint` (R14) и в реестр easing (D5). Разрешён только в `@vpe/renderer-hyperframes`. Найдено: packages/compile/package.json → dependencies.gsap: expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/compile/package.json → dependencies.gsap",
+ FAIL  tests/boundaries/m6-gsap.test.ts > M6 — `gsap` только у `renderer-hyperframes` > compile не объявляет gsap — иначе easing вычислялся бы в двух местах
+AssertionError: M6: протечка gsap в `compile`.: expected [ 'gsap' ] to deeply equal []
+- Expected
++ Received
++   "gsap",
+ FAIL  tests/boundaries/m6-gsap.test.ts > M6 — `gsap` только у `renderer-hyperframes` > в pnpm-lock.yaml gsap объявлен только разрешённым importer-ом
+AssertionError: M6: в pnpm-lock.yaml gsap объявлен посторонним пакетом: packages/compile → gsap: expected [ 'packages/compile → gsap' ] to deeply equal []
+- Expected
++ Received
++   "packages/compile → gsap",
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+
+=================== M3 НАРУШЕНИЕ (греп): node:fs импортирован в packages/core-model/src/index.ts ===================
+ FAIL  tests/boundaries/m3-core-model-fs.test.ts > M3 — `core-model` не читает диск > (а) греп: в packages/core-model/src/** нет ни одного импорта fs
+AssertionError: M3 (ADR-0009 тест 3) нарушен: `core-model` не умеет читать диск. Перенесите работу с файлами в `media`. Найдено: packages/core-model/src/index.ts → "node:fs": expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/core-model/src/index.ts → \"node:fs\"",
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+
+=================== M4 НАРУШЕНИЕ (греп, глобал): fetch( в packages/compile/src/index.ts ===================
+ FAIL  tests/boundaries/m4-network-only-voice.test.ts > M4 — сеть только в `voice` > (а) греп: ни один пакет кроме voice не зовёт глобальный fetch
+AssertionError: M4 нарушен: `fetch` как глобал — тоже сеть, и импортом он не виден. Найдено: packages/compile/src/index.ts: expected [ 'packages/compile/src/index.ts' ] to deeply equal []
+- Expected
++ Received
++   "packages/compile/src/index.ts",
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+
+=================== M4 НАРУШЕНИЕ (греп, импорт): undici в packages/media/src/index.ts ===================
+ FAIL  tests/boundaries/m4-network-only-voice.test.ts > M4 — сеть только в `voice` > (а) греп: ни один пакет кроме voice не импортирует сетевые модули
+AssertionError: M4 (ADR-0009 тест 7) нарушен: сеть разрешена только в `voice`. Найдено: packages/media/src/index.ts → "undici": expected [ Array(1) ] to deeply equal []
+- Expected
++ Received
++   "packages/media/src/index.ts → \"undici\"",
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+
+=================== M5 НАРУШЕНИЕ: правило import/no-restricted-paths снято (off) ===================
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: compile/render-ir ↛ compile/timeline
+AssertionError: Охранник M5 молчит на прямом нарушении «compile/render-ir ↛ compile/timeline». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: compile/timeline ↛ compile/render-ir
+AssertionError: Охранник M5 молчит на прямом нарушении «compile/timeline ↛ compile/render-ir». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: media/cache ↛ media/audio
+AssertionError: Охранник M5 молчит на прямом нарушении «media/cache ↛ media/audio». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: media/audio ↛ media/cache
+AssertionError: Охранник M5 молчит на прямом нарушении «media/audio ↛ media/cache». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+
+=================== M5 НАРУШЕНИЕ (тихое): резолвер перестал видеть .ts — правило молча пропускает импорт ===================
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: compile/render-ir ↛ compile/timeline
+AssertionError: Охранник M5 молчит на прямом нарушении «compile/render-ir ↛ compile/timeline». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: compile/timeline ↛ compile/render-ir
+AssertionError: Охранник M5 молчит на прямом нарушении «compile/timeline ↛ compile/render-ir». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: media/cache ↛ media/audio
+AssertionError: Охранник M5 молчит на прямом нарушении «media/cache ↛ media/audio». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ FAIL  tests/boundaries/m5-internal-boundaries.test.ts > M5 — внутренние границы `compile` и `media` > ESLint роняет нарушение: media/audio ↛ media/cache
+AssertionError: Охранник M5 молчит на прямом нарушении «media/audio ↛ media/cache». Две вероятные причины: правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы (тогда import/no-restricted-paths пропускает импорт МОЛЧА).: expected 0 to be greater than 0
+ Test Files  1 failed (1)
+      Tests  4 failed | 2 passed (6)
+
+=================== M3 НАРУШЕНИЕ (охранник-конфиг): fs убран из no-restricted-imports для core-model ===================
+ FAIL  tests/boundaries/m3-core-model-fs.test.ts > M3 — `core-model` не читает диск > (б) ESLint: правило срабатывает на файле-нарушителе внутри core-model
+AssertionError: Охранник M3 в eslint.config.js молчит на прямом нарушении. Правило `no-restricted-imports` для `packages/core-model/src/**` сломано или снято.: expected 0 to be greater than 0
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+
+=================== M4 НАРУШЕНИЕ (охранник-конфиг): fetch убран из no-restricted-globals ===================
+ FAIL  tests/boundaries/m4-network-only-voice.test.ts > M4 — сеть только в `voice` > (б) ESLint: глобальный fetch в renderer-hyperframes — ошибка
+AssertionError: Охранник M4 (глобали) молчит: `fetch` не ловится `no-restricted-imports`, и без `no-restricted-globals` сеть протекает мимо теста.: expected 0 to be greater than 0
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+
+=================== V8/D4 НАРУШЕНИЕ: Math.random/Date.now/new Date/Intl/localeCompare в packages/schema/src ===================
+
+/home/ct/Desktop/remotion/packages/schema/src/index.ts
+  1:35  error  'Math.random' is restricted from being used. [V8]
+  2:36  error  'Date.now' is restricted from being used. [V8]
+  3:33  error  [V8]
+  4:43  error  'toLocaleString' is restricted from being used. [V8]
+  5:54  error  'localeCompare' is restricted from being used. [V8]
+  6:35  error  Unexpected use of 'Intl'. [V8]
+  6:35  error  [V8]
+
+✖ 7 problems (7 errors, 0 warnings)
+
+

@@ -4,3 +4,9 @@
 /PROGRESS.md
 node_modules/
 out/
+
+# R-01: артефакты сборки монорепо
+dist/
+*.tsbuildinfo
+.cache/
+build/

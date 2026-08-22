@@ -1,0 +1,26 @@
+{
+  "name": "@vpe/cli",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@vpe/compile": "workspace:*",
+    "@vpe/core-model": "workspace:*",
+    "@vpe/media": "workspace:*",
+    "@vpe/renderer-hyperframes": "workspace:*",
+    "@vpe/schema": "workspace:*",
+    "@vpe/templates-spec": "workspace:*",
+    "@vpe/voice": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc --build"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "//": "Solution-файл: собственных исходников нет, только project references (ADR-0009).",
+  "files": [],
+  "references": [
+    { "path": "./packages/schema" },
+    { "path": "./packages/core-model" },
+    { "path": "./packages/media" },
+    { "path": "./packages/voice" },
+    { "path": "./packages/templates-spec" },
+    { "path": "./packages/compile" },
+    { "path": "./packages/renderer-hyperframes" },
+    { "path": "./packages/cli" },
+    { "path": "./tests" }
+  ]
+}

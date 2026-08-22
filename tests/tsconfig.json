@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "// Почему Bundler": "Тесты репозитория исполняет vitest, а не node напрямую: относительные импорты без расширения.",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["**/*.ts"]
+}

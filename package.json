@@ -1,0 +1,28 @@
+{
+  "name": "@vpe/monorepo",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Video Production Engine — монорепо (ADR-0009: восемь пакетов, стрелки вниз, границы охраняются тестами)",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": "25.6.1"
+  },
+  "scripts": {
+    "test": "cross-env TZ=UTC LC_ALL=C vitest run",
+    "test:watch": "cross-env TZ=UTC LC_ALL=C vitest",
+    "lint": "cross-env TZ=UTC LC_ALL=C eslint .",
+    "typecheck": "cross-env TZ=UTC LC_ALL=C tsc --build",
+    "build": "cross-env TZ=UTC LC_ALL=C tsc --build",
+    "clean": "cross-env TZ=UTC LC_ALL=C tsc --build --clean"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "cross-env": "10.1.0",
+    "eslint": "9.39.5",
+    "eslint-plugin-import": "2.32.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.11"
+  }
+}
