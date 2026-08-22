@@ -32,7 +32,7 @@ profiles:
 voice:
   providerId: "tts:mock@1"     # фикстуры используют только mock (ADR-0010 §7)
   modelId: "mock-1"
-  voiceId: "mock-voice-a"
+  voiceId: "VPE_MOCK_VOICE_ID"   # ИМЯ переменной окружения, не значение (CLAUDE.md §2, решение S-02-fix)
   seed: 7
   binderId: "provider-timestamps@1"
 

@@ -24,7 +24,15 @@ import { parse as parseYaml } from 'yaml';
 import { afterAll, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import { RENDER_PROFILE_IDS, RenderProfileSchema, loadRenderProfile, type RenderProfile } from '../src/index.js';
+import {
+  AudioProfileSchema,
+  CompileProfileSchema,
+  ProjectSchema,
+  RENDER_PROFILE_IDS,
+  RenderProfileSchema,
+  loadRenderProfile,
+  type RenderProfile,
+} from '../src/index.js';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const PROFILES = path.join(REPO, 'fixtures/minimal/profiles');
@@ -101,7 +109,7 @@ function leaves(value: unknown, prefix = ''): Map<string, unknown> {
  * ложно-зелёным ровно в тот день, когда в схему добавят обёртку.
  */
 function schemaKeys(node: unknown, prefix = ''): string[] {
-  const def = (node as { _zod: { def: { type: string; shape?: Record<string, unknown> } } })._zod.def;
+  const def = (node as { _zod: { def: { type: string; shape?: Record<string, unknown>; element?: unknown } } })._zod.def;
   switch (def.type) {
     case 'object': {
       const shape = def.shape ?? {};
@@ -111,7 +119,11 @@ function schemaKeys(node: unknown, prefix = ''): string[] {
       });
     }
     case 'optional':
+    case 'nullable':
       return schemaKeys((node as { unwrap: () => unknown }).unwrap(), prefix);
+    case 'array':
+      // Элемент списка имени не имеет, но его поля — имеют (`store.remotes[]` у `project/1`).
+      return schemaKeys((def as { element?: unknown }).element, `${prefix}[]`);
     case 'string':
     case 'number':
     case 'boolean':
@@ -246,12 +258,44 @@ describe('ограничения ADR: каждое нарушение отвер
 
 // ── 5. K6 (часть профилей) ─────────────────────────────────────────────────────────────────
 
-describe('K6 — в схеме `render-profile/1` нет полей измеренного окружения', () => {
+// ЭТОТ БЛОК — ОБЩЕРЕПОЗИТОРНЫЙ ОХРАННИК K6, а не охранник одного семейства. Он живёт в этом
+// файле потому, что появился здесь в `R-02` и на него ссылается `docs/invariants.md`; `S-02-fix`
+// расширил его на все четыре семейства профилей, не переезжая, чтобы ссылки остались верными.
+describe('K6 — в схемах профилей нет полей измеренного окружения', () => {
   // ADR-0006 §3: версии hyperframes / chrome-headless-shell / gsap / three / ffmpeg,
   // `compositionHash`, checksum шрифтов и `hostClass` живут ТОЛЬКО в `engineFingerprint`.
   // Charter §6 rev7 закрыл последнее исключение: версия `chrome-headless-shell` пришпилена
   // в lockfile/`vendor/` и охраняется R14, в профиле её нет.
   const FORBIDDEN = ['version', 'hash', 'sha', 'checksum', 'fingerprint'];
+
+  /**
+   * ЯВНЫЙ ALLOWLIST — решение владельца (`S-02-fix`, 2026-08-22), вариант «(б)-лайт».
+   *
+   * Правило K6 говорит про **измеренные величины**; именной тест — лишь его механизм, и он
+   * ловит слово, а не смысл. `templateRegistryVersion` — единственное поле, где механизм и
+   * правило расходятся: версия реестра шаблонов есть **намерение автора**, названа в
+   * ADR-0006 §5 поимённо, в колонке `compileProfile`, и `engineFingerprint` к ней отношения
+   * не имеет.
+   *
+   * Список обязан оставаться из одного имени: отдельный тест ниже это утверждает, чтобы
+   * allowlist нельзя было расширить молча — иначе K6 растворился бы по одному исключению.
+   */
+  const ALLOWLIST = ['templateRegistryVersion'];
+
+  /** Четыре семейства, к которым K6 применим: три профиля плюс геометрия произведения. */
+  const PROFILE_FAMILIES: ReadonlyArray<readonly [string, unknown]> = [
+    ['render-profile/1', RenderProfileSchema],
+    ['compile-profile/1', CompileProfileSchema],
+    ['audio-profile/1', AudioProfileSchema],
+    ['project/1', ProjectSchema],
+  ];
+
+  const offendersIn = (keys: readonly string[]): string[] =>
+    keys.filter((full) => {
+      const leaf = full.split('.').at(-1) ?? '';
+      if (ALLOWLIST.includes(leaf)) return false;
+      return FORBIDDEN.some((word) => leaf.toLowerCase().includes(word));
+    });
 
   it('обходчик схемы видит все ключи всех уровней', () => {
     // Контроль прибора: без него следующий тест зелёный и на пустом списке.
@@ -261,24 +305,34 @@ describe('K6 — в схеме `render-profile/1` нет полей измере
     expect(keys).toContain('pixelProfile.jpegQuality'); // optional разворачивается
     expect(keys).toContain('maxProbeDurationFrames');
     expect(keys.length).toBeGreaterThanOrEqual(21);
+    // И на остальных трёх семействах он тоже что-то видит, а не молча возвращает пусто.
+    for (const [name, schema] of PROFILE_FAMILIES) {
+      expect(schemaKeys(schema).length, name).toBeGreaterThanOrEqual(10);
+    }
   });
 
-  it('ни одно имя поля не содержит version/hash/sha/checksum/fingerprint', () => {
-    const offenders = schemaKeys(RenderProfileSchema).filter((full) => {
+  it.each(PROFILE_FAMILIES)('%s: ни одно имя поля не содержит version/hash/sha/checksum/fingerprint', (name, schema) => {
+    expect(
+      offendersIn(schemaKeys(schema)),
+      `K6 (${name}): измеренное окружение обязано жить только в \`engineFingerprint\``,
+    ).toEqual([]);
+  });
+
+  it('allowlist состоит РОВНО из одного имени — расширить его молча нельзя', () => {
+    // Это и есть цена варианта «(б)-лайт»: исключение допущено, но оно одно и видимое.
+    expect(ALLOWLIST).toEqual(['templateRegistryVersion']);
+    // И оно действительно нужно: без него `compile-profile/1` покраснел бы.
+    const withoutAllowlist = schemaKeys(CompileProfileSchema).filter((full) => {
       const leaf = (full.split('.').at(-1) ?? '').toLowerCase();
       return FORBIDDEN.some((word) => leaf.includes(word));
     });
-    expect(offenders, 'K6: измеренное окружение обязано жить только в `engineFingerprint`').toEqual([]);
+    expect(withoutAllowlist).toEqual(['templateRegistryVersion']);
   });
 
   it('то же правило выполнено и в трёх артефактах фикстуры', () => {
     for (const file of Object.keys(FILE_TO_PROFILE_ID)) {
       const keys = [...leaves(loadRenderProfile(path.join(PROFILES, file))).keys()];
-      const offenders = keys.filter((full) => {
-        const leaf = (full.split('.').at(-1) ?? '').toLowerCase();
-        return FORBIDDEN.some((word) => leaf.includes(word));
-      });
-      expect(offenders, file).toEqual([]);
+      expect(offendersIn(keys), file).toEqual([]);
     }
   });
 });

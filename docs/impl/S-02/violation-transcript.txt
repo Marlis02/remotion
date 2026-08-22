@@ -164,3 +164,24 @@ S-02 — ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ (2026-08-22)
  Test Files  1 failed (1)
  Tests  1 failed | 38 passed (39)
 
+
+########## ДОПОЛНЕНИЕ: S-02-fix (2026-08-22) ##########
+Два нарушения к исправлениям по проверке. Тот же порядок: внести руками,
+прогнать охраняющий тест, откатить. Итог — `git status` по `fixtures/`:
+ровно одна изменённая строка в `project.yaml` (правка `voiceId` по решению
+владельца), больше ничего.
+
+=================== №18 K6 НАРУШЕНИЕ: allowlist расширен на второе имя (`engineVersion` в compile-profile/1) ===================
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схемах профилей нет полей измеренного окружения > allowlist состоит РОВНО из одного имени — расширить его молча нельзя
+ AssertionError: expected [ 'templateRegistryVersion', …(1) ] to deeply equal [ 'templateRegistryVersion' ]
+ Test Files  1 failed (1)
+ Tests  1 failed | 31 passed (32)
+
+=================== №19 CLAUDE.md §2 НАРУШЕНИЕ: валидатор `voiceId` снят — literal уезжает в git ===================
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02-fix — `project/1`: `voiceId` держит имя переменной, а не значение > настоящий `voice_id` провайдера отвергается — Charter §6, CLAUDE.md §2
+ AssertionError: expected [Function] to throw an error
+ FAIL  packages/schema/test/canonical-form.test.ts > S-02-fix — `project/1`: `voiceId` держит имя переменной, а не значение > правило то же, что у `voice-roles/1`, — без исключения «у мока можно»
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  2 failed | 64 passed (66)
+

@@ -304,6 +304,33 @@ describe('S-02 — `voice-roles/1`: секрет не попадает в фай
   });
 });
 
+// ── 5a. `project/1`: `voiceId` — тоже имя переменной ──────────────────────────────────────
+
+describe('S-02-fix — `project/1`: `voiceId` держит имя переменной, а не значение', () => {
+  const project = (voiceId: string): unknown => {
+    const value = readFamily(at('project.yaml')).value as { voice: Record<string, unknown> };
+    return { ...value, voice: { ...value.voice, voiceId } };
+  };
+
+  it('имя переменной окружения принимается — так и записано в фикстуре', () => {
+    const value = readFamily(at('project.yaml')).value as { voice: { voiceId: string } };
+    expect(value.voice.voiceId).toBe('VPE_MOCK_VOICE_ID');
+    expect(() => renderFamily('project', project('ELEVENLABS_VOICE_ID'))).not.toThrow();
+  });
+
+  it('настоящий `voice_id` провайдера отвергается — Charter §6, CLAUDE.md §2', () => {
+    // Ровно та ошибка, ради которой правило написано: человек вставил значение из дашборда.
+    expect(() => renderFamily('project', project('21m00Tcm4TlvDq8ikWAM'))).toThrow();
+    expect(() => renderFamily('project', project('mock-voice-a'))).toThrow();
+  });
+
+  it('правило то же, что у `voice-roles/1`, — без исключения «у мока можно»', () => {
+    // Исключение пришлось бы проверять по значению `providerId`, то есть межполевым
+    // правилом ради удобства записи. Одно правило без исключений дешевле двух.
+    expect(() => renderFamily('project', project('vpe_mock_voice_id'))).toThrow();
+  });
+});
+
 // ── 6. `anchors/1`: JSONL ──────────────────────────────────────────────────────────────────
 
 describe('S-02 — `anchors/1`: строка = запись, шапка первой строкой', () => {
