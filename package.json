@@ -14,7 +14,8 @@
     "lint": "cross-env TZ=UTC LC_ALL=C eslint .",
     "typecheck": "cross-env TZ=UTC LC_ALL=C tsc --build",
     "build": "cross-env TZ=UTC LC_ALL=C tsc --build",
-    "clean": "cross-env TZ=UTC LC_ALL=C tsc --build --clean"
+    "clean": "cross-env TZ=UTC LC_ALL=C tsc --build --clean",
+    "golden:update": "cross-env TZ=UTC LC_ALL=C VPE_GOLDEN_UPDATE=1 vitest run packages/core-model/test/source-golden.test.ts"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

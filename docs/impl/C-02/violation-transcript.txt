@@ -1,0 +1,254 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `C-02` (лексер, span-map, AST)
+==============================================================================
+Каждое нарушение вносится заменой полной строки кода, после чего файл восстанавливается
+ИЗ БЭКАПА (не обратной заменой). `fixtures/` не изменяется ни в одном нарушении: там, где
+нужен изменённый исходник, правится КОПИЯ в памяти теста (нарушения 20 и 21).
+Классы: (а) ломается реализация; (б) ломается сам охранник; (в) нарушение в настоящем коде.
+
+--- НАРУШЕНИЕ 1 (а): снят NFC — нормализация Unicode не выполняется
+    Ожидание: D8: NFD-абзац даёт другой spoken и другой дамп
+    Прогон: pnpm vitest run source-spanmap.test.ts
+    × нормализация приводит их к одному потоку 6ms
+    × spoken каждого чанка — байт-в-байт тот же, позиции и имена якорей — те же 4ms
+    Tests  2 failed | 10 passed (12)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-spanmap.test.ts > D8 — NFC + `\n` первым шагом > нормализация приводит их к одному потоку
+    AssertionError: expected 'schema: source-dialect/1\n# chapter: …' to be 'schema: source-dialect/1\n# chapter: …' // Object.is equality
+    FAIL  packages/core-model/test/source-spanmap.test.ts > D8 — NFC + `\n` первым шагом > spoken каждого чанка — байт-в-байт тот же, позиции и имена якорей — те же
+    AssertionError: expected [ …(2) ] to deeply equal [ …(2) ]
+
+--- НАРУШЕНИЕ 2 (а): сняты переводы строк — `\r\n` остаётся в потоке
+    Ожидание: D8: версия с `\r\n` даёт другие позиции
+    Прогон: pnpm vitest run source-spanmap.test.ts
+    × нормализация приводит их к одному потоку 6ms
+    × spoken каждого чанка — байт-в-байт тот же, позиции и имена якорей — те же 4ms
+    × D8 держится и на фикстуре: NFD-копия даёт тот же дамп 3ms
+    Tests  3 failed | 9 passed (12)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-spanmap.test.ts > D8 — NFC + `\n` первым шагом > нормализация приводит их к одному потоку
+    AssertionError: expected 'schema: source-dialect/1\r\n# chapter…' to be 'schema: source-dialect/1\n# chapter: …' // Object.is equality
+    FAIL  packages/core-model/test/source-spanmap.test.ts > D8 — NFC + `\n` первым шагом > spoken каждого чанка — байт-в-байт тот же, позиции и имена якорей — те же
+
+--- НАРУШЕНИЕ 3 (а): снято схлопывание пробельных: каждый пробел копируется как есть
+    Ожидание: снятый `[beat:]` меняет spoken-байты ⇒ платная перегенерация
+    Прогон: pnpm vitest run source-spanmap.test.ts
+    × бесплатный по таблице маркер не меняет ни одного байта spoken-текста 7ms
+    × то же верно для `[emph]` и для нескольких маркеров подряд 2ms
+    × ведущие и хвостовые пробельные чанка снимаются 1ms
+    Tests  3 failed | 9 passed (12)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-spanmap.test.ts > схлопывание пробельных — решение владельца `C-02` (пометка у D8) > бесплатный по таблице маркер не меняет ни одного байта spoken-текста
+    AssertionError: expected false to be true // Object.is equality
+    FAIL  packages/core-model/test/source-spanmap.test.ts > схлопывание пробельных — решение владельца `C-02` (пометка у D8) > то же верно для `[emph]` и для нескольких маркеров подряд
+
+--- НАРУШЕНИЕ 4 (а): span схлопнутого пробела указывает на ПОСЛЕДНИЙ символ ряда, а не на первый
+    Ожидание: golden: позиция пробела сдвинулась (round-trip этого НЕ видит)
+    Прогон: pnpm vitest run source-golden.test.ts source-spanmap.test.ts
+    × дамп AST совпадает с зафиксированным байт-в-байт 7ms
+    Tests  1 failed | 15 passed (16)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+
+--- НАРУШЕНИЕ 5 (а): `[emph]` попадает в spoken как текст
+    Ожидание: `[emph]` — чисто визуальный маркер, в TTS не уходит
+    Прогон: pnpm vitest run source-parse.test.ts source-golden.test.ts
+    × дамп AST совпадает с зафиксированным байт-в-байт 6ms
+    × `[emph]` в spoken не добавляет ничего и не ломает соседние токены 6ms
+    Tests  2 failed | 27 passed (29)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[say:]`, `[emph]`, `[beat:]` > `[emph]` в spoken не добавляет ничего и не ломает соседние токены
+    AssertionError: expected 'What it [emph] cost.' to be 'What it cost.' // Object.is equality
+
+--- НАРУШЕНИЕ 6 (а): `[say: d | s]` отправляет в TTS display-часть вместо spoken
+    Ожидание: в spoken идёт `s`, в display `d`
+    Прогон: pnpm vitest run source-parse.test.ts source-golden.test.ts
+    × `[say: d | s]` — в spoken идёт `s`, в display `d`, токен ОДИН целиком 5ms
+    × дамп AST совпадает с зафиксированным байт-в-байт 7ms
+    Tests  2 failed | 27 passed (29)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[say:]`, `[emph]`, `[beat:]` > `[say: d | s]` — в spoken идёт `s`, в display `d`, токен ОДИН целиком
+    AssertionError: expected 'Almost 200 years.' to be 'Almost two hundred years.' // Object.is equality
+
+--- НАРУШЕНИЕ 7 (а): снята проверка границы предложения у `[pause:]` внутри абзаца
+    Ожидание: пауза внутри предложения обязана быть ошибкой компиляции
+    Прогон: pnpm vitest run source-parse.test.ts
+    × внутри абзаца НЕ на границе предложения — ошибка компиляции с местом 4ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[pause: Nms]` — три положения > внутри абзаца НЕ на границе предложения — ошибка компиляции с местом
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 8 (а): снята проверка «`[img:]` только в начале предложения»
+    Ожидание: `[img:]` в середине предложения обязан быть ошибкой
+    Прогон: pnpm vitest run source-parse.test.ts
+    × `[img: alias]` не в начале предложения — ошибка 4ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[img:]` и заголовки — правила МЕСТА > `[img: alias]` не в начале предложения — ошибка
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 9 (а): неизвестный маркер молча пропускается вместо отказа
+    Ожидание: ADR-0002 §1: список маркеров закрыт, расширение требует нового ADR
+    Прогон: pnpm vitest run source-parse.test.ts
+    × неизвестный маркер — ошибка, а не пропуск 4ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[say:]`, `[emph]`, `[beat:]` > неизвестный маркер — ошибка, а не пропуск
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 10 (а): `#` в прозе перестал быть ошибкой
+    Ожидание: `# chapter:` не в начале строки обязан быть ошибкой
+    Прогон: pnpm vitest run source-parse.test.ts
+    × `# chapter:` не в начале строки — ошибка 4ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[img:]` и заголовки — правила МЕСТА > `# chapter:` не в начале строки — ошибка
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 11 (а): span-map сдвинута на один символ
+    Ожидание: round-trip «символ → символ» и golden
+    Прогон: pnpm vitest run source-spanmap.test.ts source-golden.test.ts
+    × дамп AST совпадает с зафиксированным байт-в-байт 6ms
+    × каждый символ spoken → исходный символ → тот же символ 6ms
+    × span-map покрывает spoken целиком и монотонна в code points 5ms
+    Tests  3 failed | 13 passed (16)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-spanmap.test.ts > span-map: round-trip по фикстуре > каждый символ spoken → исходный символ → тот же символ
+
+--- НАРУШЕНИЕ 12 (а): проза до первой `## scene:` перестала быть ошибкой
+    Ожидание: у чанка вне сцены нет `chunkKey` (ADR-0010 §3a)
+    Прогон: pnpm vitest run source-parse.test.ts
+    × проза до первой `## scene:` — ошибка: у чанка вне сцены нет `chunkKey` 6ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > структура: глава, сцена, абзац > проза до первой `## scene:` — ошибка: у чанка вне сцены нет `chunkKey`
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected TypeError: Cannot read properties of unde… to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 13 (а): повторный якорь перестал быть ошибкой
+    Ожидание: живые id уникальны (ADR-0004 §4)
+    Прогон: pnpm vitest run source-parse.test.ts
+    × повторный якорь — ошибка: живые id уникальны (ADR-0004 §4) 5ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > структура: глава, сцена, абзац > повторный якорь — ошибка: живые id уникальны (ADR-0004 §4)
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 14 (а): `[pause:]` в начале абзаца трактуется как разрез, а не как тишина
+    Ожидание: пауза на границе абзаца не режет и не стоит денег (ADR-0002 §2)
+    Прогон: pnpm vitest run source-parse.test.ts
+    × между абзацами: узел тишины, разреза нет, чанк один 4ms
+    × сэмплы считает `msToSamples`, `sampleRate` — параметр без умолчания 1ms
+    Tests  2 failed | 23 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[pause: Nms]` — три положения > между абзацами: узел тишины, разреза нет, чанк один
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[pause: Nms]` — три положения > сэмплы считает `msToSamples`, `sampleRate` — параметр без умолчания
+
+--- НАРУШЕНИЕ 15 (а): `splitIndex` не растёт при разрезе
+    Ожидание: `splitIndex` — часть `chunkKey` (ADR-0010 §3a)
+    Прогон: pnpm vitest run source-parse.test.ts source-golden.test.ts
+    × внутри абзаца на границе предложения: разрез чанка и тишина 7ms
+    × дамп AST совпадает с зафиксированным байт-в-байт 7ms
+    Tests  2 failed | 27 passed (29)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[pause: Nms]` — три положения > внутри абзаца на границе предложения: разрез чанка и тишина
+    AssertionError: expected [ +0, +0 ] to deeply equal [ +0, 1 ]
+
+--- НАРУШЕНИЕ 16 (а): `ordinalInScene` стал константой
+    Ожидание: ordinal локален для сцены и обязан расти
+    Прогон: pnpm vitest run source-parse.test.ts source-golden.test.ts
+    × `ordinalInScene` считается ВНУТРИ сцены, сквозного счётчика по документу нет 8ms
+    × дамп AST совпадает с зафиксированным байт-в-байт 6ms
+    Tests  2 failed | 27 passed (29)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-parse.test.ts > структура: глава, сцена, абзац > `ordinalInScene` считается ВНУТРИ сцены, сквозного счётчика по документу нет
+    AssertionError: expected [ [ 1, 1 ], [ 1 ] ] to deeply equal [ [ 1, 2 ], [ 1 ] ]
+
+--- НАРУШЕНИЕ 17 (а): снята проверка «первая строка — шапка»
+    Ожидание: тело без шапки теряло бы первую строку молча
+    Прогон: pnpm vitest run source-parse.test.ts
+    × без шапки первая строка исчезла бы молча — поэтому это отказ 3ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > вход лексера > без шапки первая строка исчезла бы молча — поэтому это отказ
+    AssertionError: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 18 (а): `[say:]` без разделителя `|` перестал быть ошибкой
+    Ожидание: форма маркера — `[say: display | spoken]`
+    Прогон: pnpm vitest run source-parse.test.ts
+    × `[say:]` без разделителя и с двумя `|` — ошибки 4ms
+    Tests  1 failed | 24 passed (25)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-parse.test.ts > таблица ADR-0002 §2: `[say:]`, `[emph]`, `[beat:]` > `[say:]` без разделителя и с двумя `|` — ошибки
+    AssertionError: ожидался отказ лексера, а разбор прошёл: expected undefined to be an instance of SourceParseError
+
+--- НАРУШЕНИЕ 19 (в): перевод мс в сэмплы написан руками в НАСТОЯЩЕМ коде парсера (линт T1 из `C-01`)
+    Ожидание: ADR-0003 T1: `msToSamples` — единственная функция перевода
+    Прогон: pnpm lint
+    141:12  error  ADR-0003 T1 / `C-01`: `msToSamples` — ЕДИНСТВЕННАЯ разрешённая функция перевода времени. `* sampleRate` или `/ 1000`, написанные руками, — это вторая формула перевода, а второй быть не 
+    141:13  error  ADR-0003 T1 / `C-01`: `msToSamples` — ЕДИНСТВЕННАЯ разрешённая функция перевода времени. `* sampleRate` или `/ 1000`, написанные руками, — это вторая формула перевода, а второй быть не 
+
+--- НАРУШЕНИЕ 20 (а): один символ фикстуры изменён в КОПИИ (сам `fixtures/` не тронут)
+    Ожидание: golden обязан покраснеть от одного символа
+    Прогон: pnpm vitest run source-golden.test.ts
+    × дамп AST совпадает с зафиксированным байт-в-байт 7ms
+    × P3: шапку читает `readFamily`, тело — лексер, и они не пересекаются 7ms
+    Tests  2 failed | 2 passed (4)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > дамп AST совпадает с зафиксированным байт-в-байт
+    AssertionError: Разбор фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"chapters":[{"anchor":"ch:main","id"…
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > P3: шапку читает `readFamily`, тело — лексер, и они не пересекаются
+    AssertionError: expected '{"chapters":[{"anchor":"ch:main","id"…' to contain 'The morning began the same way'
+
+--- НАРУШЕНИЕ 21 (б): ОХРАННИК ослаблен: golden сравнивает не байты, а тип значения — и молчит на том же нарушении
+    Ожидание: показывает цену сравнения байтов: ослабленный охранник молчит
+    Прогон: pnpm vitest run source-golden.test.ts
+    × P3: шапку читает `readFamily`, тело — лексер, и они не пересекаются 11ms
+    Tests  1 failed | 3 passed (4)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-golden.test.ts > golden: разбор `fixtures/minimal/source/01-intro.md` > P3: шапку читает `readFamily`, тело — лексер, и они не пересекаются
+    AssertionError: expected '{"chapters":[{"anchor":"ch:main","id"…' to contain 'The morning began the same way'
+
+--- НАРУШЕНИЕ 22 (б): ОХРАННИК ослаблен: D8 сравнивает только длины spoken — и молчит на снятом NFC
+    Ожидание: сравнение длин вместо байтов делает D8 фикцией
+    Прогон: pnpm vitest run source-spanmap.test.ts
+    × нормализация приводит их к одному потоку 5ms
+    Tests  1 failed | 11 passed (12)
+    ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+    FAIL  packages/core-model/test/source-spanmap.test.ts > D8 — NFC + `\n` первым шагом > нормализация приводит их к одному потоку
+    AssertionError: expected 'schema: source-dialect/1\n# chapter: …' to be 'schema: source-dialect/1\n# chapter: …' // Object.is equality
+
+==============================================================================
+Восстановление из бэкапа и контрольный прогон — ниже.
+
+КОНТРОЛЬНАЯ СВЕРКА ПОСЛЕ ПРОТОКОЛА
+==============================================================================
+$ diff -r <бэкап>/src packages/core-model/src      → расхождений нет
+$ diff -r <бэкап>/test packages/core-model/test    → расхождений нет
+$ git status --porcelain fixtures/                 → пусто (фикстура не изменена ни разу)
+$ pnpm lint                                        → зелёный
+$ pnpm typecheck                                   → зелёный
+$ pnpm test                                        → 23 файла, 514 тестов, зелёный
+
+ИТОГ: 22 нарушения, ни одно не осталось невнесённым, ни один охранник не промолчал.
+Два наблюдения записаны как есть, а не подогнаны:
+
+* Нарушение 4 (span схлопнутого пробела указывает на последний символ ряда) краснит ТОЛЬКО
+  golden: 15 тестов из 16 зелёные. Round-trip такого сдвига не видит по построению — он
+  проверяет, что символ пробельный, а не КАКОЙ именно пробельный. Это и есть цена golden'а.
+
+* Нарушения 21 и 22 (класс «б», ослабляется сам охранник) показали ослабленную проверку
+  молчащей — и обе поймала СОСЕДНЯЯ проверка того же файла: в 21 это `P3`-тест (в дампе нет
+  ожидаемой прозы), в 22 — проверка «нормализация приводит оба входа к одному потоку».
+  Это записано, потому что «ослабленный охранник промолчал» и «нарушение не поймано» — разные
+  факты; охрана оказалась слоёной, и слои названы.

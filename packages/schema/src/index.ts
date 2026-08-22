@@ -53,6 +53,10 @@ export { SourceDialectHeaderSchema, type SourceDialectHeader } from './families/
 export { StoreLockSchema, type StoreLock } from './families/store-lock.js';
 export { VoiceRolesSchema, type VoiceRoles } from './families/voice-roles.js';
 export { identifier, isIdentifier } from './families/marks.js';
+// `publicAnchor` — нормативная форма якоря (ADR-0004 §1). Экспортируется, потому что лексер
+// `C-02` обязан проверять имена `# chapter:` / `## scene:` / `[beat:]` ТОЙ ЖЕ формой, которой
+// их проверит `direction/1`: вторая копия регулярки разошлась бы с этой при первой правке.
+export { AnchorPointSchema, FpsSchema, blake3Hex, publicAnchor, sha256Hex } from './families/common.js';
 
 // `R-02` — семейство `render-profile/1`.
 export {

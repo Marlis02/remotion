@@ -36,3 +36,39 @@ export {
   type RealizableTimePoint,
   type TimePoint,
 } from './time/timepoint.js';
+
+// `C-02` — лексер диалекта `source/`, span-map, AST (ADR-0002 §1, §2, §5, §8).
+export { SourceParseError, type SourceLocation, type SourceRule } from './source/errors.js';
+export {
+  at,
+  isWhitespace,
+  locationAt,
+  normalizeSource,
+  pointLength,
+  positionAt,
+  sliceSource,
+  sourceText,
+  spanOf,
+  spanText,
+  type SourceText,
+  type Span,
+} from './source/text.js';
+export {
+  chunksOf,
+  displaySpanOf,
+  spokenSpanOf,
+  type Chapter,
+  type Chunk,
+  type ChunkBreak,
+  type ChunkNode,
+  type Paragraph,
+  type Scene,
+  type Silence,
+  type SourceDocument,
+  type SpanRun,
+  type TokenNode,
+} from './source/ast.js';
+export { lexBlocks, lexInline, lexMarker, type Block, type InlineItem, type RawMarker } from './source/lexer.js';
+export { parseSource, type ParseOptions } from './source/parse.js';
+export { runAtSpoken, sourceToSpoken, spokenToLocation, spokenToSource } from './source/spanmap.js';
+export { dumpAst } from './source/dump.js';
