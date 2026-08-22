@@ -1,12 +1,20 @@
 schema: render-profile/1
-profileId: ac4
+profileId: ac4            # имя файла ↔ profileId связаны ADR-0005 §1
 
 # Выделенный профиль для проверки детерминизма (находки C5 и M10).
 # Он разводит два конфликтующих требования: final может быть быстрым,
 # AC4 — строгим с нулевым порогом. Формулировка честна:
-# «движок детерминирован на выделенном профиле», а не «наши ролики побитово воспроизводимы».
+# «пара (рендерер+бэкенд, композиция) проходит гейт на выделенном профиле»,
+# а не «наши ролики побитово воспроизводимы».
+#
+# Charter AC4 rev5: этот профиль — ПОЛНЫЙ ПРОГОН ФИКСТУРНОГО ПРОЕКТА (компиляция →
+# сегменты → конкат → мукс → аудио), а не проверка шаблона. Гейта шаблона V13 на нём НЕТ:
+# N назван только для final (10) и draftHalf (3) — решение владельца 12 (RM2, 2026-08-22),
+# охранник — строка R12 в docs/invariants.md.
+#
+# Приведено к ADR-0008 (RM2, дрейф roadmap §9 п. 1): поля Remotion удалены.
 pixelProfile:
-  gl: swangle
+  browserGpu: false
   imageFormat: png                # изолирует Chrome от энкодера: хэшируется кадр ДО энкода
   scale: 0.25                     # 270x480
   colorSpace: bt709
@@ -24,11 +32,7 @@ pixelProfile:
     bitexact: true
 
 executionProfile:
-  concurrency: 1
-  offthreadVideoCacheSizeInBytes: 134217728
-  mediaCacheSizeInBytes: 134217728
-  offthreadVideoThreads: 1
-  disallowParallelEncoding: true
+  workers: 1
   chapterParallelism: 1
   segmentTimeoutMs: 600000
 

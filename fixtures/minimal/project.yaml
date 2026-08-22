@@ -4,6 +4,8 @@ id: minimal
 channelId: demo-channel
 
 # Геометрия времени — часть ПРОИЗВЕДЕНИЯ (ADR-0006): смена этих величин меняет IR.
+# 30 fps — РЕШЕНИЕ владельца 3 (RM2, 2026-08-22), а не умолчание: см. ADR-0003,
+# «fps = 30 — решение, а не умолчание». 60 fps — откат с пересъёмом гейта всех шаблонов.
 fps: { num: 30, den: 1 }
 width: 1080
 height: 1920
@@ -15,9 +17,15 @@ projectSampleRate: 24000
 # Коммитится и входит в иерархию seed'ов (ADR-0007 §1).
 seedRoot: 305419896
 
+# Раскладка и связь «имя файла ↔ profileId» — ADR-0005 §1.
+# draft добавлен RM2 (дрейф roadmap §9 п. 5): draftHalf обязателен (ADR-0008, решение
+# владельца 7 по SP-3f) — это механизм AC3.
+# renderAc4 легализован RM2 (дрейф §9 п. 6): строка profiles/render.ac4.yaml внесена
+# в раскладку ADR-0005 §1, потому что профиль требуется Charter AC4 rev5.
 profiles:
   compile: profiles/compile.yaml
   render: profiles/render.final.yaml
+  draft: profiles/render.draft.yaml
   renderAc4: profiles/render.ac4.yaml
   audio: profiles/audio.yaml
 

@@ -1,11 +1,19 @@
 schema: render-profile/1
-profileId: final
+profileId: final          # имя файла ↔ profileId связаны ADR-0005 §1 (таблица «файл → profileId»)
 
-# ТОЛЬКО НАМЕРЕНИЕ (M9). Версии Remotion/Chrome/ffmpeg, bundleHash, checksum шрифтов
+# ТОЛЬКО НАМЕРЕНИЕ (M9). Версии рендерера/Chrome/ffmpeg, compositionHash, checksum шрифтов
 # и hostClass здесь отсутствуют: они вычисляются на каждой сборке и входят в ключ
-# ровно один раз, как engineFingerprint (ADR-0006 §3).
+# ровно один раз, как engineFingerprint (ADR-0006 §3). Поля версий в профиле запрещены
+# инвариантом K6 — поэтому версия chrome-headless-shell пришпиливается в lockfile/vendor
+# и охраняется R14, а не пишется сюда.
+#
+# Приведено к ADR-0008 (RM2, 2026-08-22, дрейф roadmap §9 п. 1): поля Remotion
+# gl: swangle, concurrency, offthreadVideoCacheSizeInBytes, mediaCacheSizeInBytes,
+# offthreadVideoThreads, disallowParallelEncoding удалены вместе с кандидатом.
 pixelProfile:
-  gl: swangle                     # angle использует GPU «when available» ⇒ зависимость от машины
+  browserGpu: false               # --no-browser-gpu: софтверный путь, независимый от GPU и драйвера
+                                  # (ADR-0008; FACT SP-3c §2: цена отказа от GPU — 27 %, зато
+                                  # растеризация не зависит от видеокарты и не перемеряется при её смене)
   imageFormat: jpeg
   jpegQuality: 90
   scale: 1
@@ -27,10 +35,9 @@ pixelProfile:
     bitexact: true                # -fflags +bitexact -flags:v +bitexact
 
 executionProfile:
-  concurrency: 4
-  offthreadVideoCacheSizeInBytes: 536870912    # дефолты Remotion запрещены: по половине RAM каждый
-  mediaCacheSizeInBytes: 536870912
-  offthreadVideoThreads: 2
-  disallowParallelEncoding: false
+  workers: 4                      # = логических ядер / 3 (ADR-0008); на машине замеров 12 ⇒ 4.
+                                  # Число, а не формула: профиль — намерение человека (M9),
+                                  # вычисляемых полей в нём нет (P10). Снижение workers —
+                                  # откат №2 лестницы ADR-0008, а не свободная настройка.
   chapterParallelism: 1           # в v1 константа, а не настройка
   segmentTimeoutMs: 900000

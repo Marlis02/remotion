@@ -18,7 +18,16 @@ records:
     params:
       from: { scale: 1.00, x: 0.0, y: 0.0 }
       to: { scale: 1.12, x: 0.03, y: -0.02 }
-      easing: "inOutCubic"        # из закрытого реестра: только полиномиальные формы (ADR-0007 §3)
+      # Приведено к реестру RM2 (2026-08-22, дрейф roadmap §9 п. 8). Прежнее имя
+      # "inOutCubic" в реестре ОТСУТСТВУЕТ: ADR-0007 §3 после серии SP-3 уточнил реестр —
+      # это ИМЕНОВАННЫЕ КРИВЫЕ GSAP (power1.inOut, power2.inOut, power3.out, back.out(1.7),
+      # sine.inOut, none), в IR идут строка-идентификатор и числа, реализация — в
+      # завендоренном gsap, версия которого входит в engineFingerprint (R14).
+      # INFERENCE: cubic in-out у GSAP называется power2.inOut (power1 = quad, power2 = cubic).
+      # Реестр фиксирует и ПОРЯДОК ТРАНСФОРМАЦИЙ (translate → scale у GSAP): на Ken Burns
+      # это до 5.4 px на последнем кадре (FACT SP-3c §6.2 п. 3), поэтому кадры НЕ переносимы
+      # на другой рендерер — кривая называется по имени рендерера, а не «по смыслу».
+      easing: "power2.inOut"
 
   - recordId: "7b20de44"
     at: { kind: anchor, anchor: "b:reveal" }

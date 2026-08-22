@@ -1,0 +1,43 @@
+schema: render-profile/1
+profileId: draftHalf      # имя файла ↔ profileId связаны ADR-0005 §1: render.draft.yaml → draftHalf
+
+# Добавлен RM2 (2026-08-22) по дрейфу roadmap §9 п. 5: ADR-0008 «Draft» (решение владельца 7
+# по итогам SP-3f) перевёл draft из «зависит от результата SP-3» в ОБЯЗАТЕЛЬНЫЕ — это механизм
+# AC3 «правка → пересборка ≤ 3 минут», а не аварийный режим.
+#
+# ЖЁСТКОЕ ПРАВИЛО ADR-0008: draft отличается только тем, что НЕ МЕНЯЕТ ГЕОМЕТРИЮ ВРЕМЕНИ.
+# fps и соотношение сторон обязаны совпадать с final; меняются scale, imageFormat,
+# jpegQuality, crf, executionProfile. Кэши живут в разных пространствах имён по profileId
+# (ADR-0006 §13), поэтому прогрев финального кэша черновыми прогонами невозможен by design.
+#
+# FACT (SP-3f §2): draftHalf даёт 33.886 кадра/с медианой против 5.669 у final — ×6.0.
+# FACT (SP-3f §1.1): при этом ТОТ ЖЕ детерминизм — 3 прогона, один sha256.
+# Оговорка (FACT SP-3c §6.2 п. 8): масштаб < 1 через CLI рендерера не выражается —
+# --resolution умеет только целые множители вверх. Половинный draft раскрывает АДАПТЕР
+# в геометрию композиции (CSS transform: scale(0.5) и размеры html/body); это вторая
+# обязанность адаптера сверх контракта после квантования времени.
+pixelProfile:
+  browserGpu: false               # как у final: софтверный путь
+  imageFormat: jpeg
+  jpegQuality: 80
+  scale: 0.5                      # 540x960 при 1080x1920 у final
+  colorSpace: bt709
+  pixelFormat: yuv420p
+  codec: h264
+  crf: 28
+  gopSize: 30
+  encoder:
+    threads: 4
+    preset: medium
+    tune: none
+    rcLookahead: 40
+    aqMode: 1
+    psy: 1
+    bitexact: true
+
+executionProfile:
+  workers: 4                      # = логических ядер / 3 (ADR-0008)
+  chapterParallelism: 1
+  segmentTimeoutMs: 900000
+
+# Гейт V13 на этом профиле — N = 3 (Charter V13, ADR-0008 «Гейт», решение владельца 12).

@@ -4,7 +4,7 @@ schema: source-dialect/1
 
 ## scene: intro
 
-[img: harbour] The morning began the same way for almost [say: 200 | two hundred] years running. Ships came in on the night tide, and the town woke to their horns.
+[img: harbour] The morning began the same way for almost [say: 200 | two hundred] years running. [pause: 250ms] Ships came in on the night tide, and the town woke to their horns.
 
 The harbour warehouses held goods that nobody in town ever bought. [beat: reveal] They sat here exactly as long as the passage to the next shore took.
 
@@ -18,4 +18,4 @@ The warehouse keeper kept count of the days. [beat: count] Each day he drew a sh
 
 [pause: 400ms] When a ship finally came, the strokes were crossed out with one long line. The archive holds [say: 14 | fourteen] such pages.
 
-[img: sea] Not one of them explains what exactly was being awaited. [beat: close] But each one shows what it cost.
+[img: sea] Not one of them explains what exactly was being awaited. [beat: close] But each one shows what it [emph] cost.

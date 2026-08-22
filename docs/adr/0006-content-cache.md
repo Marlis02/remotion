@@ -7,6 +7,11 @@
   не влияет на пиксели — `FACT` (SP-3d §1.1) точная композиция дала один файл на `workers`
   1/2/4/8 (37 прогонов), `FACT` (SP-3f) `workers=4` дал 1 sha256 из 10. Остальные решения
   (три стадии, `cacheKeyView`, матрица мутации, атомарность) были приняты и не меняются.
+* **Ревизия:** RM1 (2026-08-22) — решения владельца по `docs/roadmap.md` §8:
+  **решение 1** — в `cacheKeyView` стадии `voice` вводится обязательный **`roleDigest`** (§2);
+  **решение 3** — `fps` в `compileProfile` зафиксирован значением 30 (§5, ссылка на ADR-0003).
+  Плюс приведение имён полей `pixelProfile`/`executionProfile` к выбранному рендереру (§5) —
+  дрейф roadmap §9 п. 1. Разбор — [docs/spikes/rm1-closure.md](../spikes/rm1-closure.md)
 * **Ревизия:** A2 (2026-08-19) — C5 (параметры энкодера в `pixelProfile`), M9 (профиль — намерение,
   окружение — `engineFingerprint`), C2 (`voiceKey` назван), M10 (`framemd5` под флагом), M5 (ключ сетки)
 * **Ревизия:** SP-3-серия (2026-08-21) — состав `engineFingerprint` (решение владельца 4),
@@ -64,7 +69,7 @@ skip-recompute**: при AC1 (150 слов) они стоят миллисеку
 
 ```
 voiceKey     = blake3( spokenChunkText, providerId, modelId, voiceId, seed, providerOpts,
-                       ttsPipelineVersion )                  // БЕЗ stitch-контекста
+                       roleDigest, ttsPipelineVersion )      // БЕЗ stitch-контекста
 composeKey   = blake3( хэши исходников renderer-hyperframes и templates-*, релевантные строки
                        lockfile, compilerVersion )           // было bundleKey
 segmentKey   = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[],
@@ -86,6 +91,36 @@ lockfile, bundlerVersion )`~~. Три правки: пакет `renderer-remotio
 `providerOpts` раскрывается в `cacheKeyView` **поимённо** (§6): «наверное, попадёт через
 providerOpts» не является ответом по построению. Словарей произношения среди них нет — они
 исключены из v1 (C1, ADR-0010 §7a); если вернутся, вместе с ними обязан появиться `lexiconDigest`.
+
+**`roleDigest` — обязательное слагаемое `voiceKey` и обязательная строка `cacheKeyView` стадии
+`voice`.** *(Добавлено: RM1, решение владельца 1, 2026-08-22, вариант «б» вопроса roadmap §8 №1.)*
+Пресеты ролей голоса живут отдельным семейством `voice/roles.yaml` (`schema: voice-roles/1`,
+ADR-0005 §1b); сцена ссылается на роль записью `direction/*.yaml` с `track: voice` и полем
+`voiceRole` (ADR-0010 §3a). Определение:
+
+```
+roleDigest = blake3( каноническая форма ТОЛЬКО ТЕХ записей voice/roles.yaml,
+                     которые применимы к ЭТОМУ чанку )
+```
+
+Три свойства, каждое из которых обязано выполняться, иначе семейство не вводится:
+
+1. **Правка роли обязана менять ключ.** Иначе автор правит темп, слышит старое аудио и думает,
+   что роль не работает. Это **буквально** та дыра, из-за которой `Lexicon` удалён из модели
+   (ADR-0010 §7a, дыра 1: «правка словаря меняет звук, не меняя ключ»), и повторять её новым
+   полем нельзя. Отсюда `roleDigest` вводится **одновременно** с семейством, а не «потом».
+2. **Правка роли обязана менять ключ только у затронутых чанков.** Отсюда «только применимых
+   к этому чанку» в определении: дайджест всего файла инвалидировал бы весь оплаченный кэш
+   `voice` проекта при правке роли, которой пользуется одна сцена. Форма взята с уже
+   записанного прецедента — `lexiconDigest` в ADR-0010 §7a определён ровно так же.
+3. **Роль не влияет на `chunkKey` и на границы чанков.** `chunkKey` — идентичность **места**
+   (ADR-0010 §3a), она собирается из структурного адреса и байтов абзаца; роль в неё не входит
+   ни одним полем. Формальный инвариант ADR-0010 §3 («множество границ чанков абзаца зависит
+   только от байтов абзаца и его структурного адреса») остаётся верным дословно.
+
+Охранник — **матрица мутации ключей** (§7, строка **K1** в [invariants.md](../invariants.md))
+плюс новая строка **V15** там же. Матрица обязана покрыть `roleDigest` наравне с остальными
+полями: «поле в `cacheKeyView` ⇒ ключ обязан измениться; поле вне ⇒ обязан не измениться».
 
 *Дополнено: SP-2, блок findings «Детерминизм seed» (2026-08-21); решение владельца 6 не
 затрагивает эту строку — это отдельное подтверждение.* `FACT`: три вызова одной строки с одним
@@ -195,10 +230,32 @@ Docker остаётся откатом, а не дефолтом (ADR-0008).
 
 | Поле | Профиль | Входит в ключ |
 |---|---|---|
-| `fps`, `width/height`, `projectSampleRate`, `safeAreas`, `templateRegistryVersion`, `defaultParagraphGapSamples`, `defaultSceneGapSamples`, `defaultChapterGapSamples`, `minSegmentDurationFrames`, `maxDurationFrames` | **compileProfile** | `renderIr`, `segment` |
-| `--gl`, `imageFormat`, `jpegQuality`, `colorSpace`, `codec`, `crf`, `gopSize`, `pixelFormat`, `scale` **и полная строка параметров энкодера** (C5): `threads` (число, не `auto`), `preset`, `tune`, `rc-lookahead`, `aq-mode`, `psy`, `-fflags +bitexact` / `-flags:v +bitexact` где применимо | **pixelProfile** | `segment` |
-| `deliverySampleRate`, аудио-кодек и битрейт, параметры ресемплера, нормализация громкости, версия и конфигурация **ffmpeg** | **audioProfile** | `audioTrack`, `final` |
-| `concurrency`, `offthreadVideoCacheSizeInBytes`, `mediaCacheSizeInBytes`, `offthreadVideoThreads`, `disallowParallelEncoding`, таймауты, `chapterParallelism` | **executionProfile** | **ни в один** (условно, см. риски) |
+| `fps`, `width/height`, `projectSampleRate`, `safeAreas`, `templateRegistryVersion`, `defaultParagraphGapSamples`, `defaultSceneGapSamples`, `defaultChapterGapSamples`, `minSegmentDurationFrames`, `maxDurationFrames`, `captions.*` | **compileProfile** | `renderIr`, `segment` |
+| ~~`--gl`~~ **`browserGpu`** *(изменено: RM1, дрейф roadmap §9 п. 1)*, `imageFormat`, `jpegQuality`, `colorSpace`, `codec`, `crf`, `gopSize`, `pixelFormat`, `scale` **и полная строка параметров энкодера** (C5): `threads` (число, не `auto`), `preset`, `tune`, `rc-lookahead`, `aq-mode`, `psy`, `-fflags +bitexact` / `-flags:v +bitexact` где применимо | **pixelProfile** | `segment` |
+| `deliverySampleRate`, аудио-кодек и битрейт, параметры ресемплера, нормализация громкости, пороги приёмки дубля `takeAcceptance`, параметры акустического детектора `speechEdges` (ADR-0003 T7/«Риски»), `alignerId` + `alignerNoiseFloor` (ADR-0007 §9), версия и конфигурация **ffmpeg** | **audioProfile** | `audioTrack`, `final` |
+| ~~`concurrency`, `offthreadVideoCacheSizeInBytes`, `mediaCacheSizeInBytes`, `offthreadVideoThreads`, `disallowParallelEncoding`~~ **`workers`** *(изменено: RM1, дрейф roadmap §9 п. 1)*, таймауты, `chapterParallelism` | **executionProfile** | **ни в один** (условно, см. риски) |
+
+*Изменено: RM1, 2026-08-22, дрейф `docs/roadmap.md` §9 п. 1.* Зачёркнутые имена — **поля
+Remotion**, снятые вместе с кандидатом (решение владельца 1 серии SP-3). У выбранного рендерера
+их нет: софтверный путь задаётся `--no-browser-gpu` (поле `browserGpu: false` в `pixelProfile`,
+потому что бэкенд растеризации меняет **пиксели**), параллелизм — `workers` = логических ядер / 3
+(поле `executionProfile`, потому что это **скорость**, а не картинка; ADR-0008). Раскладка «что
+в каком профиле» не изменилась ни на строку — изменились только имена величин.
+
+**Чего в профилях нет и не будет — версий.** Charter §6 говорит «`--no-browser-gpu`,
+`chrome-headless-shell` явной версией, `workers` — все три величины в профиле», но **версия
+`chrome-headless-shell` — это поле версии**, а строка **K6** запрещает поля версий/хэшей/checksum
+в схемах профилей и требует, чтобы измеренное окружение жило **только** в `engineFingerprint`.
+Поэтому в профиль записаны две величины из трёх, а версия пришпилена в lockfile/`vendor/` и
+охраняется строкой **R14** (`npm ls` обязан совпасть с отпечатком). Противоречие между
+формулировкой Charter §6 и K6 **здесь не разрешается** — оно вынесено владельцу
+([rm1-closure.md](../spikes/rm1-closure.md), «Найдено при внесении»).
+
+**`fps` — величина произведения, и её значение зафиксировано решением.** *(Добавлено: RM1,
+решение владельца 3, 2026-08-22.)* `fps` живёт в `compileProfile` и потому входит в ключи
+`renderIr` и `segment`: смена fps меняет IR всех сегментов и обесценивает все записи гейта V13.
+Принятое значение — **30**; основание, цена перехода на 60 и условие пересмотра — в
+[ADR-0003](0003-time-model.md), раздел «fps = 30 — решение, а не умолчание».
 
 `sampleRate` в ключе **немых** сегментов был бы прямой ошибкой: он не влияет ни на один пиксель.
 
