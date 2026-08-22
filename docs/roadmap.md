@@ -333,6 +333,7 @@ W1-reference, `mvp` = после Week-1. ~~Какой из трёх срезов
   отключение видно в диффе (ADR-0009 Consequences).
 
 #### `R-02` — приведение профилей `fixtures/minimal` к ADR-0008
+* **Статус: выполнено, 2026-08-22** — схема `render-profile/1` в `@vpe/schema`, `P10 → guarded`; отчёт [docs/impl/R-02/report.md](impl/R-02/report.md).
 * **Пакет:** fixtures. **Вход:** `R-01`. **Оценка:** 0.5.
 * **Это не решение, а приведение фикстуры к уже принятому ADR** (требование §2.2 задания RM1).
 * **Выход:** ~~из `render.final.yaml` и `render.ac4.yaml` убраны поля Remotion~~

@@ -1,0 +1,136 @@
+R-02 — ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ (2026-08-22)
+
+Пятнадцать нарушений. Каждое вносилось руками, прогонялся ровно охраняемый им тест
+(`pnpm exec vitest run packages/schema/test/render-profile.test.ts`, TZ=UTC LC_ALL=C),
+затем нарушение откатывалось. В конце — сверка с бэкапами (`diff` по `render-profile.ts`,
+`render-profile.test.ts`, `index.ts` и трём YAML фикстуры) и `git status` по `fixtures/`:
+расхождений нет, `pnpm lint` / `pnpm typecheck` / `pnpm test` зелёные (8 файлов, 59 тестов).
+
+Нарушения двух классов, и оба нужны:
+  (а) ломается АРТЕФАКТ (файл фикстуры) — охранник обязан назвать файл и поле;
+  (б) ломается ОХРАННИК (схема, парсер, прибор теста) — тест обязан покраснеть, иначе
+      он был бы зелёным и без охранника, то есть не проверял бы ничего.
+
+Ниже — отфильтрованный вывод vitest: строки FAIL, сообщение ошибки и итог прогона.
+
+=================== P10 НАРУШЕНИЕ (схема): `.strict()` снят на всех четырёх уровнях ===================
+ FAIL  packages/schema/test/render-profile.test.ts > P10 — неизвестное поле на любом уровне отвергается с путём к полю > уровень root: лишнее поле ⇒ ошибка с путём
+ Error: ожидалась ZodError, но файл `p10-root` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > P10 — неизвестное поле на любом уровне отвергается с путём к полю > уровень pixel: лишнее поле ⇒ ошибка с путём
+ Error: ожидалась ZodError, но файл `p10-pixel` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > P10 — неизвестное поле на любом уровне отвергается с путём к полю > уровень encoder: лишнее поле ⇒ ошибка с путём
+ Error: ожидалась ZodError, но файл `p10-encoder` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > P10 — неизвестное поле на любом уровне отвергается с путём к полю > уровень execution: лишнее поле ⇒ ошибка с путём
+ Error: ожидалась ZodError, но файл `p10-execution` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  4 failed | 24 passed (28)
+
+=================== P10 НАРУШЕНИЕ (артефакт): поле Remotion `concurrency` возвращено в render.final.yaml ===================
+ FAIL  packages/schema/test/render-profile.test.ts > render-profile/1 — три файла фикстуры > render.final.yaml проходит валидацию и несёт profileId из таблицы ADR-0005 §1a
+ FAIL  packages/schema/test/render-profile.test.ts > P10 — неизвестное поле на любом уровне отвергается с путём к полю > уровень execution: лишнее поле ⇒ ошибка с путём
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > множество путей одинаково: ни одно поле не появилось и не исчезло
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > дифф считается механически и целиком лежит в разрешённом множестве
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > `fps` в профиле рендера отсутствует у обоих — геометрия времени живёт в compileProfile
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > то же правило выполнено и в трёх артефактах фикстуры
+ FAIL  packages/schema/test/render-profile.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > `crf: 18.0` — тип совпадает со схемой, значение то же самое
+ Test Files  1 failed (1)
+ Tests  7 failed | 21 passed (28)
+
+=================== K6 НАРУШЕНИЕ (схема): заведено поле версии `chromeHeadlessShellVersion` ===================
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > ни одно имя поля не содержит version/hash/sha/checksum/fingerprint
+ AssertionError: K6: измеренное окружение обязано жить только в `engineFingerprint`: expected [ Array(1) ] to deeply equal []
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+
+=================== K6 НАРУШЕНИЕ (схема + артефакт): то же поле заполнено в render.final.yaml ===================
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > множество путей одинаково: ни одно поле не появилось и не исчезло
+ AssertionError: expected [ …(21) ] to deeply equal [ …(22) ]
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > дифф считается механически и целиком лежит в разрешённом множестве
+ AssertionError: expected [ Array(1) ] to deeply equal []
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > ни одно имя поля не содержит version/hash/sha/checksum/fingerprint
+ AssertionError: K6: измеренное окружение обязано жить только в `engineFingerprint`: expected [ Array(1) ] to deeply equal []
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > то же правило выполнено и в трёх артефактах фикстуры
+ AssertionError: render.final.yaml: expected [ Array(1) ] to deeply equal []
+ Test Files  1 failed (1)
+ Tests  4 failed | 24 passed (28)
+
+=================== K6 НАРУШЕНИЕ (прибор): обходчик схемы молча возвращает пустой список ===================
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > обходчик схемы видит все ключи всех уровней
+ AssertionError: expected [] to include 'profileId'
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+
+=================== ADR-0005 §1a НАРУШЕНИЕ: profileId в render.draft.yaml изменён на final ===================
+ FAIL  packages/schema/test/render-profile.test.ts > render-profile/1 — три файла фикстуры > render.draft.yaml проходит валидацию и несёт profileId из таблицы ADR-0005 §1a
+ AssertionError: expected 'final' to be 'draftHalf' // Object.is equality
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > дифф считается механически и целиком лежит в разрешённом множестве
+ AssertionError: expected [ 'pixelProfile.crf', …(2) ] to deeply equal [ 'pixelProfile.crf', …(3) ]
+ Test Files  1 failed (1)
+ Tests  2 failed | 26 passed (28)
+
+=================== roadmap R-02 НАРУШЕНИЕ: draft меняет gopSize (поле вне разрешённого множества) ===================
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > дифф считается механически и целиком лежит в разрешённом множестве
+ AssertionError: expected [ 'pixelProfile.gopSize' ] to deeply equal []
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+
+=================== ADR-0006 §5 НАРУШЕНИЕ: `fps` заведён в схеме render-profile/1 ===================
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > `fps` в профиле рендера отсутствует у обоих — геометрия времени живёт в compileProfile
+ AssertionError: expected [ 'fps' ] to deeply equal []
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+
+=================== D13 НАРУШЕНИЕ: у `threads` и `workers` снята граница ≥ 1 ===================
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > threads-zero отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `threads-zero` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > workers-zero отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `workers-zero` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  2 failed | 26 passed (28)
+
+=================== D13 НАРУШЕНИЕ: `threads` начинает принимать `auto` ===================
+ FAIL  packages/schema/test/render-profile.test.ts > roadmap `R-02` — draft отличается от final только разрешённым > `fps` в профиле рендера отсутствует у обоих — геометрия времени живёт в compileProfile
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > обходчик схемы видит все ключи всех уровней
+ FAIL  packages/schema/test/render-profile.test.ts > K6 — в схеме `render-profile/1` нет полей измеренного окружения > ни одно имя поля не содержит version/hash/sha/checksum/fingerprint
+ Error: обходчик схемы не знает узел `union` (путь `pixelProfile.encoder.threads`)
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > threads-auto отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `threads-auto` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  4 failed | 24 passed (28)
+
+=================== ADR-0008 НАРУШЕНИЕ: `chapterParallelism` перестал быть литералом 1 ===================
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > chapter-parallelism-2 отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `chapter-parallelism-2` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+
+=================== ADR-0008 НАРУШЕНИЕ: у `scale` сняты границы (0, 1] ===================
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > scale-zero отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `scale-zero` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > scale-above-one отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `scale-above-one` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  2 failed | 26 passed (28)
+
+=================== НАРУШЕНИЕ: межполевое правило jpegQuality × imageFormat удалено ===================
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > jpeg-quality-with-png отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `jpeg-quality-with-png` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > ограничения ADR: каждое нарушение отвергается > jpeg-quality-missing отвергается с путём к полю
+ Error: ожидалась ZodError, но файл `jpeg-quality-missing` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  2 failed | 26 passed (28)
+
+=================== P16 НАРУШЕНИЕ: парсер переведён на YAML 1.1 — ровно поведение js-yaml ===================
+ FAIL  packages/schema/test/render-profile.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > `bitexact: yes` — парсер оставляет строку, схема отвергает
+ Error: ожидалась ZodError, но файл `p16-bitexact-yes` прошёл валидацию
+ FAIL  packages/schema/test/render-profile.test.ts > P16 — YAML-значения получают типы схемы, без тихого приведения > контроль парсера: `04:30` — строка, а не шестидесятеричное 270
+ Error: ожидалась ZodError, но файл `p16-sexagesimal` прошёл валидацию
+ Test Files  1 failed (1)
+ Tests  2 failed | 26 passed (28)
+
+=================== ЗАГЛУШКА ШАПКИ НАРУШЕНИЕ: проверка семейства снята ===================
+ FAIL  packages/schema/test/render-profile.test.ts > render-profile/1 — три файла фикстуры > шапка проверяется до схемы: чужое семейство и отсутствие шапки — ошибка
+ AssertionError: expected [Function] to throw error matching /ожидалась `render-profile\/1`/1` but got '[\n  {\n    "code": "invalid_value",\…'
+ Test Files  1 failed (1)
+ Tests  1 failed | 27 passed (28)
+

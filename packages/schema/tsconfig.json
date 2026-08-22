@@ -1,8 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
+  "// Почему rootDir '.'": "R-02: тесты пакета лежат в `test/` (vitest.config.ts включает `packages/*/test/**`). При rootDir './src' они выпадали бы из `tsc --build`, то есть `pnpm typecheck` их не видел. Цена — `dist/` содержит и `src/`, и `test/`; пакет приватный, потребителей нет.",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
