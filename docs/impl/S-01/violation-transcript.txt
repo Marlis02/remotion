@@ -1,0 +1,226 @@
+S-01 — ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ (2026-08-22)
+
+Девятнадцать нарушений. Каждое вносилось руками, прогонялся ровно охраняемый им прибор
+(`pnpm exec vitest run <файл теста>` либо `pnpm exec eslint <файл>`, TZ=UTC LC_ALL=C),
+затем нарушение откатывалось. В конце — сверка с бэкапами по всем десяти затронутым файлам
+(`packages/schema/src/{canonical/json,types/brands,hash/blake3,hash/base32,index}.ts`,
+три файла тестов, `eslint.config.js`, `packages/core-model/src/index.ts`): расхождений нет,
+`pnpm lint` / `pnpm typecheck` / `pnpm test` зелёные (11 файлов, 139 тестов).
+
+Классы нарушений:
+  (а) ослабляется КАНОНИЗАЦИЯ (порядок ключей, запись чисел, отказы) — падает property-тест
+      или именной тест на конкретное запрещённое значение;
+  (б) ослабляется КОНСТРУКТОР бренда — падает тест границы (`2 ** 53`, `< 0`, заглавный hex);
+  (в) ломается ХЭШ или КОДИРОВАНИЕ — падают официальные векторы BLAKE3 и RFC 4648;
+  (г) трогается ЛИНТ — четыре случая подряд: нарушение ловится в чужом пакете, ловится
+      в соседнем файле того же пакета, ПЕРЕСТАЁТ ловиться при снятом правиле (тихий отказ),
+      и законно НЕ ловится в самом `canonical/json.ts`.
+
+Ниже — отфильтрованный вывод: строки FAIL/ошибок и итог прогона.
+
+=================== canonicalJson НАРУШЕНИЕ: сортировка ключей снята ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — свойства канонизации на сгенерированном корпусе > порядок ключей не зависит от порядка вставки
+ AssertionError: expected '{"aa":{"b":[{"a":false},{"café":1e-32…' to be '{"klюch":true,"aa":{"\uffff":{"café"…' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > сортировка на ВСЕХ уровнях, без единого незначимого пробела
+ AssertionError: expected '{"b":1,"a":[1,{"d":2,"c":3}],"c":{}}' to be '{"a":[1,{"c":3,"d":2}],"b":1,"c":{}}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > байтовый порядок UTF-8, а не UTF-16 code units — они расходятся
+ AssertionError: expected '{"𝄞":1,"\uffff":2}' to be '{"\uffff":2,"𝄞":1}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > пустой ключ и ключ с точкой канонизируются как обычные строки
+ AssertionError: expected '{"a.b":1,"":2,"a":3}' to be '{"":2,"a":3,"a.b":1}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > объект с `null`-прототипом законен: это plain-данные
+ AssertionError: expected '{"b":1,"a":2}' to be '{"a":2,"b":1}' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  5 failed | 34 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: компаратор заменён на голое `<` (порядок UTF-16, как в RFC 8785) ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > байтовый порядок UTF-8, а не UTF-16 code units — они расходятся
+ AssertionError: expected '{"𝄞":1,"\uffff":2}' to be '{"\uffff":2,"𝄞":1}' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: компаратор заменён на localeCompare (ловится ДВУМЯ охранниками) ===================
+ --- ESLint (Charter V8 / D4) ---
+ packages/schema/src/canonical/json.ts
+ 53:10  error  'localeCompare' is restricted from being used. Charter V8 / ADR-0007 §4: запрещено во ВСЕХ процессах сборки, не только в рендере. Только seeded random; `now` — вход сборки (BuildRecord), внутри compile его нет  no-restricted-properties
+ ✖ 1 problem (1 error, 0 warnings)
+ --- vitest (порядок ключей) ---
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — свойства канонизации на сгенерированном корпусе > порядок ключей не зависит от порядка вставки
+ AssertionError: expected '[true,null,[[],{"_":true,"a":[],"z":{…' to be '[true,null,[[],{"_":true,"a":[],"z":{…' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > байтовый порядок UTF-8, а не UTF-16 code units — они расходятся
+ AssertionError: expected '{"𝄞":1,"\uffff":2}' to be '{"\uffff":2,"𝄞":1}' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  2 failed | 37 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: числа пишутся через toFixed вместо кратчайшей round-trip-записи ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — свойства канонизации на сгенерированном корпусе > идемпотентность: canonicalJson(parse(canonicalJson(v))) === canonicalJson(v)
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — свойства канонизации на сгенерированном корпусе > вывод — валидный JSON, и числа переживают round-trip побитово
+ AssertionError: 0.000000: expected false to be true // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > сортировка на ВСЕХ уровнях, без единого незначимого пробела
+ AssertionError: expected '{"a":[1.000000,{"c":3.000000,"d":2.00…' to be '{"a":[1,{"c":3,"d":2}],"b":1,"c":{}}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > порядок элементов массива значим и не сортируется
+ AssertionError: expected '[3.000000,1.000000,2.000000]' to be '[3,1,2]' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > байтовый порядок UTF-8, а не UTF-16 code units — они расходятся
+ AssertionError: expected '{"\uffff":2.000000,"𝄞":1.000000}' to be '{"\uffff":2,"𝄞":1}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — порядок ключей > пустой ключ и ключ с точкой канонизируются как обычные строки
+ AssertionError: expected '{"":2.000000,"a":3.000000,"a.b":1.000…' to be '{"":2,"a":3,"a.b":1}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > повторная ссылка БЕЗ цикла законна — это дерево, а не граф
+ AssertionError: expected '{"a":{"x":1.000000},"b":{"x":1.000000…' to be '{"a":{"x":1},"b":{"x":1}}' // Object.is equality
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > объект с `null`-прототипом законен: это plain-данные
+ AssertionError: expected '{"a":2.000000,"b":1.000000}' to be '{"a":2,"b":1}' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  8 failed | 31 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: проверка `-0` снята ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > -0 на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > -0 в корне даёт путь `$`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ Test Files  1 failed (1)
+ Tests  2 failed | 37 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: проверки NaN и Infinity сняты ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > NaN на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Infinity на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > -Infinity на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > NaN в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Infinity в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > -Infinity в корне даёт путь `$`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ Test Files  1 failed (1)
+ Tests  6 failed | 33 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: проверка прототипа снята — Map/Set/Date/RegExp/класс проходят (R4) ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Map (R4) на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Set (R4) на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Date на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > RegExp на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > экземпляр класса на глубине даёт CanonicalJsonError с путём `$.a[1].b`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Map (R4) в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Set (R4) в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > Date в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > RegExp в корне даёт путь `$`
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > экземпляр класса в корне даёт путь `$`
+ AssertionError: expected undefined to be an instance of CanonicalJsonError
+ Test Files  1 failed (1)
+ Tests  10 failed | 29 passed (39)
+
+=================== canonicalJson НАРУШЕНИЕ: детекция цикла снята ===================
+ FAIL  packages/schema/test/canonical-json.test.ts > S-01 — запрещённое отвергается с путём, а не приводится молча > цикл ловится и не уводит в переполнение стека
+ AssertionError: expected error to be instance of CanonicalJsonError
+ RangeError {
+ Test Files  1 failed (1)
+ Tests  1 failed | 38 passed (39)
+
+=================== brands НАРУШЕНИЕ: Number.isSafeInteger заменён на Number.isInteger ===================
+ FAIL  packages/schema/test/brands.test.ts > S-01 — счётные типы: целое ≥ 0 в пределах безопасных целых > asSamples отвергает всё, что не целое ≥ 0
+ FAIL  packages/schema/test/brands.test.ts > S-01 — счётные типы: целое ≥ 0 в пределах безопасных целых > asFrames отвергает всё, что не целое ≥ 0
+ AssertionError: 2 ** 53 (за границей точного сложения): expected [Function] to throw an error
+ FAIL  packages/schema/test/brands.test.ts > S-01 — счётные типы: целое ≥ 0 в пределах безопасных целых > 2 ** 53 отвергается, а MAX_SAFE_INTEGER — нет: граница именно там
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  3 failed | 8 passed (11)
+
+=================== brands НАРУШЕНИЕ: проверка `≥ 0` снята ===================
+ FAIL  packages/schema/test/brands.test.ts > S-01 — счётные типы: целое ≥ 0 в пределах безопасных целых > asSamples отвергает всё, что не целое ≥ 0
+ FAIL  packages/schema/test/brands.test.ts > S-01 — счётные типы: целое ≥ 0 в пределах безопасных целых > asFrames отвергает всё, что не целое ≥ 0
+ AssertionError: отрицательное: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  2 failed | 9 passed (11)
+
+=================== brands НАРУШЕНИЕ: заглавный hex приводится к нижнему регистру вместо отказа ===================
+ FAIL  packages/schema/test/brands.test.ts > S-01 — hex-дайджесты: 64 строчных символа > asSha256 отвергает заглавные, длину и не-hex
+ FAIL  packages/schema/test/brands.test.ts > S-01 — hex-дайджесты: 64 строчных символа > asBlake3 отвергает заглавные, длину и не-hex
+ AssertionError: expected [Function] to throw an error
+ FAIL  packages/schema/test/brands.test.ts > S-01 — hex-дайджесты: 64 строчных символа > заглавный hex именно ОТВЕРГАЕТСЯ, а не приводится к нижнему регистру
+ AssertionError: expected 'af1349b9f5f9a1a6a0404dea36dcc9499bcb2…' to be 'отвергнуто' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  3 failed | 8 passed (11)
+
+=================== blake3 НАРУШЕНИЕ: строка молча нормализуется в NFC внутри хэша ===================
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > NFC и NFD дают РАЗНЫЕ хэши: нормализация — обязанность лексера, не хэша
+ AssertionError: expected 'e4e52b2a0ab9d8584bf4b913af316d96865f9…' not to be 'e4e52b2a0ab9d8584bf4b913af316d96865f9…' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  1 failed | 29 passed (30)
+
+=================== blake3 НАРУШЕНИЕ: полубайты hex переставлены местами ===================
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 0 байт
+ AssertionError: expected 'fa31949b5f9f1a6a0a04d4ae63cd9c94b9bc5…' to be 'af1349b9f5f9a1a6a0404dea36dcc9499bcb2…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 1 байт
+ AssertionError: expected 'd2a3edfd1fb1161fc488e653fa0a6337d6dc7…' to be '2d3adedff11b61f14c886e35afa036736dcd8…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 2 байт
+ AssertionError: expected 'b70751bb29fcb013087307a2c6dd18ed4e214…' to be '7b7015bb92cf0b318037702a6cdd81dee4122…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 3 байт
+ AssertionError: expected '1eebd4a7a85b65a04a91e9ae338994abe892d…' to be 'e1be4d7a8ab5560aa4199eea339849ba8e293…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 63 байт
+ AssertionError: expected '9ecb735a49adda38eb4907fdf7b7738992c7d…' to be 'e9bc37a594daad83be9470df7f7b3798297c3…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 64 байт
+ AssertionError: expected 'e4de1714aea4c54d7b8806b62df3642e21fac…' to be '4eed7141ea4a5cd4b788606bd23f46e212af9…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 65 байт
+ AssertionError: expected 'ede1f50aeb07fdd6b28effdfe099ecaae86b8…' to be 'de1e5fa0be70df6d2be8fffd0e99ceaa8eb6e…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 1023 байт
+ AssertionError: expected '01019807eeade39b23abca41827c2a61b3e02…' to be '10108970eeda3eb932baac1428c7a2163b0e9…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 1024 байт
+ AssertionError: expected '241274930f594a603fcf38ed8b9847a40cd08…' to be '42214739f095a406f3fc83deb889744ac00df…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 1025 байт
+ AssertionError: expected '0d2087ea74be723bf4eafc764bef62f3285d1…' to be 'd00278ae47eb27b34faecf67b4fe263f82d54…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 2048 байт
+ AssertionError: expected '7e676b20c8c72da2d4b01a288afb2602d5e25…' to be 'e776b6028c7cd22a4d0ba182a8bf62205d2ef…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > вход длиной 2049 байт
+ AssertionError: expected 'f5d4274fd0a7f5281bc52a2b4eb4d13e2cfe6…' to be '5f4d72f40d7a5f82b15ca2b2e44b1de3c2ef8…' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — blake3 против официальных векторов BLAKE3 > дайджест — 32 байта, и hex получен из них
+ AssertionError: expected 'fa31949b5f9f1a6a0a04d4ae63cd9c94b9bc5…' to be 'af1349b9f5f9a1a6a0404dea36dcc9499bcb2…' // Object.is equality
+ Test Files  1 failed (1)
+ Tests  13 failed | 17 passed (30)
+
+=================== base32 НАРУШЕНИЕ: алфавит переведён в верхний регистр (RFC 4648 «как в RFC») ===================
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > алфавит — ровно RFC 4648 §6 в нижнем регистре, 32 символа без 0/1/8/9
+ AssertionError: expected 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567' to be 'abcdefghijklmnopqrstuvwxyz234567' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("f")
+ AssertionError: expected 'MY' to be 'my' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("fo")
+ AssertionError: expected 'MZXQ' to be 'mzxq' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("foo")
+ AssertionError: expected 'MZXW6' to be 'mzxw6' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("foob")
+ AssertionError: expected 'MZXW6YQ' to be 'mzxw6yq' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("fooba")
+ AssertionError: expected 'MZXW6YTB' to be 'mzxw6ytb' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > RFC 4648 §10: base32("foobar")
+ AssertionError: expected 'MZXW6YTBOI' to be 'mzxw6ytboi' // Object.is equality
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > round-trip на всех длинах 0…64 байт (seeded, без Math.random)
+ AssertionError: expected 'LY' to match /^[a-z2-7]*$/
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > на дайджесте blake3 даёт 52 символа, из которых `chunkKey` берёт первые 16
+ AssertionError: expected 'V4JUTOPV7GQ2NICA' to match /^[a-z2-7]{16}$/
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > декодер отвергает символы вне алфавита, в том числе заглавные
+ AssertionError: expected [Function] to throw an error
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > декодер отвергает длину, не соответствующую целому числу байт
+ AssertionError: expected [Function] to throw error matching /целому числу байт/ but got 'base32: символ `a` вне алфавита RFC 4…'
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > декодер отвергает ненулевой хвост: иначе у одних байт две записи
+ TypeError: base32: символ `m` вне алфавита RFC 4648 (строчные + 2–7)
+ Test Files  1 failed (1)
+ Tests  12 failed | 18 passed (30)
+
+=================== base32 НАРУШЕНИЕ: проверка ненулевого хвоста снята — у одних байт две записи ===================
+ FAIL  packages/schema/test/hash.test.ts > S-01 — base32 (RFC 4648, строчные, без паддинга) > декодер отвергает ненулевой хвост: иначе у одних байт две записи
+ AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+ Tests  1 failed | 29 passed (30)
+
+=================== ЛИНТ: `JSON.stringify` внесён в packages/core-model/src/index.ts ===================
+ packages/core-model/src/index.ts
+ 1:21  error  ADR-0007 §3 / `S-01`: `JSON.stringify` не является канонической формой — он не сортирует ключи, пишет `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON`. Используйте `canonicalJson` из `@vpe/schema`. Единственное исключение — сам `packages/schema/src/canonical/json.ts`  no-restricted-syntax
+ ✖ 1 problem (1 error, 0 warnings)
+
+=================== ЛИНТ (контроль исключения): `JSON.stringify` в СОСЕДНЕМ файле того же пакета тоже ловится ===================
+ packages/schema/src/hash/base32.ts
+ 28:46  error  ADR-0007 §3 / `S-01`: `JSON.stringify` не является канонической формой — он не сортирует ключи, пишет `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON`. Используйте `canonicalJson` из `@vpe/schema`. Единственное исключение — сам `packages/schema/src/canonical/json.ts`  no-restricted-syntax
+ ✖ 1 problem (1 error, 0 warnings)
+
+=================== ЛИНТ (тихий отказ): правило снято — нарушение в core-model перестаёт ловиться ===================
+ (ошибок нет)
+
+=================== ЛИНТ (законное исключение): `JSON.stringify` в canonical/json.ts НЕ ловится — так и задумано ===================
+ (ошибок нет)
+

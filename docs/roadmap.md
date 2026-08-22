@@ -367,6 +367,7 @@ W1-reference, `mvp` = после Week-1. ~~Какой из трёх срезов
 ### 4.2. `schema`
 
 #### `S-01` — branded-типы, канонический JSON, blake3
+* **Статус: выполнено, 2026-08-22** — `@vpe/schema`: бренды, `canonicalJson`, `blake3`, `base32`; переходов `named → guarded` нет (пометки у T2/R4/D4); отчёт [docs/impl/S-01/report.md](impl/S-01/report.md).
 * **Вход:** `R-01`. **Оценка:** 1.
 * **Выход:** `Samples`, `Frames`, `Sha256` как branded-типы; канонический JSON (сортированные
   ключи, без незначимых пробелов, UTF-8, кратчайшее round-trip-представление чисел); blake3;

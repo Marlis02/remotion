@@ -7,7 +7,11 @@
 //   * V8 / D4 (Charter V8, ADR-0007 §4) — `Math.random`, `Date.now`, `new Date`,
 //     `performance.now`, `toLocaleString`, `localeCompare`, `Intl`. Правило заводится СЕЙЧАС,
 //     до первой строки рендер-пути. Статус D4 при этом остаётся `named`: вторая половина
-//     охранника — runtime-guard заморозки глобалей в entry рендера — задача `H-05`.
+//     охранника — runtime-guard заморозки глобалей в entry рендера — задача `H-05`;
+//   * ADR-0007 §3 (`S-01`) — `JSON.stringify` вне `canonicalJson`. Без этого правила
+//     каноничность держится на дисциплине: `JSON.stringify` не сортирует ключи, молча пишет
+//     `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON` у `Date`. Исключение ровно
+//     одно — файл, реализующий каноническую форму.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +24,7 @@ const M3 = 'M3 (ADR-0009 тест 3): модель не умеет читать 
 const M4 = 'M4 (ADR-0009 тест 7): сеть — только в пакете `voice`. Рендерер «глупый» (Charter V9).';
 const M5_COMPILE = 'M5 (ADR-0009 Decision): «IR не знает Timeline». Граница `compile/render-ir` ↔ `compile/timeline` понижена до межмодульной осознанно; её протечка возвращает границу в ранг пакетной.';
 const M5_MEDIA = 'M5 (ADR-0009 Decision): граница `media/cache` ↔ `media/audio` — межмодульная. Кэш не знает про PCM, PCM не знает про кэш.';
+const CANON = 'ADR-0007 §3 / `S-01`: `JSON.stringify` не является канонической формой — он не сортирует ключи, пишет `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON`. Используйте `canonicalJson` из `@vpe/schema`. Единственное исключение — сам `packages/schema/src/canonical/json.ts`.';
 const V8 = 'Charter V8 / ADR-0007 §4: запрещено во ВСЕХ процессах сборки, не только в рендере. Только seeded random; `now` — вход сборки (BuildRecord), внутри compile его нет.';
 
 /** node:-модули сети + сетевые пакеты. `voice` — единственное исключение (M4). */
@@ -72,6 +77,11 @@ const DETERMINISM_SYNTAX = [
   { selector: "CallExpression[callee.name='Date']", message: V8 },
 ];
 
+/** Отдельным списком: правило снимается ровно в одном файле, а V8 — нигде. */
+const CANONICAL_SYNTAX = [
+  { selector: "MemberExpression[object.name='JSON'][property.name='stringify']", message: CANON },
+];
+
 const restrictedImports = (paths, patterns) => ['error', { paths, patterns }];
 
 export default tseslint.config(
@@ -113,6 +123,17 @@ export default tseslint.config(
       'no-restricted-imports': restrictedImports(NETWORK_PATHS, NETWORK_PATTERNS),
       'no-restricted-globals': ['error', ...INTL_GLOBAL, ...NETWORK_GLOBALS],
       'no-restricted-properties': ['error', ...DETERMINISM_PROPERTIES],
+      'no-restricted-syntax': ['error', ...DETERMINISM_SYNTAX, ...CANONICAL_SYNTAX],
+    },
+  },
+
+  // ── Каноническая форма: единственный файл, которому разрешён `JSON.stringify` ──────
+  // Экранирование строк по JSON — это `QuoteJSONString` из ECMA-262; вторая реализация
+  // того же алгоритма была бы хуже исключения. Всё остальное (порядок ключей, числа,
+  // отсутствие пробелов, отказы) файл делает сам. V8/D4 здесь НЕ снимается.
+  {
+    files: ['packages/schema/src/canonical/json.ts'],
+    rules: {
       'no-restricted-syntax': ['error', ...DETERMINISM_SYNTAX],
     },
   },
