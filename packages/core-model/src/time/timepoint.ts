@@ -34,9 +34,15 @@ import { TimeModelError } from './errors.js';
  * `direction/1` (`Direction['records'][number]['at']` обязан быть присваиваем в `TimePoint`),
  * а `publicAnchor()` возвращает `z.ZodString`, то есть выводит `anchor: string`. Сузить поле
  * до `PublicAnchorId`, не сузив выход `publicAnchor()`, значит порвать эту связь — то есть
- * снять охранник ради типа. Сужение самой схемы — правка `families/common.ts` и всех её
- * потребителей; её адрес — `C-05` (чтение и валидация `direction/1`), долг записан в
- * `docs/DEBTS.md`. Здесь тип не ослаблен: `AnchorId = string` был АЛИАСОМ, а не брендом.
+ * снять охранник ради типа. Здесь тип не ослаблен: `AnchorId = string` был АЛИАСОМ, а не брендом.
+ *
+ * *(`C-05`, долг №20 закрыт.)* Схема осталась такой, какая есть, и это решение владельца:
+ * сузить `publicAnchor()` можно только через `.transform()`, то есть сменив тип схемы
+ * (`ZodString` → `ZodPipe`), а `types/brands.ts` валидирует бренд ЭТОЙ ЖЕ схемой — получается
+ * круг. Сужение стоит **на границе модели**: `AnchorRef` (`model/entities.ts`) объявляет
+ * `anchor: PublicAnchorId`, переход из схемы в модель идёт единственным конструктором
+ * `asPublicAnchorId` (`model/direction.ts`). `TimePoint` остаётся типом ФОРМАТА и слоя
+ * Timeline, где `anchor` приходит и из override'ов, и из порождённых записей.
  */
 export interface AnchorTimePoint {
   readonly kind: 'anchor';
@@ -88,7 +94,10 @@ export function assertRealizable(point: TimePoint): asserts point is RealizableT
       'ADR-0001 gridPoint',
       `сетки ассетов не реализованы в v1 (ассет ${point.asset}, сетка \`${point.gridId}\`, ` +
         `индекс ${String(point.index)}). Вариант оставлен в типе ради форвард-совместимости: ` +
-        'введение третьего варианта задним числом было бы миграцией `direction/1`.',
+        'введение третьего варианта задним числом было бы миграцией `direction/1`. ' +
+        'Сетка, когда будет строиться, — артефакт `assets/grids/<assetSha>.<gridId>.json` с ' +
+        '`detectorId@version` и позициями в сэмплах ассета, и её sha входит в ключ сегмента ' +
+        'рядом с `assetShas[]` — v1: ADR-0006 §14.',
     );
   }
 }

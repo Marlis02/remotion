@@ -27,16 +27,16 @@
 //     содержат и содержать не должны — это и значит «не в файле» (ADR-0002 §4); в фикстуре об
 //     этом сказано прямо, в шапке `fixtures/minimal/direction/01-intro.yaml`.
 
-import { asPublicAnchorId, type PublicAnchorId } from '@vpe/schema';
+import { asPublicAnchorId } from '@vpe/schema';
 
+import type { AnchorRef } from '../model/entities.js';
 import type { SourceDocument } from '../source/ast.js';
 import { anchorSlots, type AnchorSlot } from './slots.js';
 
-/** Ссылка на якорь — форма `AnchorPointSchema` из `direction/1`, суженная до публичного якоря. */
-export interface AnchorRef {
-  readonly kind: 'anchor';
-  readonly anchor: PublicAnchorId;
-}
+// `AnchorRef` (ссылка на якорь, суженная до `PublicAnchorId`) объявлен в `model/entities.ts`:
+// тип принадлежит МОДЕЛИ, а не разворачиванию `[img:]`. Здесь он был заведён потому, что
+// `C-04` был первым, кому он понадобился; `C-05` завёл слой Score, и вторая копия
+// двухполевого интерфейса разъехалась бы с первой при первой правке.
 
 /**
  * Порождённая запись режиссуры. Поля — ровно те, что называет ADR-0002 §4.

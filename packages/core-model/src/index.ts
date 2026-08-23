@@ -115,10 +115,45 @@ export {
 export { assertBoundTo, boundTo, boundToOf, type AnchorContext } from './anchors/boundto.js';
 export { DIFF_CELL_LIMIT, diffTokens, type TokenMatch } from './anchors/diff.js';
 export { anchorSlots, implicitBitId, type AnchorSlot, type SlotKind } from './anchors/slots.js';
-export { expandImg, type AnchorRef, type GeneratedDirectionRecord } from './anchors/img.js';
+export { expandImg, type GeneratedDirectionRecord } from './anchors/img.js';
 export {
   syncLedger,
   type AnchorBinding,
   type SyncOptions,
   type SyncResult,
 } from './anchors/sync.js';
+
+// `C-05` — сущности ADR-0001 (Score, Timeline), чтение и валидация `direction/1`, seed'ы.
+// `Chapter`/`Scene`/`Paragraph` здесь НЕ переэкспортируются вторым именем: они уже вывезены
+// выше из `source/ast.ts` (`C-02`). В `model/entities.ts` они реэкспортированы вместе с
+// колонкой «НЕ знает» из ADR-0001 — там это связь с таблицей, а не второй тип.
+export {
+  TRACK_KINDS,
+  type AnchorRef,
+  type Clip,
+  type DirectionRecord,
+  type JsonValue,
+  type Override,
+  type SilenceKind,
+  type TemplateCall,
+  type TemplateDirectionRecord,
+  type TemplateParams,
+  type TemplateTrackKind,
+  type TimelineSilence,
+  type Track,
+  type TrackKind,
+  type VoiceDirectionRecord,
+} from './model/entities.js';
+export { ModelError, type ModelErrorPlace, type ModelRule } from './model/errors.js';
+export {
+  DIRECTION_FAMILY,
+  parseDirection,
+  readDirection,
+  validateDirection,
+  type AnchorWorld,
+  type DirectionFile,
+  type DirectionSource,
+  type PlacedRecord,
+  type Scope,
+} from './model/direction.js';
+export { SEED_BYTES, seedOf, type SeedNode } from './model/seed.js';

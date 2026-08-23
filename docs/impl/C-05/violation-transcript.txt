@@ -1,0 +1,244 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `C-05` (сущности ADR-0001, валидация `direction/1`, seed'ы)
+==============================================================================
+Каждое нарушение вносится заменой полной строки/блока, после чего файл восстанавливается
+ИЗ БЭКАПА (не обратной заменой); бэкап — во временном каталоге вне репозитория.
+`fixtures/` не изменяется ни в одном нарушении: там, где нужен другой файл режиссуры, он
+строится строкой в памяти (`test/model-helpers.ts`).
+Классы: (а) ломается реализация; (б) ломается сам охранник; (в) нарушение в настоящем коде.
+Прогоны: Node 25.6.1, pnpm 11.9.0, TZ=UTC LC_ALL=C.
+
+ПОКРЫТИЕ. 17 нарушений:
+   1–2  — D1 (ADR-0007 §1): в seed подмешана ПОЗИЦИЯ узла (тот самый `templateInstanceId` из
+          Context п. 1) и значения `params`;
+   3–4  — D2 и форма входа: `segmentId` во входе хэша; вход собран конкатенацией вместо
+          канонического JSON;
+   5–6  — `gridPoint` (ADR-0001): снят скан `params`; сам `assertRealizable` (`C-01`) перестал
+          отвергать;
+   7–8  — D3: проверка уникальности снята; уникальность считается по ФАЙЛУ, а не по проекту;
+   9–10 — A1 типовой: поле `AnchorRef.anchor` снова `string`; переход схема → модель сделан
+          кастом вместо конструктора;
+  11–13 — резолв (ADR-0004 §9): снят вовсе; `ch:` перестал резолвиться по структуре AST;
+          снято множество посещённых у `r:` (цикл);
+     14 — долг №21: порождённой `[img:]`-записи выдан `recordId`;
+     15 — колонка «НЕ знает» ADR-0001 переписана своими словами;
+     16 — сам греп D2 (список запрещённых входов опустошён);
+     17 — резолвится только `at`, `until` не проверяется.
+
+ЧТО ПРОТОКОЛ НАШЁЛ.
+
+1. НАРУШЕНИЕ 1 — ПРЕДЕЛ ГРЕПА D2 ВИДЕН ГЛАЗАМИ, и это главная находка. Позиция узла
+   подмешана не в формулу, а в `Scope`, который формуле ПОДАЮТ (`validateDirection`).
+   D1 краснеет (два теста), а греп по `model/seed.ts` остаётся ЗЕЛЁНЫМ — он смотрит на файл
+   вычисления и вызывающего не видит. Именно поэтому строка D2 в реестре получает пометку, а
+   не второй `guarded`: полный охранник — «тот же сегмент в двух проектах даёт тот же IR»
+   (AC4-b, строка T3), и он появится с `CP-04`, когда сегменты вообще возникнут. Ограничение
+   записано и в шапке самого линта, а не только в отчёте.
+
+2. НАРУШЕНИЯ 5 и 6 — ЭШЕЛОНОВ ДВА, И ОНИ РАЗНЫЕ. Снятие скана `params` (5) роняет только
+   тесты `C-05`: значение с `gridPoint` просто не доходит до ассерта. Снятие самого
+   `assertRealizable` (6) роняет И `C-01`, И `C-05` — шесть тестов в двух файлах. Отсюда
+   видно, что отказ живёт в ОДНОМ месте и второй его копии в валидаторе нет: валидатор только
+   доносит значение до ассерта и приписывает адрес (файл, запись, путь в `params`).
+
+3. НАРУШЕНИЕ 8 — КРИТЕРИЙ ROADMAP «В ДВУХ РАЗНЫХ ФАЙЛАХ» НЕ ДЕКОРАТИВЕН. Самая правдоподобная
+   ошибка реализации D3 — проверять уникальность в пределах файла (схема ведь тоже видит один
+   файл). Внутрифайловый тест при этом ЗЕЛЁН, красным становится ровно межфайловый. Если бы
+   критерий был записан как «`recordId` уникальны», эта ошибка прошла бы.
+
+4. НАРУШЕНИЕ 14 — ДОЛГ №21 ОХРАНЯЕТСЯ ТРЕМЯ ТЕСТАМИ В ДВУХ ЗАДАЧАХ. Выдача порождённой записи
+   `recordId` роняет golden формы (`C-04`) и оба теста решения (а) (`C-05`). То есть правило
+   вывода `recordId` нельзя изобрести молча — ни здесь, ни в задаче, которая тронет `img.ts`
+   следующей.
+
+5. НАРУШЕНИЕ 12 — СПОСОБ ПАДЕНИЯ ОТЛИЧАЕТСЯ ОТ ОСТАЛЬНЫХ: `ModelError` вылетает при сборке
+   suite (валидация фикстуры стоит в теле `describe`), поэтому vitest пишет «no tests», а не
+   список красных. Это не дефект теста: фикстура обязана проходить целиком, и «suite не
+   собрался» — законная форма отказа. Отмечено, чтобы при чтении протокола это не выглядело
+   пропуском.
+
+6. НАРУШЕНИЕ 10 — ЛИНТ БРЕНДОВ (`S-01` долг №3) ПОКРЫВАЕТ И НОВЫЙ КОД. Каст `as PublicAnchorId`
+   вместо конструктора краснеет `no-restricted-syntax`, и вдобавок `no-unused-vars` ловит
+   осиротевший импорт `asPublicAnchorId` — то есть обойти конструктор тихо нельзя.
+
+7. НАРУШЕНИЕ 13 — ЦИКЛ `r:` ПАДАЕТ «Maximum call stack size exceeded». Тест проверяет не
+   только факт отказа, но и ЕГО ФОРМУ (`/образуют цикл/`): переполнение стека не называет ни
+   файла, ни записи, а человеку нужны оба.
+
+------------------------------------------------------------------------------
+--- НАРУШЕНИЕ 1 (а): D1: В SEED ПОДМЕШАНА ПОЗИЦИЯ УЗЛА (тот самый `templateInstanceId` из Context ADR-0007 п. 1)
+    Ожидание: D1 краснеет: множество seed’ов меняется от вставки записи выше по сцене. Греп D2 при этом ЗЕЛЁН — предел охранника виден
+    Прогон: pnpm vitest run packages/core-model/test/model-seed.test.ts tests/lints/d2-seed-inputs.test.ts
+    × «добавить запись выше по сцене и изменить параметр ⇒ множество seed’ов неизменно» 27ms
+    × порядок записей в файле не виден seed’у вовсе 8ms
+    Test Files  1 failed | 1 passed (2)
+    Tests  2 failed | 21 passed (23)
+    AssertionError: seed записи `d1000001` изменился: expected 12207108644407403772n to be 16804325453066035764n // Object.is equality
+    AssertionError: expected [ [ 'd1000001', …(1) ], …(2) ] to deeply equal [ [ 'd1000001', …(1) ], …(2) ]
+
+--- НАРУШЕНИЕ 2 (а): D1: в seed подмешаны значения `params` (подкрутка `pad: 8→9` меняет случайность)
+    Ожидание: D1 краснеет: правка параметра меняет seed записи
+    Прогон: pnpm vitest run packages/core-model/test/model-seed.test.ts
+    × «добавить запись выше по сцене и изменить параметр ⇒ множество seed’ов неизменно» 22ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 17 passed (18)
+    AssertionError: seed записи `d1000002` изменился: expected 14924707274230453759n to be 6670123486679276665n // Object.is equality
+
+--- НАРУШЕНИЕ 3 (а): D2: `segmentId` добавлен во вход хэша
+    Ожидание: краснеют оба охранника D2: прибитое значение seed’а и греп по коду вычисления
+    Прогон: pnpm vitest run packages/core-model/test/model-seed.test.ts tests/lints/d2-seed-inputs.test.ts
+    × ПРИБИТОЕ ЗНАЧЕНИЕ: первые 8 байт дайджеста, big-endian 6ms
+    × в `model/seed.ts` нет ни одного входа, исключённого ADR-0007 §1 9ms
+    Test Files  2 failed (2)
+    Tests  2 failed | 21 passed (23)
+    AssertionError: В вычислении seed’а появилось упоминание сегментации, позиции или параметров. ADR-0007 §1: «ни один вход seed’а не зависит от порядка …
+    AssertionError: expected 13716615996208581979n to be 9566977458348850792n // Object.is equality
+
+--- НАРУШЕНИЕ 4 (а): вход хэша собран КОНКАТЕНАЦИЕЙ, как написано в букве ADR-0007 §1
+    Ожидание: краснеет инъективность: («ab»,«c») и («a»,«bc») дают один seed. Плюс прибитое значение
+    Прогон: pnpm vitest run packages/core-model/test/model-seed.test.ts
+    × ПРИБИТОЕ ЗНАЧЕНИЕ: первые 8 байт дайджеста, big-endian 6ms
+    × `sceneId: null` (запись на якоре главы) — значение, а не «пусто» 1ms
+    × вход инъективен: сдвиг границы между полями даёт РАЗНЫЕ seed’ы 1ms
+    Test Files  1 failed (1)
+    Tests  3 failed | 15 passed (18)
+    AssertionError: expected 2287891168436220138n to be 9566977458348850792n // Object.is equality
+    AssertionError: expected 4705720313710299619n not to be 4705720313710299619n // Object.is equality
+    AssertionError: expected 11066847499879703419n not to be 11066847499879703419n // Object.is equality
+
+--- НАРУШЕНИЕ 5 (а): `gridPoint`: скан `params` снят — валидатор больше не смотрит на моменты времени в параметрах
+    Ожидание: краснеют четыре теста gridPoint; `mediaTime` по-прежнему зелён
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × ВАЛИДАТОР ОТВЕРГАЕТ — сообщением `assertRealizable` (`C-01`) 4ms
+    × сообщение называет v1 и артефакт сетки: «v1: ADR-0006 §14» 3ms
+    × ошибка называет ПРАВИЛО, ФАЙЛ, ЗАПИСЬ и место в `params` 1ms
+    × находится и на глубине: `gridPoint` в массиве внутри объекта 2ms
+    Test Files  1 failed (1)
+    Tests  4 failed | 26 passed (30)
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [Function] to throw an error
+    TypeError: Cannot read properties of undefined (reading 'rule')
+
+--- НАРУШЕНИЕ 6 (а): `assertRealizable` (C-01) перестал отвергать `gridPoint`
+    Ожидание: краснеют И тесты C-01, И тесты C-05: отказ живёт в одном месте, и оба слоя на него опираются
+    Прогон: pnpm vitest run packages/core-model/test/time-point.test.ts packages/core-model/test/model-direction.test.ts
+    × ВАЛИДАТОР ОТВЕРГАЕТ — сообщением `assertRealizable` (`C-01`) 4ms
+    × сообщение называет v1 и артефакт сетки: «v1: ADR-0006 §14» 3ms
+    × ошибка называет ПРАВИЛО, ФАЙЛ, ЗАПИСЬ и место в `params` 1ms
+    × находится и на глубине: `gridPoint` в массиве внутри объекта 2ms
+    × вариант `gridPoint` отвергается с сообщением про v1 3ms
+    × `assertRealizable` СУЖАЕТ тип, а не только бросает 2ms
+    Test Files  2 failed (2)
+    Tests  6 failed | 32 passed (38)
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [Function] to throw an error
+    TypeError: Cannot read properties of undefined (reading 'rule')
+
+--- НАРУШЕНИЕ 7 (а): D3: проверка уникальности `recordId` снята
+    Ожидание: краснеют оба теста дубля — и межфайловый, и внутрифайловый
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × дубль в ДВУХ РАЗНЫХ файлах ⇒ ошибка, называющая ОБА пути 5ms
+    × дубль ВНУТРИ одного файла ловится тем же правилом 2ms
+    × дубль называется РАНЬШЕ неизвестного якоря: порядок проверок — от общего к частному 3ms
+    Test Files  1 failed (1)
+    Tests  3 failed | 27 passed (30)
+    AssertionError: expected undefined to be an instance of ModelError
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [Function] to throw error matching /D3/ but got 'direction/01-intro.yaml: ADR-0004 §9:…'
+
+--- НАРУШЕНИЕ 8 (а): D3: уникальность проверяется В ПРЕДЕЛАХ ФАЙЛА, а не проекта
+    Ожидание: краснеет РОВНО межфайловый дубль; внутрифайловый остаётся зелёным — видно, что именно проверяет D3
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × дубль в ДВУХ РАЗНЫХ файлах ⇒ ошибка, называющая ОБА пути 5ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 29 passed (30)
+    AssertionError: expected undefined to be an instance of ModelError
+
+--- НАРУШЕНИЕ 9 (а): A1 ТИПОВОЙ СНЯТ: `AnchorRef.anchor` снова `string`
+    Ожидание: typecheck краснеет: `@ts-expect-error` в тестах перестают быть ошибками — то есть `w:` снова выразим
+    Прогон: pnpm typecheck
+    packages/core-model/test/model-direction.test.ts(126,5): error TS2578: Unused '@ts-expect-error' directive.
+    [ELIFECYCLE] Command failed with exit code 2.
+
+--- НАРУШЕНИЕ 10 (в): переход схема → модель сделан КАСТОМ вместо конструктора `asPublicAnchorId`
+    Ожидание: линт брендов (`S-01` долг №3) краснеет на новом коде: бренд, снимаемый кастом, не бренд
+    Прогон: pnpm lint
+    /home/ct/Desktop/remotion/packages/core-model/src/model/direction.ts
+    26:10  error  'asPublicAnchorId' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+    97:52  error  `S-01` долг №3 / ADR-0007 §3: бренд, снимаемый кастом, не бренд. Единственный вход в `Samples`/`Frames`/`Sha256`/`Blake3`/`AnchorId`/`PublicAnchorId` — конструкторы-валидаторы `asSamples`/`asFrames`/`asSha256`/`asBlake3`/`asAnchorId`/`asPublicAnchorId`: они проверяют `Number.isSafeInteger`, знак, `-0`, форму hex и форму якоря (схемой семейства, а не второй регуляркой). Единственное исключение — `packages/schema/src/types/brands.ts`. У ТЕСТОВ ИСКЛЮЧЕНИЯ НЕТ: значение, построенное кастом, не прошло тот же вход, что продакшн-значение  no-restricted-syntax
+    ✖ 2 problems (2 errors, 0 warnings)
+    [ELIFECYCLE] Command failed with exit code 1.
+
+--- НАРУШЕНИЕ 11 (а): резолв снят: неизвестный якорь молча получает scope-заглушку
+    Ожидание: краснеют все проверки существования цели (ADR-0004 §9), включая `ch:` и `r:`
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × без документа тот же файл падает на `ch:main` — и говорит, чего не хватает 12ms
+    × неизвестный якорь ⇒ ошибка с `recordId`, файлом и подсказкой ADR-0004 §9 1ms
+    × `ch:` есть в документе — резолвится; нет — ошибка 2ms
+    × запись на якоре ГЛАВЫ получает `sceneId: null` — пустой строкой это не кодируется 4ms
+    × `r:` резолвится по множеству `recordId`: scope цели становится scope ссылки 3ms
+    × `r:` на несуществующую запись ⇒ ошибка 1ms
+    × цикл `r:` ⇒ ошибка, а не бесконечная рекурсия 1ms
+    × `until` тоже резолвится, а не только `at` 1ms
+    Test Files  1 failed (1)
+    Tests  8 failed | 22 passed (30)
+    AssertionError: expected [Function] to throw an error
+    TypeError: Cannot read properties of undefined (reading 'rule')
+    AssertionError: expected { chapterId: 'unknown', sceneId: null } to deeply equal { chapterId: 'main', sceneId: null }
+    AssertionError: expected { chapterId: 'unknown', sceneId: null } to deeply equal { chapterId: 'main', sceneId: 'turn' }
+
+--- НАРУШЕНИЕ 12 (а): `ch:` перестал резолвиться по структуре AST (C-04 §6.2)
+    Ожидание: краснеет фикстура целиком: `until: ch:main` — законная ссылка, которой нет в ledger’е
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    Test Files  1 failed (1)
+    Tests  no tests
+    ModelError: fixtures/minimal/direction/01-intro.yaml: ADR-0004 §9: запись `c81a05f7`: ссылка `ch:main` не разрешается: главы `main` в документе нет. П…
+
+--- НАРУШЕНИЕ 13 (а): цикл `r:` не ловится: множество посещённых снято
+    Ожидание: краснеет тест цикла — переполнением стека вместо ошибки с адресом
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × цикл `r:` ⇒ ошибка, а не бесконечная рекурсия 10ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 29 passed (30)
+    AssertionError: expected [Function] to throw error matching /образуют цикл/ but got 'Maximum call stack size exceeded'
+
+--- НАРУШЕНИЕ 14 (а): ДОЛГ №21 НАРУШЕН: порождённой `[img:]`-записи выдан `recordId`
+    Ожидание: краснеет решение (а) владельца — и в тесте `C-05`, и в golden `C-04`: правило вывода нельзя изобрести молча
+    Прогон: pnpm vitest run packages/core-model/test/model-entities.test.ts packages/core-model/test/anchors-golden.test.ts
+    × форма записи совпадает с зафиксированной байт-в-байт 6ms
+    × `recordId` в форме НЕТ — правило его вывода в ADR отсутствует (долг, `C-05`) 1ms
+    × решение (а) владельца: `DirectionSchema` она не проходит, и это записано, а не забыто 8ms
+    × не проходит она ровно из-за `recordId`, а не из-за чего-то ещё 2ms
+    Test Files  2 failed (2)
+    Tests  4 failed | 25 passed (29)
+    AssertionError: expected '[{"at":{"anchor":"b:img-harbour-1","k…' to be '[{"at":{"anchor":"b:img-harbour-1","k…' // Object.is equality
+    AssertionError: expected '[{"at":{"anchor":"b:img-harbour-1","k…' not to contain 'recordId'
+    AssertionError: Порождённая запись начала проходить схему `direction/1`. Значит, у неё появился `recordId` — то есть правило его вывода где-то изобрел…
+    AssertionError: expected [] to deeply equal [ 'recordId' ]
+
+--- НАРУШЕНИЕ 15 (в): колонка «НЕ знает» переписана своими словами («ничего про пиксели»)
+    Ожидание: краснеет сверка с таблицей ADR-0001: строка обязана доехать до кода ДОСЛОВНО
+    Прогон: pnpm vitest run packages/core-model/test/model-entities.test.ts
+    × `Clip` 9ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 17 passed (18)
+    AssertionError: Колонка «НЕ знает» сущности `Clip` в ADR-0001 звучит как «пиксели», а в doc-комментарии `model/entities.ts` этой строки нет. Либо ADR …
+
+--- НАРУШЕНИЕ 16 (б): САМ ГРЕП D2: список запрещённых входов опустошён
+    Ожидание: краснеют самопроверки грепа — «подставной нарушитель краснеет» и «ловит не только `segmentId`»
+    Прогон: pnpm vitest run tests/lints/d2-seed-inputs.test.ts
+    × греп РАБОТАЕТ: подставной нарушитель краснеет 6ms
+    × греп ловит и позиционный вход, и параметры — не только `segmentId` 1ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 3 passed (5)
+    AssertionError: expected [] to deeply equal [ '1: segmentId' ]
+    AssertionError: expected [] to deeply equal [ '1: params' ]
+
+--- НАРУШЕНИЕ 17 (а): резолвится только `at`: `until` больше не проверяется
+    Ожидание: краснеет «`until` тоже резолвится» — половина ссылок перестала охраняться
+    Прогон: pnpm vitest run packages/core-model/test/model-direction.test.ts
+    × без документа тот же файл падает на `ch:main` — и говорит, чего не хватает 13ms
+    × `until` тоже резолвится, а не только `at` 1ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 28 passed (30)
+    AssertionError: expected [Function] to throw an error
+
