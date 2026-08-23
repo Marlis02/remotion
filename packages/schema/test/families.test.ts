@@ -296,3 +296,171 @@ describe('S-02 — реестр и форма миграций (P2)', () => {
     expect(() => migrate('override', 1, 1)).toThrow(/семейство `override` неизвестно/);
   });
 });
+
+// ── 5. `store-lock/1` — окончательная форма (`M-01`) ────────────────────────────────────────
+//
+// До `M-01` форма семейства была собрана из ADR-0005 §1 и комментария фикстуры и не могла
+// быть проверена ничем: в `fixtures/minimal/store.lock` стоит `entries: []`, то есть ни одна
+// запись не могла ей противоречить. Здесь появляется первая настоящая запись — и вместе с ней
+// ядовитые значения по образцу §3 этого файла.
+//
+// Файл фикстуры при этом НЕ меняется и остаётся валидным: `entries: []` + `lastVerifiedAt: null`
+// проходят принятую форму без единой правки (проверяется в блоке 1 этого же файла).
+
+const SHA_A = '1'.repeat(64);
+const SHA_B = 'a'.repeat(64);
+const SHA_C = 'f'.repeat(64);
+
+interface EntryFields {
+  readonly sha256?: string;
+  readonly size?: string;
+  readonly kind?: string;
+  readonly origin?: string;
+  readonly replicas?: string;
+  readonly extra?: string;
+}
+
+/** Запись `store-lock/1` как ТЕКСТ: ядовитые значения обязаны пройти через YAML, а не мимо. */
+function entryText(fields: EntryFields = {}): string {
+  const lines = [
+    `  - sha256: ${fields.sha256 ?? `"${SHA_A}"`}`,
+    `    size: ${fields.size ?? '12'}`,
+    `    kind: ${fields.kind ?? '"voice"'}`,
+    `    origin: ${fields.origin ?? '"tts:mock@1"'}`,
+    `    replicas: ${fields.replicas ?? '["local-dir", "rclone:backup"]'}`,
+  ];
+  if (fields.extra !== undefined) lines.push(`    ${fields.extra}`);
+  return lines.join('\n');
+}
+
+function lockText(entries: string[], head = 'lastVerifiedAt: "2026-08-23T10:00:00Z"'): string {
+  const body = entries.length === 0 ? 'entries: []' : ['entries:', ...entries].join('\n');
+  return `schema: store-lock/1\n${head}\n${body}\n`;
+}
+
+/** Читает текст ИМЕННО как `store.lock` — расширение `.lock` разбирается как YAML. */
+function loadLock(name: string, text: string): unknown {
+  return loadText(`store-lock-${name}`, text, '.lock');
+}
+
+describe('`store-lock/1` — принятая форма читается, ядовитая отвергается', () => {
+  it('запись из пяти полей принимается, и значения не приводятся молча', () => {
+    const result = loadLock('valid', lockText([entryText()])) as { value: unknown };
+    expect(result.value).toStrictEqual({
+      schema: 'store-lock/1',
+      lastVerifiedAt: '2026-08-23T10:00:00Z',
+      entries: [
+        {
+          sha256: SHA_A,
+          size: 12,
+          kind: 'voice',
+          origin: 'tts:mock@1',
+          replicas: ['local-dir', 'rclone:backup'],
+        },
+      ],
+    });
+  });
+
+  it('лишнее поле в записи — ошибка с путём к полю (`.strict()`)', () => {
+    expect(() => loadLock('extra-entry', lockText([entryText({ extra: 'note: "почему-то"' })]))).toThrow(
+      /note/,
+    );
+  });
+
+  it('лишнее поле на корне — ошибка', () => {
+    expect(() =>
+      loadLock('extra-root', `${lockText([entryText()])}storeVerifyMaxAgeDays: 14\n`),
+    ).toThrow(/storeVerifyMaxAgeDays/);
+  });
+
+  it.each([
+    ['короче 64 символов', '1'.repeat(63)],
+    ['длиннее 64 символов', '1'.repeat(65)],
+    ['верхний регистр', 'A'.repeat(64)],
+    ['не hex', 'z'.repeat(64)],
+  ])('sha256 неверной формы отвергается: %s', (_title, sha) => {
+    expect(() => loadLock(`sha-${_title.replace(/\W/g, '_')}`, lockText([entryText({ sha256: `"${sha}"` })]))).toThrow(
+      /64 строчных hex/,
+    );
+  });
+
+  it.each([
+    ['отрицательный', '-1'],
+    ['дробный', '1.5'],
+    ['строкой', '"12"'],
+  ])('size отвергается: %s', (_title, size) => {
+    expect(() => loadLock(`size-${_title}`, lockText([entryText({ size })]))).toThrow();
+  });
+
+  it('size == 0 законен: пустой блоб — законные байты со своим sha256', () => {
+    expect(() => loadLock('size-zero', lockText([entryText({ size: '0' })]))).not.toThrow();
+  });
+
+  it('неизвестный `kind` отвергается — ровно то, ради чего вид перечислён (P7)', () => {
+    // Опечатка `voise` не ломает ничего видимого: она молча выводит невосстановимые байты
+    // из-под правила «реплик ≥ 2». Поэтому вид — enum, а не свободная строка.
+    expect(() => loadLock('kind-typo', lockText([entryText({ kind: '"voise"' })]))).toThrow();
+  });
+
+  it.each(['voice', 'asset', 'font', 'snapshot', 'c2pa', 'ai-image'])('`kind: %s` принимается', (kind) => {
+    expect(() => loadLock(`kind-${kind}`, lockText([entryText({ kind: `"${kind}"` })]))).not.toThrow();
+  });
+
+  it('пустой `origin` отвергается: «неизвестно откуда» — не значение', () => {
+    expect(() => loadLock('origin-empty', lockText([entryText({ origin: '""' })]))).toThrow();
+  });
+
+  it('`replicas` — список, а не строка', () => {
+    expect(() => loadLock('replicas-string', lockText([entryText({ replicas: '"local-dir"' })]))).toThrow();
+  });
+
+  it('пустой `replicas` ПРИНИМАЕТСЯ, и это граница: P7 проверяет `verify`, а не схема', () => {
+    // Байты уже в CAS, `vpe store push` ещё не выполнялся — запись обязана существовать.
+    // Схема, требующая двух реплик, превратила бы отчёт `verify` в отказ записи.
+    expect(() => loadLock('replicas-empty', lockText([entryText({ kind: '"voice"', replicas: '[]' })]))).not.toThrow();
+  });
+
+  it.each([
+    ['со смещением', '"2026-08-23T13:00:00+03:00"'],
+    ['с долями секунды', '"2026-08-23T10:00:00.000Z"'],
+    ['без `Z`', '"2026-08-23T10:00:00"'],
+    ['только дата', '"2026-08-23"'],
+  ])('`lastVerifiedAt` вне одной формы отвергается: %s', (_title, value) => {
+    expect(() => loadLock(`when-${_title.replace(/\W/g, '_')}`, lockText([], `lastVerifiedAt: ${value}`))).toThrow(
+      /YYYY-MM-DDTHH:MM:SSZ/,
+    );
+  });
+
+  it('`lastVerifiedAt: null` — законное «verify не выполнялся» (P7)', () => {
+    const result = loadLock('when-null', lockText([], 'lastVerifiedAt: null')) as { value: { lastVerifiedAt: unknown } };
+    expect(result.value.lastVerifiedAt).toBeNull();
+  });
+
+  it('два раза один sha256 — ошибка: у одного адреса CAS не два утверждения', () => {
+    expect(() => loadLock('dup', lockText([entryText({ sha256: `"${SHA_A}"` }), entryText({ sha256: `"${SHA_A}"` })]))).toThrow(
+      /встречается дважды/,
+    );
+  });
+
+  it('несортированные записи — ошибка, и ключ сортировки назван в сообщении', () => {
+    let caught: unknown;
+    try {
+      loadLock('unsorted', lockText([entryText({ sha256: `"${SHA_C}"` }), entryText({ sha256: `"${SHA_A}"` })]));
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeDefined();
+    expect(String(caught)).toMatch(/не отсортированы по sha256/);
+    expect(String(caught)).toMatch(/побайтово-лексикографически/);
+  });
+
+  it('отсортированные по возрастанию hex записи принимаются', () => {
+    const text = lockText([
+      entryText({ sha256: `"${SHA_A}"` }),
+      entryText({ sha256: `"${SHA_B}"`, kind: '"asset"' }),
+      entryText({ sha256: `"${SHA_C}"`, kind: '"snapshot"' }),
+    ]);
+    const result = loadLock('sorted', text) as { value: { entries: { sha256: string }[] } };
+    expect(result.value.entries.map((entry) => entry.sha256)).toEqual([SHA_A, SHA_B, SHA_C]);
+  });
+});

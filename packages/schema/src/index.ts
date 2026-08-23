@@ -55,7 +55,7 @@ export { DIRECTION_TRACKS, DirectionSchema, type Direction } from './families/di
 export { ProjectSchema, type Project } from './families/project.js';
 export { PublishSchema, type Publish } from './families/publish.js';
 export { SourceDialectHeaderSchema, type SourceDialectHeader } from './families/source-dialect.js';
-export { StoreLockSchema, type StoreLock } from './families/store-lock.js';
+export { StoreLockSchema, type BlobKind, type StoreLock } from './families/store-lock.js';
 export { VoiceRolesSchema, type VoiceRoles } from './families/voice-roles.js';
 export { identifier, isIdentifier } from './families/marks.js';
 // `publicAnchor` — нормативная форма якоря (ADR-0004 §1). Экспортируется, потому что лексер

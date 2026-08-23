@@ -27,8 +27,24 @@ const BRANDS = ['Samples', 'Frames', 'Sha256', 'Blake3'] as const;
  */
 const LITERAL_ONLY = ['tests/lints/brand-casts.test.ts'];
 
-/** `as Samples`, `as unknown as Frames`, `as Samples[]`, `<Sha256>x`. */
-const CAST = new RegExp(String.raw`(\bas\s+(readonly\s+)?(${BRANDS.join('|')})\b)|(<(${BRANDS.join('|')})>)`);
+/**
+ * `as Samples`, `as unknown as Frames`, `as Samples[]`, `<Sha256>x`.
+ *
+ * ИСТОЧНИК ИСТИНЫ — НЕ ЭТА РЕГУЛЯРКА, а AST-селектор `BRAND_SYNTAX` в `eslint.config.js`
+ * (`TSAsExpression`/`TSTypeAssertion` → `TSTypeReference` → `Identifier`). Греп её
+ * ДУБЛИРУЕТ текстом — затем, чтобы охранник краснел и на файле, до которого ESLint по
+ * какой-то причине не дошёл. Расхождение дубля с оригиналом — дефект дубля.
+ *
+ * ПОЧЕМУ LOOKBEHIND (`M-01`, 2026-08-23, правка чужого охранника по явному разрешению
+ * владельца). Вторая ветка написана под СТАРЫЙ каст `<Sha256>x` — форму, которую AST зовёт
+ * `TSTypeAssertion`. Без `(?<!\w)` она ловила заодно аргумент дженерика: `Promise<Sha256>`
+ * — возвращаемый тип `Store.put` из ADR-0005 §8, где никакого утверждения типа нет.
+ * ESLint на тех же строках молчал, то есть дубль противоречил оригиналу. `<` после
+ * идентификатора — это всегда список типовых аргументов, а не утверждение; после пробела,
+ * `=`, `(`, `,` или начала строки — утверждение. Разбор — `docs/impl/M-01/report.md`;
+ * долг «греп-половина разъезжается с AST-правилом» — `docs/DEBTS.md`.
+ */
+const CAST = new RegExp(String.raw`(\bas\s+(readonly\s+)?(${BRANDS.join('|')})\b)|((?<!\w)<(${BRANDS.join('|')})>)`);
 
 function brandErrors(messages: LintMessage[]): LintMessage[] {
   return errorsFor(messages, 'no-restricted-syntax').filter((m) => m.message.startsWith('`S-01` долг №3'));

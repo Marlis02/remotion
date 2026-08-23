@@ -364,3 +364,63 @@ describe('S-02 — `anchors/1`: строка = запись, шапка перв
     expect(() => renderFamily('anchors', [entry])).not.toThrow();
   });
 });
+
+// ── 7. `store-lock/1`: окончательная форма (`M-01`) со стороны писателя ────────────────────
+
+describe('`M-01` — `store-lock/1` пишется канонически', () => {
+  const entry = (sha: string, kind: string): Record<string, unknown> => ({
+    sha256: sha,
+    size: 4096,
+    kind,
+    origin: 'tts:mock@1',
+    replicas: ['local-dir', 'rclone:backup'],
+  });
+
+  const lock = {
+    schema: 'store-lock/1',
+    lastVerifiedAt: '2026-08-23T10:00:00Z',
+    entries: [entry('1'.repeat(64), 'voice'), entry('a'.repeat(64), 'asset')],
+  };
+
+  it('круг «записать → прочитать» не теряет ни одного поля', () => {
+    const file = temp('store-lock-roundtrip', renderFamily('store-lock', lock), '.lock');
+    expect(readFamily(file).value).toEqual(lock);
+    expect(checkCanonical(file).canonical).toBe(true);
+  });
+
+  it('идентификаторы в кавычках, размер — без (P17, список полей из схемы)', () => {
+    const text = renderFamily('store-lock', lock);
+    // Элемент списка писатель открывает отдельной строкой `-` — форма `S-02`, не `M-01`.
+    expect(text).toContain(`\n-\n  sha256: "${'1'.repeat(64)}"`);
+    expect(text).toContain('kind: "voice"'); // enum помечен пометкой, а не угадан по виду
+    expect(text).toContain('origin: "tts:mock@1"');
+    expect(text).toContain('lastVerifiedAt: "2026-08-23T10:00:00Z"');
+    expect(text).toContain('replicas:');
+    expect(text).toContain('- "local-dir"');
+    expect(text).toContain('size: 4096'); // число — и кавычек не получает
+  });
+
+  it('`lastVerifiedAt: null` пишется как `null`, а не как строка `"null"`', () => {
+    const text = renderFamily('store-lock', { ...lock, lastVerifiedAt: null, entries: [] });
+    expect(text).toContain('lastVerifiedAt: null');
+    expect(text).toContain('entries: []');
+  });
+
+  it('писатель не создаёт файла, который его же читатель отвергнет: порядок проверяется', () => {
+    // Писатель `S-02` порядок списка не меняет — значит, несортированный список обязан
+    // упасть ЗДЕСЬ, иначе он уехал бы в git мимо всех проверок, включая `vpe fmt --check`.
+    const unsorted = { ...lock, entries: [...lock.entries].reverse() };
+    expect(() => renderFamily('store-lock', unsorted)).toThrow(/не отсортированы по sha256/);
+  });
+
+  it('дубликат sha256 писателем тоже отвергается', () => {
+    const duplicated = { ...lock, entries: [lock.entries[0], lock.entries[0]] };
+    expect(() => renderFamily('store-lock', duplicated)).toThrow(/встречается дважды/);
+  });
+
+  it('фикстура остаётся валидной и читается тем же читателем — файл не правился', () => {
+    const value = readFamily(at('store.lock')).value as { lastVerifiedAt: unknown; entries: unknown[] };
+    expect(value.lastVerifiedAt).toBeNull();
+    expect(value.entries).toEqual([]);
+  });
+});
