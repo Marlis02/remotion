@@ -1,4 +1,4 @@
-// Branded-типы: `Samples`, `Frames`, `Sha256`, `Blake3`.
+// Branded-типы: `Samples`, `Frames`, `Sha256`, `Blake3`, `AnchorId`, `PublicAnchorId`.
 //
 // ЗАЧЕМ БРЕНДЫ. `number` и `string` структурно совместимы со всем на свете: компилятор молча
 // пропустит и сэмплы вместо кадров, и sha256 вместо blake3. Бренд делает эти ошибки
@@ -11,6 +11,26 @@
 // это `Number.isSafeInteger`, а не `Number.isInteger`: за границей 2^53 сложение перестаёт быть
 // точным (`2^53 + 1 === 2^53`), то есть T2 «промежуточные произведения — `Number.isSafeInteger`»
 // нарушается тихо.
+//
+// `AnchorId` И `PublicAnchorId` (`C-04`, долг `C-01`). Бренд без единственного
+// конструктора-валидатора не даёт ничего, а конструктор живёт там, где якоря минтятся, —
+// поэтому до ledger'а его здесь не было. Их **два**, и это не удобство:
+//
+//   * `AnchorId`       — любое пространство имён ADR-0004 §1, включая `w:`. Это язык ledger'а;
+//   * `PublicAnchorId` — только `b:`/`sc:`/`ch:`/`r:`, ПОДТИП `AnchorId`. Это язык всего
+//     остального: инвариант **A1** («ни один override и ни одна direction-запись не ссылаются
+//     на `w:`») становится **типовым** — значение с `w:` невыразимо там, где объявлен
+//     `PublicAnchorId`, и это проверяет компилятор, а не тест.
+//
+// РЕГУЛЯРКИ ЗДЕСЬ НЕТ НИ ОДНОЙ, И ЭТО СУЩЕСТВЕННО. Форма id объявлена один раз — в схемах
+// семейств (`families/anchors.ts` для ledger'а, `families/common.ts` для публичных), и
+// конструкторы валидируют ИМИ. Вторая копия регулярки разошлась бы с первой при первой правке
+// (то же рассуждение, по которому `C-02` не копировал `publicAnchor()` в лексер).
+
+import type { z } from 'zod';
+
+import { AnchorEntrySchema } from '../families/anchors.js';
+import { publicAnchor } from '../families/common.js';
 
 declare const BRAND: unique symbol;
 
@@ -27,6 +47,21 @@ export type Sha256 = Brand<string, 'Sha256'>;
 
 /** blake3 в hex: ключи кэша и `chunkKey`/`voiceKey` (ADR-0006 §2, ADR-0010 §3a). */
 export type Blake3 = Brand<string, 'Blake3'>;
+
+/**
+ * Идентификатор якоря ledger'а: `w:`/`b:`/`sc:`/`ch:`/`r:` (ADR-0004 §1).
+ * `w:` законен ровно здесь и в ledger'е — это внутреннее пространство (§2).
+ */
+export type AnchorId = Brand<string, 'AnchorId'>;
+
+/**
+ * Публичный якорь: `b:`/`sc:`/`ch:`/`r:`, без `w:` (ADR-0004 §2, инвариант **A1**).
+ *
+ * ПОДТИП `AnchorId` по построению: пересечение двух брендов даёт по ключу `BRAND` тип `never`,
+ * а `never` присваиваем во всё — поэтому `PublicAnchorId` идёт всюду, где ждут `AnchorId`, а
+ * обратно не идёт. Направление проверяется тип-тестом, а не подразумевается.
+ */
+export type PublicAnchorId = AnchorId & Brand<string, 'PublicAnchorId'>;
 
 /** Длина hex-представления 32-байтового дайджеста. Обе величины — 32 байта. */
 const HEX_DIGEST_LENGTH = 64;
@@ -91,4 +126,45 @@ export function asSha256(value: string): Sha256 {
 export function asBlake3(value: string): Blake3 {
   assertHexDigest(value, 'Blake3');
   return value as Blake3;
+}
+
+/**
+ * Проверка формы якоря СХЕМОЙ, а не второй регуляркой.
+ *
+ * Схемы строятся один раз на модуль: `publicAnchor()` — фабрика, и вызов её на каждый
+ * конструктор означал бы сборку zod-объекта на каждое имя якоря в файле.
+ */
+const LEDGER_ANCHOR = AnchorEntrySchema.shape.id;
+const PUBLIC_ANCHOR = publicAnchor();
+
+function assertAnchor(value: string, schema: z.ZodType, type: string): void {
+  if (typeof value !== 'string') {
+    throw new TypeError(`${type}: ожидалась строка, получено ${typeof value}`);
+  }
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    const reason = result.error.issues.map((issue) => issue.message).join('; ');
+    throw new TypeError(`${type}: ${reason} — получено \`${value}\``);
+  }
+}
+
+/**
+ * Якорь ledger'а (ADR-0004 §1). Форму проверяет схема семейства `anchors/1`.
+ *
+ * @throws `TypeError`, если это не `w:`/`b:`/`sc:`/`ch:`/`r:` с непустым именем.
+ */
+export function asAnchorId(value: string): AnchorId {
+  assertAnchor(value, LEDGER_ANCHOR, 'AnchorId');
+  return value as AnchorId;
+}
+
+/**
+ * Публичный якорь (ADR-0004 §2, инвариант A1). Форму проверяет `publicAnchor()` — та же,
+ * которой её проверит `direction/1`.
+ *
+ * @throws `TypeError`, если это `w:` или не якорь вовсе.
+ */
+export function asPublicAnchorId(value: string): PublicAnchorId {
+  assertAnchor(value, PUBLIC_ANCHOR, 'PublicAnchorId');
+  return value as PublicAnchorId;
 }

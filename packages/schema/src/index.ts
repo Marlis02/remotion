@@ -3,12 +3,16 @@
 
 // `S-01` — branded-типы, каноническая форма для ХЭША, хэш.
 export {
+  asAnchorId,
   asBlake3,
   asFrames,
+  asPublicAnchorId,
   asSamples,
   asSha256,
+  type AnchorId,
   type Blake3,
   type Frames,
+  type PublicAnchorId,
   type Samples,
   type Sha256,
 } from './types/brands.js';
@@ -25,6 +29,7 @@ export {
 } from './registry.js';
 export {
   FamilyReadError,
+  parseFamilyText,
   readFamily,
   type FamilyHeader,
   type ReadResult,

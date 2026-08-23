@@ -28,7 +28,6 @@ export {
 } from './time/interval.js';
 export {
   assertRealizable,
-  type AnchorId,
   type AnchorTimePoint,
   type Duration,
   type GridTimePoint,
@@ -98,3 +97,28 @@ export {
   type TextRun,
   type TextRunKind,
 } from './source/transduce.js';
+
+// `C-04` — ledger якорей (ADR-0004 §1/§2a/§4/§6, ADR-0005 §10; инварианты A2, A3, A8).
+export { AnchorLedgerError, type AnchorRule } from './anchors/errors.js';
+export { csprng, mintAnchorId, MINT_BYTES, MINT_LENGTH, type RandomBytes } from './anchors/mint.js';
+export {
+  assertAddOnly,
+  assertUniqueLive,
+  EMPTY_LEDGER,
+  latestById,
+  LEDGER_FILE,
+  liveAnchors,
+  nextRev,
+  parseLedger,
+  renderLedger,
+} from './anchors/ledger.js';
+export { assertBoundTo, boundTo, boundToOf, type AnchorContext } from './anchors/boundto.js';
+export { DIFF_CELL_LIMIT, diffTokens, type TokenMatch } from './anchors/diff.js';
+export { anchorSlots, implicitBitId, type AnchorSlot, type SlotKind } from './anchors/slots.js';
+export { expandImg, type AnchorRef, type GeneratedDirectionRecord } from './anchors/img.js';
+export {
+  syncLedger,
+  type AnchorBinding,
+  type SyncOptions,
+  type SyncResult,
+} from './anchors/sync.js';

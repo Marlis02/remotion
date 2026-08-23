@@ -1,0 +1,331 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `C-04` (ledger якорей, минт, boundTo, word-diff, неявные биты)
+==============================================================================
+Каждое нарушение вносится заменой полной строки/блока, после чего файл восстанавливается
+ИЗ БЭКАПА (не обратной заменой). `fixtures/` не изменяется ни в одном нарушении: там, где
+нужен изменённый исходник, документ строится строкой в памяти, а охранник A1 направляется
+на копию во ВРЕМЕННОМ каталоге вне репозитория (`mkdtemp`).
+Классы: (а) ломается реализация; (б) ломается сам охранник; (в) нарушение в настоящем коде.
+Нарушения 23 и 17 требуют пересборки `@vpe/schema` (`pnpm typecheck`): `core-model` видит
+схему через `dist`, и правка её исходника без сборки не имела бы эффекта — это отмечено,
+потому что незамеченная пересборка сделала бы охранник «зелёным» по недоразумению.
+
+ПОКРЫТИЕ. 23 нарушения:
+   1–3  — минт (ADR-0004 §4, M3): подмена CSPRNG детерминированной функцией от `ledgerRev`,
+          урезанная энтропия, урезанная длина id;
+   4–6  — A8 (add-only и канонический порядок): запрет снят, сравнение только по длине,
+          порядок дописывания подменён сортировкой по id;
+   7–9  — A3 (уникальность живых): наивное чтение вместо свёртки, проверка снята, личность
+          якоря без `surface`;
+  10–12 — `boundTo` (ADR-0004 §6): конкатенация вместо канонического JSON, выпавший `ordinal`,
+          отказ, выродившийся в предупреждение;
+  13–15 — word-diff: `prev`/`next` выпали из сравнения состояний (дифф молчит про соседнее
+          слово), LCS подменён совпадением по номеру позиции, снят предел матрицы;
+  16–18 — `[img:]` (ADR-0002 §4, ADR-0004 §2a): ordinal по всем картинкам вместо счёта по
+          alias, регресс M1 (ссылка на `w:` вместо бита), `until` через границу сцены;
+  19–20 — сам охранник A1;
+  21–22 — сам линт `node:crypto` (расширение D4);
+     23 — типовой A1: конструктор `PublicAnchorId` перестал отвергать `w:`.
+
+ЧТО ПРОТОКОЛ НАШЁЛ.
+
+1. НАРУШЕНИЕ 20 — находка для `L-03`, а не для этой задачи. Критерий готовности `L-03`
+   записан как «нет ПОДСТРОКИ `w:` в `direction/**` и `overrides/**`». Дословный греп по
+   байтам краснеет на `fixtures/minimal/direction/01-intro.yaml` — там в комментарии сказано
+   «Ссылок на w: здесь нет и быть не может». Охранник A1 этой задачи проверяет ЗНАЧЕНИЯ
+   (строки без YAML-комментариев), и нарушение 20 показывает разницу: снятое отрезание
+   комментариев красит главный запрет на совершенно законной фикстуре. `vpe fmt --check`
+   обязан считать так же, иначе первый же прогон `L-03` упадёт на объяснении правила.
+
+2. НАРУШЕНИЯ 17 и 23 — эшелонированная защита A2, и это видно по РАЗНОМУ виду падения.
+   При регрессе M1 (`[img:]` снова ссылается на `w:`) suite не собирается вовсе: конструктор
+   `asPublicAnchorId` бросает на этапе построения записи — то есть инвариант A1 в порождённой
+   записи держится ТИПОМ, до всякого утверждения теста. Нарушение 23 снимает и это (конструктор
+   перестаёт отвергать `w:`) — и тогда падают golden формы и проверка «все ссылаются на БИТ»:
+   второй эшелон на месте. Ни один из двух охранников не является единственным.
+
+3. НАРУШЕНИЕ 16 — фикстура РАЗЛИЧАЕТ трактовку ordinal, вопреки утверждению отчёта `C-02`
+   §6.1 («в фикстуре все четыре комбинации дают одно и то же имя»). В сцене `turn` две
+   картинки, поэтому счёт «по всем `[img:]` в области» даёт `b:img-sea-2` вместо `b:img-sea-1`,
+   и это ловится и golden'ом, и сверкой с именами, обещанными в шапке
+   `fixtures/minimal/direction/01-intro.yaml`. Вопросом владельца оставалась только ОБЛАСТЬ
+   (сцена или файл) — её фикстура действительно не различает.
+
+4. НАРУШЕНИЕ 1 (детерминированный минт) роняет ровно тот тест, ради которого писалась
+   merge-фикстура двух веток, — и заодно тест «два минта дают разные id». Обратное неверно:
+   тест минта в одиночку детерминированную функцию НЕ ловит (она даёт разные id на разных
+   `mintIndex`), а ловит её именно склейка двух веток. Это и есть содержание ревизии M3.
+
+НАЙДЕНО ДО ПРОТОКОЛА, при написании охранника A3 (записано здесь, чтобы не потерялось).
+Признак «две записи одного id в одной ревизии — значит писателей было два» был написан,
+ЗАМЕРЕН и снят: он краснеет на штатном сценарии, где обе ветки правят соседние слова и обе
+дописывают свежий контекст ОДНОМУ уцелевшему якорю. Осталась проверка по личности
+(`chapterId`/`sceneId`/`surface`/`origin`); незакрытый случай — один и тот же id, выданный
+одному и тому же слову в одной сцене — записан долгом в `docs/DEBTS.md`.
+
+Ни один охранник не удалён и не ослаблен.
+
+--- НАРУШЕНИЕ 1 (а): МИНТ ЗАМЕНЁН ДЕТЕРМИНИРОВАННОЙ ФУНКЦИЕЙ от ревизии и счётчика (первая редакция ADR-0004, отвергнута M3)
+    Ожидание: две ветки от одного ledgerRev минтят одинаковые id разным токенам ⇒ merge-тест A3 краснеет; тест «два минта дают разные id» тоже
+    Прогон: pnpm vitest run packages/core-model/test/anchors-merge.test.ts packages/core-model/test/anchors-mint.test.ts
+    × ветки минтили ОДИНАКОВЫЕ id разным словам — вот он, отвергнутый M3 минт 6ms
+    × известная дыра, записанная долгом: одинаковое слово в одной сцене A3 не различает 1ms
+    × КОНКАТЕНАЦИЯ ВЕТОК ЛОВИТСЯ: два живых якоря с одним id — ошибка A3 0ms
+    × без A3 дубль был бы ТИХИМ: свёртка молча оставляет одну из двух правд 1ms
+    × в минт уходит ровно 128 бит: источник спрашивают о 16 байтах 6ms
+    × источник, вернувший не то число байтов, — ошибка, а не id из мусора 1ms
+    × подставленный источник даёт воспроизводимый id — на этом стоят тесты детерминизма 2ms
+    × нулевые байты дают законный id: форма не зависит от значения 1ms
+    Test Files  2 failed (2)
+    Tests  8 failed | 6 passed (14)
+    AssertionError: expected [] to have a length of 5 but got +0
+    AssertionError: expected [] to include 'in'
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [ { id: 'w:wplhhjhbg27oym4k', …(9) } ] to have a length of 2 but got 1
+    AssertionError: expected [] to deeply equal [ 16 ]
+    AssertionError: expected 'w:c262wbupyag6midn' to be 'w:uqrg2p5lsqs2gdcd' // Object.is equality
+    AssertionError: expected 'w:b4vc7du7553bshc5' to be 'w:aaaaaaaaaaaaaaaa' // Object.is equality
+
+--- НАРУШЕНИЕ 2 (а): энтропия минта урезана со 128 бит до 64
+    Ожидание: тест «в минт уходит ровно 128 бит» краснеет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-mint.test.ts packages/core-model/test/anchors-golden.test.ts
+    × файл ledger’а совпадает с зафиксированным байт-в-байт 11ms
+    × id проходит форму семейства `anchors/1`: `w:` + 16 символов base32 7ms
+    × в минт уходит ровно 128 бит: источник спрашивают о 16 байтах 1ms
+    × источник, вернувший не то число байтов, — ошибка, а не id из мусора 1ms
+    × нулевые байты дают законный id: форма не зависит от значения 1ms
+    Test Files  2 failed (2)
+    Tests  5 failed | 12 passed (17)
+    AssertionError: Ledger фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"schema":"anchors/1"}\n{"id":"sc:int…
+    AssertionError: expected 15 to be 18 // Object.is equality
+    AssertionError: expected 64 to be 128 // Object.is equality
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected 'w:aaaaaaaaaaaaa' to be 'w:aaaaaaaaaaaaaaaa' // Object.is equality
+
+--- НАРУШЕНИЕ 3 (а): длина id 16 → 12 символов base32 (форма ADR-0004 §4 нарушена)
+    Ожидание: тест формы id краснеет: длина не та
+    Прогон: pnpm vitest run packages/core-model/test/anchors-mint.test.ts
+    × id проходит форму семейства `anchors/1`: `w:` + 16 символов base32 7ms
+    × нулевые байты дают законный id: форма не зависит от значения 1ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 4 passed (6)
+    AssertionError: expected false to be true // Object.is equality
+    AssertionError: expected 'w:aaaaaaaaaaaa' to be 'w:aaaaaaaaaaaaaaaa' // Object.is equality
+
+--- НАРУШЕНИЕ 4 (а): ADD-ONLY СНЯТ: писатель принимает любой файл
+    Ожидание: все три теста add-only краснеют, включая «удалённая строка»
+    Прогон: pnpm vitest run packages/core-model/test/anchors-ledger.test.ts
+    × изменённая строка — ошибка с номером строки 3ms
+    × удалённая строка — ошибка: мёртвый якорь помечается, а не стирается 2ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 13 passed (15)
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [Function] to throw an error
+
+--- НАРУШЕНИЕ 5 (а): add-only проверяет только ДЛИНУ файла, а не содержимое строк
+    Ожидание: «изменённая строка — ошибка с номером строки» краснеет; «удалённая» — нет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-ledger.test.ts
+    × изменённая строка — ошибка с номером строки 3ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 14 passed (15)
+    AssertionError: expected function to throw an error, but it didn't
+
+--- НАРУШЕНИЕ 6 (а): КАНОНИЧЕСКИЙ ПОРЯДОК СТАЛ СОРТИРОВКОЙ ПО id (вместо порядка дописывания)
+    Ожидание: порядок строк, golden ledger’а и add-only — всё краснеет разом
+    Прогон: pnpm vitest run packages/core-model/test/anchors-ledger.test.ts packages/core-model/test/anchors-golden.test.ts packages/core-model/test/anchors-sync.test.ts
+    × файл ledger’а совпадает с зафиксированным байт-в-байт 11ms
+    × строка = запись, шапка — первой строкой отдельным объектом 7ms
+    × прочитанное равно записанному, а перезапись прочитанного — тому же байту 5ms
+    × порядок строк — порядок дописывания, а не сортировка по id 1ms
+    Test Files  3 failed (3)
+    Tests  4 failed | 22 passed (26)
+    AnchorLedgerError: anchors.lock.jsonl:3: A8: существующая строка изменена, а ledger — add-only (ADR-0005 §10). Было: {"id":"w:d43vvvlyewcknl3y","chapterId":"main","sceneId":"intro","ordinal":7,"surfac
+    AssertionError: Ledger фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"schema":"anchors/1"}\n{"id":"b:clos…
+    AssertionError: expected false to be true // Object.is equality
+    AssertionError: expected [ { id: 'b:reveal', …(9) }, { …(10) } ] to deeply equal [ { chapterId: 'main', …(9) }, …(1) ]
+    AssertionError: expected '{"schema":"anchors/1"}\n{"id":"b:reve…' not to be '{"schema":"anchors/1"}\n{"id":"b:reve…' // Object.is equality
+
+--- НАРУШЕНИЕ 7 (а): живой якорь читается наивно — фильтром по строкам, без свёртки
+    Ожидание: «помеченный мёртвым не живой» краснеет: мёртвый якорь снова живой
+    Прогон: pnpm vitest run packages/core-model/test/anchors-ledger.test.ts packages/core-model/test/anchors-sync.test.ts
+    × помеченный мёртвым не живой, хотя строка `live` осталась в файле 5ms
+    × удалённое слово помечено `dead` новой строкой и перестало быть живым 6ms
+    Test Files  2 failed (2)
+    Tests  2 failed | 29 passed (31)
+    AssertionError: expected true to be false // Object.is equality
+    AssertionError: expected 4 to be 3 // Object.is equality
+
+--- НАРУШЕНИЕ 8 (а): A3 СНЯТ: уникальность живых id не проверяется
+    Ожидание: merge-тест двух веток краснеет — дубль проходит молча
+    Прогон: pnpm vitest run packages/core-model/test/anchors-merge.test.ts packages/core-model/test/anchors-ledger.test.ts
+    × КОНКАТЕНАЦИЯ ВЕТОК ЛОВИТСЯ: два живых якоря с одним id — ошибка A3 3ms
+    × две живые записи одного id с РАЗНОЙ личностью — ошибка A3 с обоими словами 3ms
+    Test Files  2 failed (2)
+    Tests  2 failed | 21 passed (23)
+    AssertionError: expected function to throw an error, but it didn't
+
+--- НАРУШЕНИЕ 9 (а): личность якоря считается без `surface` — id вправе описывать разные слова
+    Ожидание: merge-тест краснеет: два разных слова с одним id больше не различаются
+    Прогон: pnpm vitest run packages/core-model/test/anchors-merge.test.ts packages/core-model/test/anchors-ledger.test.ts
+    × КОНКАТЕНАЦИЯ ВЕТОК ЛОВИТСЯ: два живых якоря с одним id — ошибка A3 3ms
+    × две живые записи одного id с РАЗНОЙ личностью — ошибка A3 с обоими словами 3ms
+    Test Files  2 failed (2)
+    Tests  2 failed | 21 passed (23)
+    AssertionError: expected function to throw an error, but it didn't
+
+--- НАРУШЕНИЕ 10 (а): `boundTo` СОБРАН КОНКАТЕНАЦИЕЙ вместо канонического JSON
+    Ожидание: перестановка границ («ab»,«c») и («a»,«bc») даёт одну подпись ⇒ тест краснеет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-boundto.test.ts
+    × это blake3 от канонического JSON четырёх величин в порядке ADR 9ms
+    × ПЕРЕСТАНОВКА ГРАНИЦ ДАЁТ РАЗНЫЕ ПОДПИСИ — вход не конкатенация 1ms
+    × `null` на краю отличается от пустого токена 1ms
+    Test Files  1 failed (1)
+    Tests  3 failed | 4 passed (7)
+    AssertionError: expected '7a9da92d7b204bb4b1f88402df506c05e3b0f…' to be 'e0548259fae2bb53cc1957b799ed24046301d…' // Object.is equality
+    AssertionError: expected '95129ae07a662c929dde97ec7bee733e370e7…' not to be '95129ae07a662c929dde97ec7bee733e370e7…' // Object.is equality
+    AssertionError: expected 'bfcc4dba569139b496ad7b3078d93c6ba1f32…' not to be 'bfcc4dba569139b496ad7b3078d93c6ba1f32…' // Object.is equality
+
+--- НАРУШЕНИЕ 11 (а): `ordinal` выпал из входа подписи
+    Ожидание: «меняется любая из четырёх величин» краснеет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-boundto.test.ts
+    × это blake3 от канонического JSON четырёх величин в порядке ADR 9ms
+    × меняется любая из четырёх величин — меняется подпись 1ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 5 passed (7)
+    AssertionError: expected 'f2114b41236ca1b7652ae45dd8be0e1df36b9…' to be 'e0548259fae2bb53cc1957b799ed24046301d…' // Object.is equality
+    AssertionError: expected 'f2114b41236ca1b7652ae45dd8be0e1df36b9…' not to be 'f2114b41236ca1b7652ae45dd8be0e1df36b9…' // Object.is equality
+
+--- НАРУШЕНИЕ 12 (а): расхождение подписи стало предупреждением, а не ошибкой (первая редакция: статус `drifted` + WARN)
+    Ожидание: «не совпало — AnchorLedgerError» и критерий готовности в sync краснеют
+    Прогон: pnpm vitest run packages/core-model/test/anchors-boundto.test.ts packages/core-model/test/anchors-sync.test.ts
+    × КОНТЕКСТ ЦЕЛИ РАЗОШЁЛСЯ ⇒ СВЕРКА ОТКАЗЫВАЕТ, А НЕ ПРЕДУПРЕЖДАЕТ 5ms
+    × совпало — молчит 5ms
+    × не совпало — `AnchorLedgerError` с обеими подписями и с тем, что делать дальше 1ms
+    Test Files  2 failed (2)
+    Tests  3 failed | 20 passed (23)
+    AssertionError: expected [Function] to not throw an error but 'AnchorLedgerError: ADR-0004 §6: конте…' was thrown
+    AssertionError: expected undefined to be 'ADR-0004 §6' // Object.is equality
+    AssertionError: expected [Function] to throw an error
+
+--- НАРУШЕНИЕ 13 (а): DIFF МОЛЧИТ ПРО СОСЕДНЕЕ СЛОВО: `prev`/`next` выпали из сравнения состояний
+    Ожидание: контекст цели не обновляется ⇒ подпись остаётся прежней ⇒ критерий готовности краснеет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-sync.test.ts packages/core-model/test/anchors-golden.test.ts
+    × КОНТЕКСТ ЦЕЛИ РАЗОШЁЛСЯ ⇒ СВЕРКА ОТКАЗЫВАЕТ, А НЕ ПРЕДУПРЕЖДАЕТ 4ms
+    × состояние цели переписано НОВОЙ строкой, старая на месте (A8) 3ms
+    Test Files  1 failed | 1 passed (2)
+    Tests  2 failed | 25 passed (27)
+    AssertionError: expected 'ff7a12c7ac8bd4d726d38abc938c63e160beb…' not to be 'ff7a12c7ac8bd4d726d38abc938c63e160beb…' // Object.is equality
+    AssertionError: expected [ { id: 'w:it2oblwe5z2ff4ig', …(9) } ] to have a length of 2 but got 1
+
+--- НАРУШЕНИЕ 14 (а): word-diff заменён совпадением по номеру позиции (то же, что «якорь по occurrenceIndex»)
+    Ожидание: вставка слова уносит id всех последующих ⇒ тесты диффа и sync краснеют
+    Прогон: pnpm vitest run packages/core-model/test/anchors-diff.test.ts packages/core-model/test/anchors-sync.test.ts
+    × вставка в начало не сдвигает соответствия 5ms
+    × удаление слова видно как несовпавший индекс слева 2ms
+    × перестановка абзацев не выдумывает лишних совпадений 2ms
+    × повторяющиеся слова: уцелевшим считается ПЕРВЫЙ, а не «какой-нибудь» 0ms
+    × переписанная целиком сцена сверх предела — ГРОМКИЙ отказ, а не тихий переминт 1ms
+    × до предела длинные списки берутся: отказ — про размер, а не про длину вообще 1ms
+    × удалённое слово помечено `dead` новой строкой и перестало быть живым 7ms
+    × вставка слова минтит один якорь, а не переминчивает абзац 2ms
+    × вставка сдвигает `ordinal` последующих — и это дописывается, а не переписывается 2ms
+    Test Files  2 failed (2)
+    Tests  9 failed | 17 passed (26)
+    AssertionError: expected '' to be '0→1 1→2' // Object.is equality
+    AssertionError: expected '0→0' to be '0→0 2→1' // Object.is equality
+    AssertionError: expected [] to have a length of 2 but got +0
+    AssertionError: expected '0→0' to be '0→0 3→1' // Object.is equality
+    AssertionError: expected function to throw an error, but it didn't
+    AssertionError: expected [ { before: +0, after: +0 }, …(199) ] to have a length of 400 but got 200
+    AssertionError: expected [ 'two', 'three.' ] to deeply equal [ 'two' ]
+    AssertionError: expected [ 'and', 'three.' ] to deeply equal [ 'and' ]
+    AssertionError: expected 4 to be 5 // Object.is equality
+
+--- НАРУШЕНИЕ 15 (а): предел матрицы снят: переписанная сцена молча переминчивается
+    Ожидание: «громкий отказ» краснеет — тихая деградация вместо ошибки
+    Прогон: pnpm vitest run packages/core-model/test/anchors-diff.test.ts
+    × переписанная целиком сцена сверх предела — ГРОМКИЙ отказ, а не тихий переминт 34ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 9 passed (10)
+    AssertionError: expected function to throw an error, but it didn't
+
+--- НАРУШЕНИЕ 16 (а): ORDINAL У `[img:]` СЧИТАЕТСЯ ПО ВСЕМ КАРТИНКАМ СЦЕНЫ, а не по alias (комбинация «а» из плана)
+    Ожидание: в сцене `turn` две картинки ⇒ `b:img-sea-1` становится `b:img-sea-2` ⇒ golden и сверка с фикстурой режиссуры краснеют
+    Прогон: pnpm vitest run packages/core-model/test/anchors-golden.test.ts
+    × файл ledger’а совпадает с зафиксированным байт-в-байт 7ms
+    × в ledger’е ровно три неявных бита — по одному на `[img:]` фикстуры 2ms
+    × форма записи совпадает с зафиксированной байт-в-байт 2ms
+    × три записи — по одной на `[img:]`, и все ссылаются на БИТ, а не на `w:` 1ms
+    × `until` — следующий `[img:]` той же сцены, иначе конец сцены 1ms
+    Test Files  1 failed (1)
+    Tests  5 failed | 6 passed (11)
+    AssertionError: Ledger фикстуры разошёлся с golden. Если сдвиг ОСОЗНАННЫЙ — `pnpm golden:update` и покажите в diff, какая позиция изменилась и почему.: expected '{"schema":"anchors/1"}\n{"id":"sc:int…
+    AssertionError: expected [ 'b:img-harbour-1', …(2) ] to deeply equal [ 'b:img-harbour-1', …(2) ]
+    AssertionError: expected '[{"at":{"anchor":"b:img-harbour-1","k…' to be '[{"at":{"anchor":"b:img-harbour-1","k…' // Object.is equality
+    AssertionError: expected [ Array(3) ] to deeply equal [ Array(3) ]
+
+--- НАРУШЕНИЕ 17 (а): РЕГРЕСС M1: `[img:]` снова позиционируется по ближайшему `w:` вместо неявного бита
+    Ожидание: порождённая запись ссылается на `w:` ⇒ конструктор `PublicAnchorId` отвергает её, golden и A2 краснеют
+    Прогон: pnpm vitest run packages/core-model/test/anchors-golden.test.ts
+    Test Files  1 failed (1)
+    Tests  no tests
+    TypeError: PublicAnchorId: ожидался якорь `b:`/`sc:`/`ch:`/`r:` (ADR-0004 §1); ADR-0004 §2: ссылка на `w:` запрещена — только `b:`/`sc:`/`ch:`/`r:` (инвариант A1) — получено `w:aaaaaaaaaaaaaaaa`
+
+--- НАРУШЕНИЕ 18 (а): `until` берёт следующий `[img:]` через границу сцены
+    Ожидание: картинка последней сцены уезжает в чужую сцену ⇒ golden краснеет
+    Прогон: pnpm vitest run packages/core-model/test/anchors-golden.test.ts
+    × форма записи совпадает с зафиксированной байт-в-байт 6ms
+    × `until` — следующий `[img:]` той же сцены, иначе конец сцены 3ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 9 passed (11)
+    AssertionError: expected '[{"at":{"anchor":"b:img-harbour-1","k…' to be '[{"at":{"anchor":"b:img-harbour-1","k…' // Object.is equality
+    AssertionError: expected [ 'b:img-ledger-1', …(2) ] to deeply equal [ Array(3) ]
+
+--- НАРУШЕНИЕ 19 (б): ОХРАННИК A1 ОСЛЕП: сканер всегда возвращает пустой список
+    Ожидание: «охранник ловит настоящую ссылку» краснеет, главный запрет — нет (он и так зелёный)
+    Прогон: pnpm vitest run tests/fixtures/a1-no-w-references.test.ts
+    × охранник ловит настоящую ссылку — на ВРЕМЕННОЙ копии, `fixtures/` не трогается 6ms
+    Test Files  1 failed (1)
+    Tests  1 failed | 4 passed (5)
+    AssertionError: expected [] to have a length of 1 but got +0
+
+--- НАРУШЕНИЕ 20 (б): охранник A1 перестал отрезать комментарии (дословный греп по байтам — критерий `L-03`)
+    Ожидание: краснеет на КОММЕНТАРИИ фикстуры — ложное срабатывание, найденное этим протоколом
+    Прогон: pnpm vitest run tests/fixtures/a1-no-w-references.test.ts
+    × ни одной ссылки на `w:` во всех фикстурах репозитория 6ms
+    × комментарий про `w:` — не ссылка, и фикстура его содержит 3ms
+    × хвостовой комментарий отрезается, а значение — нет 1ms
+    Test Files  1 failed (1)
+    Tests  3 failed | 2 passed (5)
+    AssertionError: expected 'fixtures/minimal/direction/01-intro.y…' to be '' // Object.is equality
+    AssertionError: expected 'schema: direction/1\n\n# Вся параметр…' not to contain 'w:'
+    AssertionError: expected '    anchor: "b:reveal"   # был w:7f2q' to be '    anchor: "b:reveal"' // Object.is equality
+
+--- НАРУШЕНИЕ 21 (б): исключение линта `node:crypto` расширено с файла на каталог `anchors/**`
+    Ожидание: «исключение УЗКОЕ» краснеет: сосед по каталогу перестал быть под правилом
+    Прогон: pnpm vitest run tests/lints/d4-crypto-mint.test.ts
+    × (б) ESLint: правило срабатывает на импорте внутри `core-model` 663ms
+    × (б) ESLint: исключение УЗКОЕ — сосед по каталогу `anchors/` под правилом остаётся 8ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 4 passed (6)
+    AssertionError: Охранник в eslint.config.js молчит на прямом нарушении: правило сломано или снято.: expected 0 to be greater than 0
+    AssertionError: Исключение выписано на каталог, а не на файл `mint.ts`.: expected 0 to be greater than 0
+
+--- НАРУШЕНИЕ 22 (б): запрет `node:crypto` в модели снят целиком
+    Ожидание: «правило срабатывает» и «исключение узкое» краснеют
+    Прогон: pnpm vitest run tests/lints/d4-crypto-mint.test.ts
+    × (б) ESLint: правило срабатывает на импорте внутри `core-model` 674ms
+    × (б) ESLint: исключение УЗКОЕ — сосед по каталогу `anchors/` под правилом остаётся 9ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 4 passed (6)
+    AssertionError: Охранник в eslint.config.js молчит на прямом нарушении: правило сломано или снято.: expected 0 to be greater than 0
+    AssertionError: Исключение выписано на каталог, а не на файл `mint.ts`.: expected 0 to be greater than 0
+
+--- НАРУШЕНИЕ 23 (а): конструктор `PublicAnchorId` перестал отвергать `w:` (A1 как тип снят)
+    Ожидание: golden `[img:]` перестаёт ловить регресс M1 — проверяется вместе с нарушением 17
+    Прогон: pnpm vitest run packages/core-model/test/anchors-golden.test.ts
+    × форма записи совпадает с зафиксированной байт-в-байт 6ms
+    × три записи — по одной на `[img:]`, и все ссылаются на БИТ, а не на `w:` 3ms
+    Test Files  1 failed (1)
+    Tests  2 failed | 9 passed (11)
+    AssertionError: expected '[{"at":{"anchor":"w:aaaaaaaaaaaaaaaa"…' to be '[{"at":{"anchor":"b:img-harbour-1","k…' // Object.is equality
+    AssertionError: expected [ 'w:aaaaaaaaaaaaaaaa', …(2) ] to deeply equal [ 'b:img-harbour-1', …(2) ]

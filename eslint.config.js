@@ -15,7 +15,13 @@
 //   * ADR-0003 T1 (`C-01`) — `* sampleRate` и `/ 1000` вне `msToSamples`. Исключение ровно
 //     одно — `packages/core-model/src/time/ms.ts`;
 //   * `S-01` долг №3 (`C-01`) — каст в бренд (`as Samples` и остальные три) вне `brands.ts`.
-//     Бренд, снимаемый кастом, не бренд; исключение ровно одно — `packages/schema/src/types/brands.ts`.
+//     Бренд, снимаемый кастом, не бренд; исключение ровно одно — `packages/schema/src/types/brands.ts`;
+//   * РАСШИРЕНИЕ D4 (`C-04`) — `node:crypto` в `core-model` вне файла минта. ADR-0007 §4 этого
+//     запрета не содержит: там перечислены `Math.random`, `Date.now` и соседи. Но минт якоря —
+//     единственный законный недетерминизм модели (ADR-0004 §4, M3), и «единственный» обязано
+//     быть проверяемым, а не обещанным. Исключение ровно одно —
+//     `packages/core-model/src/anchors/mint.ts`. Как и схлопывание пробельных (`C-02`, D8), это
+//     расширение правила, которого в ADR ещё нет: помечено у D4 и записано в `docs/DEBTS.md`.
 //
 // ГДЕ ДЕЙСТВУЮТ ДВА ПОСЛЕДНИХ ПРАВИЛА: **везде**, включая тесты. Это отличает их от V8/D4,
 // которые в тестах сняты (ADR-0007 §4 говорит «во всех процессах СБОРКИ», а тест — не сборка).
@@ -40,6 +46,7 @@ const M5_COMPILE = 'M5 (ADR-0009 Decision): «IR не знает Timeline». Г�
 const M5_MEDIA = 'M5 (ADR-0009 Decision): граница `media/cache` ↔ `media/audio` — межмодульная. Кэш не знает про PCM, PCM не знает про кэш.';
 const CANON = 'ADR-0007 §3 / `S-01`: `JSON.stringify` не является канонической формой — он не сортирует ключи, пишет `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON`. Используйте `canonicalJson` из `@vpe/schema`. Единственное исключение — сам `packages/schema/src/canonical/json.ts`.';
 const V8 = 'Charter V8 / ADR-0007 §4: запрещено во ВСЕХ процессах сборки, не только в рендере. Только seeded random; `now` — вход сборки (BuildRecord), внутри compile его нет.';
+const CRYPTO = 'Расширение D4 (`C-04`): единственный законный недетерминизм модели — минт якоря (ADR-0004 §4: 128 бит CSPRNG, потому что детерминированный минт от `ledgerRev` даёт двум веткам одинаковые id для разных токенов, M3). Он живёт в `packages/core-model/src/anchors/mint.ts`, и это единственный файл пакета, которому разрешён `node:crypto`. Нужен случайный источник в другом месте — берите порт `RandomBytes` параметром, как это делает `syncLedger`.';
 
 /** node:-модули сети + сетевые пакеты. `voice` — единственное исключение (M4). */
 const NETWORK_PATHS = [
@@ -64,6 +71,9 @@ const FS_PATHS = [
 ].map((name) => ({ name, message: M3 }));
 
 const FS_PATTERNS = [{ group: ['fs/*', 'node:fs/*'], message: M3 }];
+
+/** Случайность. Запрещена в `core-model` везде, кроме файла минта (расширение D4, `C-04`). */
+const CRYPTO_PATHS = ['crypto', 'node:crypto'].map((name) => ({ name, message: CRYPTO }));
 
 /** Глобали сети. Отдельным списком: `fetch` — глобал, а не импорт (ADR-0009 тест 7). */
 const NETWORK_GLOBALS = [
@@ -127,9 +137,9 @@ const T1_SYNTAX = [
 // через контейнер — та же фабрикация. Чего селектор НЕ ловит, записано в отчёте `C-01`:
 // `as any` с последующим присваиванием в переменную брендированного типа. Синтаксический
 // линт этого не видит; охранник там — код-ревью и то, что конструктор единственный.
-const BRAND = '`S-01` долг №3 / ADR-0007 §3: бренд, снимаемый кастом, не бренд. Единственный вход в `Samples`/`Frames`/`Sha256`/`Blake3` — конструкторы-валидаторы `asSamples`/`asFrames`/`asSha256`/`asBlake3`: они проверяют `Number.isSafeInteger`, знак, `-0` и форму hex. Единственное исключение — `packages/schema/src/types/brands.ts`. У ТЕСТОВ ИСКЛЮЧЕНИЯ НЕТ: значение, построенное кастом, не прошло тот же вход, что продакшн-значение.';
+const BRAND = '`S-01` долг №3 / ADR-0007 §3: бренд, снимаемый кастом, не бренд. Единственный вход в `Samples`/`Frames`/`Sha256`/`Blake3`/`AnchorId`/`PublicAnchorId` — конструкторы-валидаторы `asSamples`/`asFrames`/`asSha256`/`asBlake3`/`asAnchorId`/`asPublicAnchorId`: они проверяют `Number.isSafeInteger`, знак, `-0`, форму hex и форму якоря (схемой семейства, а не второй регуляркой). Единственное исключение — `packages/schema/src/types/brands.ts`. У ТЕСТОВ ИСКЛЮЧЕНИЯ НЕТ: значение, построенное кастом, не прошло тот же вход, что продакшн-значение.';
 
-const BRAND_NAMES = /^(Samples|Frames|Sha256|Blake3)$/;
+const BRAND_NAMES = /^(Samples|Frames|Sha256|Blake3|AnchorId|PublicAnchorId)$/;
 
 const BRAND_SYNTAX = [
   { selector: `TSAsExpression TSTypeReference > Identifier[name=${String(BRAND_NAMES)}]`, message: BRAND },
@@ -237,6 +247,20 @@ export default tseslint.config(
   // а не сливает её. Массивы собраны из общих констант, чтобы списки не разъехались.
   {
     files: ['packages/core-model/src/**/*.ts'],
+    rules: {
+      'no-restricted-imports': restrictedImports(
+        [...NETWORK_PATHS, ...FS_PATHS, ...CRYPTO_PATHS],
+        [...NETWORK_PATTERNS, ...FS_PATTERNS],
+      ),
+    },
+  },
+
+  // ── Минт якорей: единственный файл `core-model`, которому разрешён `node:crypto` (`C-04`) ──
+  // Снят ровно `CRYPTO_PATHS`; M3 (диск) и M4 (сеть) здесь остаются в силе, как и V8/D4:
+  // `Math.random` в этом файле по-прежнему запрещён — недетерминизм обязан быть
+  // КРИПТОГРАФИЧЕСКИМ и объявленным, а не любым.
+  {
+    files: ['packages/core-model/src/anchors/mint.ts'],
     rules: {
       'no-restricted-imports': restrictedImports(
         [...NETWORK_PATHS, ...FS_PATHS],

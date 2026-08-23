@@ -193,14 +193,23 @@ function readJsonlEntries(entry: FamilyEntry, text: string, filePath: string, sc
 }
 
 /**
- * Читает и валидирует файл любого известного семейства.
+ * Разбирает и валидирует ТЕКСТ файла любого известного семейства.
+ *
+ * ПОЧЕМУ ОТДЕЛЬНО ОТ `readFamily` (`C-04`, разрешение владельца). `core-model` не умеет читать
+ * диск (**M3**), а ledger якорей (`anchors.lock.jsonl`) разбирается именно там: вход — текст,
+ * файл читает вызывающий, ровно как у лексера `C-02`. Альтернатива — второй разборщик JSONL
+ * внутри `core-model` — была бы второй копией того же цикла и разошлась бы с этой при первой
+ * правке. Поведение не изменилось: `readFamily` — обёртка `readFileSync` + эта функция.
+ *
+ * `filePath` здесь — **имя для сообщений об ошибке**, а не путь для чтения: он попадает в
+ * каждую `FamilyReadError`, потому что «строка 4 не разбирается как JSON» без имени файла
+ * бесполезна.
  *
  * @throws {FamilyReadError} нет шапки, неизвестное семейство, не то семейство (`expectFamily`),
  *   неизвестная версия, битый формат, расхождение расширения файла с форматом семейства.
  * @throws {z.ZodError} тело не соответствует схеме — с путём к полю.
  */
-export function readFamily(filePath: string, options: ReadOptions = {}): ReadResult {
-  const text = readFileSync(filePath, 'utf8');
+export function parseFamilyText(text: string, filePath: string, options: ReadOptions = {}): ReadResult {
   const strategy = strategyByExtension(filePath);
   const header = headerOf(readHeaderSource(filePath, text, strategy), filePath);
   const entry = lookup(header, filePath);
@@ -237,4 +246,18 @@ export function readFamily(filePath: string, options: ReadOptions = {}): ReadRes
 
   const document = entry.format === 'json' ? (JSON.parse(text) as unknown) : parseYaml(text);
   return { header, entry, value: validate(schema, document) };
+}
+
+/**
+ * Читает и валидирует файл любого известного семейства.
+ *
+ * Единственное, что делает сама функция, — чтение байтов; вся логика разбора живёт в
+ * `parseFamilyText`, потому что у неё есть второй вызывающий, который диска не касается.
+ *
+ * @throws {FamilyReadError} нет шапки, неизвестное семейство, не то семейство (`expectFamily`),
+ *   неизвестная версия, битый формат, расхождение расширения файла с форматом семейства.
+ * @throws {z.ZodError} тело не соответствует схеме — с путём к полю.
+ */
+export function readFamily(filePath: string, options: ReadOptions = {}): ReadResult {
+  return parseFamilyText(readFileSync(filePath, 'utf8'), filePath, options);
 }
