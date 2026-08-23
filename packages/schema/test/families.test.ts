@@ -19,6 +19,7 @@ import { parse as parseYaml } from 'yaml';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import {
+  AssetRecordSchema,
   FAMILIES,
   FAMILY_NAMES,
   FamilyReadError,
@@ -50,6 +51,10 @@ const FIXTURE_FILES: ReadonlyArray<readonly [string, string]> = [
   ...readdirSync(path.join(FIXTURE, 'assets/records'))
     .filter((name) => name.endsWith('.json'))
     .map((name) => [`assets/records/${name}`, 'asset-record/1'] as const),
+  // `M-02`: шрифт — тоже `asset-record/1`, но лежит в своём каталоге (ADR-0005 §1).
+  ...readdirSync(path.join(FIXTURE, 'fonts/records'))
+    .filter((name) => name.endsWith('.json'))
+    .map((name) => [`fonts/records/${name}`, 'asset-record/1'] as const),
 ];
 
 const fixturePath = (rel: string): string => path.join(FIXTURE, rel);
@@ -462,5 +467,200 @@ describe('`store-lock/1` — принятая форма читается, яд�
     ]);
     const result = loadLock('sorted', text) as { value: { entries: { sha256: string }[] } };
     expect(result.value.entries.map((entry) => entry.sha256)).toEqual([SHA_A, SHA_B, SHA_C]);
+  });
+});
+
+// ── 6. `asset-record/1` — третья ветка `intrinsic`: шрифт (`M-02`) ──────────────────────────
+//
+// До `M-02` веток было две (изображение и звук), а `fonts/records/` существовал пустым: формы
+// записи шрифта не было ни в ADR-0005, ни в фикстуре, и комментарий схемы называл `M-02`
+// адресом, по которому она появится. Здесь она появилась — вместе с первой настоящей записью
+// `fixtures/minimal/fonts/records/<sha>.json` (DejaVu Sans Bold, временный шрифт канала:
+// решение владельца 4, долг №13).
+//
+// ЧТО ИМЕННО ОХРАНЯЕТСЯ ЭТИМ БЛОКОМ:
+//   * ветка `.strict()` по образцу двух соседних — лишнее поле не проезжает;
+//   * ЗАПИСЬ ШРИФТА БЕЗ ЛИЦЕНЗИИ ОТВЕРГАЕТСЯ, и на двух уровнях сразу: `fsType` (разрешение
+//     на встраивание — обязательное поле ветки) и `provenance` (лицензия произведения и
+//     репродукции — обязательный блок всей записи);
+//   * ГРАНИЦА «схема записывает, но не судит» (решение владельца `M-02`): `fsType`
+//     ограничивающего значения — законная запись, а не отказ. Судит Policy Guard (`CP-06`).
+
+const FONT_SHA = '0'.repeat(63) + '5';
+
+interface FontFields {
+  readonly family?: string;
+  readonly subfamily?: string;
+  readonly format?: string;
+  readonly fsType?: string;
+  readonly extra?: string;
+  readonly intrinsic?: string;
+  readonly provenance?: string;
+}
+
+const FONT_PROVENANCE = `{
+    "work": { "status": "bitstream-vera" },
+    "reproduction": { "status": "bitstream-vera", "attributionRequired": true },
+    "recording": { "status": "n/a" },
+    "origin": { "sourceUrl": null, "retrievedAt": "2026-08-23T00:00:00Z" },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }`;
+
+/** Запись шрифта как ТЕКСТ: ядовитые значения обязаны пройти через JSON, а не мимо. */
+function fontText(fields: FontFields = {}): string {
+  const parts = [
+    `"family": ${fields.family ?? '"DejaVu Sans"'}`,
+    `"subfamily": ${fields.subfamily ?? '"Bold"'}`,
+    `"format": ${fields.format ?? '"ttf"'}`,
+    `"fsType": ${fields.fsType ?? '0'}`,
+  ];
+  if (fields.extra !== undefined) parts.push(fields.extra);
+  const intrinsic = fields.intrinsic ?? `{ ${parts.join(', ')} }`;
+  return [
+    '{',
+    '  "schema": "asset-record/1",',
+    `  "sha256": "${FONT_SHA}",`,
+    '  "kind": "font",',
+    `  "intrinsic": ${intrinsic},`,
+    '  "derivedFrom": null,',
+    `  "provenance": ${fields.provenance ?? FONT_PROVENANCE}`,
+    '}',
+    '',
+  ].join('\n');
+}
+
+function loadRecord(name: string, text: string): unknown {
+  return loadText(`asset-record-${name}`, text, '.json');
+}
+
+describe('`asset-record/1` — ветка шрифта принимается, ядовитая отвергается (`M-02`)', () => {
+  it('запись шрифта фикстуры читается, и значения не приводятся молча', () => {
+    const result = readFamily(fixturePath(`fonts/records/${FONT_SHA}.json`));
+    expect(result.header.raw).toBe('asset-record/1');
+    expect((result.value as { intrinsic: unknown }).intrinsic).toStrictEqual({
+      family: 'DejaVu Sans',
+      subfamily: 'Bold',
+      format: 'ttf',
+      fsType: 0,
+    });
+  });
+
+  it('запись шрифта фикстуры НЕСЁТ ЛИЦЕНЗИЮ: статусы произведения и репродукции — не пустые', () => {
+    // Критерий готовности `M-02` дословно: «запись шрифта несёт лицензию». Тест проверяет
+    // не наличие ключа, а то, что значение — настоящее: `identifier()` не пропустит `""`.
+    const value = readFamily(fixturePath(`fonts/records/${FONT_SHA}.json`)).value as {
+      provenance: {
+        work: { status: string };
+        reproduction: { status: string; attributionRequired: boolean; attributionText?: string };
+      };
+    };
+    expect(value.provenance.work.status).toBe('bitstream-vera');
+    expect(value.provenance.reproduction.status).toBe('bitstream-vera');
+    expect(value.provenance.reproduction.attributionRequired).toBe(true);
+    expect(value.provenance.reproduction.attributionText).toMatch(/Bitstream/);
+  });
+
+  it('ветка принимается целиком', () => {
+    expect(() => loadRecord('font-valid', fontText())).not.toThrow();
+  });
+
+  it.each(['ttf', 'otf', 'woff', 'woff2'])('`format: %s` принимается', (format) => {
+    expect(() => loadRecord(`font-format-${format}`, fontText({ format: `"${format}"` }))).not.toThrow();
+  });
+
+  it.each([
+    ['неизвестный формат', '"ttc"'],
+    ['верхний регистр', '"TTF"'],
+    ['с точкой', '".ttf"'],
+    ['MIME вместо формата', '"font/ttf"'],
+  ])('`format` вне перечня отвергается: %s', (title, format) => {
+    // Перечень, а не свободная строка: незнакомое значение — не «новый законный вход», а
+    // молча битый `data URI` в готовом ролике (байты приходят из CAS без имени файла).
+    expect(() => loadRecord(`font-format-bad-${title.replace(/\W/g, '_')}`, fontText({ format }))).toThrow();
+  });
+
+  it('ЗАПИСЬ ШРИФТА БЕЗ `fsType` ОТВЕРГАЕТСЯ — поле прав обязательно', () => {
+    expect(() =>
+      loadRecord('font-no-fstype', fontText({ intrinsic: '{ "family": "DejaVu Sans", "subfamily": "Bold", "format": "ttf" }' })),
+    ).toThrow();
+  });
+
+  it('ЗАПИСЬ ШРИФТА БЕЗ `provenance` ОТВЕРГАЕТСЯ — лицензия у шрифта обязательна, как у всех', () => {
+    const text = fontText().replace(/,\n  "provenance": [\s\S]*\n}/, '\n}');
+    expect(text).not.toMatch(/provenance/);
+    expect(() => loadRecord('font-no-provenance', text)).toThrow();
+  });
+
+  it('пустой статус прав отвергается: «неизвестно чьё» — не значение', () => {
+    expect(() =>
+      loadRecord('font-empty-status', fontText({ provenance: FONT_PROVENANCE.replace('"bitstream-vera"', '""') })),
+    ).toThrow();
+  });
+
+  it.each([
+    ['без `family`', '{ "subfamily": "Bold", "format": "ttf", "fsType": 0 }'],
+    ['без `subfamily`', '{ "family": "DejaVu Sans", "format": "ttf", "fsType": 0 }'],
+    ['без `format`', '{ "family": "DejaVu Sans", "subfamily": "Bold", "fsType": 0 }'],
+    ['пустой `family`', '{ "family": "", "subfamily": "Bold", "format": "ttf", "fsType": 0 }'],
+  ])('неполная ветка шрифта отвергается: %s', (title, intrinsic) => {
+    expect(() => loadRecord(`font-partial-${title.replace(/\W/g, '_')}`, fontText({ intrinsic }))).toThrow();
+  });
+
+  it('лишнее поле в ветке — ошибка (`.strict()`, как у двух соседних веток)', () => {
+    expect(() => loadRecord('font-extra', fontText({ extra: '"unitsPerEm": 2048' }))).toThrow();
+  });
+
+  it.each([
+    ['отрицательный', '-1'],
+    ['дробный', '1.5'],
+    ['строкой', '"0"'],
+    ['шире uint16', '65536'],
+    ['null', 'null'],
+  ])('`fsType` неверной ФОРМЫ отвергается: %s', (title, fsType) => {
+    expect(() => loadRecord(`font-fstype-${title.replace(/\W/g, '_')}`, fontText({ fsType }))).toThrow();
+  });
+
+  it.each([
+    ['installable (ограничений нет)', '0'],
+    ['restricted license embedding', '2'],
+    ['preview & print', '4'],
+    ['no subsetting', '256'],
+    ['предел uint16', '65535'],
+  ])('`fsType` ограничивающего значения ПРИНИМАЕТСЯ: %s — схема записывает, но не судит', (title, fsType) => {
+    // Граница, проведённая решением владельца (`M-02`): правило «значение допускает
+    // встраивание» принадлежит Policy Guard (`CP-06`). Схема, отвергающая `fsType: 2`,
+    // вшила бы политику в формат — и ассет, законный для другого сценария использования,
+    // стал бы нечитаемым файлом. Тест охраняет именно ЭТО, а не терпимость к мусору:
+    // соседний блок показывает, что неверная ФОРМА того же поля отвергается.
+    expect(() => loadRecord(`font-fstype-ok-${title.replace(/\W/g, '_')}`, fontText({ fsType }))).not.toThrow();
+  });
+
+  it.each([
+    ['шрифт + изображение', '{ "family": "DejaVu Sans", "subfamily": "Bold", "format": "ttf", "fsType": 0, "width": 4000, "height": 2670 }'],
+    ['изображение + `fsType`', '{ "width": 4000, "height": 2670, "fsType": 0 }'],
+    ['звук + `format`', '{ "durationSamples": 2880000, "sampleRate": 24000, "format": "ttf" }'],
+  ])('ветки не смешиваются: %s', (title, intrinsic) => {
+    expect(() => loadRecord(`font-mixed-${title.replace(/\W/g, '_')}`, fontText({ intrinsic }))).toThrow();
+  });
+
+  it('СОСТАВ ВЕТКИ — РОВНО ЧЕТЫРЕ ПОЛЯ: второго места для лицензии в записи нет', () => {
+    // Охраняет не данные, а ФОРМУ, и заведён по измерению (протокол нарушений `M-02`, №6):
+    // `.strict()` ловит лишнее поле в ЗАПИСИ, но добавление пятого поля в саму ВЕТКУ он
+    // поймать не может — а это ровно то, чем стал бы отклонённый вариант Б (`licenseId`
+    // рядом с `provenance`). Решение владельца: лицензия живёт в `provenance`, там же, где
+    // у всех остальных ассетов; второй словарь разошёлся бы с первым при первой правке.
+    const branches = AssetRecordSchema.shape.intrinsic.options;
+    expect(branches).toHaveLength(3);
+    expect(Object.keys(branches[0].shape)).toEqual(['width', 'height']);
+    expect(Object.keys(branches[1].shape)).toEqual(['durationSamples', 'sampleRate']);
+    expect(Object.keys(branches[2].shape)).toEqual(['family', 'subfamily', 'format', 'fsType']);
+  });
+
+  it('две прежние ветки не сломаны: изображение и звук читаются как раньше', () => {
+    expect(() => loadRecord('image', fontText({ intrinsic: '{ "width": 4000, "height": 2670 }' }))).not.toThrow();
+    expect(() =>
+      loadRecord('audio', fontText({ intrinsic: '{ "durationSamples": 2880000, "sampleRate": 24000 }' })),
+    ).not.toThrow();
   });
 });

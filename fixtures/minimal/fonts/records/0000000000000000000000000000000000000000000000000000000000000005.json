@@ -1,0 +1,32 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000005",
+  "kind": "font",
+  "intrinsic": {
+    "family": "DejaVu Sans",
+    "subfamily": "Bold",
+    "format": "ttf",
+    "fsType": 0
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "bitstream-vera",
+      "note": "DejaVu Sans Bold 2.37; дополнения DejaVu поверх Bitstream Vera — public domain (name-таблица, nameID 13). ВРЕМЕННЫЙ шрифт канала: решение владельца 4 (RM2), выбор шрифта и проверка лицензии — долг №13, адрес TS-01"
+    },
+    "reproduction": {
+      "status": "bitstream-vera",
+      "attributionRequired": true,
+      "attributionText": "DejaVu Sans — Bitstream Vera Fonts Copyright (c) 2003 Bitstream, Inc.; DejaVu changes are in the public domain"
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "origin": {
+      "sourceUrl": "https://dejavu-fonts.github.io/",
+      "retrievedAt": "2026-08-23T00:00:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

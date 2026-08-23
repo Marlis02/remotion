@@ -51,6 +51,10 @@ const WRITABLE: readonly string[] = [
   ...readdirSync(path.join(FIXTURE, 'assets/records'))
     .filter((name) => name.endsWith('.json'))
     .map((name) => `assets/records/${name}`),
+  // `M-02`: запись шрифта пишется тем же писателем и обязана быть каноничной.
+  ...readdirSync(path.join(FIXTURE, 'fonts/records'))
+    .filter((name) => name.endsWith('.json'))
+    .map((name) => `fonts/records/${name}`),
 ];
 
 const at = (rel: string): string => path.join(FIXTURE, rel);
