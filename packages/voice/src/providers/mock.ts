@@ -18,12 +18,18 @@
 // `Math.random`, часов и `Intl` — **V8**, вместо них свой `mulberry32` (20 строк, ноль новых
 // зависимостей). `node:crypto` — расширение D4: минт якоря остаётся единственным законным
 // недетерминизмом модели, и сид mock'а считается БЕЗ crypto, как в спайке.
-// Порогов приёмки как поля профиля, лестницы ретраев, `codePointDiff` и `stats` — это `V-02`.
+//
+// ПРИЁМКИ ЗДЕСЬ БОЛЬШЕ НЕТ (`V-02`). Метрики, вердикт, диагностика отказа и лестница ретраев
+// переехали в `packages/voice/src/acceptance/`: приёмка судит ОТВЕТ провайдера и потому не
+// может принадлежать провайдеру. `takeHealth` ниже — тонкий делегат, оставленный ради
+// потребителей `V-01`; mock стал ПОТРЕБИТЕЛЕМ приёмки, а не её хозяином.
 
 import { assertSafeInteger, msToSamples, type Samples } from '@vpe/core-model';
 import { PCM_SAMPLE_MAX, PCM_SAMPLE_MIN, bytesFromPcm, pcmS16, type PcmS16 } from '@vpe/media';
 
 import { VoiceError } from '../errors.js';
+
+import { assessTake, timeAt, type TakeAcceptance } from '../acceptance/health.js';
 
 import { sampleRateOfPcmFormat } from './capabilities.js';
 import { providerSecondsToSamples } from './time.js';
@@ -315,123 +321,70 @@ export function synthesize(options: MockSynthesizeOptions): MockSynthesis {
   };
 }
 
-// --- приёмка дубля (ADR-0010 §1) --------------------------------------------
-
-/** Пороги приёмки. Поле `audioProfile` и лестница ретраев — `V-02`, здесь только значения. */
-export interface TakeHealthOptions {
-  readonly uniqueRatio?: number;
-  readonly maxEqualRun?: number;
-  readonly sampleRate?: number;
-}
-
-/** Индексация с ОТКАЗОМ вместо `?? 0`: дыра в массиве — не ноль, а испорченный ответ. */
-function timeAt(times: readonly number[], i: number, field: string): number {
-  const value = times[i];
-  if (value === undefined) {
-    throw new VoiceError(
-      'ADR-0010 §1',
-      `${field}[${String(i)}] отсутствует при заявленной длине ${String(times.length)}: ` +
-        'три массива alignment обязаны быть одной длины.',
-    );
-  }
-  return value;
-}
+// --- приёмка дубля: делегат (владение — `acceptance/`, `V-02`) ---------------
 
 /**
- * Метрики приёмки дубля.
+ * Метрики приёмки дубля — ВЫЗОВ приёмки, а не её вторая реализация.
  *
- * `FACT` (SP-2, findings U6 + SP-2b.5): на здоровом материале `uniqueTimestampRatio` = 1.000 и
- * `maxEqualRun` = 1 на всех ступенях до 2689 code points / 155.4 с. Порог `ratio ≥ 0.9` лежит
- * далеко от рабочей точки; агрессивный порог `maxEqualRun ≤ 2` брать НЕЛЬЗЯ — строки с эмодзи
- * дают 0.976 при 2 и 0.956 при 3, потому что непроизносимые code points получают интервал
- * нулевой длины.
+ * Функция оставлена в публичной поверхности mock'а потому, что её звали потребители `V-01`, и
+ * потому, что провайдеру законно уметь оценить собственный ответ. Считает при этом
+ * `assessTake` (`acceptance/health.ts`), и второй формулы метрик в репозитории нет.
+ *
+ * `acceptance` ОБЯЗАТЕЛЕН и значения по умолчанию не имеет: пороги — данные профиля
+ * (`audio-profile/1`), а умолчание в коде было бы их второй записью, разъезжающейся с
+ * `fixtures/minimal/profiles/audio.yaml` при первой правке. `sampleRate` умолчание имеет —
+ * это СВОЙСТВО провайдера, выведенное из его же `capabilities.pcmFormats`, а не порог.
  */
 export function takeHealth(
   spokenText: string,
   alignment: ProviderAlignment | null,
   numSamples: number,
-  options: TakeHealthOptions = {},
+  acceptance: TakeAcceptance,
+  sampleRate: number = MOCK_SAMPLE_RATE,
 ): TakeHealth {
-  const uniqueRatioThreshold = options.uniqueRatio ?? 0.9;
-  const maxEqualRunThreshold = options.maxEqualRun ?? 8;
-  const sampleRate = options.sampleRate ?? MOCK_SAMPLE_RATE;
-
-  if (alignment === null) {
-    // `FACT` (r1 §1.3): оба поля alignment nullable. За 49 успешных вызовов SP-2 этого не
-    // наблюдалось ни разу — но «не наблюдалось» не значит «не приходит» (ADR-0010 §1).
-    return {
-      charIdentity: false, lengthsMatch: false, monotonic: false,
-      uniqueTimestampRatio: 0, maxEqualRun: 0, tailResidualSamples: 0,
-      verdict: 'rejected', rejectReason: 'alignment отсутствует (оба поля nullable, r1 §1.3)',
-    };
-  }
-
-  const n = alignment.characters.length;
-  const charIdentity = alignment.characters.join('') === spokenText;
-  const lengthsMatch =
-    alignment.character_start_times_seconds.length === n &&
-    alignment.character_end_times_seconds.length === n;
-
-  let monotonic = lengthsMatch;
-  for (let i = 0; lengthsMatch && i < n; i += 1) {
-    const start = timeAt(alignment.character_start_times_seconds, i, 'character_start_times_seconds');
-    const end = timeAt(alignment.character_end_times_seconds, i, 'character_end_times_seconds');
-    if (start > end + 1e-9) monotonic = false;
-    if (i > 0) {
-      const prev = timeAt(alignment.character_start_times_seconds, i - 1, 'character_start_times_seconds');
-      if (start + 1e-9 < prev) monotonic = false;
-    }
-  }
-
-  const uniqueTimestampRatio = n === 0 ? 0 : new Set(alignment.character_start_times_seconds).size / n;
-
-  let maxEqualRun = 0;
-  let run = 1;
-  for (let i = 1; i <= n; i += 1) {
-    const same =
-      i < n &&
-      alignment.character_start_times_seconds[i] === alignment.character_start_times_seconds[i - 1];
-    if (same) run += 1;
-    else {
-      if (run > maxEqualRun) maxEqualRun = run;
-      run = 1;
-    }
-  }
-
-  const lastEnd = n === 0 ? 0 : (alignment.character_end_times_seconds[n - 1] ?? 0);
-  const tailResidualSamples = numSamples - providerSecondsToSamples(lastEnd, sampleRate);
-
-  let rejectReason: string | undefined;
-  if (!charIdentity) rejectReason = "charIdentity: characters.join('') не равен отправленному spoken-тексту";
-  else if (!lengthsMatch) rejectReason = 'три массива alignment разной длины';
-  else if (!monotonic) rejectReason = 'start убывает либо start > end';
-  else if (uniqueTimestampRatio < uniqueRatioThreshold)
-    rejectReason = `uniqueTimestampRatio ${uniqueTimestampRatio.toFixed(3)} < ${String(uniqueRatioThreshold)}`;
-  else if (maxEqualRun > maxEqualRunThreshold)
-    rejectReason = `maxEqualRun ${String(maxEqualRun)} > ${String(maxEqualRunThreshold)}`;
-  else if (tailResidualSamples < 0) rejectReason = 'end[last] выходит за пределы фактического PCM';
-
-  return {
-    charIdentity,
-    lengthsMatch,
-    monotonic,
-    uniqueTimestampRatio: Number(uniqueTimestampRatio.toFixed(4)),
-    maxEqualRun,
-    tailResidualSamples,
-    verdict: rejectReason === undefined ? 'accepted' : 'rejected',
-    ...(rejectReason === undefined ? {} : { rejectReason }),
-  };
+  return assessTake({ spokenText, alignment, numSamples, sampleRate, acceptance });
 }
 
 // --- правило интервала токена (ADR-0010 §6) ----------------------------------
 
-export interface TokenInterval {
-  readonly text: string;
-  readonly startIndex: number;
-  /** Секунды: интервал живёт в домене таймкодов провайдера, перевод — в `makeTake`. */
-  readonly start: number;
-  readonly end: number;
-}
+/**
+ * Произносим ли токен: есть ли в нём хоть одна буква или цифра.
+ *
+ * ПОЧЕМУ ПО КЛАССУ СИМВОЛА, А НЕ ПО ИЗМЕРЕННОЙ ДЛИТЕЛЬНОСТИ. У `tts:mock@1` эмодзи получает
+ * обычную длительность буквы — он арифметический и про произносимость ничего не знает. У
+ * настоящего провайдера `FACT` (SP-2 U6): непроизносимые code points получают интервал
+ * НУЛЕВОЙ длины. Если бы статус выводился из длительности, правило «токен из одних
+ * непроизносимых ⇒ `absent`» (ADR-0010 §1, §5, **V8**) на mock'е не срабатывало бы вовсе, то
+ * есть его нельзя было бы проверить в тестовом контуре — а именно там оно и проверяется.
+ *
+ * `\p{L}`/`\p{N}` — обычные regexp-эскейпы ECMAScript (ES2018), не `Intl` и не локаль:
+ * запрет V8/D4 их не касается, результат от часового пояса и языка среды не зависит.
+ * Цена названа: таблица Unicode — свойство движка, а версия Node пиньётся `engines`
+ * (долг с адресом в `docs/DEBTS.md`).
+ */
+const isPronounceable = (text: string): boolean => /[\p{L}\p{N}]/u.test(text);
+
+/**
+ * Интервал токена. `absent` времени НЕ несёт — ни `[t, t]`, ни `null`-заглушки в секундах.
+ *
+ * Размеченное объединение, а не поле-флаг: см. `TokenBinding` в `types.ts`.
+ */
+export type TokenInterval =
+  | {
+      readonly text: string;
+      readonly startIndex: number;
+      readonly status: 'measured';
+      /** Секунды: интервал живёт в домене таймкодов провайдера, перевод — в `makeTake`. */
+      readonly start: number;
+      readonly end: number;
+    }
+  | {
+      readonly text: string;
+      readonly startIndex: number;
+      readonly status: 'absent';
+      readonly start: null;
+      readonly end: null;
+    };
 
 /**
  * Интервал токена = `[start` первого небелого символа, `end` последнего небелого символа`]`;
@@ -445,6 +398,19 @@ export function tokenIntervals(alignment: ProviderAlignment): readonly TokenInte
   const chars = alignment.characters;
   const out: TokenInterval[] = [];
   let cur: { text: string; startIndex: number; start: number; end: number } | null = null;
+
+  /**
+   * Закрыть накопленный токен. Здесь и только здесь решается статус (**V8**): токен без единой
+   * буквы и цифры уходит `absent` и СВОЁ ИЗМЕРЕННОЕ ВРЕМЯ ТЕРЯЕТ — иначе субтитр получил бы
+   * слово нулевой (у настоящего провайдера) длительности, и это прошло бы мимо всех проверок.
+   */
+  const flush = (token: { text: string; startIndex: number; start: number; end: number }): void => {
+    out.push(
+      isPronounceable(token.text)
+        ? { text: token.text, startIndex: token.startIndex, status: 'measured', start: token.start, end: token.end }
+        : { text: token.text, startIndex: token.startIndex, status: 'absent', start: null, end: null },
+    );
+  };
 
   for (let i = 0; i < chars.length; i += 1) {
     const c = chars[i] ?? '';
@@ -464,11 +430,11 @@ export function tokenIntervals(alignment: ProviderAlignment): readonly TokenInte
       cur.text += c;
       cur.end = end;
     } else if (cur !== null) {
-      out.push(cur);
+      flush(cur);
       cur = null;
     }
   }
-  if (cur !== null) out.push(cur);
+  if (cur !== null) flush(cur);
   return out;
 }
 
@@ -478,6 +444,8 @@ export interface MakeTakeFields {
   readonly chunkKey: string;
   readonly spokenText: string;
   readonly seed: number;
+  /** Пороги приёмки из `audio-profile/1`. Умолчания нет: см. `takeHealth` выше. */
+  readonly acceptance: TakeAcceptance;
   /** `null` до `V-03`: CAS в `V-01` не пишется (решение владельца, вопрос 2). */
   readonly sha256?: string | null;
 }
@@ -491,18 +459,24 @@ export interface MakeTakeFields {
  * число отправленных code points `spokenChunkText`.
  */
 export function makeTake(fields: MakeTakeFields): Take {
-  const { chunkKey, spokenText, seed, sha256 } = fields;
+  const { chunkKey, spokenText, seed, acceptance, sha256 } = fields;
   const r = synthesize({ text: spokenText, seed });
   const numSamples = r.__mock.numSamples;
-  const health = takeHealth(spokenText, r.alignment, numSamples);
+  const health = takeHealth(spokenText, r.alignment, numSamples, acceptance);
 
-  const bindings: TokenBinding[] = tokenIntervals(r.alignment).map((t, i) => ({
-    anchorId: `w:${String(i)}`,
-    startSample: providerSecondsToSamples(t.start, MOCK_SAMPLE_RATE),
-    endSample: providerSecondsToSamples(t.end, MOCK_SAMPLE_RATE),
-    status: 'measured',
-    confidence: 1,
-  }));
+  // Статус токена ПОРОЖДАЕТСЯ здесь и в `tokenIntervals`, а не проверяется постфактум:
+  // `absent` уходит без сэмплов вовсе (**V8**), и выразить его иначе тип не даёт.
+  const bindings: TokenBinding[] = tokenIntervals(r.alignment).map((t, i) =>
+    t.status === 'absent'
+      ? { anchorId: `w:${String(i)}`, startSample: null, endSample: null, status: 'absent', confidence: null }
+      : {
+          anchorId: `w:${String(i)}`,
+          startSample: providerSecondsToSamples(t.start, MOCK_SAMPLE_RATE),
+          endSample: providerSecondsToSamples(t.end, MOCK_SAMPLE_RATE),
+          status: 'measured',
+          confidence: 1,
+        },
+  );
 
   return {
     chunkKey,

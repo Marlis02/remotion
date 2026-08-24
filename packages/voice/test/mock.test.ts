@@ -13,9 +13,18 @@
 //      самым проверяется через `bytesFromPcm`, то есть на тех же байтах, что уйдут в WAV.
 //
 // Разбор каждого отличия — `docs/impl/V-01/report.md`, раздел «Отклонения от спайка».
+//
+// ПРАВКА `V-02` (2026-08-24), механическая: приёмка получила пороги ОБЯЗАТЕЛЬНЫМ параметром
+// (умолчания в коде были бы второй записью чисел профиля), поэтому вызовы `takeHealth` и
+// `makeTake` получили объект `ACCEPTANCE`, прочитанный ИЗ ФИКСТУРЫ, а `rejectReason` стал
+// литеральным union'ом — три ассерта, сверявшие свободный текст регуляркой, сверяют теперь
+// причину. Проверяемые свойства и их число не изменились ни в одном из девятнадцати случаев;
+// разбор — `docs/impl/V-02/report.md`, раздел «Правки чужих тестов».
 
 import { bytesFromPcm, type PcmS16 } from '@vpe/media';
 import { describe, expect, it } from 'vitest';
+
+import { fixtureTakeAcceptance } from './fixture.js';
 
 import {
   MOCK_PROFILE,
@@ -32,6 +41,8 @@ import {
 
 const TXT = 'Dr. Smith arrived, and the tide turned.';
 const SEED = 20260821;
+/** Пороги — из `fixtures/minimal/profiles/audio.yaml`, а не из литералов (`V-02`). */
+const ACCEPTANCE = fixtureTakeAcceptance();
 
 /** Байты дорожки — ровно те, что уйдут в WAV. Сравнение `Buffer.equals` побайтовое. */
 const bytesOf = (pcm: PcmS16): Buffer => Buffer.from(bytesFromPcm(pcm));
@@ -101,7 +112,7 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
 
   it('приёмка: здоровый дубль принимается', () => {
     const r = synthesize({ text: TXT, seed: SEED });
-    const h = takeHealth(TXT, r.alignment, r.__mock.numSamples);
+    const h = takeHealth(TXT, r.alignment, r.__mock.numSamples, ACCEPTANCE);
     expect(h.verdict).toBe('accepted');
     expect(h.charIdentity).toBe(true);
     expect(h.uniqueTimestampRatio).toBe(1);
@@ -117,23 +128,23 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
       character_start_times_seconds: new Array<number>(n).fill(0.5),
       character_end_times_seconds: new Array<number>(n).fill(0.6),
     };
-    const h = takeHealth(TXT, degenerate, r.__mock.numSamples);
+    const h = takeHealth(TXT, degenerate, r.__mock.numSamples, ACCEPTANCE);
     expect(h.verdict).toBe('rejected');
-    expect(h.rejectReason).toMatch(/uniqueTimestampRatio/);
+    expect(h.rejectReason).toBe('unique-ratio');
   });
 
   it('приёмка: нарушенный charIdentity (alias словаря, ADR-0010 §7a) ОТВЕРГАЕТСЯ', () => {
     const sent = 'NASA kept a station.';
     const r = synthesize({ text: 'N A S A kept a station.', seed: SEED });
-    const h = takeHealth(sent, r.alignment, r.__mock.numSamples);
+    const h = takeHealth(sent, r.alignment, r.__mock.numSamples, ACCEPTANCE);
     expect(h.verdict).toBe('rejected');
-    expect(h.rejectReason).toMatch(/charIdentity/);
+    expect(h.rejectReason).toBe('char-identity');
   });
 
   it('приёмка: отсутствующий alignment (оба поля nullable) ОТВЕРГАЕТСЯ', () => {
-    const h = takeHealth(TXT, null, 1000);
+    const h = takeHealth(TXT, null, 1000, ACCEPTANCE);
     expect(h.verdict).toBe('rejected');
-    expect(h.rejectReason).toMatch(/отсутствует/);
+    expect(h.rejectReason).toBe('no-alignment');
   });
 
   it('правило интервала токена D10 п.6: знак и пробел в слово не входят', () => {
@@ -206,7 +217,7 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
   });
 
   it('дубль по раскладке ADR-0010 §2 собирается и содержит обязательные поля', () => {
-    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, sha256: 'deadbeef' });
+    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE, sha256: 'deadbeef' });
     for (const k of [
       'chunkKey', 'spokenText', 'normalizerVersion', 'pcm', 'leadInSamples', 'tailSamples',
       'health', 'provenance', 'bindings',
@@ -218,12 +229,15 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
     expect(take.bindings.length > 0).toBe(true);
     for (const b of take.bindings) {
       expect(b.status).toBe('measured');
+      // Сужение для компилятора: у `absent` времени нет вовсе (**V8**, `V-02`), и утверждение
+      // про интервал к нему неприменимо. В `TXT` непроизносимых токенов нет ни одного.
+      if (b.status === 'absent') throw new Error(`токен ${b.anchorId} получил absent`);
       expect(b.endSample > b.startSample).toBe(true);
     }
   });
 
   it('bindings не пересекаются и идут по возрастанию', () => {
-    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED });
+    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE });
     for (let i = 1; i < take.bindings.length; i += 1) {
       expect((take.bindings[i]?.startSample ?? -1) >= (take.bindings[i - 1]?.endSample ?? -1)).toBe(true);
     }

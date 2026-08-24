@@ -142,11 +142,38 @@ export interface TtsProvider {
 // ── Дубль (ADR-0010 §1, §2, §5) ─────────────────────────────────────────────
 
 /**
+ * Причина отказа — ЛИТЕРАЛЬНЫЙ UNION, а не свободная строка (`V-02`).
+ *
+ * По тому же доводу, по которому литеральны capabilities (`V-01`): потребитель приёмки
+ * (лестница, отчёт A/B, будущий `V-05`) обязан ветвиться исчерпывающе ДЛЯ КОМПИЛЯТОРА. Со
+ * `string` появление седьмой причины не покраснело бы нигде; с union'ом `switch` без новой
+ * ветки падает на `never`. Человеческий текст отказа при этом не потерян — он живёт в
+ * `explainRejection` (`acceptance/health.ts`) вместе с `codePointDiff`, который показывает
+ * МЕСТО расхождения, а не только факт.
+ */
+export type TakeRejectReason =
+  /** `alignment: null` — оба поля ответа nullable (`FACT` r1 §1.3). Отказ, а не `TypeError`. */
+  | 'no-alignment'
+  /** `characters.join('')` не равен отправленному spoken-тексту (**V1**). */
+  | 'char-identity'
+  /** Три массива alignment разной длины. */
+  | 'lengths'
+  /** `start` убывает либо `start > end` (эпсилон 1e-9 — в секундах провайдера). */
+  | 'monotonic'
+  /** `uniqueTimestampRatio` ниже `takeAcceptance.minUniqueTimestampRatio` профиля. */
+  | 'unique-ratio'
+  /** Серия одинаковых стартов длиннее `takeAcceptance.maxEqualRun` профиля. */
+  | 'equal-run'
+  /** `end[last]` вышел за пределы фактического PCM (величина ОТРИЦАТЕЛЬНА). */
+  | 'tail-residual';
+
+/**
  * Метрики приёмки дубля (ADR-0010 §1).
  *
- * `V-01` переносит вычисление из `sp2/mock.mjs`. Лестница ретраев, `codePointDiff`, `stats` и
- * пороги как поле `audioProfile` — территория `V-02` (перенос `sp2/lib/analyze.mjs`); поэтому
- * строки **V1/V2/V8** реестра эта задача НЕ переводит.
+ * Восемь полей формы roadmap. Вычисление живёт в `acceptance/health.ts` (`V-02`, перенос
+ * `sp2/lib/analyze.mjs`); в `V-01` оно временно лежало в `mock.ts`, потому что там же лежала
+ * его спайковая форма. Пороги в этой структуре НЕ хранятся: они — данные профиля
+ * (`audio-profile/1`, блок `takeAcceptance`), а не свойство дубля.
  */
 export interface TakeHealth {
   /** `characters.join('') === отправленный spoken-текст`. `FACT` (SP-2): 56/56 на двух голосах. */
@@ -165,22 +192,60 @@ export interface TakeHealth {
    */
   readonly tailResidualSamples: number;
   readonly verdict: 'accepted' | 'rejected';
-  readonly rejectReason?: string;
+  /**
+   * `null` у принятого дубля — поля НЕТ только у необязательного, а причина обязана быть
+   * названа явно: при `exactOptionalPropertyTypes: true` «поля нет» и «поле есть со значением
+   * `null`» — разные типы, и второе читается однозначно («причины нет»), а первое — нет.
+   */
+  readonly rejectReason: TakeRejectReason | null;
 }
 
-/** Привязка токена к сэмплам (ADR-0010 §5). */
-export interface TokenBinding {
-  /** Пространство `w:` — внутреннее (ADR-0004 §1, §2); настоящие id приходят с `V-05`. */
-  readonly anchorId: string;
-  readonly startSample: Samples;
-  readonly endSample: Samples;
-  /**
-   * `interpolated`/`absent` обязательны: когда TTS проглотил слово, компилятор не имеет
-   * права выдумывать время молча (ADR-0010 §5, инвариант **V8**, охранник — `V-05`).
-   */
-  readonly status: 'measured' | 'interpolated' | 'absent';
-  readonly confidence: number | null;
-}
+/**
+ * Статус привязки токена (ADR-0010 §5, инвариант **V8**).
+ *
+ * `'measured'` — время ИЗМЕРЕНО (таймкоды провайдера либо forced alignment).
+ * `'interpolated'` — время ВЫВЕДЕНО из соседей. **В v1 это значение не порождается никем**, и
+ * это записано здесь намеренно: оно зарезервировано ТИПОМ, чтобы будущий биндер
+ * (`ctc-fa@1`/`mfa@3`, `V-05`) добавлял ветку, а не поле. Охранник резервирования — тест
+ * «в `packages/voice/src/**` литерал `'interpolated'` встречается только в этом объявлении».
+ * `'absent'` — времени НЕТ вовсе: токен из одних непроизносимых code point'ов (эмодзи,
+ * символы без букв и цифр). `FACT` (SP-2 U6): такие code points получают у провайдера интервал
+ * НУЛЕВОЙ длины, и если бы движок записал их как `[t, t]`, субтитр получил бы слово нулевой
+ * длительности, а AC5-b — точку в статистике вместо пропуска. ADR-0010 §1 требует ровно
+ * обратного: `status: 'absent'`, а не интервал `[t, t]`.
+ */
+export type TokenBindingStatus = 'measured' | 'interpolated' | 'absent';
+
+/**
+ * Привязка токена к сэмплам (ADR-0010 §5).
+ *
+ * РАЗМЕЧЕННОЕ ОБЪЕДИНЕНИЕ, А НЕ ПЛОСКАЯ ЗАПИСЬ, — и это исполнимая форма **V8**. У `absent`
+ * полей `startSample`/`endSample` НЕТ ЗНАЧЕНИЯ вовсе: «компилятор не выдумывает время»
+ * перестаёт быть договорённостью и становится тем, что нельзя выразить. Интервал `[t, t]` для
+ * проглоченного слова не «запрещён проверкой» — он не типизируется.
+ *
+ * **Кандидат в правку ADR-0010 §5:** там `startSample`/`endSample` объявлены `Samples` без
+ * `null`, то есть на бумаге `absent` обязан нести какое-то время. Расхождение внесено сознательно
+ * (`V-02`) и записано в отчёт сессии.
+ */
+export type TokenBinding =
+  | {
+      /** Пространство `w:` — внутреннее (ADR-0004 §1, §2); настоящие id приходят с `V-05`. */
+      readonly anchorId: string;
+      readonly startSample: Samples;
+      readonly endSample: Samples;
+      readonly status: 'measured' | 'interpolated';
+      readonly confidence: number | null;
+    }
+  | {
+      readonly anchorId: string;
+      /** Времени нет: ни `null`-заглушки в сэмплах, ни интервала нулевой длины. */
+      readonly startSample: null;
+      readonly endSample: null;
+      readonly status: 'absent';
+      /** Уверенности в несуществующем интервале не бывает — только `null`. */
+      readonly confidence: null;
+    };
 
 /** Класс голоса. `FACT` (SP-2): он определяет доступность голоса на тарифе, а не только вкус. */
 export type VoiceCategory = 'premade' | 'professional' | 'cloned' | 'none';

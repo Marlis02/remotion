@@ -14,7 +14,11 @@ import { describe, expect, it } from 'vitest';
 
 import { MOCK_SAMPLE_RATE, makeTake, providerSecondsToSamples, synthPcm, synthesize } from '../src/index.js';
 
+import { fixtureTakeAcceptance } from './fixture.js';
+
 const TXT = 'Dr. Smith arrived, and the tide turned.';
+/** Пороги — из `fixtures/minimal/profiles/audio.yaml`, а не из литералов (`V-02`). */
+const ACCEPTANCE = fixtureTakeAcceptance();
 
 /**
  * Сэмплов в миллисекунде при частоте mock'а — ЭТАЛОН, посчитанный НЕЗАВИСИМО, в `BigInt`.
@@ -31,8 +35,8 @@ describe('детерминизм синтеза', () => {
   });
 
   it('один вход и один seed — те же интервалы токенов и те же привязки', () => {
-    const a = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3 });
-    const b = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3 });
+    const a = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE });
+    const b = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE });
     expect(a.bindings).toEqual(b.bindings);
     expect(a.health).toEqual(b.health);
   });
@@ -44,8 +48,8 @@ describe('детерминизм синтеза', () => {
     expect(a.alignment).toEqual(b.alignment);
     // Свойство, ради которого mock вообще пишется: калибровка `A-03` меряет ошибку алигнера
     // против ИЗВЕСТНОЙ истины, и seed на эту истину влиять не имеет права.
-    expect(makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1 }).bindings).toEqual(
-      makeTake({ chunkKey: 'k', spokenText: TXT, seed: 2 }).bindings,
+    expect(makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE }).bindings).toEqual(
+      makeTake({ chunkKey: 'k', spokenText: TXT, seed: 2, acceptance: ACCEPTANCE }).bindings,
     );
   });
 
@@ -68,7 +72,7 @@ describe('длина PCM привязана к расписанию, а не «�
 
   it('хвостового остатка нет: end[last] совпадает с концом дорожки', () => {
     const r = synthesize({ text: TXT, seed: 1 });
-    const take = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1 });
+    const take = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE });
     const n = r.alignment.characters.length;
     const lastEnd = r.alignment.character_end_times_seconds[n - 1] ?? Number.NaN;
     expect(providerSecondsToSamples(lastEnd, MOCK_SAMPLE_RATE)).toBe(r.__mock.numSamples);

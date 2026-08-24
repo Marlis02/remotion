@@ -1,0 +1,341 @@
+ПРОТОКОЛ НАРУШЕНИЙ — IMPL-V-02 (приёмка дубля), 2026-08-24
+==========================================================
+
+ЧТО ЭТО. Каждый охранник, заведённый задачей, показан ПАДАЮЩИМ: в код вносится ровно одно
+изменение, прогоняются тесты, которые обязаны покраснеть, изменение ОТКАТЫВАЕТСЯ. Двадцать
+два внесения. Прогон воспроизводим: скрипт делает копию файла, применяет одну текстовую
+замену, зовёт `vitest run <файлы>` и `tsc --build`, возвращает копию на место.
+
+СОСТОЯНИЕ ДО И ПОСЛЕ ПРОТОКОЛА: `tsc --build` чист, `eslint .` чист,
+`vitest run` — 72 файла / 1232 теста зелёные (до задачи было 68 / 1188).
+
+ДВЕ НАХОДКИ — места, где ждался красный, а было зелено. Обе закрыты дискриминирующими
+проверками ДО того, как протокол был переписан набело; в теле ниже записи №4 и №14 показаны
+уже в состоянии «после закрытия».
+
+  НАХОДКА 1 (запись №4). Снятие эпсилона `1e-9` в проверке `start > end + 1e-9` оставляло
+  пакет ЗЕЛЁНЫМ. Причина: тест на эту половину монотонности подавал грубый случай (`end`
+  меньше `start` на 0.05 с), а грубый случай краснеет и без эпсилона. Эпсилонов в спайке
+  ДВА, и дискриминирующих случая нужно тоже два. Закрыто: в тест добавлена «дрожь» на
+  5e-10 — она обязана быть стерпена, и без эпсилона перестаёт.
+  Первый прогон, дословно:   Test Files  1 passed (1) / Tests  20 passed (20)
+
+  НАХОДКА 2 (запись №14). Значение по умолчанию у параметра порогов
+  (`acceptance: TakeAcceptance = { minUniqueTimestampRatio: 0.9, maxEqualRun: 8,
+  maxRetries: 2 }` в `mock.ts`) оставляло ЗЕЛЁНЫМ ВЕСЬ пакет — 9 файлов, 103 теста.
+  Причина: и поведенческие тесты («правка порога в объекте меняет вердикт», «граница
+  проходит ровно по значению профиля»), и греп по сравнению проверяют, что порог ЧИТАЕТСЯ
+  из объекта; ни один из них не замечает, что объект теперь может не прийти вовсе, а числа
+  профиля вернулись в код второй записью. Закрыто: охранник (а) дополнен тремя формами
+  возврата — умолчание параметра (`: TakeAcceptance =`), запасной вариант (`acceptance ??`)
+  и число, присвоенное имени порога в литерале объекта, — плюс отдельная проверка, что поля
+  `TakeAcceptance` не необязательны.
+  Первый прогон, дословно:   Test Files  9 passed (9) / Tests  103 passed (103)
+
+КАК ЧИТАТЬ ЗАПИСЬ. `--- vitest ---` — строки провалов и итог прогона; `--- tsc ---` —
+что сказал компилятор («(чисто)» значит, что нарушение ловится тестом, а не типом).
+Запись №16 — единственная, где vitest зелен НАМЕРЕННО: исчерпаемость `switch` по причинам
+отказа охраняется КОМПИЛЯТОРОМ (`Type '"probe"' is not assignable to type 'never'`), и это
+её штатная форма, а не пробел в покрытии.
+
+==========================================================
+
+### 1 — порог ratio литералом 0.9 в коде вместо чтения профиля
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+ FAIL  tests/lints/adr0010-take-acceptance.test.ts > `V-02` (а): порог сравнения приходит из профиля, а не из кода > все три порога действительно читаются хотя бы раз
+AssertionError: порог minUniqueTimestampRatio не читается ниоткуда: expected false to be true // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > правка порога в переданном объекте меняет вердикт ЗДОРОВОГО дубля
+AssertionError: expected null to be 'unique-ratio' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > правка порога в переданном объекте меняет вердикт БОЛЬНОГО дубля
+AssertionError: expected 'rejected' to be 'accepted' // Object.is equality
+ Test Files  2 failed (2)
+      Tests  4 failed | 24 passed (28)
+--- tsc ---
+(чисто)
+
+### 2 — порог maxEqualRun литералом 8 в коде вместо чтения профиля
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > правка порога в переданном объекте меняет вердикт ЗДОРОВОГО дубля
+AssertionError: expected null to be 'equal-run' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > правка порога в переданном объекте меняет вердикт БОЛЬНОГО дубля
+AssertionError: expected 'rejected' to be 'accepted' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` эмодзи: почему агрессивный порог `maxEqualRun: 2` ЗАПРЕЩЁН > `👍🏽` — ratio 0.956 при серии 3: профиль принимает, порог 2 ОТВЕРГАЕТ
+AssertionError: expected 'accepted' to be 'rejected' // Object.is equality
+ Test Files  2 failed (2)
+      Tests  5 failed | 23 passed (28)
+--- tsc ---
+(чисто)
+
+### 3 — число попыток лестницы литералом 3 вместо maxRetries профиля
+файл: packages/voice/src/acceptance/ladder.ts
+--- vitest ---
+     × число попыток лестницы считается от `maxRetries` профиля 6ms
+     × `maxRetries: 0` — «ретраев нет», а не «попыток нет» 16ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/lints/adr0010-take-acceptance.test.ts > `V-02` (а): порог сравнения приходит из профиля, а не из кода > число попыток лестницы считается от `maxRetries` профиля
+AssertionError:   const total = 3;: expected false to be true // Object.is equality
+ FAIL  packages/voice/test/ladder.test.ts > `V-02` лестница ретраев: «ретрай ×N → падение сборки» > `maxRetries: 0` — «ретраев нет», а не «попыток нет»
+AssertionError: expected 3 to be 1 // Object.is equality
+ Test Files  2 failed (2)
+      Tests  2 failed | 14 passed (16)
+--- tsc ---
+packages/voice/src/acceptance/ladder.ts(120,15): error TS2367: This comparison appears to be unintentional because the types '3' and '1' have no overlap.
+
+### 4 — снят эпсилон монотонности в проверке start > end (ФИНДИНГ №1: до дискриминирующего теста было ЗЕЛЕНО)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × монотонность: `start > end` внутри символа — отказ, но эпсилон терпит и здесь 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: метрики (перенос `health` из `analyze.mjs`) > монотонность: `start > end` внутри символа — отказ, но эпсилон терпит и здесь
+AssertionError: expected false to be true // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+--- tsc ---
+(чисто)
+
+### 5 — снят эпсилон монотонности в проверке убывания стартов
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × монотонность: эпсилон 1e-9 ТЕРПИТ дрожь, но не терпит настоящего убывания 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: метрики (перенос `health` из `analyze.mjs`) > монотонность: эпсилон 1e-9 ТЕРПИТ дрожь, но не терпит настоящего убывания
+AssertionError: expected false to be true // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+--- tsc ---
+(чисто)
+
+### 6 — оператор порога серии >= вместо > (граница сдвинулась на единицу)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × правка порога в переданном объекте меняет вердикт БОЛЬНОГО дубля 14ms
+     × граница `maxEqualRun` проходит РОВНО по значению профиля (`>`, а не `>=`) 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > правка порога в переданном объекте меняет вердикт БОЛЬНОГО дубля
+AssertionError: expected 'rejected' to be 'accepted' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > граница `maxEqualRun` проходит РОВНО по значению профиля (`>`, а не `>=`)
+AssertionError: expected 'rejected' to be 'accepted' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+--- tsc ---
+(чисто)
+
+### 7 — оператор порога ratio <= вместо < (рабочая точка 0.9 стала бы отказом)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × граница `minUniqueTimestampRatio` проходит РОВНО по значению профиля 6ms
+     × граница `maxEqualRun` проходит РОВНО по значению профиля (`>`, а не `>=`) 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > граница `minUniqueTimestampRatio` проходит РОВНО по значению профиля
+AssertionError: expected 'rejected' to be 'accepted' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` пороги приходят ИЗ ПРОФИЛЯ, а не из кода > граница `maxEqualRun` проходит РОВНО по значению профиля (`>`, а не `>=`)
+AssertionError: expected 'unique-ratio' to be 'equal-run' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+--- tsc ---
+(чисто)
+
+### 8 — alignment: null не обрабатывается — приёмка падает по undefined вместо вердикта (долг SP-2 №8)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × `alignment: null` — ОТКАЗ ДУБЛЯ, а не `TypeError` (долг SP-2 №8) 5ms
+     × приёмка: отсутствующий alignment (оба поля nullable) ОТВЕРГАЕТСЯ 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: метрики (перенос `health` из `analyze.mjs`) > `alignment: null` — ОТКАЗ ДУБЛЯ, а не `TypeError` (долг SP-2 №8)
+AssertionError: expected TypeError: Cannot read properties of null… to be null
+ FAIL  packages/voice/test/ladder.test.ts > `V-02` лестница ретраев: «ретрай ×N → падение сборки» > `alignment: null` проходит лестницу как ОТКАЗ ДУБЛЯ, а не как `TypeError`
+AssertionError: expected TypeError: Cannot read properties of null… to be an instance of VoiceError
+ FAIL  packages/voice/test/mock.test.ts > `tts:mock@1` — перенос SP-2, блок 8 > приёмка: отсутствующий alignment (оба поля nullable) ОТВЕРГАЕТСЯ
+TypeError: Cannot read properties of null (reading 'characters')
+ Test Files  3 failed (3)
+      Tests  3 failed | 44 passed (47)
+--- tsc ---
+packages/voice/src/acceptance/health.ts(236,13): error TS18047: 'alignment' is possibly 'null'.
+packages/voice/src/acceptance/health.ts(237,24): error TS18047: 'alignment' is possibly 'null'.
+packages/voice/src/acceptance/health.ts(239,5): error TS18047: 'alignment' is possibly 'null'.
+packages/voice/src/acceptance/health.ts(240,5): error TS18047: 'alignment' is possibly 'null'.
+packages/voice/src/acceptance/health.ts(244,26): error TS18047: 'alignment' is possibly 'null'.
+packages/voice/src/acceptance/health.ts(245,24): error TS18047: 'alignment' is possibly 'null'.
+
+### 9 — лестница ДЕЛИТ чанк: на ретрае уходит производный chunkKey (V2, M12)
+файл: packages/voice/src/acceptance/ladder.ts
+--- vitest ---
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > ретраи больного чанка идут под ТЕМ ЖЕ ключом: лестница его не делит и не переименовывает
+AssertionError: expected +0 to be 3 // Object.is equality
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > число ОПЛАЧЕННЫХ попыток здоровых чанков не зависит от соседа: провал не заразен
+AssertionError: expected +0 to be 1 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+--- tsc ---
+(чисто)
+
+### 10 — лестница делает лишнюю (оплаченную) попытку сверх maxRetries профиля
+файл: packages/voice/src/acceptance/ladder.ts
+--- vitest ---
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > ретраи больного чанка идут под ТЕМ ЖЕ ключом: лестница его не делит и не переименовывает
+AssertionError: expected 4 to be 3 // Object.is equality
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > число ОПЛАЧЕННЫХ попыток здоровых чанков не зависит от соседа: провал не заразен
+AssertionError: expected 4 to be 3 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  5 failed | 3 passed (8)
+--- tsc ---
+(чисто)
+
+### 11 — absent получает интервал [t, t] вместо отсутствия времени (V8, ADR-0010 §1)
+файл: packages/voice/src/providers/mock.ts
+--- vitest ---
+     × `makeTake` на тексте с эмодзи даёт привязку без времени, а не привязку нулевой длины 9ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/token-status.test.ts > **V8** привязка дубля: `absent` не несёт сэмплов вовсе > `makeTake` на тексте с эмодзи даёт привязку без времени, а не привязку нулевой длины
+AssertionError: expected 96000 to be null
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+--- tsc ---
+packages/voice/src/providers/mock.ts(469,9): error TS2322: Type '({ anchorId: string; startSample: Samples; endSample: Samples; status: "absent"; confidence: null; } | { anchorId: string; startSample: Samples; endSample: Samples; status: "measured"; confidence: number; })[]' is not assignable to type 'TokenBinding[]'.
+  Type '{ anchorId: string; startSample: Samples; endSample: Samples; status: "absent"; confidence: null; } | { anchorId: string; startSample: Samples; endSample: Samples; status: "measured"; confidence: number; }' is not assignable to type 'TokenBinding'.
+    Type '{ anchorId: string; startSample: Samples; endSample: Samples; status: "absent"; confidence: null; }' is not assignable to type 'TokenBinding'.
+      Type '{ anchorId: string; startSample: Samples; endSample: Samples; status: "absent"; confidence: null; }' is not assignable to type '{ readonly anchorId: string; readonly startSample: Samples; readonly endSample: Samples; readonly status: "measured" | "interpolated"; readonly confidence: number | null; }'.
+        Types of property 'status' are incompatible.
+          Type '"absent"' is not assignable to type '"measured" | "interpolated"'.
+
+### 12 — правило произносимости снято: эмодзи снова получает статус measured (V8)
+файл: packages/voice/src/providers/mock.ts
+--- vitest ---
+ FAIL  packages/voice/test/token-status.test.ts > **V8** привязка дубля: `absent` не несёт сэмплов вовсе > `makeTake` на тексте с эмодзи даёт привязку без времени, а не привязку нулевой длины
+AssertionError: expected +0 to be 1 // Object.is equality
+ FAIL  packages/voice/test/token-status.test.ts > **V8** привязка дубля: `absent` не несёт сэмплов вовсе > `absent` остаётся В СПИСКЕ привязок, а не выбрасывается: AC5-b обязан их печатать
+AssertionError: expected [ 'measured', 'measured', …(2) ] to deeply equal [ 'measured', 'absent', …(2) ]
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+--- tsc ---
+(чисто)
+
+### 13 — движок порождает interpolated — «выдуманное время» без охранника (V8, ADR-0010 §5)
+файл: packages/voice/src/providers/mock.ts
+--- vitest ---
+ FAIL  packages/voice/test/token-status.test.ts > **V8** привязка дубля: `absent` не несёт сэмплов вовсе > `absent` остаётся В СПИСКЕ привязок, а не выбрасывается: AC5-b обязан их печатать
+AssertionError: expected [ 'interpolated', 'absent', …(2) ] to deeply equal [ 'measured', 'absent', …(2) ]
+ FAIL  packages/voice/test/token-status.test.ts > **V8** привязка дубля: `absent` не несёт сэмплов вовсе > `interpolated` в v1 не порождается: ни одна привязка его не получает
+AssertionError: expected true to be false // Object.is equality
+ Test Files  2 failed (2)
+      Tests  4 failed | 12 passed (16)
+--- tsc ---
+(чисто)
+
+### 14 — пороги вернулись в код умолчанием параметра (ФИНДИНГ №2: до расширения охранника ВЕСЬ пакет был ЗЕЛЁН)
+файл: packages/voice/src/providers/mock.ts
+--- vitest ---
+     × у объекта порогов НЕТ значения по умолчанию и нет запасного варианта 10ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/lints/adr0010-take-acceptance.test.ts > `V-02` (а): порог сравнения приходит из профиля, а не из кода > у объекта порогов НЕТ значения по умолчанию и нет запасного варианта
+AssertionError: числа профиля вернулись в код:
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+--- tsc ---
+(чисто)
+
+### 15 — поле порога стало необязательным — то же умолчание, спрятанное в тип
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × поля `TakeAcceptance` обязательны: необязательное поле — то же умолчание, но в типе 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/lints/adr0010-take-acceptance.test.ts > `V-02` (а): порог сравнения приходит из профиля, а не из кода > поля `TakeAcceptance` обязательны: необязательное поле — то же умолчание, но в типе
+AssertionError: expected true to be false // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+--- tsc ---
+packages/voice/src/acceptance/health.ts(281,35): error TS18048: 'acceptance.minUniqueTimestampRatio' is possibly 'undefined'.
+packages/voice/test/acceptance.test.ts(310,41): error TS18048: 'ACCEPTANCE.minUniqueTimestampRatio' is possibly 'undefined'.
+packages/voice/test/acceptance.test.ts(396,40): error TS18048: 'ACCEPTANCE.minUniqueTimestampRatio' is possibly 'undefined'.
+
+### 16 — новая причина отказа заведена без ветки в explainRejection (исчерпывающий switch)
+файл: packages/voice/src/providers/types.ts
+--- vitest ---
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+--- tsc ---
+packages/voice/src/acceptance/health.ts(383,13): error TS2322: Type '"probe"' is not assignable to type 'never'.
+
+### 17 — окно codePointDiff сужено против спайка (±6/+10 → ±3/+3)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × окно диффа — `[-6, +10)` вокруг расхождения, как в спайке 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: диагностика тождества (перенос `identity` из `analyze.mjs`) > окно диффа — `[-6, +10)` вокруг расхождения, как в спайке
+AssertionError: expected 6 to be 16 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+--- tsc ---
+(чисто)
+
+### 18 — multiUnitElements перестал видеть суррогатные пары (единица массива не измеряется)
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × единица массива: multi-unit элементы находятся, графемы НЕ считаются 13ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: диагностика тождества (перенос `identity` из `analyze.mjs`) > единица массива: multi-unit элементы находятся, графемы НЕ считаются
+AssertionError: expected [] to deeply equal [ { i: +0, c: '🚢', utf16: 2, …(1) } ]
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 passed (20)
+--- tsc ---
+(чисто)
+
+### 19 — форма ratio огрублена до двух знаков — FACT про эмодзи стал неразличим
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+     × `🚢` — ratio 0.976 при серии 2: профиль (0.9 / 8) принимает 15ms
+     × `👍🏽` — ratio 0.956 при серии 3: профиль принимает, порог 2 ОТВЕРГАЕТ 10ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` эмодзи: почему агрессивный порог `maxEqualRun: 2` ЗАПРЕЩЁН > `🚢` — ratio 0.976 при серии 2: профиль (0.9 / 8) принимает
+AssertionError: expected 0.98 to be 0.976 // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` эмодзи: почему агрессивный порог `maxEqualRun: 2` ЗАПРЕЩЁН > `👍🏽` — ratio 0.956 при серии 3: профиль принимает, порог 2 ОТВЕРГАЕТ
+AssertionError: expected 0.96 to be 0.956 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+--- tsc ---
+(чисто)
+
+### 20 — лестница принимает дубль не глядя на вердикт приёмки
+файл: packages/voice/src/acceptance/ladder.ts
+--- vitest ---
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > ретраи больного чанка идут под ТЕМ ЖЕ ключом: лестница его не делит и не переименовывает
+AssertionError: expected 1 to be 3 // Object.is equality
+ FAIL  packages/voice/test/ladder.test.ts > **V2** — провал приёмки НЕ меняет границы чанков (ADR-0010 §1, M12) > число ОПЛАЧЕННЫХ попыток здоровых чанков не зависит от соседа: провал не заразен
+AssertionError: expected 1 to be 3 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  7 failed | 1 passed (8)
+--- tsc ---
+(чисто)
+
+### 21 — исчерпанная лестница называет правило без M12 — читающий не видит, что чанк НЕ поделён
+файл: packages/voice/src/acceptance/ladder.ts
+--- vitest ---
+     × больной ×(maxRetries+1) ⇒ `VoiceError` с правилом M12 и последней причиной в сообщении 34ms
+     × `alignment: null` проходит лестницу как ОТКАЗ ДУБЛЯ, а не как `TypeError` 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/ladder.test.ts > `V-02` лестница ретраев: «ретрай ×N → падение сборки» > больной ×(maxRetries+1) ⇒ `VoiceError` с правилом M12 и последней причиной в сообщении
+AssertionError: expected 'ADR-0010 §1' to be 'ADR-0010 §1 (M12)' // Object.is equality
+ FAIL  packages/voice/test/ladder.test.ts > `V-02` лестница ретраев: «ретрай ×N → падение сборки» > `alignment: null` проходит лестницу как ОТКАЗ ДУБЛЯ, а не как `TypeError`
+AssertionError: expected 'ADR-0010 §1' to be 'ADR-0010 §1 (M12)' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+--- tsc ---
+(чисто)
+
+### 22 — проверка charIdentity снята (V1): нарушенное тождество проходит приёмку
+файл: packages/voice/src/acceptance/health.ts
+--- vitest ---
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` приёмка: диагностика тождества (перенос `identity` из `analyze.mjs`) > NFC и NFD: `café` совпадает глазами и расходится по code point’ам
+AssertionError: expected 'accepted' to be 'rejected' // Object.is equality
+ FAIL  packages/voice/test/acceptance.test.ts > `V-02` диагностика отказа > отказ по `charIdentity` несёт `codePointDiff` — МЕСТО расхождения, а не только факт
+AssertionError: expected undefined to be 'char-identity' // Object.is equality
+ FAIL  packages/voice/test/mock.test.ts > `tts:mock@1` — перенос SP-2, блок 8 > приёмка: нарушенный charIdentity (alias словаря, ADR-0010 §7a) ОТВЕРГАЕТСЯ
+AssertionError: expected 'accepted' to be 'rejected' // Object.is equality
+ Test Files  2 failed (2)
+      Tests  3 failed | 36 passed (39)
+--- tsc ---
+(чисто)
+

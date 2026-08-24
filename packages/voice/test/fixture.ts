@@ -41,3 +41,42 @@ export function fixtureVoiceProviderId(): string {
   }
   return m[1];
 }
+
+/**
+ * Блок `takeAcceptance` из `fixtures/minimal/profiles/audio.yaml`.
+ *
+ * ЗАЧЕМ ТЕСТУ ЧИТАТЬ ФИКСТУРУ, А НЕ ПИСАТЬ `{ 0.9, 8, 2 }`. Пороги приёмки — данные профиля
+ * (`audio-profile/1`), и тест, повторивший их литералами, перестал бы падать при расхождении
+ * кода с профилем — то есть проверял бы сам себя. Здесь он проверяет ту же тройку чисел,
+ * которую прочтёт сборка.
+ *
+ * Читаются три скалярных поля ОДНОГО блока, и каждое падает при отсутствии: молча подставить
+ * умолчание значило бы вернуть в контур ровно те литералы, ради изгнания которых `V-02`
+ * сделала `acceptance` обязательным параметром приёмки.
+ */
+export function fixtureTakeAcceptance(): {
+  minUniqueTimestampRatio: number;
+  maxEqualRun: number;
+  maxRetries: number;
+} {
+  const text = readFixture('fixtures/minimal/profiles/audio.yaml');
+  const block = /^takeAcceptance:\n((?:[ ]{2}.*\n)+)/m.exec(text);
+  if (block?.[1] === undefined) {
+    throw new Error(
+      'fixtures/minimal/profiles/audio.yaml: блок `takeAcceptance` не найден. ' +
+        'Пороги приёмки берутся из профиля (ADR-0010 §1), литералов в тестах нет.',
+    );
+  }
+  const field = (name: string): number => {
+    const m = new RegExp(`^\\s{2}${name}:\\s*([0-9.]+)`, 'm').exec(block[1] ?? '');
+    if (m?.[1] === undefined) {
+      throw new Error(`fixtures/minimal/profiles/audio.yaml: takeAcceptance.${name} не найдено.`);
+    }
+    return Number(m[1]);
+  };
+  return {
+    minUniqueTimestampRatio: field('minUniqueTimestampRatio'),
+    maxEqualRun: field('maxEqualRun'),
+    maxRetries: field('maxRetries'),
+  };
+}
