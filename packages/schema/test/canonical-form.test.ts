@@ -48,6 +48,8 @@ const WRITABLE: readonly string[] = [
   'profiles/render.ac4.yaml',
   'assets/aliases.yaml',
   'direction/01-intro.yaml',
+  // `V-03`: новый файл фикстуры обязан попасть в сводку каноничности — список тут явный.
+  'voice/roles.yaml',
   ...readdirSync(path.join(FIXTURE, 'assets/records'))
     .filter((name) => name.endsWith('.json'))
     .map((name) => `assets/records/${name}`),

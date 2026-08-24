@@ -67,6 +67,23 @@ export const AudioProfileSchema = z
     loudness: LoudnessSchema,
     // 3 мс при 24 кГц, внутри уже отведённого интервала (ADR-0003 T7).
     crossfadeSamples: z.int().nonnegative(),
+    /**
+     * Предел длины чанка в **code points** (ADR-0010 §3, `V-03`, решение владельца 2026-08-24).
+     *
+     * ПОЧЕМУ ЗДЕСЬ, А НЕ В `project.yaml.voice`: ADR-0010 §1 называет две записи решения о
+     * делении одной фразой — «в ТЕКСТ (`[pause:]`) либо в ПРОФИЛЬ (`maxChunkChars`)», и второй
+     * операнд этой пары, `takeAcceptance`, уже лежит строкой выше. Блок `project.yaml.voice` —
+     * это «кто говорит» (провайдер, модель, голос, seed), а не «как режем».
+     *
+     * ЕДИНИЦА — CODE POINT, а не UTF-16 unit и не графема: `FACT` (SP-2, U4.2 + SP-2b.2) в них
+     * считает и тарификация провайдера, и длина `alignment.characters`.
+     *
+     * ЧТО ЭТО ПОЛЕ НЕ ЕСТЬ: оно **не входит** в `cacheKeyView` стадии `voice` и действует на
+     * ключи ЧЕРЕЗ ТЕКСТ — меняя раскрой, оно меняет `spokenChunkText`, а уже он стоит первым
+     * полем `voiceKey`. Матрица мутации ключей (**K1**, задача `M-05`) обязана знать про это:
+     * механическая мутация поля здесь изменит `voiceKey`, хотя самого поля в ключе нет.
+     */
+    maxChunkChars: z.int().positive(),
     takeAcceptance: TakeAcceptanceSchema,
     speechEdges: SpeechEdgesSchema,
     alignerId: identifier(),

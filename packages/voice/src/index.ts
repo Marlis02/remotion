@@ -4,8 +4,10 @@
 // `V-01` — интерфейс провайдера, capabilities и `tts:mock@1` (перенос SP-2, блок 8).
 // `V-02` — приёмка дубля целиком (`acceptance/`): метрики и вердикт, пороги из профиля,
 // диагностика отказа с `codePointDiff`, лестница ретраев «ретрай ×N → падение сборки» (M12).
-// `chunkKey`/`voiceKey` (`V-03`), акустическая обрезка T7 (`V-04`), стадия `bind` и take-файл
-// (`V-05`) и живой провайдер (`V-06`) — впереди.
+// `V-03` — стадия `plan` (`plan/`): инъективная каноническая форма входа ключей, `chunkKey`,
+// `voiceKey`, `roleDigest`, структурное деление длинного абзаца, `SpeechPlan` и укладка дубля
+// (PCM в CAS `kind: voice`, take-файл `voice/takes/<chunkKey>.json`, запись в `store.lock`).
+// Акустическая обрезка T7 (`V-04`), стадия `bind` (`V-05`) и живой провайдер (`V-06`) — впереди.
 
 export { VoiceError, type VoiceRule } from './errors.js';
 
@@ -87,3 +89,7 @@ export {
   type MockSynthesizeOptions,
   type TokenInterval,
 } from './providers/mock.js';
+
+// --- стадия `plan` (`V-03`) --------------------------------------------------
+
+export * from './plan/index.js';

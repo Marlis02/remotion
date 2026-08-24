@@ -47,6 +47,8 @@ const FIXTURE_FILES: ReadonlyArray<readonly [string, string]> = [
   ['profiles/render.ac4.yaml', 'render-profile/1'],
   ['assets/aliases.yaml', 'aliases/1'],
   ['direction/01-intro.yaml', 'direction/1'],
+  // `V-03` (решение владельца 2026-08-24): роль нужна `roleDigest`, и фикстура её получила.
+  ['voice/roles.yaml', 'voice-roles/1'],
   ['source/01-intro.md', 'source-dialect/1'],
   ...readdirSync(path.join(FIXTURE, 'assets/records'))
     .filter((name) => name.endsWith('.json'))
@@ -94,8 +96,11 @@ describe('S-02 — все файлы `fixtures/minimal` читаются', () =>
   it('покрыты все двенадцать семейств реестра, кроме трёх без файла в фикстуре', () => {
     const covered = new Set(FIXTURE_FILES.map(([, header]) => header.split('/')[0]));
     const uncovered = FAMILY_NAMES.filter((family) => !covered.has(family));
-    // `anchors` пишет CLI после первого `vpe parse`; `voice-roles` — файл канала, а не ролика.
-    expect(uncovered.sort()).toEqual(['anchors', 'voice-roles']);
+    // `anchors` пишет CLI после первого `vpe parse`.
+    // ~~`voice-roles` — файл канала, а не ролика~~ *(изменено: `V-03`, решение владельца
+    // 2026-08-24)*: `roleDigest` (ADR-0006 §2) считается от НАСТОЯЩИХ записей, и без файла в
+    // фикстуре его три свойства проверялись бы только на выдуманных значениях.
+    expect(uncovered.sort()).toEqual(['anchors']);
   });
 });
 

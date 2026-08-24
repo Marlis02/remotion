@@ -30,6 +30,7 @@ import { PCM_SAMPLE_MAX, PCM_SAMPLE_MIN, bytesFromPcm, pcmS16, type PcmS16 } fro
 import { VoiceError } from '../errors.js';
 
 import { assessTake, timeAt, type TakeAcceptance } from '../acceptance/health.js';
+import { NORMALIZER_VERSION } from '../plan/keys.js';
 
 import { sampleRateOfPcmFormat } from './capabilities.js';
 import { providerSecondsToSamples } from './time.js';
@@ -481,7 +482,7 @@ export function makeTake(fields: MakeTakeFields): Take {
   return {
     chunkKey,
     spokenText,
-    normalizerVersion: 'identity@1',
+    normalizerVersion: NORMALIZER_VERSION,
     sourceHash: null,
     pcm: { sha256: sha256 ?? null, numSamples, sampleRate: MOCK_SAMPLE_RATE },
     leadInSamples: msToSamples(MOCK_PROFILE.leadInMs, MOCK_SAMPLE_RATE),

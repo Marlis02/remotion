@@ -9,6 +9,27 @@
 // этой строкой не изменяется ни символом.
 export { asSamples, type Samples } from '@vpe/schema';
 
+// ВТОРОЙ АДРЕСНЫЙ БЛОК РЕЭКСПОРТА — решение владельца 2026-08-24 (`V-03`, вопрос 7), закрывает
+// долг №69. Кому: пакету `@vpe/voice`. Зачем: `chunkKey` и `voiceKey` (ADR-0010 §3a, ADR-0006 §2)
+// стоят на `blake3`, `base32` и канонической форме, а `voice` по карте ADR-0009 зависит только
+// от `core-model` и `media` — `@vpe/schema` из него не резолвится вовсе (два симлинка в
+// `packages/voice/node_modules/@vpe/`), и добавить стрелку нельзя: её ловит
+// `tests/boundaries/adr0009-graph.test.ts`. Своя реализация была бы второй копией хэша, на
+// котором стоят ВСЕ ключи кэша, а своя сериализация — невозможна: `JSON.stringify` запрещён
+// линтом везде, кроме `packages/schema/src/canonical/json.ts`.
+//
+// ДВА ИМЕНИ СВЕРХ ПЕРЕЧИСЛЕННЫХ ВЛАДЕЛЬЦЕМ, И ОБА — ИСПОЛНИМАЯ ФОРМА ТОГО ЖЕ СПИСКА.
+// Разрешение названо как «`blake3`, `base32`, `canonicalJson` и бренд `Blake3Hex`».
+// (1) `blake3Bytes` — потому что `base32` принимает БАЙТЫ, а `blake3` отдаёт hex: без него
+//     формула `base32(blake3(…))` из ADR-0010 §3a не записывается вовсе, а обходной путь
+//     «hex → байты» был бы вторым декодером ради обхода перечня.
+// (2) имени `Blake3Hex` в репозитории нет: бренд называется `Blake3`
+//     (`packages/schema/src/types/brands.ts`), а `blake3Hex` — фабрика zod-схемы в
+//     `families/common.ts`, и она здесь не нужна. Экспортируется бренд.
+// Ни `asBlake3`, ни что-либо ещё из `@vpe/schema` этим блоком не добавляется; сам `@vpe/schema`
+// не изменяется ни символом.
+export { base32, blake3, blake3Bytes, canonicalJson, type Blake3 } from '@vpe/schema';
+
 // `C-01` — модель времени (ADR-0003 T1–T4, ADR-0001 «Типы времени в авторском слое»).
 export { TimeModelError, type TimeRule } from './time/errors.js';
 export { addExact, assertSafeInteger, ceilDiv, floorDiv, mulExact } from './time/integer.js';
@@ -78,7 +99,10 @@ export {
   type TokenNode,
 } from './source/ast.js';
 export { lexBlocks, lexInline, lexMarker, type Block, type InlineItem, type RawMarker } from './source/lexer.js';
-export { parseSource, type ParseOptions } from './source/parse.js';
+// `isSentenceEnd` — часть того же адресного блока (решение владельца 2026-08-24, `V-03`
+// вопрос 2): правило границы предложения в репозитории ОДНО, и деление длинного абзаца
+// (ADR-0010 §3) обязано вызывать его, а не копировать.
+export { isSentenceEnd, parseSource, type ParseOptions } from './source/parse.js';
 export { runAtSpoken, sourceToSpoken, spokenToLocation, spokenToSource } from './source/spanmap.js';
 export { dumpAst } from './source/dump.js';
 
