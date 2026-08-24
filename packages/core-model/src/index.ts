@@ -1,6 +1,14 @@
 // Публичная поверхность `@vpe/core-model`. Импорты внутри пакета — с расширением `.js`
 // (`moduleResolution: NodeNext`, tsconfig.base.json).
 
+// Реэкспорт бренда `Samples` — РОВНО ОДНА СТРОКА, и она адресная (решение владельца, `V-01`
+// вопрос 2; прецедент `BlobKind`, `M-02`). Кому: пакету `@vpe/voice`. Зачем: по карте ADR-0009
+// он зависит только от `core-model` и `media` и `@vpe/schema` не резолвит вовсе
+// (`packages/voice/node_modules/@vpe/` содержит два симлинка), а `number` на границе дубля —
+// ровно та потеря бренда, ради которой бренды заведены (`S-01` долг №3). Сам `@vpe/schema`
+// этой строкой не изменяется ни символом.
+export { asSamples, type Samples } from '@vpe/schema';
+
 // `C-01` — модель времени (ADR-0003 T1–T4, ADR-0001 «Типы времени в авторском слое»).
 export { TimeModelError, type TimeRule } from './time/errors.js';
 export { addExact, assertSafeInteger, ceilDiv, floorDiv, mulExact } from './time/integer.js';

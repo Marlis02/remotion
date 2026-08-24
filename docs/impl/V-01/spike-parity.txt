@@ -1,0 +1,41 @@
+СВЕРКА ПЕРЕНОСА СО СПАЙКОМ — `V-01`
+====================================
+Спайковый `docs/spikes/sp2/mock.mjs` и перенос `packages/voice` прогоняются на одних и тех
+же входах, результаты сравниваются побайтово (PCM — через base64). Сверщик живёт вне
+репозитория; здесь его вывод целиком. Ноль расхождений — это основание утверждать
+«перенос, а не переписывание»: типизация, перевод `schedule` в целые миллисекунды и смена
+контейнера PCM на `PcmS16` не изменили ни одного байта выхода.
+Node 25.6.1, TZ=UTC LC_ALL=C, 2026-08-24T08:42Z.
+
+ЧТО СРАВНИВАЕТСЯ НА КАЖДОМ ВХОДЕ (18 величин): characters; character_start_times_seconds;
+character_end_times_seconds; audio_base64 ПОБАЙТОВО; numSamples; sampleRate; providerId;
+normalized_alignment; schedule.chars; schedule starts (сек↔мс); schedule ends (сек↔мс);
+schedule.totalMs; schedule.voicedMs; tokenIntervals; takeHealth целиком; makeTake.bindings;
+makeTake.pcm; makeTake.leadInSamples/tailSamples; makeTake.health;
+makeTake.normalizerVersion/sourceHash; makeTake.provenance (без нового voiceCategory).
+Сверх входов: MOCK_PROFILE, capabilities, SAMPLE_RATE и расписание на альтернативном
+профиле pauseGoesTo='space'.
+
+ВХОД "Dr. Smith arrived, and the tide turned." seed=20260821
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "stop. Then" seed=20260821
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "a. b" seed=0
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "🚢 ahead" seed=7
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "café" seed=1
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "café" seed=1
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "N A S A kept a station." seed=20260821
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "Numbers 1793, $5 and 5% — e.g. don’t; wait… co-founder" seed=42
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "A  double  space\ttab\nnewline" seed=3
+  voiceCategory переноса: "none" (у спайка поля нет)
+ВХОД "" seed=0
+  voiceCategory переноса: "none" (у спайка поля нет)
+
+ВСЕГО СРАВНЕНИЙ: 215
+ВСЕГО РАСХОЖДЕНИЙ: 0

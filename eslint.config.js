@@ -16,6 +16,12 @@
 //     одно — `packages/core-model/src/time/ms.ts`;
 //   * `S-01` долг №3 (`C-01`) — каст в бренд (`as Samples` и остальные три) вне `brands.ts`.
 //     Бренд, снимаемый кастом, не бренд; исключение ровно одно — `packages/schema/src/types/brands.ts`;
+//   * ADR-0010 §8 (`V-01`) — ветвление по ИМЕНИ провайдера. `providerId` законен в ключе
+//     кэша (ADR-0006 §2) и в provenance дубля, но не в условии: как только появляется
+//     `if (providerId === 'tts:...')`, интерфейс превращается в «ElevenLabs с другими именами
+//     полей» (ADR-0010 §7), а `tts:mock@1` перестаёт быть проверкой абстрактности и становится
+//     вторым частным случаем. Исключений у правила НЕТ ни одного: объявить свой id — это
+//     литерал в объекте `capabilities`, а не сравнение;
 //   * РАСШИРЕНИЕ D4 (`C-04`) — `node:crypto` в `core-model` вне файла минта. ADR-0007 §4 этого
 //     запрета не содержит: там перечислены `Math.random`, `Date.now` и соседи. Но минт якоря —
 //     единственный законный недетерминизм модели (ADR-0004 §4, M3), и «единственный» обязано
@@ -146,12 +152,36 @@ const BRAND_SYNTAX = [
   { selector: `TSTypeAssertion TSTypeReference > Identifier[name=${String(BRAND_NAMES)}]`, message: BRAND },
 ];
 
+// ── ADR-0010 §8: ветвление по capabilities, а не по имени провайдера (`V-01`) ──────
+// Ловится ровно ОДНА форма — сравнение `providerId` и `switch` по нему. Объявление
+// собственного id (`providerId: 'tts:mock@1'` внутри `capabilities`) под правило не подпадает
+// по построению: это свойство объекта, а не условие, — поэтому у правила нет и не нужно
+// файлов-исключений, в отличие от T1 и запрета каста в бренд.
+//
+// Регулярка оператора записана перечислением (`===|!==|==|!=`), а не классом `[!=]`:
+// esquery разбирает атрибут до первой `]`, и класс символов оборвал бы селектор молча —
+// правило осталось бы в конфиге и не ловило бы ничего. Проверено зондом в
+// `tests/lints/adr0010-capability-branching.test.ts`.
+const CAPS = 'ADR-0010 §8 / `V-01`: ветвление по CAPABILITIES, а не по имени провайдера. `providerId` законен в `voiceKey` (ADR-0006 §2) и в provenance дубля, но не в условии: спросите у возможности (`capabilities.timestampUnit`, `pcmFormats`, `requestStitching`, `seedSupport`, `requiresNetwork`, `canDisableNormalization`, `timestampDomains`), а не у имени. Готовые ветки — `pcmFormatFor`, `needsForcedAlignment`, `stitchingMode`, `assertOriginalDomain` из `@vpe/voice`. Причина правила названа в ADR-0010 §7: без него интерфейс становится «ElevenLabs с другими именами полей».';
+
+const OPERATOR = '/^(===|!==|==|!=)$/';
+
+const CAPABILITY_SYNTAX = [
+  { selector: `BinaryExpression[operator=${OPERATOR}][left.name='providerId']`, message: CAPS },
+  { selector: `BinaryExpression[operator=${OPERATOR}][right.name='providerId']`, message: CAPS },
+  { selector: `BinaryExpression[operator=${OPERATOR}][left.property.name='providerId']`, message: CAPS },
+  { selector: `BinaryExpression[operator=${OPERATOR}][right.property.name='providerId']`, message: CAPS },
+  { selector: "SwitchStatement[discriminant.name='providerId']", message: CAPS },
+  { selector: "SwitchStatement[discriminant.property.name='providerId']", message: CAPS },
+];
+
 /**
- * `no-restricted-syntax` для блока. T1 и запрет каста в бренд действуют ВЕЗДЕ, поэтому
- * стоят в основании; всё остальное блок добавляет сам. Два файла-исключения собирают
- * список руками — ровно затем, чтобы исключение было видно как исключение.
+ * `no-restricted-syntax` для блока. T1, запрет каста в бренд и запрет ветвления по имени
+ * провайдера действуют ВЕЗДЕ, поэтому стоят в основании; всё остальное блок добавляет сам.
+ * Два файла-исключения собирают список руками — ровно затем, чтобы исключение было видно
+ * как исключение.
  */
-const syntax = (...extra) => ['error', ...T1_SYNTAX, ...BRAND_SYNTAX, ...extra];
+const syntax = (...extra) => ['error', ...T1_SYNTAX, ...BRAND_SYNTAX, ...CAPABILITY_SYNTAX, ...extra];
 
 const restrictedImports = (paths, patterns) => ['error', { paths, patterns }];
 
@@ -227,7 +257,7 @@ export default tseslint.config(
   {
     files: ['packages/schema/src/types/brands.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...T1_SYNTAX, ...DETERMINISM_SYNTAX, ...CANONICAL_SYNTAX],
+      'no-restricted-syntax': ['error', ...T1_SYNTAX, ...CAPABILITY_SYNTAX, ...DETERMINISM_SYNTAX, ...CANONICAL_SYNTAX],
     },
   },
 
@@ -238,7 +268,7 @@ export default tseslint.config(
   {
     files: ['packages/core-model/src/time/ms.ts'],
     rules: {
-      'no-restricted-syntax': ['error', ...BRAND_SYNTAX, ...DETERMINISM_SYNTAX, ...CANONICAL_SYNTAX],
+      'no-restricted-syntax': ['error', ...BRAND_SYNTAX, ...CAPABILITY_SYNTAX, ...DETERMINISM_SYNTAX, ...CANONICAL_SYNTAX],
     },
   },
 

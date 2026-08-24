@@ -1,0 +1,225 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `V-01` (интерфейс TTS-провайдера, capabilities, `tts:mock@1`)
+==================================================================================
+Каждое нарушение вносится заменой полной строки/блока, после чего файл восстанавливается
+ИЗ БЭКАПА (не обратной заменой); бэкап — во временном каталоге вне репозитория. После
+каждого нарушения выполнен откат и контрольный прогон того же набора команд — он записан
+строкой «откат» и обязан быть полностью зелёным. Прогон автоматизирован (скрипт-драйвер
+вне репозитория), поэтому «якорь встречается ровно один раз» проверяется машинно: если бы
+замена задела второе место, прогон остановился бы, а не поехал дальше.
+`fixtures/` не изменяется НИ В ОДНОМ нарушении: половина V9 «все фикстуры» проверяется
+на КОПИИ во временном каталоге (корень — параметр сканера, приём охранника V13 из `C-03`);
+`git status --short fixtures/ packages/schema/` после прогона — пусто.
+Классы: (а) ломается реализация; (б) ломается сам охранник; (в) нарушение в настоящем коде;
+(изм) измерение, где ожидался ЗЕЛЁНЫЙ.
+Прогоны: Node 25.6.1, pnpm 11.9.0, vitest 4.1.11, TZ=UTC LC_ALL=C.
+База до сессии: 61 файл, 1109 тестов. После: 68 файлов, 1188 тестов.
+
+ПОКРЫТИЕ. 38 нарушений в первом прогоне + 5 в догоне (43 внесения):
+   1–6   — V9: сеть и ключи в `voice/src` (глобаль, импорт в новом файле, чтение ключа),
+           сломанный детектор охранника, расширенный реестр, подменённый провайдер фикстур;
+   7–10  — ADR-0010 §8: сравнение `providerId` в проде, выпавшие селекторы, опустошённый
+           реестр, литерал имени БЕЗ сравнения (форма, которую AST не видит);
+  11–16  — V5/V7: оба запрещённых поля, конструктор россыпью, поле со значением `undefined`,
+           снятая заморозка, опустошённый список запрещённых форм;
+     17  — (в) НАСТОЯЩИЙ дефект, найденный тестом до протокола;
+  18–22  — детерминизм: seed мимо генератора, alignment в зависимости от seed, `Math.random`,
+           `Date.now`, и измерение `node:crypto`;
+  23–26  — арифметика времени: длина PCM, правило округления, сдвиг секунд, знак таймкода;
+  27–33  — правила ADR-0010: §6 (пунктуация в слове), pauseGoesTo, `alignment: null`, порог
+           приёмки, статус привязки, F13 (UTF-16 вместо code point), F16 (канонизация NFC);
+  34–36  — тракт `M-03`: чужая частота дорожки, разъехавшийся формат PCM, обнулённая амплитуда;
+  37–38  — типы: выпавшее поле capabilities и выпавший `voiceCategory` — ловит компилятор;
+  23,24,28 — ДОГОН после исправления (см. ниже);
+  39–40  — новые нарушения на добавленные дискриминирующие тесты (округление вверх; хвост).
+
+РЕЗУЛЬТАТ ПЕРВОГО ПРОГОНА: 36 ожидаемо КРАСНЫХ, 2 измерения ожидаемо ЗЕЛЁНЫХ,
+**3 ЗЕЛЁНЫХ ТАМ, ГДЕ ЖДАЛСЯ КРАСНЫЙ — все три находки, все три исправлены.**
+РЕЗУЛЬТАТ ДОГОНА: 5 из 5 красных, откат зелёный. Расхождений — ноль.
+
+ЧТО ПРОТОКОЛ НАШЁЛ.
+
+1. НАРУШЕНИЕ 23 — ДЛИНА PCM НЕ БЫЛА ПРИВЯЗАНА К РАСПИСАНИЮ. `msToSamples(totalMs + 1)`
+   оставлял ВЕСЬ пакет зелёным. Причина названа точно: перенесённый тест 16 проверяет
+   `end[last] <= numSamples`, и лишний сэмпл это неравенство только подтверждает. То есть
+   дубль, молча удлинившийся против собственного расписания, не ловился ничем — а это
+   ровно рассинхрон речи и субтитров, ради которого написан ADR-0010 §1.
+   ИСПРАВЛЕНО добавлением ДВУХ утверждений (`determinism.test.ts`, describe «длина PCM
+   привязана к расписанию»): `numSamples === msToSamples(schedule.totalMs)` — равенство, а
+   не неравенство; и `health.tailResidualSamples === 0` при `tailMs = 0` — тоже равенство.
+   Нарушение 40 (`tailMs: 0 → 5`) проверяет, что второе утверждение не зелено по совпадению.
+
+2. НАРУШЕНИЕ 24 — ПРАВИЛО ОКРУГЛЕНИЯ НЕ БЫЛО ЗАКРЕПЛЕНО. `Math.round → Math.floor` в
+   единственной точке конверсии «секунды провайдера → сэмплы» не уронил ничего. Причина:
+   все значения, на которых стоял тест согласованности, — целые миллисекунды по построению
+   (выход самого mock'а), а тест слопа проверял ГРАНИЦУ (≤ 24 сэмпла), которой floor тоже
+   удовлетворяет. Правило, названное в комментарии, тестом не проверялось.
+   ИСПРАВЛЕНО тестом на значениях, где round и floor РАЗЛИЧАЮТСЯ (проверено численно перед
+   написанием: 0.0005·1000 = 0.5, 0.0015·1000 = 1.5, 1.9999999·1000 = 1999.9999).
+   Нарушение 39 (`Math.ceil`) стережёт вторую сторону: правило симметрично, а не «вверх».
+
+3. НАРУШЕНИЕ 28 — ПАУЗА МОГЛА ОКАЗАТЬСЯ В ДВУХ МЕСТАХ СРАЗУ. Выброшенная проверка
+   `pauseGoesTo === 'punct'` в ветке знака оставляла перенесённый тест 13 зелёным, потому
+   что он проверяет «пауза НЕ МЕНЬШЕ» на каждой из двух категорий по отдельности — а при
+   нарушении её получали ОБЕ. Спайк имел ровно ту же дыру: тест переносился как есть.
+   ИСПРАВЛЕНО девятнадцатым тестом (`mock.test.ts`, сверх восемнадцати перенесённых):
+   закреплены ТОЧНЫЕ длительности обеих категорий в обоих режимах — в режиме `punct` пробел
+   равен `msPerSpace` РОВНО, в режиме `space` знак равен `punctuationSelfMs` РОВНО.
+   Состав восемнадцати при этом не тронут: тест 13 остался дословно тем же.
+
+4. НАРУШЕНИЕ 17 — (в) НАСТОЯЩИЙ ДЕФЕКТ, НАЙДЕННЫЙ ДО ПРОТОКОЛА. `mockProvider.synthesize`
+   был объявлен возвращающим `Promise<TtsResponse>`, но бросал СИНХРОННО при неподдержанном
+   формате PCM. Такой отказ проходит мимо `.catch()` вызывающего и мимо `await ...rejects`.
+   Поймано тестом «формат вне `pcmFormats` — отказ провайдера» при первом же прогоне.
+   ИСПРАВЛЕНО: метод объявлен `async`. Нарушение 17 стережёт это обратно.
+
+5. НАРУШЕНИЕ 22 — ИЗМЕРЕНИЕ, А НЕ ДЕФЕКТ: `node:crypto` В `voice` НЕ ОХРАНЯЕТСЯ НИЧЕМ.
+   Вставка `import { randomBytes } from 'node:crypto'` в `providers/mock.ts` оставляет
+   `pnpm lint` и охранник V9 ЗЕЛЁНЫМИ, и это ожидаемо: расширение D4 (`C-04`) покрывает
+   только `packages/core-model/src/**`, а `tests/lints/d4-crypto-mint.test.ts` СВОИМ
+   контрольным случаем (`packages/voice/src/__crypto_control__.ts`) прямо утверждает, что
+   в `voice` крипто законно. То есть дыра не заведена этой сессией и не является дефектом
+   переноса: сам перенос crypto не тянет (проверено грепом, `seedFrom` — свой FNV-1a).
+   Записано долгом №71 с адресом `V-06`.
+
+6. НАРУШЕНИЕ 10 — ПОДТВЕРЖДЕНО, ЧТО ПОЛОВИНЫ ОХРАННИКА ЛОВЯТ РАЗНОЕ. Литерал имени
+   провайдера БЕЗ сравнения (таблица `{ 'tts:mock@1': ... }`) роняет греп и НЕ роняет
+   ESLint — ровно то разделение труда, ради которого охранник сделан двойным. Обратная
+   половина — нарушение 8: выпавшие селекторы роняют пробные прогоны ESLint и не трогают греп.
+
+7. НАРУШЕНИЕ 5 — РЕЕСТР НЕЛЬЗЯ РАСШИРИТЬ МОЛЧА. Добавление `mock.ts` в список разрешённых
+   файлов V9 не прячет нарушение 1: охранник остаётся красным на утверждении «реестр ПУСТ».
+   Это отличает реестр-обещание от реестра-охранника.
+
+ПОСТРОЧНЫЙ ЖУРНАЛ ПЕРВОГО ПРОГОНА
+=================================
+ 1 (а) packages/voice/src/providers/mock.ts — глобальный fetch в продакшн-коде провайдера
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 2 (а) packages/voice/src/live.ts — сетевой импорт в новом файле пакета
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 3 (а) packages/voice/src/providers/mock.ts — чтение ключа API из окружения
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 4 (б) tests/lints/v9-no-network-in-voice.test.ts — сломан детектор сетевых глобалей охранника
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 5 (б) tests/lints/v9-no-network-in-voice.test.ts — реестр разрешённых файлов расширен, чтобы спрятать нарушение 1
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 6 (б) tests/lints/v9-no-network-in-voice.test.ts — половина «фикстуры» ждёт другого провайдера — проверка, что она читает фикстуры
+     lints/v9-no-network-in-voice.test.ts=RED
+     откат: lints/v9-no-network-in-voice.test.ts=GREEN
+ 7 (а) packages/voice/src/providers/capabilities.ts — сравнение providerId в продакшн-коде (ловят ОБЕ половины)
+     lint=RED  lints/adr0010-capability-branching.test.ts=RED
+     откат: lint=GREEN  lints/adr0010-capability-branching.test.ts=GREEN
+ 8 (б) eslint.config.js — селекторы capability выпали из syntax() в eslint.config.js
+     lints/adr0010-capability-branching.test.ts=RED
+     откат: lints/adr0010-capability-branching.test.ts=GREEN
+ 9 (б) tests/lints/adr0010-capability-branching.test.ts — реестр файлов-исключений опустошён
+     lints/adr0010-capability-branching.test.ts=RED
+     откат: lints/adr0010-capability-branching.test.ts=GREEN
+10 (а) packages/voice/src/providers/capabilities.ts — литерал имени провайдера БЕЗ сравнения — форма, которую AST не видит
+     lints/adr0010-capability-branching.test.ts=RED  lint=GREEN(ждали GREEN)
+     откат: lints/adr0010-capability-branching.test.ts=GREEN  lint=GREEN
+11 (а) packages/voice/src/providers/request.ts — previous_request_ids в конструкторе запроса (V5)
+     voice/test=RED
+     откат: voice/test=GREEN
+12 (а) packages/voice/src/providers/request.ts — pronunciation_dictionary_locators в конструкторе запроса (V7)
+     voice/test=RED
+     откат: voice/test=GREEN
+13 (а) packages/voice/src/providers/request.ts — конструктор переносит поля россыпью вместо поимённого перечисления
+     voice/test=RED
+     откат: voice/test=GREEN
+14 (а) packages/voice/src/providers/request.ts — необязательное поле присутствует ключом со значением undefined
+     voice/test=RED
+     откат: voice/test=GREEN
+15 (а) packages/voice/src/providers/request.ts — запрос не заморожен — поле дописывается после конструктора
+     voice/test=RED
+     откат: voice/test=GREEN
+16 (б) packages/voice/test/request.test.ts — список запрещённых форм в охраннике опустошён
+     voice/test=RED
+     откат: voice/test=GREEN
+17 (в) packages/voice/src/providers/mock.ts — НАЙДЕНО В СЕССИИ: провайдер бросает синхронно из метода, объявленного Promise
+     voice/test=RED
+     откат: voice/test=GREEN
+18 (а) packages/voice/src/providers/mock.ts — seed не доходит до генератора — звук перестаёт зависеть от seed
+     voice/test=RED
+     откат: voice/test=GREEN
+19 (а) packages/voice/src/providers/mock.ts — alignment начинает зависеть от seed — истина по построению потеряна
+     voice/test=RED
+     откат: voice/test=GREEN
+20 (а) packages/voice/src/providers/mock.ts — Math.random вместо seeded mulberry32 (V8)
+     lint=RED
+     откат: lint=GREEN
+21 (а) packages/voice/src/providers/mock.ts — чтение часов в провайдере (V8/D9)
+     lints/v8-clock-readers.test.ts=RED  lint=RED
+     откат: lints/v8-clock-readers.test.ts=GREEN  lint=GREEN
+22 (изм) packages/voice/src/providers/mock.ts — ИЗМЕРЕНИЕ: node:crypto в `voice` — охранника НЕТ (расширение D4 покрывает только core-model)
+     lint=GREEN(ждали GREEN)  lints/v9-no-network-in-voice.test.ts=GREEN(ждали GREEN)
+     откат: lint=GREEN  lints/v9-no-network-in-voice.test.ts=GREEN
+23 (а) packages/voice/src/providers/mock.ts — длина PCM разъехалась с расписанием на один сэмпл
+     voice/test=GREEN
+     откат: voice/test=GREEN
+24 (а) packages/voice/src/providers/time.ts — округление «чужих секунд» вниз вместо ближайшего
+     voice/test=GREEN
+     откат: voice/test=GREEN
+25 (а) packages/voice/src/providers/mock.ts — секунды ответа уехали на 1e-9 от сэмплов
+     voice/test=RED
+     откат: voice/test=GREEN
+26 (а) packages/voice/src/providers/time.ts — отрицательный таймкод принимается молча
+     voice/test=RED
+     откат: voice/test=GREEN
+27 (а) packages/voice/src/providers/mock.ts — пунктуация входит в интервал слова (нарушение §6)
+     voice/test=RED
+     откат: voice/test=GREEN
+28 (а) packages/voice/src/providers/mock.ts — pauseGoesTo игнорируется — пауза всегда на знаке
+     voice/test=GREEN
+     откат: voice/test=GREEN
+29 (а) packages/voice/src/providers/mock.ts — ветка alignment: null убрана — падение вместо отказа
+     voice/test=RED
+     откат: voice/test=GREEN
+30 (а) packages/voice/src/providers/mock.ts — порог uniqueTimestampRatio опущен до нуля — вырожденный дубль принимается
+     voice/test=RED
+     откат: voice/test=GREEN
+31 (а) packages/voice/src/providers/mock.ts — привязки помечены interpolated там, где они измерены
+     voice/test=RED
+     откат: voice/test=GREEN
+32 (а) packages/voice/src/providers/mock.ts — единица массива — UTF-16 unit вместо code point (F13)
+     voice/test=RED
+     откат: voice/test=GREEN
+33 (а) packages/voice/src/providers/mock.ts — вход канонизируется в NFC — расхождение NFC/NFD становится молчаливым (F16)
+     voice/test=RED
+     откат: voice/test=GREEN
+34 (а) packages/voice/src/providers/mock.ts — дорожка отдаётся на чужой частоте — тракт обязан отказать
+     voice/test=RED
+     откат: voice/test=GREEN
+35 (а) packages/voice/src/providers/mock.ts — объявленный формат PCM разошёлся с projectSampleRate фикстуры
+     voice/test=RED
+     откат: voice/test=GREEN
+36 (б) packages/voice/src/providers/mock.ts — амплитуда обнулена — проверка «дорожка синтезирована, а не тишина»
+     voice/test=RED
+     откат: voice/test=GREEN
+37 (а) packages/voice/src/providers/mock.ts — из capabilities убрано поле requiresNetwork — ловит ТИП
+     typecheck=RED
+     откат: typecheck=GREEN
+38 (а) packages/voice/src/providers/mock.ts — voiceCategory выпал из provenance дубля — ловит ТИП
+     typecheck=RED
+     откат: typecheck=GREEN
+
+ИТОГ: ожидаемых исходов 36, расхождений 3
+
+ПОСТРОЧНЫЙ ЖУРНАЛ ДОГОНА
+========================
+23 (а) packages/voice/src/providers/mock.ts — ДОГОН: длина PCM разъехалась с расписанием на один сэмпл
+     RED   откат: GREEN
+24 (а) packages/voice/src/providers/time.ts — ДОГОН: округление «чужих секунд» вниз вместо ближайшего
+     RED   откат: GREEN
+28 (а) packages/voice/src/providers/mock.ts — ДОГОН: pauseGoesTo игнорируется — пауза оказывается в ДВУХ местах
+     RED   откат: GREEN
+39 (а) packages/voice/src/providers/time.ts — округление вверх вместо ближайшего — правило симметрично
+     RED   откат: GREEN
+40 (а) packages/voice/src/providers/mock.ts — хвост профиля перестал быть нулём — остаток дубля обязан покраснеть
+     RED   откат: GREEN
+
+расхождений 0
