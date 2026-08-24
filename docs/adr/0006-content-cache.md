@@ -7,6 +7,10 @@
   не влияет на пиксели — `FACT` (SP-3d §1.1) точная композиция дала один файл на `workers`
   1/2/4/8 (37 прогонов), `FACT` (SP-3f) `workers=4` дал 1 sha256 из 10. Остальные решения
   (три стадии, `cacheKeyView`, матрица мутации, атомарность) были приняты и не меняются.
+* **Ревизия:** `DOC-03` (2026-08-24) — §5, строка `audioProfile`: «нормализация громкости»
+  заменена на «параметры громкости (`targetLufs`, `truePeakDb`) как вход ключа кэша; исполняется
+  **контроль**, не нормализация». Долг №62 закрыт. Разбор —
+  [docs/impl/DOC-03/report.md](../impl/DOC-03/report.md)
 * **Ревизия:** RM1 (2026-08-22) — решения владельца по `docs/roadmap.md` §8:
   **решение 1** — в `cacheKeyView` стадии `voice` вводится обязательный **`roleDigest`** (§2);
   **решение 3** — `fps` в `compileProfile` зафиксирован значением 30 (§5, ссылка на ADR-0003).
@@ -232,7 +236,7 @@ Docker остаётся откатом, а не дефолтом (ADR-0008).
 |---|---|---|
 | `fps`, `width/height`, `projectSampleRate`, `safeAreas`, `templateRegistryVersion`, `defaultParagraphGapSamples`, `defaultSceneGapSamples`, `defaultChapterGapSamples`, `minSegmentDurationFrames`, `maxDurationFrames`, `captions.*` | **compileProfile** | `renderIr`, `segment` |
 | ~~`--gl`~~ **`browserGpu`** *(изменено: RM1, дрейф roadmap §9 п. 1)*, `imageFormat`, `jpegQuality`, `colorSpace`, `codec`, `crf`, `gopSize`, `pixelFormat`, `scale` **и полная строка параметров энкодера** (C5): `threads` (число, не `auto`), `preset`, `tune`, `rc-lookahead`, `aq-mode`, `psy`, `-fflags +bitexact` / `-flags:v +bitexact` где применимо | **pixelProfile** | `segment` |
-| `deliverySampleRate`, аудио-кодек и битрейт, параметры ресемплера, нормализация громкости, пороги приёмки дубля `takeAcceptance`, параметры акустического детектора `speechEdges` (ADR-0003 T7/«Риски»), `alignerId` + `alignerNoiseFloor` (ADR-0007 §9), версия и конфигурация **ffmpeg** | **audioProfile** | `audioTrack`, `final` |
+| `deliverySampleRate`, аудио-кодек и битрейт, параметры ресемплера, ~~нормализация громкости~~ **параметры громкости (`targetLufs`, `truePeakDb`) как вход ключа кэша; исполняется контроль, не нормализация** *(правка: DOC-03, 2026-08-24, основание — отчёт [`M-03`](../impl/M-03/report.md) §8 п. 3, долг №62: движок печатает отчёт со списком расхождений, громкость не подкручивается — «нормализация» называла действие, которого нет)*, пороги приёмки дубля `takeAcceptance`, параметры акустического детектора `speechEdges` (ADR-0003 T7/«Риски»), `alignerId` + `alignerNoiseFloor` (ADR-0007 §9), версия и конфигурация **ffmpeg** | **audioProfile** | `audioTrack`, `final` |
 | ~~`concurrency`, `offthreadVideoCacheSizeInBytes`, `mediaCacheSizeInBytes`, `offthreadVideoThreads`, `disallowParallelEncoding`~~ **`workers`** *(изменено: RM1, дрейф roadmap §9 п. 1)*, таймауты, `chapterParallelism` | **executionProfile** | **ни в один** (условно, см. риски) |
 
 *Изменено: RM1, 2026-08-22, дрейф `docs/roadmap.md` §9 п. 1.* Зачёркнутые имена — **поля

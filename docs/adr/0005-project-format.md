@@ -1,6 +1,12 @@
 # ADR-0005 — Формат проекта: текст в git, байты в CAS, миграции только для артефактов
 
 * **Статус:** принято (A1, 2026-08-19)
+* **Ревизия:** `DOC-03` (2026-08-24) — пакет правок доков по долгам `M-01`/`M-02`: §1 —
+  `store.lock` приведён к схеме `store-lock/1` (список `entries`, не карта) и у
+  `fonts/records/` названо семейство `asset-record/1`; §8 — перечень видов блоба дополнен
+  шестым (`ai-image`) со ссылкой на §8a; §8a п. 3 — висячий адрес «00-PROCESS §8» заменён на
+  «`00-PROCESS.md`, ЭТАП 7». Долги №46 и №47 закрыты. Разбор —
+  [docs/impl/DOC-03/report.md](../impl/DOC-03/report.md)
 * **Ревизия:** RM1 (2026-08-22) — внесены решения владельца по `docs/roadmap.md` §8:
   **решение 1** — новое семейство `voice/roles.yaml` (`schema: voice-roles/1`) в раскладке §1;
   **решение 6** — форма provenance AI-арта в §9a и распространение правила «реплик ≥ 2»
@@ -53,14 +59,25 @@ anchors.lock.jsonl           git   schema: anchors/1 — строка = якор
 publish.yaml                 git   schema: publish/1 — метаданные публикации (C7)
 assets/aliases.yaml          git   alias → sha256
 assets/records/<sha256>.json git   provenance по файлу на ассет
-fonts/records/<sha256>.json  git
+fonts/records/<sha256>.json  git   то же семейство asset-record/1, один реестр по sha256
 voice/roles.yaml             git   schema: voice-roles/1 — пресеты ролей голоса (решение 1)
 voice/takes/<chunkKey>.json  git   дубль: spokenText, health, provenance, ref, привязки
-store.lock                   git   sha256 → {size, kind, origin}
+store.lock                   git   schema: store-lock/1
 .store/ab/cd/<sha256>        ign.  CAS ВСЕХ байтов
 build/                       ign.  timeline.json, ir/, segments/*.mts, audio/track.wav, final.mp4, reports/
 .cache/<stage>/              ign.  CAS по ключам + manifest.json
 ```
+
+*(правка: DOC-03, 2026-08-24 — `store.lock` в раскладке писался картой `sha256 → {size, kind,
+origin}`; исполняется **список** `entries` схемы `store-lock/1` (у карты пустое значение было бы
+`{}`, у списка — `entries: []`), и в записи есть четвёртое поле `replicas` (§8a п. 2). Состав
+записи здесь больше не дублируется — он в схеме. Основание — отчёт
+[`M-01`](../impl/M-01/report.md) §8 п. 2; отдельного долга у этого пункта нет.)*
+
+*(правка: DOC-03, 2026-08-24 — у `fonts/records/<sha256>.json` дописано семейство: это записи
+того же `asset-record/1`, что и `assets/records/` — одно семейство, два каталога, один реестр по
+sha256. Основание — отчёт [`M-02`](../impl/M-02/report.md) §8, второй пункт; отдельного долга у
+этого пункта нет.)*
 
 **1a. Имя файла профиля и `profileId` связаны явно** *(добавлено: RM1, 2026-08-22, дрейф
 `docs/roadmap.md` §9 п. 7).* До этой строки ADR-0005 §1 называл файл `render.draft.yaml`,
@@ -187,11 +204,16 @@ refactor-команде.
 interface Store {
   has(sha: Sha256): Promise<boolean>;
   read(sha: Sha256): Promise<Uint8Array>;
-  put(bytes: Uint8Array, kind: BlobKind): Promise<Sha256>;   // 'voice'|'asset'|'font'|'snapshot'|'c2pa'
+  put(bytes: Uint8Array, kind: BlobKind): Promise<Sha256>;   // 'voice'|'asset'|'font'|'snapshot'|'c2pa'|'ai-image'
   path(sha: Sha256): Promise<string>;                        // локальный путь для рендерера
   missing(required: readonly Sha256[]): Promise<readonly Sha256[]>;
 }
 ```
+
+**Видов блоба шесть**, и шестой — `ai-image`: он введён §8a п. 2 (решение владельца 6, RM1) и
+исполнен схемой `store-lock/1`; перечень выше был короче §8a того же ADR на один вид.
+*(правка: DOC-03, 2026-08-24, основание — отчёт [`M-01`](../impl/M-01/report.md) §8 п. 1,
+долг №46.)*
 
 Команды `vpe store fetch|push|verify`. **Бэкендов в v1 два** (раскрой 2.1 п.4): локальный каталог
 и один удалённый через rclone. Интерфейс из пяти методов остаётся — он и так минимален, и именно он
@@ -220,7 +242,10 @@ interface Store {
    способом, что оплаченный дубль TTS». Класс риска тот же: пересоздать байты нельзя, а на них
    стоит provenance и `disclosure.aiImagery`. Охранник — строка **P7** в
    [invariants.md](../invariants.md).
-3. **DoD этапа (00-PROCESS §8) получает строку:** «после каждого ролика — `vpe store push`».
+3. **DoD этапа (`00-PROCESS.md`, ЭТАП 7) получает строку:** «после каждого ролика —
+   `vpe store push`». *(правка: DOC-03, 2026-08-24, основание — долг №47: нумерованных разделов
+   в `00-PROCESS.md` нет вовсе, адрес «§8» указывал в никуда. Само требование выполнено
+   [`DOC-02`](../impl/DOC-02/report.md) — строка стоит в разделе «ЭТАП 7 — Первое видео».)*
 
 Второй репликой в v1 служит удалённый бэкенд rclone. Аргумент «git-LFS — отдельная инфраструктура»
 остаётся справедливым для **основного** хранилища, но не запрещает использовать LFS как вторую
