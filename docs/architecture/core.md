@@ -141,7 +141,7 @@ D10 не был в списке промпта, но добавлен: без н
 | **SpeechChunk** | единица TTS-запроса = **абзац** (см. D10) | абзац → spoken-текст | аудио, деньги |
 | **ChunkKey / VoiceKey** | идентичность **места** чанка (имя take-файла) и идентичность его **содержимого** (ключ кэша `voice`). Две разные величины; их склейка была дефектом C1/C2 | адрес+текст → ключ / текст+параметры → ключ | друг о друге |
 | **VoiceTake** | иммутабельный дубль: PCM-ref, фактически отправленный текст, health, provenance, **привязки токенов в локальных сэмплах** | SpeechChunk → дубль | где он стоит на таймлайне |
-| **TokenBinding** | `anchorId → [startSample, endSample)` **внутри дубля** + статус (`measured`/`interpolated`/`absent`) | дубль → привязки | глобальное время |
+| **TokenBinding** | `anchorId → [startSample, endSample)` **внутри дубля** + статус (`measured`/`interpolated`/`absent`); у `absent` интервала НЕТ — размеченное объединение *(зеркальная пометка: DOC-04, 2026-08-25; норма — ADR-0010 §5)* | дубль → привязки | глобальное время |
 | **DirectionRecord** | одна запись режиссуры: `{recordId, at, until, track, z, template, params}` | YAML → запись | реализация шаблона, кадры |
 | **TemplateCall** | `{templateId, templateVersion, params}` (V3) + `declareAssets/declareFonts` | параметры → декларация ассетов | свою визуальную реализацию |
 | **Track / Clip** | типизированная дорожка (`speech·music·sfx·caption·visual·effect`) и размещение на ней | записи → клипы | рендеринг |
@@ -1016,6 +1016,11 @@ interface SegmentArtifact {
 type RenderSegment = (req: SegmentRenderRequest) => Promise<SegmentArtifact>;   // реализуется подпроцессом
 ```
 
+*(зеркальная пометка: DOC-04, 2026-08-25.)* **`SegmentArtifact` — выход СБОРКИ: рендерер отдаёт
+кадры, `media` их кодирует и собирает артефакт.** Нормативная формулировка и её основание — в
+[ADR-0008](../adr/0008-renderer-boundary.md), раздел «Контракт»; здесь — зеркало, форма запроса
+и артефакта не меняется ни одним полем.
+
 **Гарантии входа:** всё по значению или по локальному content-addressed пути; никаких URL;
 никаких `Map`/`Set` (запрос обязан пережить JSON round-trip — тест); время в кадрах относительно
 сегмента; seed'ы материализованы; **шрифты и эмодзи-шрифт — файлами с checksum**
@@ -1230,7 +1235,8 @@ API не отдаёт. `FACT` (r1 §2.3) детерминизм «не гара�
    дубль: автоматический ретрай, при повторе — деление чанка, при повторе — переключение на
    `bind: forced-alignment` с записью причины в BuildRecord.
 2. **Дубль самоописателен.** `voice/takes/<chunkKey>.json` хранит: фактически отправленный
-   spoken-текст, `normalizerVersion`, `sourceHash` чанка, health-метрики, provenance
+   spoken-текст, `normalizerVersion`, `sourceHash` чанка, **`voiceKey`** и **блок `bind`**
+   *(зеркальная пометка: DOC-04, 2026-08-25; состав и доводы — ADR-0010 §2)*, health-метрики, provenance
    (`providerId/modelId/voiceId/seed/requestId/billedUnits/planTierAtGeneration/generatedAt` —
    `FACT` r3 §3.2: тариф на дату генерации ретроспективно не восстановить), ссылку на PCM в
    store (`sha256`, `numSamples`, `sampleRate`), `leadInSamples`/`tailSamples` (T7),
@@ -1267,13 +1273,19 @@ API не отдаёт. `FACT` (r1 §2.3) детерминизм «не гара�
           tokens: readonly SourceTokenRef[], providerAlignment?: ProviderAlignment)
        : Promise<readonly TokenBinding[]>;
    }
-   interface TokenBinding {
-     readonly anchorId: AnchorId;
-     readonly startSample: Samples; readonly endSample: Samples;
-     readonly status: 'measured' | 'interpolated' | 'absent';   // ← без этого компилятор ВЫДУМЫВАЕТ время
-     readonly confidence: number | null;
-   }
+   type TokenBinding =                                          // ← размеченное объединение (V8)
+     | { readonly anchorId: AnchorId;
+         readonly startSample: Samples; readonly endSample: Samples;
+         readonly status: 'measured' | 'interpolated';
+         readonly confidence: number | null }
+     | { readonly anchorId: AnchorId;
+         readonly startSample: null; readonly endSample: null;   // ← у `absent` времени НЕТ вовсе
+         readonly status: 'absent';
+         readonly confidence: null };
    ```
+   *(зеркальная пометка: DOC-04, 2026-08-25.)* Нормативная запись и довод — в
+   [ADR-0010](../adr/0010-tts-boundary-and-takes.md) §5: плоская форма оставляла интервал
+   `[t, t]` для проглоченного слова выразимым, а §1 его запрещает.
    Дефолт v1 — `provider-timestamps` (дешевле); интерфейс и стадия кэша закладываются сразу,
    иначе переход на forced alignment (а он вероятен) — хирургия по Timeline, а не смена конфига.
 7. **Правило построения интервала токена из посимвольного alignment фиксируется явно**

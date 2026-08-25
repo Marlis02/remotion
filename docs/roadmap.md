@@ -797,7 +797,9 @@ W1-reference, `mvp` = после Week-1. ~~Какой из трёх срезов
   пунктуация **не входят**); `voice/takes/<chunkKey>.json` как **коммитимый артефакт** со
   `spokenText`, `normalizerVersion`, `sourceHash`, `pcm{sha256,numSamples,sampleRate}`,
   `leadInSamples`, `tailSamples`, `health`, `provenance` (в том числе `voiceCategory`,
-  `planTierAtGeneration`, `billedUnits`, `conditionedOn`) и `bindings[]`.
+  `planTierAtGeneration`, `billedUnits`, `conditionedOn`) и `bindings[]` — **плюс `voiceKey` и
+  блок `bind{binderId, tokens[], providerAlignment}`** *(зеркальная пометка: DOC-04, 2026-08-25;
+  состав и доводы — ADR-0010 §2)*.
 * **Критерий готовности:** дубль с пропущенным словом даёт `absent`, а не интерполяцию молча;
   take-файл самодостаточен — привязки пересчитываются **без старого нормализатора**.
 * **Переводит в `guarded`:** V8. **Закрывает** §18.3 п. 6 и п. 7 (форма).
