@@ -37,6 +37,7 @@ import {
   segmentKey,
   type CacheKeyView,
   type KeyInputs,
+  type SegmentKeyInput,
 } from '../src/index.js';
 
 import { RENDER_AC4_FILE, RENDER_FINAL_FILE } from './assemble-helpers.js';
@@ -94,11 +95,16 @@ function inputsWith(family: string, mutant: unknown): KeyInputs {
 
 const FAMILIES = ['compile-profile', 'render-profile', 'audio-profile'] as const;
 
-describe('K1 — матрица мутации `segmentKey` по всем полям всех задействованных схем', () => {
-  const counts = { inView: 0, outside: 0, skipped: 0 };
-  const rows: { family: string; path: string; inView: boolean; changed: boolean }[] = [];
-  const skippedPaths: string[] = [];
+/**
+ * Строки матрицы, порождённые ОБХОДОМ СХЕМ. Живут вне `describe`, потому что их читают два
+ * блока: сама матрица и strict-полнота прямых входов (иначе второй блок не смог бы отличить
+ * «поле покрыто обходом» от «поле не покрыто ничем»).
+ */
+const counts = { inView: 0, outside: 0, skipped: 0 };
+const rows: { family: string; path: string; inView: boolean; changed: boolean }[] = [];
+const skippedPaths: string[] = [];
 
+describe('K1 — матрица мутации `segmentKey` по всем полям всех задействованных схем', () => {
   for (const family of FAMILIES) {
     // ДВА ОБРАЗЦА У `render-profile`, И ЭТО НЕ ИЗБЫТОЧНОСТЬ. Необязательные поля схемы
     // достижимы только там, где они заполнены: `maxProbeDurationFrames` есть у `ac4` и нет у
@@ -203,9 +209,80 @@ describe('K1 — матрица мутации `segmentKey` по всем пол
     expect(rows.length).toBe(counts.inView + counts.outside);
     // Контроль прибора: обход обязан видеть много полей, а не два случайных.
     expect(rows.length).toBeGreaterThanOrEqual(50);
-    // И каждый путь view, адресующий поле профиля, обязан быть ДОСТИГНУТ обходом схемы —
+    // И каждый путь view, адресующий поле ПРОФИЛЯ, обязан быть ДОСТИГНУТ обходом схемы —
     // иначе строка view описывала бы поле, которого в схеме нет.
+    //
+    // ЭТА СТРОКА СВЕРЯЕТ ТОЛЬКО ПУТИ С ТОЧКОЙ, И В ЭТОМ БЫЛА ДЫРА ПРИБОРА (найдена проверкой
+    // владельца 2026-08-25). Пять ПРЯМЫХ входов `segmentKey` — `segmentIrHash`,
+    // `engineFingerprint`, `assetShas`, `fontShas`, `gridShas` — обходом схемы не достигаются
+    // (схем у них нет), поэтому здесь их и не должно быть. Но блока «вход в view ⇒ ключ
+    // меняется» у них не было ВООБЩЕ: `filter` по `field.path === 'segmentIrHash'` в
+    // `projectFields` оставлял всю матрицу зелёной. Закрыто блоком ниже плюс strict-полнотой,
+    // которая требует мутанта для КАЖДОЙ строки view, а не только для точечных.
     expect(counts.inView).toBe(SEGMENT_VIEW.fields.filter((field) => field.path.includes('.')).length);
+  });
+});
+
+// ── K1: прямые входы `segmentKey` ──────────────────────────────────────────────────────────
+
+describe('K1 — каждый ПРЯМОЙ вход `segmentKey`, названный в view, меняет ключ', () => {
+  // ЗАЧЕМ ОТДЕЛЬНЫЙ БЛОК, ЕСЛИ ВЫШЕ УЖЕ ЕСТЬ МАТРИЦА. Матрица выше механическая: она
+  // перечисляет поля ОБХОДОМ zod-схем, и это её сила — новое поле профиля попадает в неё само.
+  // Оборотная сторона ровно там же: у входов, за которыми схемы НЕТ, обходить нечего, и они
+  // выпадали из in-view половины целиком. `segmentIrHash` производит `CP-03`,
+  // `engineFingerprint` — `H-*`, три списка sha приходят от каталога ассетов и шрифтов; ни у
+  // одного нет семейства, и не будет. Поэтому им нужна ЯВНАЯ карта мутантов — как у стадии
+  // `compose`, где схем нет вовсе и весь блок устроен так же.
+  //
+  // ПОЧЕМУ ЭТО НЕ ФОРМАЛЬНОСТЬ. `engineFingerprint` — единственное место измеренного окружения
+  // (M9, K6), `segmentIrHash` — всё содержимое сегмента, `fontShas` — растр текста. Величина,
+  // влияющая на пиксели и не входящая в ключ, — тот самый класс тихой ошибки, ради которого
+  // написан ADR-0006; до этой правки он был не покрыт именно у самых крупных входов.
+  const base = segmentInputs(compile, render);
+
+  /** Мутант на каждый прямой вход. Значения правдоподобные: в диффе видно, что менялось. */
+  const DIRECT: Readonly<Record<string, (input: SegmentKeyInput) => SegmentKeyInput>> = {
+    segmentIrHash: (input) => ({ ...input, segmentIrHash: `${input.segmentIrHash}-b` }),
+    assetShas: (input) => ({ ...input, assetShas: [...input.assetShas, 'a3'] }),
+    fontShas: (input) => ({ ...input, fontShas: [...input.fontShas, 'f2'] }),
+    // ADR-0006 §15: в v1 список ВСЕГДА пуст (`gridPoint` отвергается валидатором), и строка
+    // введена заранее — beat detection определяет позиции клипов, то есть пиксели. Мутант
+    // проверяет, что заранее введённая строка работает, а не украшает файл.
+    gridShas: (input) => ({ ...input, gridShas: [...input.gridShas, 'g1'] }),
+    engineFingerprint: (input) => ({ ...input, engineFingerprint: `${input.engineFingerprint}-b` }),
+  };
+
+  it('КАЖДАЯ строка view покрыта мутантом — и профильная, и прямая (strict-полнота)', () => {
+    // Ровно то утверждение, отсутствие которого и было дырой: покрытие сверяется со ВСЕМИ
+    // строками view, без деления на точечные и бес-точечные. Новая строка в `views/segment.json`
+    // без мутанта роняет тест — «для строки view нет мутанта» означает «матрица неполна».
+    const bySchema = new Set(rows.filter((row) => row.inView).map((row) => row.path));
+    const covered = new Set([...bySchema, ...Object.keys(DIRECT)]);
+    const uncovered = SEGMENT_VIEW.fields.map((field) => field.path).filter((path) => !covered.has(path));
+    expect(
+      uncovered,
+      'Строка `cacheKeyView` стадии `segment` не покрыта ни обходом схемы, ни явной картой ' +
+        'мутантов: её влияние на ключ не проверяется ничем. Половина K1 «поле в view ⇒ ключ ' +
+        'меняется» на ней держится на дисциплине, а не на тесте.',
+    ).toEqual([]);
+    // И обратно: в карте нет мутантов на пути, которых в view уже нет (мёртвая строка теста).
+    expect(Object.keys(DIRECT).filter((path) => !SEGMENT_VIEW.fields.some((field) => field.path === path))).toEqual([]);
+  });
+
+  it.each(Object.keys(DIRECT))('`%s`: мутация меняет `segmentKey`', (path) => {
+    const mutate = DIRECT[path] as (input: SegmentKeyInput) => SegmentKeyInput;
+    expect(segmentKey(mutate(base)), path).not.toBe(BASE);
+  });
+
+  it('и каждая мутация меняет РОВНО своё поле проекции, а не задевает соседей', () => {
+    // Контроль осмысленности предыдущего блока: ключ мог бы сдвинуться и от того, что мутант
+    // случайно перестроил весь мешок входов. Дифф проекции показывает, что двигалось.
+    for (const [path, mutate] of Object.entries(DIRECT)) {
+      const before = projectionOf(SEGMENT_VIEW, base as unknown as KeyInputs);
+      const after = projectionOf(SEGMENT_VIEW, mutate(base) as unknown as KeyInputs);
+      const changed = [...before.keys()].filter((key) => before.get(key) !== after.get(key));
+      expect(changed, path).toEqual([path]);
+    }
   });
 });
 
