@@ -13,6 +13,11 @@
 // Формат при этом не теряется: `sampleRate` и `numSamples` лежат в take-файле рядом, а
 // «моно, s16 little-endian» — единственный формат тракта (`M-03`).
 //
+// ГРАНИЦЫ РЕЧИ ИЗМЕРЯЮТСЯ ЗДЕСЬ (`V-04`, ADR-0003 T7), а не приходят входом. Долг №85 закрыт
+// ровно этим: пока `leadInSamples`/`tailSamples` были параметром, ноль был законным входом в
+// КОММИТИМЫЙ артефакт, тогда как `FACT` (SP-2 U4.3) настоящий лид-ин — 95–100 мс. Детектор
+// зовётся на промахе `voiceKey`, вместе с укладкой байтов, и его ответ кладётся рядом с ними.
+//
 // СЕТИ ЗДЕСЬ НЕТ И БЫТЬ НЕ МОЖЕТ: источник дубля ВНЕДРЯЕТСЯ (тот же приём, что у лестницы
 // `V-02`), поэтому весь путь исполним в тестовом контуре без ключа и без сети (**V9**).
 // Гейт ADR-0006 §9 («промах ключа не зовёт сеть молча, сборка падает без `--allow-tts`») стоит
@@ -21,10 +26,18 @@
 
 import path from 'node:path';
 
-import { asSamples, type Samples } from '@vpe/core-model';
+import { asSamples } from '@vpe/core-model';
 import { bytesFromPcm, upsertEntry, type PcmS16, type Store, type StoreLockEntry } from '@vpe/media';
 
 import type { TakeAcceptance } from '../acceptance/health.js';
+import {
+  assessEdgeDrift,
+  speechEdges,
+  type EdgeDrift,
+  type EdgeDriftEntry,
+  type SpeechEdgeMeasurement,
+  type SpeechEdgesParams,
+} from '../edges/index.js';
 import { acceptTakeWithRetries, type TakeAttemptRequest } from '../acceptance/ladder.js';
 import type { ProviderAlignment, Take, TakeHealth, TakeProvenance, TokenBinding } from '../providers/types.js';
 
@@ -40,19 +53,6 @@ export interface VoiceSynthesis {
 
 /** Источник дубля. Провайдер, обёртка над ним или подделка теста — сеть не обязательна. */
 export type SpeechSource = (request: TakeAttemptRequest) => Promise<VoiceSynthesis> | VoiceSynthesis;
-
-/**
- * Границы речи в дорожке (ADR-0003 T7).
- *
- * ВХОД, А НЕ ВЫЧИСЛЕНИЕ, и это граница задачи: акустический детектор — `V-04`. Подставить
- * здесь нули значило бы записать в коммитимый артефакт измерение, которого не было
- * (`FACT` SP-2 U4.3: по таймкодам провайдера лид-ин тождественно нулевой при реальных
- * 95–100 мс, то есть ноль — ровно та ложь, которую `V-04` и приходит исправлять).
- */
-export interface SpeechEdges {
-  readonly leadInSamples: Samples;
-  readonly tailSamples: Samples;
-}
 
 /** Провенанс, который знает только вызывающий: тариф, класс голоса, id запроса, время. */
 export interface RecordProvenance {
@@ -77,7 +77,17 @@ export interface RecordSpeechInput {
   readonly lock: StoreLockValue;
   /** Корень дерева проекта: `voice/takes/` лежит внутри него (ADR-0005 §1). */
   readonly projectRoot: string;
-  readonly edges: SpeechEdges;
+  /**
+   * Параметры акустического детектора границ речи из `audio-profile/1` (`V-04`, ADR-0003 T7).
+   *
+   * ПРИХОДЯТ ПАРАМЕТРЫ, А НЕ ГОТОВЫЕ КРАЯ, и это правка `V-04` против `V-03`. Раньше поле
+   * называлось `edges` и несло уже посчитанную пару `leadInSamples`/`tailSamples` с пометкой
+   * «вычисление — граница задачи `V-04`»; в тестах туда шли нули. Пока края были ВХОДОМ, ноль
+   * оставался выразим — а ноль в коммитимом артефакте боевого дубля есть ложь (`FACT` SP-2
+   * U4.3: настоящий лид-ин 95–100 мс), и ровно об этом долг №85. Теперь края ИЗМЕРЯЮТСЯ здесь
+   * же, из байтов принятого дубля, и подделать их вызывающему нечем.
+   */
+  readonly speechEdges: SpeechEdgesParams;
   readonly provenance: RecordProvenance;
   /**
    * Привязки токенов. **Вход, а не вычисление:** стадия `bind` — это `V-05`, и её интерфейс
@@ -104,6 +114,15 @@ export interface RecordSpeechResult {
   readonly lock: StoreLockValue;
   /** Сколько раз позван источник дубля. Ровно это число и есть «сколько оплачено». */
   readonly sourceCalls: number;
+  /**
+   * WARN о дрейфе акустического лид-ина по серии (`V-04`, риск roadmap §4.5).
+   *
+   * ЗДЕСЬ, А НЕ В TAKE-ФАЙЛЕ (решение владельца, `V-04` вопрос 4б): «систематически выходит за
+   * диапазон» — свойство СЕРИИ, и полем одного дубля оно не выражается. Отказом тоже не
+   * является: одиночный дубль за диапазоном законен. Читает это поле вызывающий — тот же, кто
+   * печатает отчёт сборки; молча его проглотить можно, но тогда и находки не будет.
+   */
+  readonly edgeDrift: EdgeDrift;
 }
 
 /** Байты, уже уложенные в этом прогоне: ключ — `voiceKey`, значение — всё, что от них зависит. */
@@ -112,6 +131,13 @@ interface Recorded {
   readonly numSamples: number;
   readonly sampleRate: number;
   readonly health: TakeHealth;
+  /**
+   * Измеренные края (`V-04`). Лежат РЯДОМ С БАЙТАМИ, а не считаются на каждый чанк: края —
+   * функция байтов, а байты у одного `voiceKey` одни (на этом стоит **V4**). Повторный прогон
+   * детектора для рефрена дал бы тот же ответ (идемпотентность покрыта тестом) и стоил бы
+   * лишнего прохода по дорожке.
+   */
+  readonly edges: SpeechEdgeMeasurement;
 }
 
 /**
@@ -148,6 +174,9 @@ function lockEntry(sha256: string, size: number, providerId: string): StoreLockE
 export async function recordSpeechPlan(input: RecordSpeechInput): Promise<RecordSpeechResult> {
   const byVoiceKey = new Map<string, Recorded>();
   const takes: RecordedTake[] = [];
+  // Серия для оценки дрейфа: по одному входу на РАЗЛИЧНЫЙ дубль. Рефрен, уложенный дважды,
+  // добавил бы один и тот же лид-ин вторым голосом и сдвинул бы медиану — а он один дубль.
+  const drift: EdgeDriftEntry[] = [];
   let lock = input.lock;
   let sourceCalls = 0;
 
@@ -182,13 +211,20 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
       }
       const bytes = bytesFromPcm(last.pcm);
       const sha = String(await input.store.put(bytes, 'voice'));
+      // Края измеряются ЗДЕСЬ — после приёмки и до записи take-файла. Байты при этом не
+      // трогаются ни одним сэмплом: в CAS уходит сырой s16le дубля, а `V-04` его ИЗМЕРЯЕТ.
+      // Резать интервал речи и класть краевой фейд будет тот, кто строит дорожку
+      // (`CP-01`/`CP-05`); фейд ещё и здесь был бы первым из двух, а двойной фейд ADR-0003 T7
+      // запрещает («внутри уже отведённого интервала»).
       recorded = {
         sha256: sha,
         numSamples: accepted.attempt.numSamples,
         sampleRate: accepted.attempt.sampleRate,
         health: accepted.health,
+        edges: speechEdges(last.pcm, input.speechEdges),
       };
       byVoiceKey.set(chunk.voiceKey, recorded);
+      drift.push({ leadInSamples: recorded.edges.leadInSamples, sampleRate: recorded.sampleRate });
       lock = upsertEntry(lock, lockEntry(sha, bytes.length, chunk.voice.providerId));
     } else {
       recorded = known;
@@ -204,8 +240,8 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
         numSamples: asSamples(recorded.numSamples),
         sampleRate: recorded.sampleRate,
       },
-      leadInSamples: input.edges.leadInSamples,
-      tailSamples: input.edges.tailSamples,
+      leadInSamples: recorded.edges.leadInSamples,
+      tailSamples: recorded.edges.tailSamples,
       health: recorded.health,
       provenance: {
         providerId: chunk.voice.providerId,
@@ -234,5 +270,5 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
     });
   }
 
-  return { takes, lock, sourceCalls };
+  return { takes, lock, sourceCalls, edgeDrift: assessEdgeDrift(drift) };
 }

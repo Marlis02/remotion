@@ -22,7 +22,7 @@
 //     допускает на этой самой границе: ассерт `V-04` записан как
 //     `end[last] ≤ numSamples + ⌈sampleRate/1000⌉`.
 
-import { msToSamples, type Samples } from '@vpe/core-model';
+import { ceilDiv, msToSamples, type Samples } from '@vpe/core-model';
 
 import { VoiceError } from '../errors.js';
 
@@ -54,4 +54,38 @@ export function providerSecondsToSamples(seconds: number, sampleRate: number): S
     );
   }
   return msToSamples(Math.round(seconds * MS_PER_SECOND), sampleRate);
+}
+
+/**
+ * Допуск хвостового ассерта T7: `⌈sampleRate/1000⌉` сэмплов, то есть ОДНА миллисекунда
+ * (24 при 24 кГц).
+ *
+ * ЧТО ЭТО ЗА ЧИСЛО И ПОЧЕМУ ОНО НЕ ПОДОБРАНО. ADR-0003 T7 после SP-2 требует
+ * `end[last] ≤ numSamples + ⌈sampleRate/1000⌉`, а не буквального `end[last] ≤ numSamples`:
+ * `FACT` (SP-2 U4.3 + SP-2b.6) буквальное неравенство упало бы на **12 строках из 28** у
+ * Daniel и на **13 из 28** у Michael, причём максимум превышения в обоих замерах ОДИН И ТОТ
+ * ЖЕ — **12 сэмплов** (≈ 0.5 мс). Отсюда и допуск: ровно один миллисекундный запас на
+ * округление, а не число, подогнанное под наблюдения (12 < 24 с запасом вдвое).
+ *
+ * ЖИВЁТ ЗДЕСЬ, А НЕ В `acceptance/health.ts`, по двум причинам. Во-первых, это перевод
+ * «миллисекунда → сэмплы», то есть предмет ЭТОГО файла: единственная точка конверсии времени
+ * границы провайдера. Во-вторых, ровно этим округлением до миллисекунды и порождена половина
+ * допуска: `providerSecondsToSamples` округляет чужой таймкод до целых миллисекунд (долг №73),
+ * и слоп того же порядка стоит рядом со своей причиной, а не через файл от неё.
+ *
+ * ЭТО НЕ ПОРОГ ПРОФИЛЯ. Пороги приёмки (`takeAcceptance`) — измеренные величины пары
+ * (голос, модель) и живут в `audio-profile/1`; здесь же — арифметическое следствие
+ * `sampleRate` и правила ADR, у которого свободы значения нет вовсе.
+ *
+ * @throws {VoiceError} `ADR-0003 T7` — `sampleRate` не целое > 0.
+ */
+export function tailResidualSlopSamples(sampleRate: number): number {
+  if (!Number.isSafeInteger(sampleRate) || sampleRate <= 0) {
+    throw new VoiceError(
+      'ADR-0003 T7',
+      `\`sampleRate\` = ${String(sampleRate)}: ожидалось целое > 0. Допуск хвостового ассерта ` +
+        'есть одна миллисекунда дорожки, и у дорожки без частоты его не существует.',
+    );
+  }
+  return ceilDiv(sampleRate, MS_PER_SECOND);
 }

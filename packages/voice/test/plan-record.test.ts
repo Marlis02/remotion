@@ -10,24 +10,27 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { asSamples, parseSource, sourceText } from '@vpe/core-model';
+import { msToSamples, parseSource, sourceText } from '@vpe/core-model';
 import { LocalStore, readStoreLock } from '@vpe/media';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import {
+  MOCK_PROFILE,
   MOCK_SAMPLE_RATE,
   NORMALIZER_VERSION,
   recordSpeechPlan,
+  speechEdges,
   speechPlan,
   synthPcm,
   synthesize,
   takeFilePath,
+  type MockProfile,
   type RecordSpeechResult,
   type SpeechPlan,
   type SpeechSource,
 } from '../src/index.js';
 
-import { fixtureTakeAcceptance, fixtureVoice } from './fixture.js';
+import { fixtureSpeechEdges, fixtureTakeAcceptance, fixtureVoice } from './fixture.js';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
@@ -77,22 +80,39 @@ function planOf(raw: string): SpeechPlan {
 }
 
 /**
+ * Профиль мока С ИСКУССТВЕННОЙ ТИШИНОЙ ПО КРАЯМ (правка `V-04`, 2026-08-24).
+ *
+ * ПОЧЕМУ ТЕПЕРЬ НЕ ГОЛЫЙ `MOCK_PROFILE`. У него `leadInMs = tailMs = 0`, и измеренные края
+ * вышли бы нулевыми — то есть тест укладки был бы зелёным и при неработающем детекторе
+ * (`V-03` подставляла туда нули ВХОДОМ). Величины взяты не с потолка: 100 мс — медиана
+ * акустического лид-ина Daniel, 300 мс — порядок медианного хвоста обоих голосов
+ * (`FACT` SP-2, block2-acoustic: лид-ин 100 мс (40–110) и 95 мс (10–180), хвост 310 и 296 мс).
+ */
+const TAKE_PROFILE = { ...MOCK_PROFILE, leadInMs: 100, tailMs: 300 };
+
+/**
  * Источник дубля поверх `tts:mock@1`: ответ провайдера и та же дорожка, из которой он
  * посчитан. Считает собственные вызовы — «сколько оплачено» измеряется, а не декларируется.
+ *
+ * ПРОФИЛЬ У ОБОИХ ВЫЗОВОВ ОДИН: разойдись они, alignment описывал бы не ту дорожку, и дубль
+ * отвергла бы приёмка по хвостовому ассерту (`V-02`) — тест сломался бы не там, где дефект.
  */
-function countingSource(seed: number): { source: SpeechSource; calls: () => number; texts: string[] } {
+function countingSource(
+  seed: number,
+  profile: MockProfile = TAKE_PROFILE,
+): { source: SpeechSource; calls: () => number; texts: string[] } {
   const texts: string[] = [];
   const source: SpeechSource = (request) => {
     texts.push(request.spokenText);
     return {
-      alignment: synthesize({ text: request.spokenText, seed }).alignment,
-      pcm: synthPcm(request.spokenText, seed).pcm,
+      alignment: synthesize({ text: request.spokenText, seed, profile }).alignment,
+      pcm: synthPcm(request.spokenText, seed, profile).pcm,
     };
   };
   return { source, calls: () => texts.length, texts };
 }
 
-async function record(raw: string): Promise<{
+async function record(raw: string, profile: MockProfile = TAKE_PROFILE): Promise<{
   root: string;
   plan: SpeechPlan;
   result: RecordSpeechResult;
@@ -102,7 +122,7 @@ async function record(raw: string): Promise<{
   const root = tempRoot();
   const storeRoot = path.join(root, '.store');
   const plan = planOf(raw);
-  const counting = countingSource(VOICE.seed);
+  const counting = countingSource(VOICE.seed, profile);
   const result = await recordSpeechPlan({
     plan,
     acceptance: ACCEPTANCE,
@@ -111,9 +131,11 @@ async function record(raw: string): Promise<{
     // Пустой лок фикстуры — значение, а не выдуманная форма (`entries: []`).
     lock: readStoreLock(path.join(REPO, 'fixtures/minimal/store.lock')),
     projectRoot: root,
-    // Границы речи — ВХОД: акустический детектор T7 приходит с `V-04`, и подставлять здесь
-    // измерение, которого не было, нельзя. Ноль честен ровно как «ещё не измерено».
-    edges: { leadInSamples: asSamples(0), tailSamples: asSamples(0) },
+    // ПРАВКА `V-04` (2026-08-24): было `edges: { leadInSamples: asSamples(0), tailSamples:
+    // asSamples(0) }` с пометкой «ноль честен ровно как ещё-не-измерено». Теперь укладка
+    // получает ПАРАМЕТРЫ детектора из профиля и меряет края сама — подставить измерение,
+    // которого не было, вызывающему больше нечем (долг №85).
+    speechEdges: fixtureSpeechEdges(),
     provenance: { voiceCategory: 'none', planTierAtGeneration: 'none' },
   });
   return { root, plan, result, calls: counting.calls(), storeRoot };
@@ -291,6 +313,121 @@ A ship came in on the night tide \u{1F6A2} and the town woke.
     expect(text.trimEnd().split('\n')).toHaveLength(1);
     // Ключи отсортированы на верхнем уровне байтовым компаратором — свойство `canonicalJson`.
     expect(text.startsWith('{"bindings":')).toBe(true);
+  });
+});
+
+describe('`V-04` — края в take-файле ИЗМЕРЕНЫ, а не подставлены', () => {
+  const RATE = MOCK_SAMPLE_RATE;
+
+  it('`leadInSamples` РАВЕН вставленной тишине и не равен нулю — во всех четырёх take-файлах', async () => {
+    const { result } = await record(SOURCE);
+    expect(result.takes).toHaveLength(4);
+    for (const take of result.takes) {
+      expect(take.take.leadInSamples).toBe(msToSamples(TAKE_PROFILE.leadInMs, RATE));
+      expect(take.take.leadInSamples).toBeGreaterThan(0);
+    }
+  });
+
+  it('`tailSamples` БОЛЬШЕ вставленного — и это ровно случай, описанный ADR-0003 T7', async () => {
+    // Каждый чанк фикстуры кончается точкой, а у мока пунктуация — это ТИШИНА (её собственные
+    // 20 мс плюс пауза знака 320 мс). Акустический хвост поэтому включает и её: детектор мерит
+    // ЗВУК, а не расписание. ADR-0003 T7 после SP-2 разбирает ровно этот случай на живых
+    // голосах: «хвостовая тишина приписана последнему символу» (медиана длительности последнего
+    // символа — 337 мс у Daniel, 279 у Michael). Обрезка по таймкодам оставила бы её внутри
+    // интервала последнего слова; акустическая — снимает.
+    const { result } = await record(SOURCE);
+    for (const take of result.takes) {
+      expect(take.take.tailSamples).toBeGreaterThan(msToSamples(TAKE_PROFILE.tailMs, RATE));
+    }
+  });
+
+  it('края не съедают дорожку: `leadIn + tail ≤ numSamples` в каждом take-файле', async () => {
+    const { result } = await record(SOURCE);
+    for (const take of result.takes) {
+      expect(take.take.leadInSamples + take.take.tailSamples).toBeLessThanOrEqual(
+        take.take.pcm.numSamples,
+      );
+    }
+  });
+
+  it('рефрен: одни байты — одни края (детектор зовётся на промахе ключа, а не на чанк)', async () => {
+    const { result } = await record(SOURCE);
+    const refrains = result.takes.filter((take) => take.take.spokenText === REFRAIN);
+    expect(refrains).toHaveLength(2);
+    expect(refrains[0]?.take.pcm.sha256).toBe(refrains[1]?.take.pcm.sha256);
+    expect(refrains[0]?.take.leadInSamples).toBe(refrains[1]?.take.leadInSamples);
+    expect(refrains[0]?.take.tailSamples).toBe(refrains[1]?.take.tailSamples);
+  });
+
+  it('два прогона дают ПОБАЙТОВО одинаковые take-файлы — измерение детерминировано', async () => {
+    const first = await record(SOURCE);
+    const second = await record(SOURCE);
+    const filesOf = (root: string): string[] =>
+      readdirSync(path.join(root, 'voice/takes'))
+        .sort()
+        .map((name) => readFileSync(path.join(root, 'voice/takes', name), 'utf8'));
+
+    expect(filesOf(first.root)).toEqual(filesOf(second.root));
+    expect(filesOf(first.root)[0]).toContain('"leadInSamples"');
+  });
+
+  it('нулевые края больше не выразимы вызывающим: детектор мерит те же байты, что уложены', async () => {
+    // Косвенная, но исполнимая форма долга №85: край в take-файле совпадает с тем, что даёт
+    // детектор, запущенный НЕЗАВИСИМО от укладки на тех же параметрах профиля и том же тексте.
+    // Разойдись они — значит, в артефакт уехало не измерение.
+    const { result } = await record(SOURCE);
+    for (const take of result.takes) {
+      const measured = speechEdges(
+        synthPcm(take.take.spokenText, VOICE.seed, TAKE_PROFILE).pcm,
+        fixtureSpeechEdges(),
+      );
+      expect(take.take.leadInSamples).toBe(measured.leadInSamples);
+      expect(take.take.tailSamples).toBe(measured.tailSamples);
+    }
+  });
+});
+
+describe('`V-04` — дрейф лид-ина: WARN серии, а не поле дубля и не отказ', () => {
+  it('дубли с лид-ином внутри измеренного диапазона — признак молчит', async () => {
+    const { result } = await record(SOURCE);
+
+    expect(result.edgeDrift.measured).toBe(3); // РАЗЛИЧНЫХ дублей три, чанков четыре
+    expect(result.edgeDrift.outsideRange).toBe(0);
+    expect(result.edgeDrift.systematic).toBe(false);
+    expect(result.edgeDrift.warning).toBeNull();
+  });
+
+  it('голый `MOCK_PROFILE` (лид-ин 0) — признак срабатывает, и сборка НЕ падает', async () => {
+    // Ровно тот случай, о котором сказано в шапке `edges/drift.ts`: диапазон 10–180 мс снят с
+    // ЖИВЫХ голосов и моку чужой. Тест фиксирует и это (WARN есть), и главное — что укладка
+    // доводится до конца: признак наблюдает, а не отказывает.
+    const { result } = await record(SOURCE, MOCK_PROFILE);
+
+    expect(result.takes).toHaveLength(4);
+    expect(result.edgeDrift.systematic).toBe(true);
+    expect(result.edgeDrift.warning).not.toBeNull();
+    expect(result.edgeDrift.outsideRange).toBe(3);
+    for (const take of result.takes) expect(take.take.leadInSamples).toBe(0);
+  });
+
+  it('серия считает РАЗЛИЧНЫЕ дубли, а не чанки: рефрен не сдвигает медиану вдвое', async () => {
+    const { result, plan } = await record(SOURCE);
+
+    expect(plan.chunks).toHaveLength(4);
+    expect(result.edgeDrift.leadInSamples).toHaveLength(3);
+    expect(result.edgeDrift.measured).toBe(result.sourceCalls);
+  });
+
+  it('в take-файле поля дрейфа НЕТ: свойство серии не притворяется свойством дубля', async () => {
+    const { root, result } = await record(SOURCE);
+    const file = readFileSync(
+      path.join(root, 'voice/takes', path.basename(result.takes[0]?.takeFile ?? '')),
+      'utf8',
+    );
+
+    expect(file).toContain('"leadInSamples"');
+    expect(file).not.toContain('edgeDrift');
+    expect(file).not.toContain('systematic');
   });
 });
 

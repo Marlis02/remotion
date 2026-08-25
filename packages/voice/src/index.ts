@@ -7,7 +7,9 @@
 // `V-03` — стадия `plan` (`plan/`): инъективная каноническая форма входа ключей, `chunkKey`,
 // `voiceKey`, `roleDigest`, структурное деление длинного абзаца, `SpeechPlan` и укладка дубля
 // (PCM в CAS `kind: voice`, take-файл `voice/takes/<chunkKey>.json`, запись в `store.lock`).
-// Акустическая обрезка T7 (`V-04`), стадия `bind` (`V-05`) и живой провайдер (`V-06`) — впереди.
+// `V-04` — акустическая обрезка T7 (`edges/`): границы речи из PCM по RMS с параметрами из
+// профиля, признак смены поведения провайдера. Стадия `bind` (`V-05`) и живой провайдер
+// (`V-06`) — впереди.
 
 export { VoiceError, type VoiceRule } from './errors.js';
 
@@ -42,7 +44,7 @@ export {
   stitchingMode,
 } from './providers/capabilities.js';
 
-export { providerSecondsToSamples } from './providers/time.js';
+export { providerSecondsToSamples, tailResidualSlopSamples } from './providers/time.js';
 
 // --- приёмка дубля (`V-02`, перенос `sp2/lib/analyze.mjs`) -------------------
 
@@ -89,6 +91,10 @@ export {
   type MockSynthesizeOptions,
   type TokenInterval,
 } from './providers/mock.js';
+
+// --- акустическая обрезка T7 (`V-04`, перенос `sp2/t7-prod.mjs` + `acoustic-prod.mjs`) ------
+
+export * from './edges/index.js';
 
 // --- стадия `plan` (`V-03`) --------------------------------------------------
 

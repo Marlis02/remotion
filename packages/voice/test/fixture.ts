@@ -151,3 +151,42 @@ export function fixtureRoles(): {
     voice_settings: {},
   }));
 }
+
+/**
+ * Блок `speechEdges` из `fixtures/minimal/profiles/audio.yaml` (`V-04`).
+ *
+ * ЗАЧЕМ ТЕСТУ ЧИТАТЬ ФИКСТУРУ, А НЕ ПИСАТЬ `{ 240, −45, 'both' }`. Довод тот же, что у
+ * `fixtureTakeAcceptance`, плюс свой, сильнее общего: комментарий профиля объявляет эти
+ * константы привязанными к ПАРЕ (голос, модель) и инвалидируемыми при смене любого из двух.
+ * Тест, повторивший их литералами, пережил бы смену голоса зелёным — то есть перестал бы
+ * проверять ровно то, ради чего написан.
+ *
+ * `thresholdDbFs` ОТРИЦАТЕЛЕН, и регулярка это знает: `[0-9.]+` из `fixtureTakeAcceptance`
+ * прочла бы `-45` как `45` и молча перевернула порог.
+ */
+export function fixtureSpeechEdges(): {
+  windowSamples: number;
+  thresholdDbFs: number;
+  sides: string;
+} {
+  const text = readFixture('fixtures/minimal/profiles/audio.yaml');
+  const block = /^speechEdges:\n((?:[ ]{2}.*\n)+)/m.exec(text);
+  if (block?.[1] === undefined) {
+    throw new Error(
+      'fixtures/minimal/profiles/audio.yaml: блок `speechEdges` не найден. Параметры детектора ' +
+        'границ речи берутся из профиля (ADR-0003 T7), литералов в тестах нет.',
+    );
+  }
+  const field = (name: string, pattern: string): string => {
+    const m = new RegExp(`^\\s{2}${name}:\\s*(${pattern})`, 'm').exec(block[1] ?? '');
+    if (m?.[1] === undefined) {
+      throw new Error(`fixtures/minimal/profiles/audio.yaml: speechEdges.${name} не найдено.`);
+    }
+    return m[1];
+  };
+  return {
+    windowSamples: Number(field('windowSamples', '\\d+')),
+    thresholdDbFs: Number(field('thresholdDbFs', '-?[0-9.]+')),
+    sides: field('sides', '[A-Za-z-]+'),
+  };
+}

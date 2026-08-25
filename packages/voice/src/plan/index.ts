@@ -41,7 +41,6 @@ export {
   type RecordSpeechInput,
   type RecordSpeechResult,
   type RecordedTake,
-  type SpeechEdges,
   type SpeechSource,
   type StoreLockValue,
   type VoiceSynthesis,

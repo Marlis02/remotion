@@ -18,6 +18,13 @@
 // ровно ту вторую запись. Охранник — тест «правка порога в переданном объекте меняет вердикт»
 // плюс грепом: в `packages/voice/src/acceptance/**` нет ни одного значения порога по умолчанию.
 //
+// ПРАВКА `V-04` (2026-08-24, разрешена заданием, причина — §3 отчёта `V-04`). Хвостовой ассерт
+// в этом файле был СТРОЖЕ своего ADR: он отвергал дубль при `tailResidualSamples < 0`, то есть
+// исполнял ЗАЧЁРКНУТОЕ `end[last] ≤ numSamples`. Действующая редакция ADR-0003 T7 (после SP-2) —
+// `end[last] ≤ numSamples + ⌈sampleRate/1000⌉`, и строгая форма отвергала бы каждый второй
+// живой дубль (`FACT`: 12/28 у Daniel, 13/28 у Michael, превышение до 12 сэмплов). Допуск
+// считает `tailResidualSlopSamples` (`providers/time.ts`), литерала `0` в сравнении больше нет.
+//
 // ЕДИНИЦЫ ВРЕМЕНИ. Эпсилоны `1e-9` монотонности сохранены из спайка ДОСЛОВНО: они сравнивают
 // СЕКУНДЫ ПРОВАЙДЕРА между собой, до всякой конверсии, и потому второй формулой перевода
 // времени не являются (T1 не затронут). Единственная конверсия в файле — `tailResidualSamples`
@@ -25,7 +32,7 @@
 // округление до миллисекунды остаётся её долгом, а не долгом этого файла).
 
 import { VoiceError } from '../errors.js';
-import { providerSecondsToSamples } from '../providers/time.js';
+import { providerSecondsToSamples, tailResidualSlopSamples } from '../providers/time.js';
 import type { ProviderAlignment, TakeHealth, TakeRejectReason } from '../providers/types.js';
 
 // ── Пороги: форма профиля, а не константы кода ──────────────────────────────
@@ -273,6 +280,10 @@ export function assessTake(input: TakeAssessment): TakeHealth {
 
   const lastEnd = n === 0 ? 0 : (alignment.character_end_times_seconds[n - 1] ?? 0);
   const tailResidualSamples = numSamples - providerSecondsToSamples(lastEnd, sampleRate);
+  // ДОПУСК, А НЕ НОЛЬ (`V-04`, ADR-0003 T7 после SP-2). Разбор — комментарий
+  // `tailResidualSlopSamples` и §3 отчёта `V-04`; коротко: буквальное `end[last] ≤ numSamples`
+  // упало бы на 12 строках из 28 у Daniel и 13 из 28 у Michael при превышении до 12 сэмплов.
+  const tailSlop = tailResidualSlopSamples(sampleRate);
 
   let rejectReason: TakeRejectReason | null = null;
   if (!charIdentity) rejectReason = 'char-identity';
@@ -280,7 +291,7 @@ export function assessTake(input: TakeAssessment): TakeHealth {
   else if (!monotonic) rejectReason = 'monotonic';
   else if (uniqueTimestampRatio < acceptance.minUniqueTimestampRatio) rejectReason = 'unique-ratio';
   else if (maxEqualRun > acceptance.maxEqualRun) rejectReason = 'equal-run';
-  else if (tailResidualSamples < 0) rejectReason = 'tail-residual';
+  else if (tailResidualSamples < -tailSlop) rejectReason = 'tail-residual';
 
   return {
     charIdentity,
@@ -375,7 +386,10 @@ export function explainRejection(
     case 'tail-residual':
       return {
         reason,
-        message: `end[last] выходит за пределы фактического PCM (${metrics}).`,
+        message:
+          'end[last] выходит за пределы фактического PCM ДАЛЬШЕ допуска в одну миллисекунду ' +
+          `дорожки (ADR-0003 T7 после SP-2, \`V-04\`). Превышение до допуска законно и дублю ` +
+          `не вредит (${metrics}).`,
         codePointDiff: null,
       };
     default: {

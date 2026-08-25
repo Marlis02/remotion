@@ -17,6 +17,7 @@ import {
   codePointDiff,
   explainRejection,
   synthesize,
+  tailResidualSlopSamples,
   takeHealth,
   type ProviderAlignment,
   type TakeAcceptance,
@@ -428,11 +429,16 @@ describe('`V-02` диагностика отказа', () => {
   });
 
   it('остальные причины `codePointDiff` НЕ несут — он про тождество, а не про время', () => {
+    // ПРАВКА `V-04` (2026-08-24, разрешена заданием; причина — §3 отчёта `V-04`): было
+    // `numSamples - 1`. Один сэмпл превышения БОЛЬШЕ НЕ ОТКАЗ — ADR-0003 T7 после SP-2 даёт
+    // допуск `⌈sampleRate/1000⌉` (24 при 24 кГц), и прежнее число утверждало строгую форму
+    // ассерта, которой в ADR нет с 2026-08-21. Смысл теста не изменился ни на букву: ему нужна
+    // ЛЮБАЯ причина отказа, кроме `char-identity`, — теперь она берётся на сэмпл ЗА допуском.
     const { alignment, text, numSamples } = healthy(5);
     const health = assessTake({
       spokenText: text,
       alignment,
-      numSamples: numSamples - 1,
+      numSamples: numSamples - tailResidualSlopSamples(MOCK_SAMPLE_RATE) - 1,
       sampleRate: MOCK_SAMPLE_RATE,
       acceptance: ACCEPTANCE,
     });
