@@ -21,6 +21,7 @@
 // платную перегенерацию остатка проекта (ADR-0010 §3).
 
 import { base32, blake3, blake3Bytes, type Blake3 } from '@vpe/core-model';
+import { cacheKeyView, keyOf, type KeyInputs } from '@vpe/media';
 
 import { VoiceError } from '../errors.js';
 
@@ -181,18 +182,22 @@ export interface VoiceKeyFields {
  *
  * Порядок полей — порядок ADR, и он значим: каноническая форма инъективна для КОРТЕЖА, то есть
  * перестановка полей даёт другой ключ. Менять порядок = обесценить весь оплаченный кэш.
+ *
+ * ОТКУДА БЕРЁТСЯ ПОРЯДОК ПОСЛЕ `M-05`: из ДАННЫХ `cacheKeyView` стадии `voice`
+ * (`packages/media/src/cache/views/voice.json`, **K2**), а не из кортежа в этой строке. До
+ * `M-05` здесь стоял литеральный список восьми полей, и он был ВТОРЫМ списком рядом с view —
+ * то есть ровно тем, что строка K1 называет дисциплиной: разойдись они, и «поле в view»
+ * перестало бы значить «поле в ключе», причём молча. Теперь `cacheKeyView` — ОПРЕДЕЛЕНИЕ
+ * ключа, а не его опись.
+ *
+ * БАЙТЫ ПРИ ЭТОМ НЕ ИЗМЕНИЛИСЬ НИ НА ОДИН. `views/voice.json` перечисляет те же восемь путей,
+ * в том же порядке и с теми же тегами типов (`text`/`int`/`json`), поэтому вход `blake3`
+ * побайтово равен прежнему — это стоит тестом (`plan-keys.test.ts`, «перевод на view не
+ * сдвинул ни одного ключа»), а не обещанием. `M-05` этот ключ ПОТРЕБЛЯЕТ, а не переопределяет.
+ *
+ * ФУНКЦИЯ ОСТАЛАСЬ ЗДЕСЬ, А НЕ УЕХАЛА В `media`, и это тоже граф ADR-0009, а не вкус: она
+ * собирается из плана речи, которого `media` не видит, а стрелки `media → voice` нет.
  */
 export function voiceKey(fields: VoiceKeyFields): Blake3 {
-  return blake3(
-    canonicalFields([
-      text(fields.spokenChunkText),
-      text(fields.providerId),
-      text(fields.modelId),
-      text(fields.voiceId),
-      int(fields.seed),
-      json(fields.providerOpts),
-      text(fields.roleDigest),
-      text(fields.ttsPipelineVersion),
-    ]),
-  );
+  return keyOf(cacheKeyView('voice'), fields as unknown as KeyInputs);
 }

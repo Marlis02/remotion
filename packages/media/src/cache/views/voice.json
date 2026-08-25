@@ -1,0 +1,44 @@
+{
+  "stage": "voice",
+  "adr": "ADR-0006 §2, §6",
+  "formula": "voiceKey = blake3( spokenChunkText, providerId, modelId, voiceId, seed, providerOpts, roleDigest, ttsPipelineVersion )",
+  "note": "Порядок строк — порядок ADR-0006 §2, и он ЗНАЧИМ: каноническая форма инъективна для КОРТЕЖА, перестановка строк даёт другой ключ и обесценивает весь оплаченный кэш. Строку `providerOpts` раскрывает `expand: byName` — «наверное, попадёт через providerOpts» ответом не является (ADR-0006 §2).",
+  "fields": [
+    { "path": "spokenChunkText", "kind": "text", "why": "ровно те байты, что уходят провайдеру; всё, что меняет текст, обязано менять ключ" },
+    { "path": "providerId", "kind": "text", "why": "разные провайдеры на одном тексте дают разный звук" },
+    { "path": "modelId", "kind": "text", "why": "модель меняет звук; роль её перекрывает (ADR-0010 §3a-bis), в ключ идёт ФАКТИЧЕСКАЯ" },
+    { "path": "voiceId", "kind": "text", "why": "ИМЯ переменной окружения, не значение (CLAUDE.md §2): в ключ входит выбор голоса, а не секрет" },
+    { "path": "seed", "kind": "int", "why": "FACT (SP-2): при фиксированных входах seed определяет байты — иначе он был бы украшением" },
+    { "path": "providerOpts", "kind": "json", "expand": "byName", "why": "voice_settings применимой роли; ADR-0010 §8 их не нормирует, поэтому в ключ идёт объект целиком, а печать раскрывает имена" },
+    { "path": "roleDigest", "kind": "text", "why": "V15, решение владельца 1 (RM1): правка роли меняет звук ⇒ обязана менять ключ; дайджест — от МНОЖЕСТВА применимых записей" },
+    { "path": "ttsPipelineVersion", "kind": "text", "why": "версия НАШЕГО тракта речи: смена раскроя/трансдьюсера/запроса обязана обесценить кэш целиком" }
+  ],
+  "upstream": [
+    {
+      "path": "audio-profile/1:maxChunkChars",
+      "actsThrough": ["spokenChunkText"],
+      "why": "долг №87: поле в ключ не входит, но меняет РАСКРОЙ абзаца, то есть значение `spokenChunkText`. Проверяется диффом проекции: отличаться обязано ровно одно названное поле (`packages/voice/test/cache-matrix-voice.test.ts`)"
+    },
+    { "path": "project/1:voice.providerId", "actsThrough": ["providerId"], "why": "план речи подставляет поле в `EffectiveVoice` без изменения: провайдер выбирается на проект, а не на чанк" },
+    { "path": "project/1:voice.modelId", "actsThrough": ["modelId"], "why": "подставляется в `EffectiveVoice`, если применимая роль не назвала свою модель (ADR-0010 §3a-bis)" },
+    { "path": "project/1:voice.voiceId", "actsThrough": ["voiceId"], "why": "ИМЯ переменной окружения подставляется в `EffectiveVoice`, если применимая роль не назвала свой голос" },
+    { "path": "project/1:voice.seed", "actsThrough": ["seed"], "why": "подставляется в `EffectiveVoice` как есть; seed на проект, а не на чанк (ADR-0007 §1)" },
+    { "path": "voice-roles/1:roles[].roleId", "actsThrough": ["roleDigest"], "why": "имя записи входит в каноническую форму дайджеста; переименование роли = другая роль" },
+    { "path": "voice-roles/1:roles[].modelId", "actsThrough": ["modelId", "roleDigest"], "why": "роль перекрывает модель проекта И входит в дайджест" },
+    { "path": "voice-roles/1:roles[].voice_id", "actsThrough": ["voiceId", "roleDigest"], "why": "роль перекрывает голос проекта И входит в дайджест" },
+    { "path": "voice-roles/1:roles[].voice_settings", "actsThrough": ["providerOpts", "roleDigest"], "why": "V15: правка ЛЮБОГО поля внутри, смысла которого движок не знает, обязана менять ключ" }
+  ],
+  "excluded": [
+    { "path": "audio-profile/1:takeAcceptance.*", "why": "пороги ПРИЁМКИ решают, годен ли дубль, и не меняют ни одного сэмпла того, что вернул провайдер" },
+    { "path": "audio-profile/1:speechEdges.*", "why": "детектор ИЗМЕРЯЕТ края уже полученных байтов (V-04); измерение не меняет измеряемое" },
+    { "path": "audio-profile/1:deliverySampleRate", "why": "частота доставки финала; дубль лежит в проектной частоте (M-03)" },
+    { "path": "take.provenance.billedUnits", "why": "метаданное «сколько отправлено» — ADR-0006 §6: физически не может попасть в ключ" },
+    { "path": "take.provenance.generatedAt", "why": "метаданное времени — ADR-0006 §6" },
+    { "path": "take.provenance.requestId", "why": "метаданное «как сделано», а не «что это»" },
+    { "path": "take.provenance.planTierAtGeneration", "why": "тариф на дату генерации — провенанс, не идентичность" },
+    { "path": "chunk.conditionedOn", "why": "stitch-контекст живёт в provenance дубля: в ключе он образовал бы транзитивную цепочку (ADR-0006 §2, V5)" },
+    { "path": "chunk.chunkKey", "why": "идентичность МЕСТА, а не содержимого (C2, ADR-0010 §3a): два одинаковых абзаца обязаны делить один оплаченный дубль (V4)" },
+    { "path": "chunk.sourceHash", "why": "правка `[say: 200 | two hundred]` в display-стороне видна в артефакте, но речь та же — ключ двигаться не обязан" },
+    { "path": "take.normalizerVersion", "why": "работа нормализатора уже видна в `spokenChunkText`; вторая учётность той же информации запрещена (ADR-0006 §3)" }
+  ]
+}

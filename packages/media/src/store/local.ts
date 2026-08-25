@@ -20,7 +20,7 @@ import { MissingBlobsError, assertBlobKind, type Store } from './types.js';
  * требование ADR-0005 §8. Хэш здесь не «сверяется» с чем-то внешним: он ВЫЧИСЛЯЕТСЯ из
  * байтов, и именно поэтому `put` — это CAS, а не «положи, куда сказали».
  */
-function sha256Of(bytes: Uint8Array): Sha256 {
+export function sha256Of(bytes: Uint8Array): Sha256 {
   return asSha256(createHash('sha256').update(bytes).digest('hex'));
 }
 

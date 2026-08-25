@@ -1,6 +1,6 @@
 // Контракт хранилища байтов (ADR-0005 §8) и договорная ошибка «нет байтов».
 
-import { StoreLockSchema, type BlobKind, type Sha256 } from '@vpe/schema';
+import { asSha256, StoreLockSchema, type BlobKind, type Sha256 } from '@vpe/schema';
 
 /**
  * **Интерфейс из ПЯТИ методов — дословно ADR-0005 §8.** Ни шестого, ни пятого с другой
@@ -69,4 +69,21 @@ export function assertBlobKind(value: string): BlobKind {
     );
   }
   return result.data;
+}
+
+/**
+ * sha256 из ДАННЫХ — в бренд, на границе.
+ *
+ * Заведена `M-05` и по той же причине, что `assertBlobKind` рядом: адрес блоба доезжает до
+ * `Store` не только из литерала в коде. Кэш стадии `voice` хранит его строкой в манифесте,
+ * take-файл — строкой в поле `pcm.sha256`, и оба читаются пакетом `voice`, который бренд
+ * `Sha256` НЕ РЕЗОЛВИТ вовсе (карта ADR-0009: `packages/voice/node_modules/@vpe/` — два
+ * симлинка, `@vpe/schema` среди них нет). Без этой функции у `voice` остался бы ровно один
+ * способ позвать `store.read` — каст в бренд, а он запрещён линтом во всём репозитории
+ * (`tests/lints/brand-casts.test.ts`) именно затем, чтобы проверка не подменялась обещанием.
+ *
+ * @throws `TypeError`, если строка не 64 строчных hex (`asSha256`, `S-01`).
+ */
+export function asBlobSha(value: string): Sha256 {
+  return asSha256(value);
 }

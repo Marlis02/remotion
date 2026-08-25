@@ -11,4 +11,4 @@ export {
   writeStoreLock,
   type StoreLockEntry,
 } from './lock.js';
-export { MissingBlobsError, assertBlobKind, type Store } from './types.js';
+export { MissingBlobsError, asBlobSha, assertBlobKind, type Store } from './types.js';

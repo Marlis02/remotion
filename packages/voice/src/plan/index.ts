@@ -26,6 +26,7 @@ export { splitChunkText, type ParagraphPart } from './split.js';
 
 export {
   speechPlan,
+  voiceKeyFieldsOf,
   type EffectiveVoice,
   type PlannedChunk,
   type RoleAssignment,
@@ -34,6 +35,14 @@ export {
 } from './speech-plan.js';
 
 export { TAKES_DIR, renderTakeFile, takeFilePath, writeTakeFile } from './take-file.js';
+
+export {
+  readTakeBytes,
+  stageVoiceCache,
+  voiceCacheFromTakes,
+  type VoiceCache,
+  type VoiceCacheRecord,
+} from './voice-cache.js';
 
 export {
   recordSpeechPlan,

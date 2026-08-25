@@ -5,7 +5,8 @@
     "rootDir": ".",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "// Почему src/**/*.json": "M-05: `cacheKeyView` — данные (K2), три файла `src/cache/views/*.json`. Без них в `include` компилятор отказывается их импортировать (TS6307), а `resolveJsonModule` копирует их в `dist/` вместе с кодом.",
+  "include": ["src/**/*.ts", "src/**/*.json", "test/**/*.ts"],
   "references": [
     { "path": "../core-model" },
     { "path": "../schema" }

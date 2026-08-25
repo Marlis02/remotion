@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "// Почему resolveJsonModule": "M-05, решение владельца 2026-08-25 (вопрос 1). `cacheKeyView` — ЛИТЕРАЛЬНЫЕ ДАННЫЕ (K2, ADR-0006 §6), а не код: три файла `packages/media/src/cache/views/*.json` импортируются формой `with { type: 'json' }`. Ts-литерал растянул бы букву K2 («данные, а не код»); YAML потребовал бы парсера, который в `media` не резолвится вовсе (`yaml` — зависимость `schema`). Новых зависимостей нет: это конфиг механизма, а не пакет.",
   "compilerOptions": {
     "target": "ES2023",
     "lib": ["ES2023"],
@@ -16,6 +17,8 @@
     "noUnusedParameters": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
 
     "composite": true,

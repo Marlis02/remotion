@@ -1,0 +1,11 @@
+# матрица мутации ключей (K1) — счёт полей
+
+compile-profile: 19 полей = 17 в view + 2 вне
+render-profile: 22 полей = 16 в view + 6 вне
+audio-profile: 21 полей = 0 в view + 21 вне
+
+segment: всего 62 полей; в ключе 33
+недостижимо в образце фикстуры: 0
+
+compose: 0 полей схем (входы стадии — хэши файлов и строки lockfile)
+voice: матрица в packages/voice/test/cache-matrix-voice.test.ts (там же upstream)

@@ -12,3 +12,7 @@ export * from './audio/index.js';
 // `M-04` — сборка: сегменты h264/MPEG-TS без аудио, конкат `-c copy`, единственный энкод
 // аудио при муксе, измеренный `StreamFingerprint`, `framemd5` под флагом.
 export * from './assemble/index.js';
+
+// `M-05` — кэш трёх стадий, ключи `composeKey`/`segmentKey`, `cacheKeyView` данными,
+// инъективная каноническая форма входа ключей (её потребляет и `voiceKey` из `@vpe/voice`).
+export * from './cache/index.js';

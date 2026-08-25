@@ -424,6 +424,11 @@ export function makeTake(fields: MakeTakeFields): Take {
 
   return {
     chunkKey,
+    // `voiceKey` — `null` НЕ ПО НЕДОСМОТРУ (`M-05`): он собирается из плана речи
+    // (`spokenChunkText`, провайдер, модель, голос, seed, `providerOpts`, `roleDigest`,
+    // версия тракта), а `makeTake` плана не видит и видеть не должен — это значение в памяти
+    // для тестов `V-01`. Тот же довод и та же форма, что у `sourceHash` строкой ниже.
+    voiceKey: null,
     spokenText,
     normalizerVersion: NORMALIZER_VERSION,
     sourceHash: null,

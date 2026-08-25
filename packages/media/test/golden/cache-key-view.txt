@@ -1,0 +1,165 @@
+# cacheKeyView: voice
+# ADR-0006 §2, §6
+# voiceKey = blake3( spokenChunkText, providerId, modelId, voiceId, seed, providerOpts, roleDigest, ttsPipelineVersion )
+
+fields (8):
+  01. spokenChunkText : text
+      = "The morning began the same way."
+  02. providerId : text
+      = "tts:mock@1"
+  03. modelId : text
+      = "mock-1"
+  04. voiceId : text
+      = "VPE_MOCK_VOICE_ID"
+  05. seed : int
+      = 7
+  06. providerOpts : json
+      = {"similarity_boost":0.75,"stability":0.5,"use_speaker_boost":true}
+      byName: [similarity_boost, stability, use_speaker_boost]
+  07. roleDigest : text
+      = "0000000000000000000000000000000000000000000000000000000000000000"
+  08. ttsPipelineVersion : text
+      = "tts-pipeline@1"
+
+upstream (9):
+  audio-profile/1:maxChunkChars -> spokenChunkText
+  project/1:voice.providerId -> providerId
+  project/1:voice.modelId -> modelId
+  project/1:voice.voiceId -> voiceId
+  project/1:voice.seed -> seed
+  voice-roles/1:roles[].roleId -> roleDigest
+  voice-roles/1:roles[].modelId -> modelId, roleDigest
+  voice-roles/1:roles[].voice_id -> voiceId, roleDigest
+  voice-roles/1:roles[].voice_settings -> providerOpts, roleDigest
+
+excluded (11):
+  audio-profile/1:takeAcceptance.*
+  audio-profile/1:speechEdges.*
+  audio-profile/1:deliverySampleRate
+  take.provenance.billedUnits
+  take.provenance.generatedAt
+  take.provenance.requestId
+  take.provenance.planTierAtGeneration
+  chunk.conditionedOn
+  chunk.chunkKey
+  chunk.sourceHash
+  take.normalizerVersion
+
+# cacheKeyView: compose
+# ADR-0006 §2, §6
+# composeKey = blake3( хэши исходников renderer-hyperframes и templates-*, релевантные строки lockfile, compilerVersion )
+
+fields (3):
+  01. sourceHashes : json
+      = {"renderer-hyperframes":"src-0001","templates-still":"src-0002"}
+      byName: [renderer-hyperframes, templates-still]
+  02. lockfileLines : json
+      = ["  hyperframes@1.0.0:","  gsap@3.12.5:"]
+  03. compilerVersion : text
+      = "compiler@1"
+
+upstream (0):
+
+excluded (3):
+  executionProfile.*
+  compositionHash
+  engineFingerprint
+
+# cacheKeyView: segment
+# ADR-0006 §2, §5, §6
+# segmentKey = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )
+
+fields (38):
+  01. segmentIrHash : text
+      = "ir-0001"
+  02. compileProfile.fps.num : int
+      = 30
+  03. compileProfile.fps.den : int
+      = 1
+  04. compileProfile.width : int
+      = 1080
+  05. compileProfile.height : int
+      = 1920
+  06. compileProfile.templateRegistryVersion : text
+      = "1"
+  07. compileProfile.safeAreas.top : int
+      = 180
+  08. compileProfile.safeAreas.bottom : int
+      = 320
+  09. compileProfile.safeAreas.left : int
+      = 60
+  10. compileProfile.safeAreas.right : int
+      = 60
+  11. compileProfile.defaultParagraphGapSamples : int
+      = 4320
+  12. compileProfile.defaultSceneGapSamples : int
+      = 7680
+  13. compileProfile.defaultChapterGapSamples : int
+      = 14400
+  14. compileProfile.minSegmentDurationFrames : int
+      = 45
+  15. compileProfile.maxDurationFrames : int
+      = 1800
+  16. compileProfile.captions.tokensPerGroupMin : int
+      = 2
+  17. compileProfile.captions.tokensPerGroupMax : int
+      = 4
+  18. compileProfile.captions.minGroupDurationFrames : int
+      = 6
+  19. pixelProfile.browserGpu : json
+      = false
+  20. pixelProfile.imageFormat : text
+      = "jpeg"
+  21. pixelProfile.jpegQuality : json
+      = [90]
+  22. pixelProfile.scale : json
+      = 1
+  23. pixelProfile.colorSpace : text
+      = "bt709"
+  24. pixelProfile.pixelFormat : text
+      = "yuv420p"
+  25. pixelProfile.codec : text
+      = "h264"
+  26. pixelProfile.crf : json
+      = 18
+  27. pixelProfile.gopSize : int
+      = 30
+  28. pixelProfile.encoder.threads : int
+      = 4
+  29. pixelProfile.encoder.preset : text
+      = "medium"
+  30. pixelProfile.encoder.tune : text
+      = "none"
+  31. pixelProfile.encoder.rcLookahead : int
+      = 40
+  32. pixelProfile.encoder.aqMode : int
+      = 1
+  33. pixelProfile.encoder.psy : int
+      = 1
+  34. pixelProfile.encoder.bitexact : json
+      = true
+  35. assetShas : json
+      = ["a1","a2"]
+  36. fontShas : json
+      = ["f1"]
+  37. gridShas : json
+      = []
+  38. engineFingerprint : text
+      = "engine-0001"
+
+upstream (0):
+
+excluded (13):
+  compileProfile.projectSampleRate
+  compileProfile.schema
+  renderProfile.schema
+  renderProfile.profileId
+  renderProfile.maxProbeDurationFrames
+  executionProfile.workers
+  executionProfile.chapterParallelism
+  executionProfile.segmentTimeoutMs
+  audioProfile.*
+  segment.reason
+  segment.createdAt
+  segment.retrievedAt
+  segment.framemd5Sha256

@@ -43,6 +43,7 @@ import {
   voiceKey,
   TTS_PIPELINE_VERSION,
   type ChunkAddress,
+  type VoiceKeyFields,
   type VoiceRolePreset,
 } from './keys.js';
 import { splitChunkText } from './split.js';
@@ -123,6 +124,23 @@ export interface PlannedChunk {
 export interface SpeechPlan {
   readonly file: string;
   readonly chunks: readonly PlannedChunk[];
+  /**
+   * Предел длины чанка, С КОТОРЫМ ЭТОТ ПЛАН ПОСТРОЕН (`M-05`, долг №105 — закрыт здесь).
+   *
+   * ПОЛЕ ЗАВЕДЕНО НЕ ДЛЯ УДОБСТВА. `tokensOfPlan` (`bind/tokens.ts`) обязана делить текст ТЕМ
+   * ЖЕ пределом, иначе раздача токенов построена по другому раскрою; до `M-05` значение
+   * передавалось ей вызывающим, то есть у него существовал второй источник. Расхождение и
+   * тогда не проходило молча (текст каждой части сверяется с `spokenChunkText` чанка), но
+   * ловилось ПОСЛЕ ошибки, а не вместо неё.
+   *
+   * ВТОРОЕ СЛЕДСТВИЕ, РАДИ КОТОРОГО ПОЛЕ ПОЯВИЛОСЬ ИМЕННО В `M-05` (долг №87): `maxChunkChars`
+   * — поле категории `upstream` в матрице мутации ключей. Оно не входит в `cacheKeyView`
+   * стадии `voice` ни одной строкой, но меняет РАСКРОЙ абзаца, то есть значение
+   * `spokenChunkText`, то есть `voiceKey`. Чтобы утверждать это механически — «действует
+   * ровно через одно названное поле проекции», — план обязан помнить, каким пределом он
+   * построен. Иначе утверждение проверялось бы значением, которое тест подставил сам.
+   */
+  readonly maxChunkChars: number;
 }
 
 /**
@@ -144,6 +162,38 @@ function sourceHashOf(source: SourceText, chunk: Chunk, part: { spoken: string; 
   const from = spokenToSource(chunk, part.spokenStart);
   const to = spokenToSource(chunk, part.spokenStart + length - 1) + 1;
   return blake3(sliceSource(source, from, to));
+}
+
+/**
+ * Восемь слагаемых `voiceKey` из того, чем сказан чанк, — ЕДИНСТВЕННЫЙ их конструктор.
+ *
+ * Заведён `M-05`. До него кортеж собирался прямо в литерале чанка, и матрица мутации, чтобы
+ * напечатать ПРОЕКЦИЮ ключа, вынуждена была бы собрать его второй раз у себя — то есть
+ * проверяла бы свою копию, а не то, из чего считается ключ. Теперь конструктор один, а тест
+ * сверяет `voiceKey(voiceKeyFieldsOf(chunk))` с `chunk.voiceKey` на каждом чанке плана.
+ */
+function keyFieldsOf(spoken: string, voice: EffectiveVoice, digest: string): VoiceKeyFields {
+  return {
+    spokenChunkText: spoken,
+    providerId: voice.providerId,
+    modelId: voice.modelId,
+    voiceId: voice.voiceId,
+    seed: voice.seed,
+    providerOpts: voice.providerOpts,
+    roleDigest: digest,
+    ttsPipelineVersion: TTS_PIPELINE_VERSION,
+  };
+}
+
+/**
+ * Те же восемь слагаемых по УЖЕ ПОСТРОЕННОМУ чанку — вход проекции `cacheKeyView` (`M-05`).
+ *
+ * Нужен матрице ключей: утверждение «поле `upstream` действует ровно через `spokenChunkText`»
+ * доказывается диффом ПРОЕКЦИИ, а спроецировать можно только мешок входов, а не чанк.
+ * Реализация одна на оба применения — см. `keyFieldsOf`.
+ */
+export function voiceKeyFieldsOf(chunk: PlannedChunk): VoiceKeyFields {
+  return keyFieldsOf(chunk.spokenChunkText, chunk.voice, chunk.roleDigest);
 }
 
 /** Роли, применимые к чанку: пересечение назначений на `ch:` главы и `sc:` сцены. */
@@ -220,16 +270,7 @@ export function speechPlan(input: SpeechPlanInput): SpeechPlan {
             };
             chunks.push({
               chunkKey: chunkKey(address, part.spoken),
-              voiceKey: voiceKey({
-                spokenChunkText: part.spoken,
-                providerId: voice.providerId,
-                modelId: voice.modelId,
-                voiceId: voice.voiceId,
-                seed: voice.seed,
-                providerOpts: voice.providerOpts,
-                roleDigest: digest,
-                ttsPipelineVersion: TTS_PIPELINE_VERSION,
-              }),
+              voiceKey: voiceKey(keyFieldsOf(part.spoken, voice, digest)),
               spokenChunkText: part.spoken,
               address,
               voice,
@@ -260,5 +301,5 @@ export function speechPlan(input: SpeechPlanInput): SpeechPlan {
     return { ...chunk, conditionedOn: neighbours };
   });
 
-  return { file: input.document.file, chunks: withStitch };
+  return { file: input.document.file, chunks: withStitch, maxChunkChars: input.maxChunkChars };
 }

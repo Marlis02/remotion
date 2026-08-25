@@ -1,6 +1,7 @@
 // `V-03` — ключи: инъективность канонической формы, состав `chunkKey`/`voiceKey`, три свойства
 // `roleDigest` (ADR-0010 §3a, ADR-0006 §2).
 
+import { CacheError } from '@vpe/media';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -81,10 +82,18 @@ describe('ADR-0010 §3a — каноническая форма входа кл�
     );
   });
 
+  // ПРАВКА `M-05`: класс ошибки сменился с `VoiceError` на `CacheError`, потому что сама
+  // каноническая форма переехала в `@vpe/media` (решение владельца 2026-08-25, вопрос 2:
+  // ключей три, считаются они в двух пакетах, форма у всех обязана быть ОДНОЙ). Проверяемое
+  // свойство при этом не ослаблено ни на букву — оно то же самое и в том же месте: разные
+  // значения не имеют права дать один ключ. Правило в имени ошибки стало точнее: было
+  // `ADR-0010 §3a` (ключи стадии `voice`), стало `ADR-0006 §2` (формулы всех трёх ключей).
   it('целое вне `Number.isSafeInteger` и `-0` отвергаются, а не приводятся молча', () => {
-    expect(() => canonicalFields([int(2 ** 53)])).toThrow(VoiceError);
+    expect(() => canonicalFields([int(2 ** 53)])).toThrow(CacheError);
     expect(() => canonicalFields([int(-0)])).toThrow(/-0/);
-    expect(() => canonicalFields([int(1.5)])).toThrow(VoiceError);
+    expect(() => canonicalFields([int(1.5)])).toThrow(CacheError);
+    // Правило названо ЗНАЧЕНИЕМ, а не текстом сообщения: по нему ищется охранник.
+    expect(() => canonicalFields([int(1.5)])).toThrow(/ADR-0006 §2/);
   });
 
   it('объектное поле канонизируется одной функцией: порядок ключей не влияет', () => {

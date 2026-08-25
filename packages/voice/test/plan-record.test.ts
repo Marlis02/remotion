@@ -244,6 +244,12 @@ describe('ADR-0010 §2 — take-файл самоописателен и леж�
         'sourceHash',
         'spokenText',
         'tailSamples',
+        // ПРАВКА `M-05` (решение владельца 2026-08-25, вопрос 3): `voiceKey` — поле
+        // КОММИТИМОГО артефакта. `.cache` в git не идёт, а без этого поля индекс
+        // `voiceKey → sha256` из take-файла не пересобирается ничем: в дубле нет ни
+        // `providerOpts`, ни `roleDigest`, ни `ttsPipelineVersion`. Цена — ~70 байт на файл;
+        // без неё `rm -rf .cache` стоит ДЕНЕГ. Кандидат в правку ADR-0010 §2 — в отчёте.
+        'voiceKey',
       ].sort(),
     );
     expect(Object.keys(parsed['provenance'] as object).sort()).toEqual(

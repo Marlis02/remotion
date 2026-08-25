@@ -35,11 +35,11 @@
 import path from 'node:path';
 
 import { asSamples } from '@vpe/core-model';
-import { bytesFromPcm, upsertEntry, type PcmS16, type Store, type StoreLockEntry } from '@vpe/media';
+import { bytesFromPcm, pcmFromBytes, upsertEntry, type PcmS16, type Store, type StoreLockEntry } from '@vpe/media';
 
 import { VoiceError } from '../errors.js';
 
-import type { TakeAcceptance } from '../acceptance/health.js';
+import { assessTake, explainRejection, type TakeAcceptance } from '../acceptance/health.js';
 import { isPronounceable, wordsOf } from '../bind/interval.js';
 import { providerTimestampsBinder } from '../bind/provider-timestamps.js';
 import type { Binder, SourceTokenRef, TakeBind } from '../bind/types.js';
@@ -57,6 +57,7 @@ import type { ProviderAlignment, Take, TakeHealth, TakeProvenance, TokenBinding 
 import { NORMALIZER_VERSION } from './keys.js';
 import type { PlannedChunk, SpeechPlan } from './speech-plan.js';
 import { takeFilePath, writeTakeFile } from './take-file.js';
+import { readTakeBytes, type VoiceCache, type VoiceCacheRecord } from './voice-cache.js';
 
 /** Что источник дубля отдаёт плану: ответ провайдера ПЛЮС фактические байты дорожки. */
 export interface VoiceSynthesis {
@@ -125,6 +126,20 @@ export interface RecordSpeechInput {
    * работала», а стоил бы AC6 для аудио.
    */
   readonly tokens?: (chunk: PlannedChunk) => readonly SourceTokenRef[];
+  /**
+   * Межсборочный кэш стадии `voice` (`M-05`, ADR-0006 §1). Не передан — работает прежний
+   * внутрипрогонный индекс, и только он.
+   *
+   * ВНЕДРЯЕТСЯ, А НЕ СОЗДАЁТСЯ ЗДЕСЬ, ровно как `store` и `binder`: путь до `.cache` — знание
+   * вызывающего, и тестовый контур подставляет сюда счётчик обращений вместо диска.
+   *
+   * ЧТО ИМЕННО МЕНЯЕТСЯ ОТ ЕГО ПОЯВЛЕНИЯ. Ничего в укладке: попадание кэша и попадание
+   * внутрипрогонного индекса дают ОДНУ И ТУ ЖЕ структуру `Recorded`, поэтому take-файл,
+   * привязки и запись `store.lock` собираются теми же строками. Меняется одно —
+   * `sourceCalls`: на прогретом кэше источник не зовётся ни разу, и это ровно то число,
+   * которое означает «сколько оплачено» (**K3** на стадии `voice`).
+   */
+  readonly cache?: VoiceCache;
 }
 
 /** Что уложено по одному чанку плана. */
@@ -136,6 +151,14 @@ export interface RecordedTake {
   readonly sha256: string;
   /** `false` — байты пришли из уже уложенного дубля с тем же `voiceKey` (**V4**). */
   readonly synthesized: boolean;
+  /**
+   * Откуда взялись байты (`M-05`). Три значения, и они РАЗНЫЕ по цене:
+   * `source` — заплачено сейчас; `run` — попадание внутрипрогонного индекса (рефрен, **V4**);
+   * `cache` — попадание МЕЖСБОРОЧНОГО кэша, то есть заплачено в прошлой сборке (долг №89).
+   * Различать их нужно отчёту сборки (ADR-0006 §12): «почему пересобралась глава 3» — это
+   * вопрос о том, чего именно не хватило в кэше.
+   */
+  readonly origin: 'source' | 'run' | 'cache';
   readonly take: Take;
 }
 
@@ -145,6 +168,8 @@ export interface RecordSpeechResult {
   readonly lock: StoreLockValue;
   /** Сколько раз позван источник дубля. Ровно это число и есть «сколько оплачено». */
   readonly sourceCalls: number;
+  /** Сколько чанков взяли байты из МЕЖСБОРОЧНОГО кэша. На холодном прогоне — ноль. */
+  readonly cacheHits: number;
   /**
    * WARN о дрейфе акустического лид-ина по серии (`V-04`, риск roadmap §4.5).
    *
@@ -167,6 +192,12 @@ interface Recorded {
    * функция байтов, а байты у одного `voiceKey` одни (на этом стоит **V4**). Повторный прогон
    * детектора для рефрена дал бы тот же ответ (идемпотентность покрыта тестом) и стоил бы
    * лишнего прохода по дорожке.
+   *
+   * ПОПАДАНИЕ МЕЖСБОРОЧНОГО КЭША ЗАПОЛНЯЕТ ЭТО ПОЛЕ ТЕМ ЖЕ ИЗМЕРЕНИЕМ (`M-05`), а не значением
+   * из кэша: `fromCache` зовёт `speechEdges` по байтам, прочитанным из CAS. Первая редакция
+   * клала края в запись кэша — и линт `V-04` (долг №85) покраснел, справедливо: величина,
+   * пришедшая в укладку готовой, есть возможность записать в коммитимый артефакт измерение,
+   * которого не было.
    */
   readonly edges: SpeechEdgeMeasurement;
   /**
@@ -260,6 +291,70 @@ async function bindChunk(
 }
 
 /**
+ * Восстановление `Recorded` из записи межсборочного кэша (`M-05`).
+ *
+ * ПОПАДАНИЕ НИЧЕГО НЕ ПРИНИМАЕТ НА ВЕРУ, КРОМЕ НЕВОСПРОИЗВОДИМОГО. Из кэша берутся ровно
+ * четыре величины: адрес байтов, длина, частота и ответ провайдера — то, чего нельзя
+ * пересчитать (ответ стоил денег и пришёл из сети). ВСЁ ОСТАЛЬНОЕ СЧИТАЕТСЯ ЗДЕСЬ, теми же
+ * функциями, что и на промахе: края — `speechEdges` (`V-04`), вердикт — `assessTake` (`V-02`).
+ *
+ * Так «попадание == промах» (**K3**, ADR-0006 §10) перестаёт быть свойством ХРАНЕНИЯ и
+ * становится свойством ПОСТРОЕНИЯ: подменить пересчитанное значение правкой файла в `.cache`
+ * невозможно, потому что оттуда оно не читается. Это не теория — линт `V-04` (долг №85)
+ * покраснел ровно на первой редакции, где края лежали в записи кэша.
+ *
+ * @throws {VoiceError} `ADR-0006 §8` — длина байтов разошлась с записью (кэш указывает на
+ *   чужой блоб), либо оплаченный дубль больше не проходит приёмку с ТЕКУЩИМИ порогами.
+ *   Второе — не ошибка кэша и не повод молча заплатить снова: пороги правил человек, и он
+ *   обязан это увидеть.
+ */
+async function fromCache(
+  input: RecordSpeechInput,
+  chunk: PlannedChunk,
+  hit: VoiceCacheRecord,
+): Promise<Recorded> {
+  const bytes = await readTakeBytes(input.store, hit);
+  const pcm = pcmFromBytes(hit.sampleRate, bytes);
+  if (pcm.samples.length !== hit.numSamples) {
+    throw new VoiceError(
+      'ADR-0006 §8',
+      `чанк ${chunk.chunkKey}: запись кэша обещает ${String(hit.numSamples)} сэмплов, а по ` +
+        `адресу \`${hit.sha256}\` лежит ${String(pcm.samples.length)}. Кэш указывает на чужие ` +
+        'байты — принять их значило бы записать в take-файл длину, которой у дорожки нет',
+    );
+  }
+
+  const health = assessTake({
+    spokenText: chunk.spokenChunkText,
+    alignment: hit.alignment,
+    numSamples: pcm.samples.length,
+    sampleRate: hit.sampleRate,
+    acceptance: input.acceptance,
+  });
+  if (health.verdict !== 'accepted') {
+    throw new VoiceError(
+      'ADR-0006 §8',
+      `чанк ${chunk.chunkKey}: оплаченный дубль \`${hit.sha256}\` не проходит приёмку с ` +
+        `текущими порогами: ${String(health.rejectReason)}; ` +
+        `${explainRejection({ spokenText: chunk.spokenChunkText, alignment: hit.alignment }, health)?.message ?? ''} ` +
+        'Молча позвать источник значило бы заплатить второй раз за то, что уже оплачено, а ' +
+        'молча принять — записать в коммитимый артефакт вердикт, которого приёмка не давала. ' +
+        'Пороги `takeAcceptance` правил человек — решать ему',
+    );
+  }
+
+  return {
+    sha256: hit.sha256,
+    numSamples: pcm.samples.length,
+    sampleRate: hit.sampleRate,
+    health,
+    edges: speechEdges(pcm, input.speechEdges),
+    pcm: bytes,
+    alignment: hit.alignment,
+  };
+}
+
+/**
  * Укладывает весь план: для каждого чанка — дубль, блоб, take-файл и запись в `store.lock`.
  *
  * @throws {VoiceError} `ADR-0010 §1 (M12)` — лестница приёмки исчерпана на каком-то чанке.
@@ -273,9 +368,29 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
   const drift: EdgeDriftEntry[] = [];
   let lock = input.lock;
   let sourceCalls = 0;
+  let cacheHits = 0;
 
   for (const chunk of input.plan.chunks) {
-    const known = byVoiceKey.get(chunk.voiceKey);
+    let known = byVoiceKey.get(chunk.voiceKey);
+    let origin: RecordedTake['origin'] = known === undefined ? 'source' : 'run';
+
+    // МЕЖСБОРОЧНЫЙ КЭШ — ВТОРОЙ ВОПРОС, А НЕ ПЕРВЫЙ (`M-05`). Сначала спрашивается индекс
+    // этого прогона: он уже держит байты в памяти, а кэш держит только адрес, по которому за
+    // ними придётся сходить в CAS. Порядок наблюдаем в числах — `sourceCalls` и `cacheHits`
+    // на рефрене дают 1 и 0, а не 1 и 1.
+    if (known === undefined && input.cache !== undefined) {
+      const hit = await input.cache.get(chunk.voiceKey);
+      if (hit !== undefined) {
+        known = await fromCache(input, chunk, hit);
+        byVoiceKey.set(chunk.voiceKey, known);
+        cacheHits += 1;
+        origin = 'cache';
+        // В серию дрейфа краёв (`V-04`) попадание НЕ добавляется: серия оценивает поведение
+        // ПРОВАЙДЕРА в этой сборке, а здесь провайдер не работал. Иначе прогретый прогон
+        // «подтверждал» бы дрейф числами прошлой сборки.
+      }
+    }
+
     const synthesized = known === undefined;
     let recorded: Recorded;
 
@@ -322,14 +437,31 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
       byVoiceKey.set(chunk.voiceKey, recorded);
       drift.push({ leadInSamples: recorded.edges.leadInSamples, sampleRate: recorded.sampleRate });
       lock = upsertEntry(lock, lockEntry(sha, bytes.length, chunk.voice.providerId));
+      // Запись в кэш — ПОСЛЕ `store.put`, и порядок значим: сначала байты в CAS, потом адрес
+      // в кэше. Обрыв между шагами оставит оплаченные байты без записи о них (следующая
+      // сборка заплатит снова — плохо, но честно); обратный порядок оставил бы в кэше адрес,
+      // по которому байтов нет, то есть попадание, ведущее в пустоту.
+      if (input.cache !== undefined) {
+        await input.cache.put(chunk.voiceKey, {
+          sha256: recorded.sha256,
+          numSamples: recorded.numSamples,
+          sampleRate: recorded.sampleRate,
+          alignment: recorded.alignment,
+        });
+      }
     } else {
       recorded = known;
     }
 
     const bound = await bindChunk(input, chunk, recorded);
 
+
     const take: Take = {
       chunkKey: chunk.chunkKey,
+      // `voiceKey` в КОММИТИМОМ артефакте (`M-05`, решение владельца, вопрос 3): без него
+      // индекс `voiceKey → sha256` жил бы только в игнорируемом git каталоге `.cache`, и его
+      // потеря стоила бы денег. Здесь он настоящий — план его посчитал.
+      voiceKey: chunk.voiceKey,
       spokenText: chunk.spokenChunkText,
       normalizerVersion: NORMALIZER_VERSION,
       sourceHash: chunk.sourceHash,
@@ -365,9 +497,10 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
       takeFile,
       sha256: recorded.sha256,
       synthesized,
+      origin,
       take,
     });
   }
 
-  return { takes, lock, sourceCalls, edgeDrift: assessEdgeDrift(drift) };
+  return { takes, lock, sourceCalls, cacheHits, edgeDrift: assessEdgeDrift(drift) };
 }
