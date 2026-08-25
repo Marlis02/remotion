@@ -23,17 +23,24 @@
 // переехали в `packages/voice/src/acceptance/`: приёмка судит ОТВЕТ провайдера и потому не
 // может принадлежать провайдеру. `takeHealth` ниже — тонкий делегат, оставленный ради
 // потребителей `V-01`; mock стал ПОТРЕБИТЕЛЕМ приёмки, а не её хозяином.
+//
+// ПРАВИЛА ИНТЕРВАЛА ТОКЕНА ЗДЕСЬ ТОЖЕ БОЛЬШЕ НЕТ (`V-05`). `tokenIntervals` переехало в
+// `packages/voice/src/bind/interval.ts` по тому же доводу: правило ADR-0010 §6 принадлежит
+// стадии `bind`, а не провайдеру, и его адрес назван отчётом `V-04` §6 п. 6. Вместе с ним
+// ушли и выдуманные идентификаторы якорей: `makeTake` больше не собирает их из порядкового
+// номера токена — они приходят входом либо привязок нет вовсе (см. `makeTake`).
 
 import { assertSafeInteger, msToSamples, type Samples } from '@vpe/core-model';
 import { PCM_SAMPLE_MAX, PCM_SAMPLE_MIN, bytesFromPcm, pcmS16, type PcmS16 } from '@vpe/media';
 
 import { VoiceError } from '../errors.js';
 
-import { assessTake, timeAt, type TakeAcceptance } from '../acceptance/health.js';
+import { assessTake, type TakeAcceptance } from '../acceptance/health.js';
+import { PROVIDER_TIMESTAMPS, bindProviderTimestamps } from '../bind/provider-timestamps.js';
+import type { SourceTokenRef } from '../bind/types.js';
 import { NORMALIZER_VERSION } from '../plan/keys.js';
 
 import { sampleRateOfPcmFormat } from './capabilities.js';
-import { providerSecondsToSamples } from './time.js';
 import type {
   PcmFormat,
   ProviderAlignment,
@@ -346,98 +353,14 @@ export function takeHealth(
   return assessTake({ spokenText, alignment, numSamples, sampleRate, acceptance });
 }
 
-// --- правило интервала токена (ADR-0010 §6) ----------------------------------
-
-/**
- * Произносим ли токен: есть ли в нём хоть одна буква или цифра.
- *
- * ПОЧЕМУ ПО КЛАССУ СИМВОЛА, А НЕ ПО ИЗМЕРЕННОЙ ДЛИТЕЛЬНОСТИ. У `tts:mock@1` эмодзи получает
- * обычную длительность буквы — он арифметический и про произносимость ничего не знает. У
- * настоящего провайдера `FACT` (SP-2 U6): непроизносимые code points получают интервал
- * НУЛЕВОЙ длины. Если бы статус выводился из длительности, правило «токен из одних
- * непроизносимых ⇒ `absent`» (ADR-0010 §1, §5, **V8**) на mock'е не срабатывало бы вовсе, то
- * есть его нельзя было бы проверить в тестовом контуре — а именно там оно и проверяется.
- *
- * `\p{L}`/`\p{N}` — обычные regexp-эскейпы ECMAScript (ES2018), не `Intl` и не локаль:
- * запрет V8/D4 их не касается, результат от часового пояса и языка среды не зависит.
- * Цена названа: таблица Unicode — свойство движка, а версия Node пиньётся `engines`
- * (долг с адресом в `docs/DEBTS.md`).
- */
-const isPronounceable = (text: string): boolean => /[\p{L}\p{N}]/u.test(text);
-
-/**
- * Интервал токена. `absent` времени НЕ несёт — ни `[t, t]`, ни `null`-заглушки в секундах.
- *
- * Размеченное объединение, а не поле-флаг: см. `TokenBinding` в `types.ts`.
- */
-export type TokenInterval =
-  | {
-      readonly text: string;
-      readonly startIndex: number;
-      readonly status: 'measured';
-      /** Секунды: интервал живёт в домене таймкодов провайдера, перевод — в `makeTake`. */
-      readonly start: number;
-      readonly end: number;
-    }
-  | {
-      readonly text: string;
-      readonly startIndex: number;
-      readonly status: 'absent';
-      readonly start: null;
-      readonly end: null;
-    };
-
-/**
- * Интервал токена = `[start` первого небелого символа, `end` последнего небелого символа`]`;
- * пробелы и пунктуация НЕ входят.
- *
- * `FACT` (SP-2, findings D10 п.6 + SP-2b.3, два голоса, 5 разделителей): вся межпредложенческая
- * пауза лежит на знаке и пробелах, сумма «знак + пробелы» равна зазору на 5/5 вариантах.
- * Правило исключает ровно эти две категории — и потому переменность пропорции ему безразлична.
- */
-export function tokenIntervals(alignment: ProviderAlignment): readonly TokenInterval[] {
-  const chars = alignment.characters;
-  const out: TokenInterval[] = [];
-  let cur: { text: string; startIndex: number; start: number; end: number } | null = null;
-
-  /**
-   * Закрыть накопленный токен. Здесь и только здесь решается статус (**V8**): токен без единой
-   * буквы и цифры уходит `absent` и СВОЁ ИЗМЕРЕННОЕ ВРЕМЯ ТЕРЯЕТ — иначе субтитр получил бы
-   * слово нулевой (у настоящего провайдера) длительности, и это прошло бы мимо всех проверок.
-   */
-  const flush = (token: { text: string; startIndex: number; start: number; end: number }): void => {
-    out.push(
-      isPronounceable(token.text)
-        ? { text: token.text, startIndex: token.startIndex, status: 'measured', start: token.start, end: token.end }
-        : { text: token.text, startIndex: token.startIndex, status: 'absent', start: null, end: null },
-    );
-  };
-
-  for (let i = 0; i < chars.length; i += 1) {
-    const c = chars[i] ?? '';
-    const wordish =
-      // Парные кавычки — эскейпами (F11 ADR-0010 §10): “ и ” от `"` глазами не отличаются.
-      !isSpace(c) && !isPunct(c) && c !== '"' && c !== '\u201C' && c !== '\u201D';
-    if (wordish) {
-      const end = timeAt(alignment.character_end_times_seconds, i, 'character_end_times_seconds');
-      if (cur === null) {
-        cur = {
-          text: '',
-          startIndex: i,
-          start: timeAt(alignment.character_start_times_seconds, i, 'character_start_times_seconds'),
-          end,
-        };
-      }
-      cur.text += c;
-      cur.end = end;
-    } else if (cur !== null) {
-      flush(cur);
-      cur = null;
-    }
-  }
-  if (cur !== null) flush(cur);
-  return out;
-}
+// --- правило интервала токена (ADR-0010 §6): ПЕРЕЕХАЛО В `bind/interval.ts` (`V-05`) -------
+//
+// Здесь его больше нет ни строкой. Правило принадлежит стадии `bind`, а не провайдеру: его
+// адрес назван отчётом `V-04` §6 п. 6 дословно («его адрес `V-05`»), и потребителей у него
+// теперь двое — биндер и этот файл. Mock остаётся ПОТРЕБИТЕЛЕМ правила, ровно как он уже
+// потребитель приёмки (`V-02`). Единственное изменение поведения при переезде — классы
+// символов перестали браться из таблицы пауз mock'а и стали свойствами Unicode; на выходе
+// `tts:mock@1` это ноль отличий (разбор — шапка `bind/interval.ts`).
 
 // --- дубль (ADR-0010 §2) -----------------------------------------------------
 
@@ -449,6 +372,13 @@ export interface MakeTakeFields {
   readonly acceptance: TakeAcceptance;
   /** `null` до `V-03`: CAS в `V-01` не пишется (решение владельца, вопрос 2). */
   readonly sha256?: string | null;
+  /**
+   * Токены исходника с якорями (`V-05`). Их НЕТ у mock'а и быть не может: якоря живут в
+   * ledger'е (`C-04`), а провайдер исходника не видит вовсе. Приходят входом — тогда дубль
+   * получает настоящие привязки; не приходят — привязок нет, и это честное значение
+   * (решение владельца, `V-05` вопрос 5).
+   */
+  readonly tokens?: readonly SourceTokenRef[];
 }
 
 /**
@@ -458,26 +388,39 @@ export interface MakeTakeFields {
  * обязательно (ADR-0010 §2, `V-05`) — пустое место здесь означало бы, что `V-06` может о нём
  * забыть. `billedUnits: 0` — mock ничего никуда не отправляет; у живого провайдера это будет
  * число отправленных code points `spokenChunkText`.
+ *
+ * ПРИВЯЗКИ БОЛЬШЕ НЕ ВЫДУМЫВАЮТСЯ (`V-05`, решение владельца, вопрос 5). До этой задачи
+ * `makeTake` собирал идентификатор якоря строкой из порядкового номера токена. Это подделка
+ * адреса в пространстве, которое минтится РОВНО в одном файле репозитория
+ * (`core-model/src/anchors/mint.ts`, 128 бит CSPRNG, ADR-0004 §4), и в коммитимом артефакте
+ * она того же класса, что нулевой `leadInSamples` до `V-04` (долг №85): значение выразимо,
+ * проверить его нечем, а выглядит оно как измеренное. Теперь якоря приходят ВХОДОМ либо
+ * привязок нет вовсе.
  */
 export function makeTake(fields: MakeTakeFields): Take {
-  const { chunkKey, spokenText, seed, acceptance, sha256 } = fields;
+  const { chunkKey, spokenText, seed, acceptance, sha256, tokens } = fields;
   const r = synthesize({ text: spokenText, seed });
   const numSamples = r.__mock.numSamples;
   const health = takeHealth(spokenText, r.alignment, numSamples, acceptance);
 
-  // Статус токена ПОРОЖДАЕТСЯ здесь и в `tokenIntervals`, а не проверяется постфактум:
-  // `absent` уходит без сэмплов вовсе (**V8**), и выразить его иначе тип не даёт.
-  const bindings: TokenBinding[] = tokenIntervals(r.alignment).map((t, i) =>
-    t.status === 'absent'
-      ? { anchorId: `w:${String(i)}`, startSample: null, endSample: null, status: 'absent', confidence: null }
+  // Привязки порождает СТАДИЯ `bind`, а не провайдер: mock здесь её потребитель, ровно как он
+  // потребитель приёмки. Без токенов исходника привязывать нечего — и список пуст.
+  const bound =
+    tokens === undefined || tokens.length === 0
+      ? { bindings: [] as readonly TokenBinding[], bind: null }
       : {
-          anchorId: `w:${String(i)}`,
-          startSample: providerSecondsToSamples(t.start, MOCK_SAMPLE_RATE),
-          endSample: providerSecondsToSamples(t.end, MOCK_SAMPLE_RATE),
-          status: 'measured',
-          confidence: 1,
-        },
-  );
+          bindings: bindProviderTimestamps({
+            sampleRate: MOCK_SAMPLE_RATE,
+            spokenText,
+            tokens,
+            providerAlignment: r.alignment,
+          }),
+          bind: {
+            binderId: PROVIDER_TIMESTAMPS,
+            tokens,
+            providerAlignment: r.alignment,
+          },
+        };
 
   return {
     chunkKey,
@@ -500,7 +443,8 @@ export function makeTake(fields: MakeTakeFields): Take {
       generatedAt: null,
       conditionedOn: [],
     },
-    bindings,
+    bindings: bound.bindings,
+    bind: bound.bind,
   };
 }
 

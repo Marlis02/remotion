@@ -14,9 +14,17 @@ import { describe, expect, it } from 'vitest';
 
 import { MOCK_SAMPLE_RATE, makeTake, providerSecondsToSamples, synthPcm, synthesize } from '../src/index.js';
 
+import { refsOf } from './bind-helpers.js';
 import { fixtureTakeAcceptance } from './fixture.js';
 
 const TXT = 'Dr. Smith arrived, and the tide turned.';
+/**
+ * Токены исходника с настоящими якорями (`V-05`). БЕЗ них `makeTake` привязок не порождает
+ * вовсе, и все три сравнения ниже сверяли бы пустой список с пустым — то есть зеленели бы на
+ * пустоте. Это тот же класс дефекта, что нашёл протокол `V-03` (правило, не попадающее в
+ * граничную точку ни одной пробой, не охраняется).
+ */
+const TOKENS = refsOf(TXT);
 /** Пороги — из `fixtures/minimal/profiles/audio.yaml`, а не из литералов (`V-02`). */
 const ACCEPTANCE = fixtureTakeAcceptance();
 
@@ -35,8 +43,9 @@ describe('детерминизм синтеза', () => {
   });
 
   it('один вход и один seed — те же интервалы токенов и те же привязки', () => {
-    const a = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE });
-    const b = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE });
+    const a = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE, tokens: TOKENS });
+    const b = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 3, acceptance: ACCEPTANCE, tokens: TOKENS });
+    expect(a.bindings.length).toBe(TOKENS.length);
     expect(a.bindings).toEqual(b.bindings);
     expect(a.health).toEqual(b.health);
   });
@@ -48,9 +57,10 @@ describe('детерминизм синтеза', () => {
     expect(a.alignment).toEqual(b.alignment);
     // Свойство, ради которого mock вообще пишется: калибровка `A-03` меряет ошибку алигнера
     // против ИЗВЕСТНОЙ истины, и seed на эту истину влиять не имеет права.
-    expect(makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE }).bindings).toEqual(
-      makeTake({ chunkKey: 'k', spokenText: TXT, seed: 2, acceptance: ACCEPTANCE }).bindings,
-    );
+    const one = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE, tokens: TOKENS });
+    const two = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 2, acceptance: ACCEPTANCE, tokens: TOKENS });
+    expect(one.bindings.length).toBe(TOKENS.length);
+    expect(one.bindings).toEqual(two.bindings);
   });
 
   it('прогон подряд не накапливает состояние: третий вызов равен первому', () => {
@@ -72,7 +82,7 @@ describe('длина PCM привязана к расписанию, а не «�
 
   it('хвостового остатка нет: end[last] совпадает с концом дорожки', () => {
     const r = synthesize({ text: TXT, seed: 1 });
-    const take = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE });
+    const take = makeTake({ chunkKey: 'k', spokenText: TXT, seed: 1, acceptance: ACCEPTANCE, tokens: TOKENS });
     const n = r.alignment.characters.length;
     const lastEnd = r.alignment.character_end_times_seconds[n - 1] ?? Number.NaN;
     expect(providerSecondsToSamples(lastEnd, MOCK_SAMPLE_RATE)).toBe(r.__mock.numSamples);

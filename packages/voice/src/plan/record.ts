@@ -18,6 +18,14 @@
 // КОММИТИМЫЙ артефакт, тогда как `FACT` (SP-2 U4.3) настоящий лид-ин — 95–100 мс. Детектор
 // зовётся на промахе `voiceKey`, вместе с укладкой байтов, и его ответ кладётся рядом с ними.
 //
+// ПРИВЯЗКИ ТОЖЕ СЧИТАЮТСЯ ЗДЕСЬ (`V-05`, ADR-0010 §5), а не приходят готовым списком. До этой
+// задачи поле называлось `bindings` и несло функцию «чанк → готовые привязки»; тогда в
+// коммитимый артефакт можно было положить любой список, в том числе выдуманный, — тот же класс
+// дефекта, что края-параметры до `V-04` (долг №85). Теперь входом приходят ТОКЕНЫ с якорями
+// (их минтит `C-04`, и это не дело укладки) и БИНДЕР (его выбирает вызывающий), а привязки
+// ВЫЧИСЛЯЮТСЯ. Стадия зовётся на каждый чанк: у рефрена один звук на два места (**V4**), и
+// привязки у них разные, потому что якоря разные.
+//
 // СЕТИ ЗДЕСЬ НЕТ И БЫТЬ НЕ МОЖЕТ: источник дубля ВНЕДРЯЕТСЯ (тот же приём, что у лестницы
 // `V-02`), поэтому весь путь исполним в тестовом контуре без ключа и без сети (**V9**).
 // Гейт ADR-0006 §9 («промах ключа не зовёт сеть молча, сборка падает без `--allow-tts`») стоит
@@ -29,7 +37,12 @@ import path from 'node:path';
 import { asSamples } from '@vpe/core-model';
 import { bytesFromPcm, upsertEntry, type PcmS16, type Store, type StoreLockEntry } from '@vpe/media';
 
+import { VoiceError } from '../errors.js';
+
 import type { TakeAcceptance } from '../acceptance/health.js';
+import { isPronounceable, wordsOf } from '../bind/interval.js';
+import { providerTimestampsBinder } from '../bind/provider-timestamps.js';
+import type { Binder, SourceTokenRef, TakeBind } from '../bind/types.js';
 import {
   assessEdgeDrift,
   speechEdges,
@@ -90,10 +103,28 @@ export interface RecordSpeechInput {
   readonly speechEdges: SpeechEdgesParams;
   readonly provenance: RecordProvenance;
   /**
-   * Привязки токенов. **Вход, а не вычисление:** стадия `bind` — это `V-05`, и её интерфейс
-   * `Binder` там же. Пустой список — законное значение, означающее «привязок ещё нет».
+   * Чем привязывать токены ко времени (`V-05`, ADR-0010 §5). Умолчание — дефолтный биндер v1
+   * `provider-timestamps@1`.
+   *
+   * ВНЕДРЯЕТСЯ, А НЕ ВЫБИРАЕТСЯ ПО ИМЕНИ. Переход на forced alignment — это подстановка
+   * другого значения в это поле, и ни одной строки здесь он не меняет; выбор по `binderId`
+   * запрещён (**V16**) и охраняется тем же двойным охранником, что и выбор провайдера.
    */
-  readonly bindings?: (chunk: PlannedChunk) => readonly TokenBinding[];
+  readonly binder?: Binder;
+  /**
+   * Токены исходника с их якорями — второй вход стадии `bind` (ADR-0010 §5).
+   *
+   * ВХОД, А НЕ ВЫЧИСЛЕНИЕ, И ПРИЧИНА НЕ В УДОБСТВЕ: якоря минтит `C-04` (`syncLedger`), а
+   * укладка дубля ledger'а не видит и видеть не должна — минт есть акт авторства и живёт в
+   * `core-model`. Готовую раздачу строит `tokensOfPlan` (`bind/tokens.ts`).
+   *
+   * Поле НЕОБЯЗАТЕЛЬНО: дубль без стадии `bind` законен и записывается с пустыми
+   * `bindings[]` и `bind: null` (решение владельца, `V-05` вопрос 5). Но если раздача
+   * ПРИШЛА и оказалась пустой для чанка, в котором есть произносимые слова, — это отказ, а
+   * не пустой список: молча записанный пустой `bindings[]` неотличим от «стадия не
+   * работала», а стоил бы AC6 для аудио.
+   */
+  readonly tokens?: (chunk: PlannedChunk) => readonly SourceTokenRef[];
 }
 
 /** Что уложено по одному чанку плана. */
@@ -138,6 +169,16 @@ interface Recorded {
    * лишнего прохода по дорожке.
    */
   readonly edges: SpeechEdgeMeasurement;
+  /**
+   * Байты дорожки и ответ провайдера — входы стадии `bind` (`V-05`).
+   *
+   * ЛЕЖАТ ЗДЕСЬ ПО ТОЙ ЖЕ ПРИЧИНЕ, ЧТО И КРАЯ, И ЭТО НЕ КЭШ РАДИ СКОРОСТИ. Рефрен (**V4**)
+   * — один оплаченный дубль на ДВА чанка с разными `chunkKey`, разными местами и разными
+   * якорями; привязки у них поэтому РАЗНЫЕ, а звук и таймкоды — одни. Не сохрани мы их на
+   * попадании ключа, второй чанк остался бы без привязок вовсе — молча.
+   */
+  readonly pcm: Uint8Array;
+  readonly alignment: ProviderAlignment | null;
 }
 
 /**
@@ -163,6 +204,59 @@ function billedUnits(spokenText: string): number {
  */
 function lockEntry(sha256: string, size: number, providerId: string): StoreLockEntry {
   return { sha256, size, kind: 'voice', origin: providerId, replicas: [] };
+}
+
+/** Что стадия `bind` положила в take-файл: потребляемый выход и входы пересчёта. */
+interface BoundChunk {
+  readonly bindings: readonly TokenBinding[];
+  readonly bind: TakeBind | null;
+}
+
+/**
+ * Стадия `bind` над одним чанком (`V-05`, ADR-0010 §5).
+ *
+ * Зовётся НА КАЖДЫЙ чанк, а не на каждый оплаченный дубль: у рефрена звук один, а места и
+ * якоря — разные (**V4**), значит и привязки разные.
+ *
+ * @throws {VoiceError} `ADR-0010 §5` — раздача токенов пришла, но для чанка с произносимыми
+ *   словами оказалась пустой. Пустой `bindings[]` в артефакте означает «стадия не работала», и
+ *   записать его вместо потерянных токенов значило бы соврать в коммитимом файле.
+ */
+async function bindChunk(
+  input: RecordSpeechInput,
+  chunk: PlannedChunk,
+  recorded: Recorded,
+): Promise<BoundChunk> {
+  if (input.tokens === undefined) return { bindings: [], bind: null };
+
+  const tokens = input.tokens(chunk);
+  if (tokens.length === 0) {
+    const spoken = wordsOf([...chunk.spokenChunkText]).filter((word) => isPronounceable(word.text));
+    if (spoken.length > 0) {
+      throw new VoiceError(
+        'ADR-0010 §5',
+        `чанк ${chunk.chunkKey}: раздача токенов вернула пустой список, а в отправленном ` +
+          `тексте ${String(spoken.length)} произносимы(х) слов(а). Пустые привязки в ` +
+          'take-файле читаются как «стадия `bind` не работала», то есть потерянные токены ' +
+          'стали бы неотличимы от их отсутствия. Вероятная причина: раздача построена по ' +
+          'другому плану либо по другому разбору исходника.',
+      );
+    }
+    return { bindings: [], bind: null };
+  }
+
+  const binder = input.binder ?? providerTimestampsBinder;
+  const bindings = await binder.bind(
+    recorded.pcm,
+    recorded.sampleRate,
+    chunk.spokenChunkText,
+    tokens,
+    recorded.alignment ?? undefined,
+  );
+  return {
+    bindings,
+    bind: { binderId: binder.binderId, tokens, providerAlignment: recorded.alignment },
+  };
 }
 
 /**
@@ -222,6 +316,8 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
         sampleRate: accepted.attempt.sampleRate,
         health: accepted.health,
         edges: speechEdges(last.pcm, input.speechEdges),
+        pcm: bytes,
+        alignment: accepted.attempt.alignment,
       };
       byVoiceKey.set(chunk.voiceKey, recorded);
       drift.push({ leadInSamples: recorded.edges.leadInSamples, sampleRate: recorded.sampleRate });
@@ -229,6 +325,8 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
     } else {
       recorded = known;
     }
+
+    const bound = await bindChunk(input, chunk, recorded);
 
     const take: Take = {
       chunkKey: chunk.chunkKey,
@@ -255,7 +353,8 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
         generatedAt: input.provenance.generatedAt ?? null,
         conditionedOn: chunk.conditionedOn,
       },
-      bindings: input.bindings?.(chunk) ?? [],
+      bindings: bound.bindings,
+      bind: bound.bind,
     };
 
     const takeFile = takeFilePath(chunk.chunkKey);

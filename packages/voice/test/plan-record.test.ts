@@ -230,6 +230,10 @@ describe('ADR-0010 §2 — take-файл самоописателен и леж�
     >;
     expect(Object.keys(parsed).sort()).toEqual(
       [
+        // `bind` — входы пересчёта привязок (`V-05`, решение владельца, вопрос 4). Здесь он
+        // `null`: укладка `V-03` зовётся без раздачи токенов, и дубль записан без стадии
+        // `bind` — честное значение, а не пропуск поля.
+        'bind',
         'bindings',
         'chunkKey',
         'health',
@@ -312,7 +316,9 @@ A ship came in on the night tide \u{1F6A2} and the town woke.
     expect(text.endsWith('\n')).toBe(true);
     expect(text.trimEnd().split('\n')).toHaveLength(1);
     // Ключи отсортированы на верхнем уровне байтовым компаратором — свойство `canonicalJson`.
-    expect(text.startsWith('{"bindings":')).toBe(true);
+    // Первым идёт `bind` (`V-05`), а не `bindings`: `d` < `i` в UTF-8, и порядок ключей — это
+    // порядок БАЙТОВ, а не порядок чтения документа ADR-0010 §2.
+    expect(text.startsWith('{"bind":')).toBe(true);
   });
 });
 

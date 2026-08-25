@@ -24,11 +24,13 @@
 import { bytesFromPcm, type PcmS16 } from '@vpe/media';
 import { describe, expect, it } from 'vitest';
 
+import { refsOf } from './bind-helpers.js';
 import { fixtureTakeAcceptance } from './fixture.js';
 
 import {
   MOCK_PROFILE,
   MOCK_SAMPLE_RATE,
+  PROVIDER_TIMESTAMPS,
   capabilities,
   makeTake,
   providerSecondsToSamples,
@@ -147,6 +149,10 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
     expect(h.rejectReason).toBe('no-alignment');
   });
 
+  // ПРАВИЛО ИНТЕРВАЛА ТОКЕНА ЖИВЁТ ТЕПЕРЬ В `bind/` (`V-05`), а этот тест остаётся здесь и
+  // остаётся про MOCK: он проверяет, что РАСПИСАНИЕ синтеза кладёт паузу на знак и пробел, а
+  // не внутрь буквы. Правило §6 на пяти разделителях и статусы токенов переехали вместе со
+  // стадией — `test/bind.test.ts` и `test/token-status.test.ts`.
   it('правило интервала токена D10 п.6: знак и пробел в слово не входят', () => {
     const r = synthesize({ text: 'stop. Then', seed: SEED });
     const toks = tokenIntervals(r.alignment);
@@ -217,10 +223,13 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
   });
 
   it('дубль по раскладке ADR-0010 §2 собирается и содержит обязательные поля', () => {
-    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE, sha256: 'deadbeef' });
+    const take = makeTake({
+      chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE, sha256: 'deadbeef',
+      tokens: refsOf(TXT),
+    });
     for (const k of [
       'chunkKey', 'spokenText', 'normalizerVersion', 'pcm', 'leadInSamples', 'tailSamples',
-      'health', 'provenance', 'bindings',
+      'health', 'provenance', 'bindings', 'bind',
     ]) {
       expect(k in take, `нет поля ${k}`).toBe(true);
     }
@@ -237,9 +246,32 @@ describe('`tts:mock@1` — перенос SP-2, блок 8', () => {
   });
 
   it('bindings не пересекаются и идут по возрастанию', () => {
-    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE });
+    const take = makeTake({
+      chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE, tokens: refsOf(TXT),
+    });
+    expect(take.bindings.length > 1).toBe(true);
     for (let i = 1; i < take.bindings.length; i += 1) {
       expect((take.bindings[i]?.startSample ?? -1) >= (take.bindings[i - 1]?.endSample ?? -1)).toBe(true);
     }
+  });
+
+  // ПРАВКА `V-05`: без токенов исходника дубль привязок НЕ ИМЕЕТ, и это честное значение.
+  // До этой задачи `makeTake` собирал идентификатор якоря из порядкового номера токена —
+  // подделка адреса пространства, которое минтится только в `core-model` (ADR-0004 §4).
+  it('без токенов исходника привязок нет вовсе: `bindings: []` и `bind: null`', () => {
+    const take = makeTake({ chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE });
+    expect(take.bindings).toEqual([]);
+    expect(take.bind).toBeNull();
+  });
+
+  it('с токенами дубль несёт и привязки, и входы их пересчёта', () => {
+    const tokens = refsOf(TXT);
+    const take = makeTake({
+      chunkKey: 'test0000', spokenText: TXT, seed: SEED, acceptance: ACCEPTANCE, tokens,
+    });
+    expect(take.bindings.length).toBe(tokens.length);
+    expect(take.bind?.binderId).toBe(PROVIDER_TIMESTAMPS);
+    expect(take.bind?.tokens).toEqual(tokens);
+    expect(take.bind?.providerAlignment).toEqual(synthesize({ text: TXT, seed: SEED }).alignment);
   });
 });

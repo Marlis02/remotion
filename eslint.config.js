@@ -166,6 +166,14 @@ const CAPS = 'ADR-0010 §8 / `V-01`: ветвление по CAPABILITIES, а н
 
 const OPERATOR = '/^(===|!==|==|!=)$/';
 
+// ── ADR-0010 §5: то же правило для БИНДЕРА (`V-05`) ────────────────────────────────
+// Стадия `bind` вводится с интерфейсом ровно затем, чтобы переход на forced alignment был
+// подстановкой значения, а не хирургией по Timeline (ADR-0010 §5). Первое же
+// `if (binderId === 'provider-timestamps@1')` возвращает всё туда, откуда `V-01` уводила
+// провайдеров: два частных случая вместо одной формы. Потребитель спрашивает у ПОЛЕЙ
+// (`requiresNetwork`) и у самих привязок (`status`, `confidence`), а не у имени.
+const BINDER = 'ADR-0010 §5 / `V-05`: ветвление по ВОЗМОЖНОСТЯМ И ПОЛЯМ биндера, а не по его имени. `binderId` законен в take-файле («чем измерено») и в ключе стадии, но не в условии: спросите `requiresNetwork` у биндера либо `status`/`confidence` у самой привязки. Причина та же, что у `providerId` (**V16**): интерфейс, по которому ветвятся именем, — это не интерфейс, а таблица частных случаев, и первый же акустический биндер (`ctc-fa@1`, `mfa@3`) окажется правкой всех его читателей.';
+
 const CAPABILITY_SYNTAX = [
   { selector: `BinaryExpression[operator=${OPERATOR}][left.name='providerId']`, message: CAPS },
   { selector: `BinaryExpression[operator=${OPERATOR}][right.name='providerId']`, message: CAPS },
@@ -173,6 +181,12 @@ const CAPABILITY_SYNTAX = [
   { selector: `BinaryExpression[operator=${OPERATOR}][right.property.name='providerId']`, message: CAPS },
   { selector: "SwitchStatement[discriminant.name='providerId']", message: CAPS },
   { selector: "SwitchStatement[discriminant.property.name='providerId']", message: CAPS },
+  { selector: `BinaryExpression[operator=${OPERATOR}][left.name='binderId']`, message: BINDER },
+  { selector: `BinaryExpression[operator=${OPERATOR}][right.name='binderId']`, message: BINDER },
+  { selector: `BinaryExpression[operator=${OPERATOR}][left.property.name='binderId']`, message: BINDER },
+  { selector: `BinaryExpression[operator=${OPERATOR}][right.property.name='binderId']`, message: BINDER },
+  { selector: "SwitchStatement[discriminant.name='binderId']", message: BINDER },
+  { selector: "SwitchStatement[discriminant.property.name='binderId']", message: BINDER },
 ];
 
 /**

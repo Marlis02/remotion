@@ -8,8 +8,10 @@
 // `voiceKey`, `roleDigest`, структурное деление длинного абзаца, `SpeechPlan` и укладка дубля
 // (PCM в CAS `kind: voice`, take-файл `voice/takes/<chunkKey>.json`, запись в `store.lock`).
 // `V-04` — акустическая обрезка T7 (`edges/`): границы речи из PCM по RMS с параметрами из
-// профиля, признак смены поведения провайдера. Стадия `bind` (`V-05`) и живой провайдер
-// (`V-06`) — впереди.
+// профиля, признак смены поведения провайдера.
+// `V-05` — стадия `bind` (`bind/`): интерфейс `Binder` (ADR-0010 §5), правило интервала токена
+// §6, дефолтный `provider-timestamps@1`, связка «токен исходника ↔ якорь `w:`» и пересчёт
+// привязок из одного take-файла. Живой провайдер (`V-06`) — впереди.
 
 export { VoiceError, type VoiceRule } from './errors.js';
 
@@ -82,14 +84,12 @@ export {
   synthPcm,
   synthesize,
   takeHealth,
-  tokenIntervals,
   type MakeTakeFields,
   type MockPcm,
   type MockProfile,
   type MockSchedule,
   type MockSynthesis,
   type MockSynthesizeOptions,
-  type TokenInterval,
 } from './providers/mock.js';
 
 // --- акустическая обрезка T7 (`V-04`, перенос `sp2/t7-prod.mjs` + `acoustic-prod.mjs`) ------
@@ -99,3 +99,10 @@ export * from './edges/index.js';
 // --- стадия `plan` (`V-03`) --------------------------------------------------
 
 export * from './plan/index.js';
+
+// --- стадия `bind` (`V-05`) --------------------------------------------------
+// `tokenIntervals`/`TokenInterval` вывозятся ОТСЮДА, а не из `providers/mock.js`, как в
+// `V-01`–`V-04`: правило интервала токена (ADR-0010 §6) переехало вместе со своей стадией.
+// Имена и формы при этом те же — публичная поверхность пакета не рвётся.
+
+export * from './bind/index.js';
