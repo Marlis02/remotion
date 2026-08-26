@@ -102,6 +102,9 @@ function draftsOfRecords(input: RecordTracksInput, problems: CompileProblem[]): 
       filePath: placed.filePath,
       template: record.template,
       params: record.params,
+      // Тот же `scope`, который уже прочитан выше для `areaEndOf`: вход формулы seed'а
+      // (ADR-0007 §1), сохранённый вместе с записью, а не выведенный заново (`CP-04`).
+      scope: placed.scope,
     };
     out.push({
       kind: 'clip',

@@ -144,3 +144,17 @@ export function fixtureVoice(): { providerId: string; modelId: string; voiceId: 
     seed: Number(one('seed')),
   };
 }
+
+/**
+ * `seedRoot` из `fixtures/minimal/project.yaml` (`CP-04`).
+ *
+ * ЧИТАЕТСЯ, А НЕ ПИШЕТСЯ ЛИТЕРАЛОМ, по той же причине, что три gap'а T8: величина коммитится
+ * и входит в КАЖДЫЙ seed проекта (ADR-0007 §1). Повторить её в тесте значило бы перестать
+ * замечать расхождение кода с `project.yaml` ровно там, где расхождение меняет картинку.
+ */
+export function fixtureSeedRoot(): number {
+  const where = 'fixtures/minimal/project.yaml';
+  const match = /^seedRoot:\s*(\d+)\s*(?:#.*)?$/m.exec(readFixture(where));
+  if (match?.[1] === undefined) throw new Error(`${where}: поле \`seedRoot\` не найдено.`);
+  return Number(match[1]);
+}

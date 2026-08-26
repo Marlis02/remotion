@@ -216,3 +216,20 @@ export {
   type Scope,
 } from './model/direction.js';
 export { SEED_BYTES, seedOf, type SeedNode } from './model/seed.js';
+
+// `CP-04` — слой RenderIR (ADR-0001: `RenderIrSegment`, `AssemblyManifest`). ТОЛЬКО ТИПЫ.
+// Кому: пакету `renderer-hyperframes` — ADR-0009 (Decision) велит ему зависеть от `core-model`
+// «ради типа `RenderIrSegment` (сущность модели, ADR-0001), а не от `compile`». Производит IR
+// пакет `compile` (`src/render-ir/`), потребляет рендерер; контракт между ними обязан лежать
+// там, где его видят оба, и это `core-model`. Функций в файле нет ни одной: квантование T3,
+// seed'ы, `segmentIrHash` и ассерты T4/T6 живут у производителя.
+export type {
+  AssemblyManifest,
+  AssemblySegment,
+  IrAssetRef,
+  IrCaptionGroup,
+  IrCaptionToken,
+  IrClip,
+  RenderIrSegment,
+  SeedHex,
+} from './model/render-ir.js';

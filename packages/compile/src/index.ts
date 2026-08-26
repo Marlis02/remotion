@@ -9,11 +9,16 @@
 // потолок группы по числу символов, минимум длительности как порог записи в отчёт, подсветка
 // слова атрибутом внутри группы.
 //
+// `CP-04` — RenderIR (`src/render-ir/` + стадия `src/compile-ir.ts`): квантование T3
+// segment-relative, `d_i`/`A_i`/`δ_i` по T6, материализованные seed'ы, `segmentIrHash`.
+// Стадия лежит ВНЕ обеих зон намеренно: она читает Timeline и пишет IR, а **M5** запрещает
+// зонам видеть друг друга.
+//
 // `CP-01` — `compose` → Timeline (`src/timeline/`): треки, речевые клипы по измеренным краям
 // дубля, клипы `Silence` трёх видов (`author`/`gap`/`boundary-correction` — третий существует
 // в типе `core-model` и экземпляров в `CP-01` не порождает), дефолтные gap'ы T8, разрешение
 // якорей в сэмплы, укладка режиссуры и порождённых `[img:]`-записей, кандидаты на разрез (T6)
-// и канонический дамп. Слой `render-ir/` пуст: он приезжает с `CP-04`.
+// и канонический дамп.
 
 export {
   CompileError,
@@ -86,3 +91,33 @@ export { compose, type ComposeInput } from './timeline/compose.js';
 export { dumpTimeline } from './timeline/dump.js';
 
 export { TAKES_DIR, readDirectionSources, readTakes } from './timeline/load.js';
+
+export {
+  assemblyManifest,
+  buildIr,
+  dumpIr,
+  localFrame,
+  materializeSeeds,
+  place,
+  RenderIrError,
+  segmentDurationInFrames,
+  segmentIrHash,
+  sortIrRecords,
+  toSeedHex,
+  type AssemblyInput,
+  type BuildIrInput,
+  type BuildIrResult,
+  type ForcedPlacement,
+  type IrBuildRecord,
+  type IrCaptionGroupSource,
+  type IrCaptionTokenSource,
+  type IrClipSource,
+  type IrRecordRule,
+  type IrSegmentSource,
+  type Placement,
+  type RenderIrRule,
+  type SeedScope,
+  type SegmentFrame,
+} from './render-ir/index.js';
+
+export { compileIr, type CompileIrInput } from './compile-ir.js';

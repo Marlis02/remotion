@@ -10,6 +10,15 @@
 // Каждый случай создаёт ДВА временных файла: нарушителя и цель импорта. Второй обязателен —
 // `import/no-restricted-paths` выходит из проверки раньше зон, если путь не разрешился в
 // существующий файл; без цели тест был бы зелёным при снятом правиле.
+//
+// СПЕЦИФИКАТОР `.js` — ВТОРАЯ ПОЛОВИНА ОХРАННИКА (`CP-04`, 2026-08-26, закрытие долга №1).
+// Под `moduleResolution: NodeNext` весь репозиторий пишет импорты как `'./x.js'`, а файла
+// `x.js` на диске нет — есть `x.ts`. Node-резолвер такой путь не разрешал, и правило МОЛЧА
+// пропускало нарушение: измерено дважды, `M-03` (нарушение 36, зоны `media`) и `CP-04`
+// (зоны `compile`) — зонд со спецификатором `.js` давал 0 ошибок, тот же зонд без расширения
+// 1 ошибку. То есть до этой правки охранник стерёг форму, которой в репозитории НЕ ПИШУТ.
+// Закрыто `eslint-import-resolver-typescript`; каждая зона проверяется теперь ОБЕИМИ формами,
+// потому что зелёный тест на форме, которой не пишут, — это и был дефект.
 import { describe, expect, it } from 'vitest';
 
 import { errorsFor, lintTemporary } from './repo';
@@ -56,26 +65,40 @@ const ZONES: Zone[] = [
   },
 ];
 
+/**
+ * Обе формы спецификатора: без расширения и с `.js`.
+ *
+ * Вторая — та, которой репозиторий пишет НА САМОМ ДЕЛЕ (`moduleResolution: NodeNext`), и
+ * ровно на ней охранник молчал до `CP-04` (долг №1). Первая оставлена, потому что снимать
+ * покрытие ради нового — не закрытие долга, а обмен одной дыры на другую.
+ */
+const SPECIFIER_FORMS = ['', '.js'] as const;
+
 describe('M5 — внутренние границы `compile` и `media`', () => {
   for (const zone of ZONES) {
-    it(`ESLint роняет нарушение: ${zone.title}`, async () => {
-      const messages = await lintTemporary([
-        { relPath: `${zone.fromDir}/x.ts`, source: 'export const x = 1;\n' },
-        {
-          relPath: `${zone.targetDir}/__m5_probe__.ts`,
-          source: `import { x } from '${zone.specifier}';\nexport const probe = x;\n`,
-        },
-      ]);
-      const errors = errorsFor(messages, RULE);
+    for (const suffix of SPECIFIER_FORMS) {
+      const form = suffix === '' ? 'без расширения' : `со спецификатором \`${suffix}\``;
+      it(`ESLint роняет нарушение ${form}: ${zone.title}`, async () => {
+        const messages = await lintTemporary([
+          { relPath: `${zone.fromDir}/x.ts`, source: 'export const x = 1;\n' },
+          {
+            relPath: `${zone.targetDir}/__m5_probe__.ts`,
+            source: `import { x } from '${zone.specifier}${suffix}';\nexport const probe = x;\n`,
+          },
+        ]);
+        const errors = errorsFor(messages, RULE);
 
-      expect(
-        errors.length,
-        `Охранник M5 молчит на прямом нарушении «${zone.title}». Две вероятные причины: ` +
-          `правило снято из eslint.config.js, либо резолвер перестал находить .ts-файлы ` +
-          `(тогда import/no-restricted-paths пропускает импорт МОЛЧА).`,
-      ).toBeGreaterThan(0);
-      expect(errors[0]?.message).toContain(zone.expect);
-    });
+        expect(
+          errors.length,
+          `Охранник M5 молчит на прямом нарушении «${zone.title}» ${form}. Три вероятные ` +
+            `причины: правило снято из eslint.config.js; резолвер перестал находить ` +
+            `.ts-файлы; из настроек ушёл eslint-import-resolver-typescript — тогда путь со ` +
+            `спецификатором .js не разрешается и import/no-restricted-paths пропускает ` +
+            `импорт МОЛЧА (долг №1, измерен дважды: M-03 и CP-04).`,
+        ).toBeGreaterThan(0);
+        expect(errors[0]?.message).toContain(zone.expect);
+      });
+    }
   }
 
   it('импорт внутри своей зоны законен — правило не запрещает всё подряд', async () => {

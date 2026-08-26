@@ -234,7 +234,21 @@ export default tseslint.config(
       // Без явного списка расширений node-резолвер не найдёт `.ts`, и
       // `import/no-restricted-paths` МОЛЧА пропустит нарушение (правило выходит
       // раньше проверки зон, если путь не разрешился). Тест M5 это проверяет.
-      'import/resolver': { node: { extensions: ['.ts', '.tsx', '.js', '.json'] } },
+      //
+      // TYPESCRIPT-РЕЗОЛВЕР — ЗАКРЫТИЕ ДОЛГА №1 (`CP-04`, 2026-08-26). Node-резолвер выше
+      // не умеет главного: под `moduleResolution: NodeNext` весь репозиторий пишет импорты
+      // со спецификатором `.js`, а файла `x.js` на диске нет — есть `x.ts`. Путь не
+      // разрешался, и `import/no-restricted-paths` МОЛЧА пропускал нарушение. Измерено
+      // дважды: `M-03` (нарушение 36) на зонах `media`, `CP-04` на зонах `compile` — зонд
+      // `render-ir → timeline` со спецификатором `'../timeline/x.js'` давал **0 ошибок**,
+      // тот же импорт без расширения — **1 ошибку M5**. То есть охранник стерёг форму,
+      // которой в репозитории не пишут. `eslint-import-resolver-typescript` читает
+      // `tsconfig` и знает про подстановку `.js → .ts`; node-резолвер оставлен ВТОРЫМ в
+      // цепочке, а не удалён: он разрешает `.json` и всё, до чего первый не дотянется.
+      'import/resolver': {
+        typescript: { alwaysTryTypes: true, project: 'tsconfig.json' },
+        node: { extensions: ['.ts', '.tsx', '.js', '.json'] },
+      },
     },
     rules: {
       'import/no-restricted-paths': ['error', {

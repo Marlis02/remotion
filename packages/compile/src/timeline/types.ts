@@ -31,6 +31,7 @@ import type {
   Fps,
   RealizableTimePoint,
   Samples,
+  Scope,
   TemplateParams,
   TimelineSilence,
   TrackKind,
@@ -217,6 +218,21 @@ export type ClipFill =
       readonly template: string;
       /** `params` проходят сквозь Timeline ДАННЫМИ: контракт параметров — `TS-01`. */
       readonly params: TemplateParams;
+      /**
+       * Разрешённый scope записи (`readDirection`, `C-05`) — вход формулы seed'а.
+       *
+       * *(Добавлено: `CP-04`, 2026-08-26, решение владельца 11, вариант «а».)* ADR-0007 §1
+       * берёт во вход seed'а `chapterId` и `sceneId` записи; `PlacedRecord.scope` их знает, и
+       * до этой строки они терялись при укладке — то есть Timeline терял часть ИДЕНТИЧНОСТИ
+       * записи, а `compileIr(timeline, …)` не мог посчитать seed вовсе. Две отвергнутые
+       * альтернативы названы ценой: расширить вход `compileIr` списком `PlacedRecord`
+       * (форма стадии, названная в задании, разошлась бы с реальной) и выводить scope из
+       * `timeline.anchors` (вторая копия резолва scope — хуже любой строки типа).
+       *
+       * У порождённой `[img:]`-записи scope'а нет: у неё нет и `recordId`, а без него формула
+       * не записывается (решение владельца `C-05`, долг №21; `CP-04` решение 1-bis).
+       */
+      readonly scope: Scope;
     }
   | {
       readonly kind: 'generated';
