@@ -1,10 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
+  "// Почему rootDir '.'": "CP-01, по образцу `packages/voice` (V-01), `packages/media` (M-01) и `packages/core-model` (C-01): тесты пакета лежат в `test/` (vitest.config.ts включает `packages/*/test/**`). При rootDir './src' они выпадали бы из `tsc --build`, то есть `pnpm typecheck` их не видел. Цена — `dist/` содержит и `src/`, и `test/`, а `main` смещается в `dist/src/`; пакет приватный, потребителей у него сегодня нет ни одного. Долг тот же — docs/DEBTS.md №6.",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts"],
   "references": [
     { "path": "../core-model" },
     { "path": "../media" },

@@ -23,7 +23,7 @@
 // «поля нет» и «поле есть со значением `undefined`» — разные типы. Поведенческая половина
 // охранника — единственный конструктор запроса (`request.ts`) и тесты на сериализованной форме.
 
-import type { Samples } from '@vpe/core-model';
+import type { AnchorId, Samples } from '@vpe/core-model';
 
 // Тип блока `bind` живёт в каталоге стадии, которая его наполняет (`V-05`, вопрос 3), а не
 // здесь. Импорт ТИПОВЫЙ и потому стирается: `bind/types.ts` в свою очередь берёт отсюда
@@ -250,8 +250,12 @@ export type TokenBinding =
        * Якорь токена исходника из ledger'а (`C-04`, пространство `w:` — внутреннее,
        * ADR-0004 §1, §2). Настоящие id приносит стадия `bind` (`V-05`); минт остаётся
        * в `core-model`, `bind` якорей не порождает.
+       *
+       * *(Изменено: `CP-01`, решение владельца 2026-08-26, вопрос 5 — тип `string` заменён
+       * брендом `AnchorId`; долг №100 закрыт. Довод и цена — в шапке `SourceTokenRef`,
+       * `bind/types.ts`.)*
        */
-      readonly anchorId: string;
+      readonly anchorId: AnchorId;
       readonly startSample: Samples;
       readonly endSample: Samples;
       readonly status: 'measured' | 'interpolated';
@@ -265,7 +269,7 @@ export type TokenBinding =
       readonly confidence: number | null;
     }
   | {
-      readonly anchorId: string;
+      readonly anchorId: AnchorId;
       /** Времени нет: ни `null`-заглушки в сэмплах, ни интервала нулевой длины. */
       readonly startSample: null;
       readonly endSample: null;

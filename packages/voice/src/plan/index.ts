@@ -34,7 +34,7 @@ export {
   type SpeechPlanInput,
 } from './speech-plan.js';
 
-export { TAKES_DIR, renderTakeFile, takeFilePath, writeTakeFile } from './take-file.js';
+export { TAKES_DIR, parseTakeFile, renderTakeFile, takeFilePath, writeTakeFile } from './take-file.js';
 
 export {
   readTakeBytes,

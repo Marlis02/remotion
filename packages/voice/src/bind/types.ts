@@ -19,6 +19,8 @@
 // измеренным временем. Охранник — греп: в `packages/voice/src/bind/**` нет ни `mintAnchorId`,
 // ни `node:crypto`, ни литерала `w:` (`tests/lints/adr0004-bind-mints-nothing.test.ts`).
 
+import type { AnchorId } from '@vpe/core-model';
+
 import type { ProviderAlignment, TokenBinding } from '../providers/types.js';
 
 /**
@@ -37,12 +39,16 @@ export interface SourceTokenRef {
   /**
    * Якорь токена — `w:<base32(csprng(128 бит))[:16]>` (ADR-0004 §4).
    *
-   * ТИП — `string`, А НЕ БРЕНД `AnchorId`, И ЭТО НЕ НЕДОСМОТР: бренд живёт в `@vpe/schema`, а
-   * его реэкспорт из `core-model` — адресный блок из двух строк, расширять который заданием
-   * запрещено. Подделка адреса поэтому не краснеет у компилятора; долг записан с адресом
-   * `CP-01` (первый настоящий потребитель `anchorId` — Timeline).
+   * ТИП — БРЕНД `AnchorId` *(изменено: `CP-01`, решение владельца 2026-08-26, вопрос 5; долг
+   * №100 закрыт)*. До этой задачи здесь стоял `string`, потому что бренд живёт в
+   * `@vpe/schema`, который из `voice` не резолвится, а расширять адресный реэкспорт
+   * `core-model` заданием `V-05` было запрещено. `CP-01` — первый посторонний читатель
+   * `anchorId`, и решение принято на его границе: реэкспорт добавлен одной строкой
+   * (`asAnchorId` + `AnchorId`), подделка адреса теперь не типизируется. Значения приходят
+   * готовыми: `AnchorBinding.id` (`C-04`, `anchors/sync.ts`) УЖЕ `AnchorId` — бренд здесь не
+   * добавляется, а перестаёт теряться.
    */
-  readonly anchorId: string;
+  readonly anchorId: AnchorId;
   /** Поверхностная форма токена (ADR-0004 §5): то, что автор написал. */
   readonly surface: string;
   /** Что из этого токена ушло провайдеру. У `[say:]` — spoken-сторона, у прозы равно `surface`. */

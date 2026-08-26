@@ -1,0 +1,173 @@
+ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ — CP-01 (compose → Timeline)
+
+Прибор отката — два независимых: sha256 правленого файла до/после и
+`git status --porcelain packages/ fixtures/` против снимка, снятого ДО первого внесения.
+Пустым он быть не может: пакет `compile` новый, его файлы ещё не в индексе (`??`).
+Базовый снимок:
+   M packages/compile/package.json
+   M packages/compile/src/index.ts
+   M packages/compile/tsconfig.json
+   M packages/core-model/src/index.ts
+   M packages/voice/src/bind/tokens.ts
+   M packages/voice/src/bind/types.ts
+   M packages/voice/src/plan/index.ts
+   M packages/voice/src/plan/take-file.ts
+   M packages/voice/src/providers/types.ts
+  ?? packages/compile/src/timeline/anchors.ts
+  ?? packages/compile/src/timeline/compose.ts
+  ?? packages/compile/src/timeline/dump.ts
+  ?? packages/compile/src/timeline/errors.ts
+  ?? packages/compile/src/timeline/load.ts
+  ?? packages/compile/src/timeline/records.ts
+  ?? packages/compile/src/timeline/speech-track.ts
+  ?? packages/compile/src/timeline/types.ts
+  ?? packages/compile/test/
+
+==============================================================================
+Нарушение 1 — сложение [pause:] с дефолтом вместо замены (ADR-0003 T8)
+  файл:   packages/compile/src/timeline/speech-track.ts
+  было:      const length = pending.length > 0 ? authored : defaultGapOf(boundary, input.profile);
+  стало:     const length = pending.length > 0 ? authored + defaultGapOf(boundary, input.profile) : defaultGapOf(boundary, input.profile);
+  --- прогон ---
+       × `[pause: 600ms]` даёт 14400 и НЕ складывается с межабзацным дефолтом 496ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: expected [ 6000, 18720, 13920 ] to deeply equal [ 6000, 14400, 9600 ]
+        Tests  1 failed | 11 passed (12)
+  --- откат ---
+  sha256 файла совпал с исходным: ea1a1f2a7cacdd748eacc614de6035328473db3f096da6a3904766c48632c530
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 2 — речевой клип длиной numSamples: измеренные края не вычтены (T7, долг №97)
+  файл:   packages/compile/src/timeline/speech-track.ts
+  было:      const pcmStart = take.leadInSamples;
+             const pcmEnd = asSamples(take.pcm.numSamples - take.tailSamples);
+  стало:     const pcmStart = asSamples(0);
+             const pcmEnd = take.pcm.numSamples;
+  --- прогон ---
+       × первый токен чанка == начало речевого клипа + (start привязки − leadIn) 597ms
+       × сдвиг именно на `−leadIn`: первый токен первого чанка стоит в НУЛЕ, а не в `leadIn` 513ms
+       × бит стоит в начале следующего произносимого токена своей сцены 469ms
+       × неявный бит `[img:]` стоит там же, где следующий токен 456ms
+       × токен с `absent`-привязкой ПРОПУСКАЕТСЯ: бит встаёт на следующий произносимый 465ms
+       × маркер без произносимого соседа в СВОЕЙ сцене встаёт в конец её речи (поправка П3) 442ms
+       × область = [начало первой речи, конец хвостового gap'а); у последней — конец дорожки 453ms
+       × `nudgeSamples` сдвигает обе границы момента 486ms
+       × `absent` под ссылкой — ошибка со списком, а не ноль и не интерполяция (**V8**) 451ms
+       × несуществующий якорь — ошибка `ADR-0004 §9`, а не «ноль» 434ms
+       × якорь пространства `r:` — отказ вслух: его время не определено ни одним ADR 507ms
+       × `Σ длительностей клипов == L`, стыки без дыр и перекрытий 580ms
+       × `Σ речевых клипов == Σ (numSamples − leadIn − tail)` по дублям — критерий roadmap 508ms
+       × речевой клип несёт окно `[leadInSamples, numSamples − tailSamples)`, а не весь PCM 489ms
+  --- откат ---
+  sha256 файла совпал с исходным: ea1a1f2a7cacdd748eacc614de6035328473db3f096da6a3904766c48632c530
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 3 — порядок клипов по id первым ключом вместо (z, sourceOrdinal) (ADR-0007 §5, D7)
+  файл:   packages/compile/src/timeline/records.ts
+  было:    if (left.z !== right.z) return left.z - right.z;
+           if (left.sourceOrdinal !== right.sourceOrdinal) return left.sourceOrdinal - right.sourceOrdinal;
+           return left.clipId < right.clipId ? -1 : left.clipId > right.clipId ? 1 : 0;
+  стало:   if (left.clipId !== right.clipId) return left.clipId < right.clipId ? -1 : 1;
+           if (left.z !== right.z) return left.z - right.z;
+           return left.sourceOrdinal - right.sourceOrdinal;
+  --- прогон ---
+       × порядок на треке — `(z, sourceOrdinal, clipId)`, а не `recordId` первым ключом 640ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: expected [ 'img:b:img-harbour-1', …(4) ] to deeply equal [ 'img:b:img-harbour-1', …(4) ]
+        Tests  1 failed | 6 passed (7)
+  --- откат ---
+  sha256 файла совпал с исходным: 4282eabac1e3ecc9ef3528b45187b11f1bb096999092d5089c47ded704bb2589
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 4 — boundary-correction попал в сумму L (ADR-0003 T6: δ не входит ни в один L)
+  файл:   packages/compile/src/timeline/speech-track.ts
+  было:      const silenceKind: TimelineSilence['silenceKind'] = pending.length > 0 ? 'author' : 'gap';
+  стало:     const silenceKind: TimelineSilence['silenceKind'] = pending.length > 0 ? 'author' : 'boundary-correction';
+  --- прогон ---
+       × межабзацная и межсценовая тишина — ровно числа профиля 603ms
+       × `boundary-correction` в `CP-01` не порождается (решение владельца, вопрос 2) 573ms
+       × кандидат несёт тип границы — `CP-03` обязан знать, где стоит V4 (поправка П2) 573ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: expected [] to have a length of 1 but got +0
+  AssertionError: expected [ 'author', …(6) ] to not include 'boundary-correction'
+  AssertionError: expected false to be true // Object.is equality
+        Tests  3 failed | 9 passed (12)
+  --- откат ---
+  sha256 файла совпал с исходным: ea1a1f2a7cacdd748eacc614de6035328473db3f096da6a3904766c48632c530
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 5 — absent → 0 вместо ошибки (V8: компилятор не выдумывает время)
+  файл:   packages/compile/src/timeline/anchors.ts
+  было:    } else if (times.absent.has(point.anchor)) {
+  стало:   } else if (false && times.absent.has(point.anchor)) {
+  --- прогон ---
+       × `absent` под ссылкой — ошибка со списком, а не ноль и не интерполяция (**V8**) 536ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: expected 'якорь `w:psbyvemyt6tk3nf3` не разреша…' to contain 'absent'
+        Tests  1 failed | 10 passed (11)
+  --- откат ---
+  sha256 файла совпал с исходным: a164e590494ae1f1fc129bbb0e588570fcd2a76d55c8d8832805e96067fb7bdb
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 6 — readdir без явной сортировки (ADR-0007 §4)
+  файл:   packages/compile/src/timeline/load.ts
+  было:    const names = [...readdirSync(directionDir)].filter((name) => name.endsWith('.yaml')).sort();
+  стало:   const names = [...readdirSync(directionDir)].filter((name) => name.endsWith('.yaml'));
+  --- прогон ---
+       × `readdir` в пакете зовётся ТОЛЬКО с явной сортировкой (ADR-0007 §4) 7ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: обращение к каталогу без явной сортировки: expected '  const names = [...readdirSync(direc…' to contain '.sort()'
+        Tests  1 failed | 6 passed (7)
+  --- откат ---
+  sha256 файла совпал с исходным: 143cb6ad650060e952ec8a793dc36baf6f61a3c187853ff94e75a09705d31374
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 7 — compose.ts пошёл на диск сам (граница чтения, поправка П4)
+  файл:   packages/compile/src/timeline/compose.ts
+  было:  import { anchorTimes } from './anchors.js';
+  стало: import { readFileSync } from 'node:fs';
+         
+         import { anchorTimes } from './anchors.js';
+  --- прогон ---
+       × `compose.ts` не касается диска — граница чтения вынесена в `load.ts` (поправка П4) 7ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: в `compose.ts` найдено `node:fs`: expected '// `compose(input) → Timeline` (`CP-0…' not to contain 'node:fs'
+  + // `compose(input) → Timeline` (`CP-01`, roadmap §4.7) — ЧИСТАЯ ФУНКЦИЯ СВОИХ ВХОДОВ.
+  +   /** `chunkKey` → дубль, прочитанный строгим читателем (`parseTakeFile`). */
+        Tests  1 failed | 6 passed (7)
+  --- откат ---
+  sha256 файла совпал с исходным: bb29cb43dc30791b2ecf6be967160bcbe0efa62fdb03884fd22de0c96f23fcae
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+Нарушение 8 — строгий читатель take-файла привёл значение вместо отказа (долг №85)
+  файл:   packages/voice/src/plan/take-file.ts
+  было:    if (typeof value !== 'number' || !Number.isFinite(value)) {
+             throw bad(filePath, `${path}.${key}`, `ожидалось конечное число, пришло ${describe(value)}`);
+           }
+           return value;
+  стало:   if (typeof value !== 'number' || !Number.isFinite(value)) {
+             return Number(value) || 0;
+           }
+           return value;
+  --- пересборка packages/voice ---
+  packages/voice/src/plan/take-file.ts(156,47): error TS6133: 'filePath' is declared but its value is never read.
+  packages/voice/src/plan/take-file.ts(156,65): error TS6133: 'path' is declared but its value is never read.
+  --- прогон ---
+       × строгий читатель take-файла называет ФАЙЛ и ПОЛЕ, а не «файл не разобрался» 580ms
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: expected undefined to be an instance of VoiceError
+        Tests  1 failed | 9 passed (10)
+  --- откат ---
+  sha256 файла совпал с исходным: 650502d264b6f8dbecb475ca8d2adeb4ba6e794d7e9ca628029f161ab9215037
+  git status --porcelain packages/ fixtures/ — совпал с базовым снимком
+
+==============================================================================
+ИТОГ: восемь внесений, восемь красных прогонов, восемь откатов.
+После каждого отката sha256 файла совпал с исходным, а git status — с базовым снимком.

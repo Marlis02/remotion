@@ -30,6 +30,23 @@ export { asSamples, type Samples } from '@vpe/schema';
 // не изменяется ни символом.
 export { base32, blake3, blake3Bytes, canonicalJson, type Blake3 } from '@vpe/schema';
 
+// ТРЕТИЙ АДРЕСНЫЙ БЛОК РЕЭКСПОРТА — решение владельца 2026-08-26 (`CP-01`, вопрос 5), закрывает
+// долг №100. Кому: пакетам `@vpe/voice` и `@vpe/compile`. Зачем: `anchorId` в `SourceTokenRef`
+// и `TokenBinding` был `string`, то есть подделка адреса якоря не краснела у компилятора
+// (`V-05` §7 п. 1). `CP-01` — первый посторонний читатель take-файла, и на его границе `string`
+// из JSON обязан стать якорем через ЕДИНСТВЕННЫЙ конструктор-валидатор, а не через регулярку
+// в читателе. Ни `voice`, ни `compile` `@vpe/schema` не резолвят вовсе (в их
+// `node_modules/@vpe/` два и четыре симлинка соответственно), и добавить стрелку нельзя —
+// её ловит `tests/boundaries/adr0009-graph.test.ts`.
+//
+// ФОРМА — РОВНО КАК У `Samples`: конструктор плюс тип, одной строкой. `asAnchorId` без
+// `AnchorId` не даёт ничего (некуда положить результат), `AnchorId` без `asAnchorId` —
+// невыразимое значение: каст в бренд запрещён линтом везде, кроме `types/brands.ts` (`S-01`).
+// `asPublicAnchorId`/`PublicAnchorId` этим блоком НЕ добавляются: они уже приезжают через
+// `AnchorRef` и `expandImg`, а `w:` публичным якорем не является по построению.
+// Сам `@vpe/schema` этой строкой не изменяется ни символом.
+export { asAnchorId, type AnchorId } from '@vpe/schema';
+
 // `C-01` — модель времени (ADR-0003 T1–T4, ADR-0001 «Типы времени в авторском слое»).
 export { TimeModelError, type TimeRule } from './time/errors.js';
 export { addExact, assertSafeInteger, ceilDiv, floorDiv, mulExact } from './time/integer.js';

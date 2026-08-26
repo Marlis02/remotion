@@ -22,7 +22,7 @@
 // копирует. Сверх того порядок частей сверяется с планом дословно: текст части обязан быть
 // равен `spokenChunkText` планового чанка на каждом индексе.
 
-import { chunksOf, pointLength, type AnchorBinding, type SourceDocument, type TokenNode } from '@vpe/core-model';
+import { chunksOf, pointLength, type AnchorBinding, type AnchorId, type SourceDocument, type TokenNode } from '@vpe/core-model';
 
 import { VoiceError } from '../errors.js';
 import { splitChunkText } from '../plan/split.js';
@@ -44,7 +44,7 @@ import type { SourceTokenRef } from './types.js';
 export function anchorIdByToken(
   document: SourceDocument,
   anchors: readonly AnchorBinding[],
-): ReadonlyMap<TokenNode, string> {
+): ReadonlyMap<TokenNode, AnchorId> {
   const tokens = tokensOfDocument(document);
   const slots = anchors.filter((binding) => binding.slot.kind === 'token');
 
@@ -59,7 +59,7 @@ export function anchorIdByToken(
     );
   }
 
-  const out = new Map<TokenNode, string>();
+  const out = new Map<TokenNode, AnchorId>();
   for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i];
     const binding = slots[i];
@@ -167,7 +167,7 @@ export function tokensOfPlan(input: PlanTokensInput): ReadonlyMap<string, readon
  * Якорь токена или отказ. `??`-заглушки здесь нет намеренно: токен без якоря — это привязка
  * к пустому адресу, то есть ровно то, что стадия обязана делать невозможным.
  */
-function anchorOf(byToken: ReadonlyMap<TokenNode, string>, token: TokenNode): string {
+function anchorOf(byToken: ReadonlyMap<TokenNode, AnchorId>, token: TokenNode): AnchorId {
   const id = byToken.get(token);
   if (id === undefined) {
     throw new VoiceError(
