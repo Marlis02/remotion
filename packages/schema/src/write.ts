@@ -425,7 +425,7 @@ function collectKeyOrder(schema: z.ZodType, value: unknown): Difference[] {
       const shape = shapeFor(schemaNode, currentValue);
       const actual = Object.keys(currentValue);
       const expected = orderedKeys(currentValue, shape);
-      if (actual.join(' ') !== expected.join(' ')) {
+      if (actual.join('\u0000') !== expected.join('\u0000')) {
         out.push({
           kind: 'key-order',
           line: null,
