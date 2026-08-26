@@ -11,7 +11,7 @@
 // и без подстановки два прогона давали бы разные идентификаторы, то есть «дампы равны»
 // проверялось бы вместе со случайностью.
 
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -25,6 +25,7 @@ import {
   type AnchorBinding,
   type GeneratedDirectionRecord,
   type PlacedRecord,
+  type DirectionSource,
   type RandomBytes,
   type SourceDocument,
 } from '@vpe/core-model';
@@ -45,7 +46,7 @@ import {
   type Take,
 } from '@vpe/voice';
 
-import { readDirectionSources, readTakes, type ComposeInput } from '../src/index.js';
+import { readDirectionSources, readTakes, type CompileProfileInput, type ComposeInput } from '../src/index.js';
 
 import {
   FIXTURE,
@@ -102,6 +103,22 @@ const mockSourceOf =
     pcm: synthPcm(request.spokenText, fixtureVoice().seed, profile).pcm,
   });
 
+/**
+ * Каталог режиссуры прогона: фикстурный, свой временный или его отсутствие.
+ *
+ * `null` возвращает пустой список ЯВНО, а не через чтение пустого каталога: `readDirectionSources`
+ * на отсутствующем каталоге падает намеренно («молчаливый пустой ответ превратил бы опечатку в
+ * проект без режиссуры»), и обходить это правило созданием пустышки значило бы его ослаблять.
+ */
+function directionSourcesOf(root: string, direction: string | null | undefined): DirectionSource[] {
+  if (direction === undefined) return readDirectionSources(path.join(FIXTURE, 'direction'));
+  if (direction === null) return [];
+  const dir = path.join(root, 'direction');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path.join(dir, '01-synthetic.yaml'), direction, 'utf8');
+  return readDirectionSources(dir);
+}
+
 export interface BuiltProject {
   readonly root: string;
   readonly document: SourceDocument;
@@ -117,16 +134,41 @@ export interface BuiltProject {
 }
 
 /**
+ * Чем синтетический проект отличается от фикстурного (`CP-03`).
+ *
+ * ФИКСТУРА НЕ ТРОГАЕТСЯ НИ СИМВОЛОМ. Синтетика — это ИСХОДНИК СТРОКОЙ плюс, если нужно, СВОЙ
+ * каталог режиссуры, который тест пишет во ВРЕМЕННЫЙ каталог прогона. Прецедент — рефрен
+ * `V-03` (`packages/voice/test/plan-record.test.ts`): фикстура строится тестом в `os.tmpdir()`,
+ * репозиторий не изменяется. Своя режиссура нужна потому, что записи
+ * `fixtures/minimal/direction/01-intro.yaml` ссылаются на якоря `sc:intro`/`b:reveal`/`sc:turn`,
+ * которых в синтетическом исходнике нет и быть не должно.
+ */
+export interface ProjectExtra {
+  /**
+   * Каталог режиссуры: `undefined` — фикстурный (умолчание `CP-01`); `null` — режиссуры нет
+   * вовсе; строка — YAML `direction/1`, который кладётся во временный каталог прогона.
+   */
+  readonly direction?: string | null;
+  /** Правка профиля компиляции поверх фикстурного: тесту порога и тесту `fps` нужны свои числа. */
+  readonly profile?: (base: CompileProfileInput) => CompileProfileInput;
+}
+
+/**
  * Собирает вход `compose` на фикстуре.
  *
  * @param text исходник; по умолчанию — `fixtures/minimal/source/01-intro.md` дословно.
  *   Параметр нужен тесту «правка слова»: фикстура при этом не изменяется ни символом.
  * @param takeProfile профиль мока; по умолчанию `TAKE_PROFILE` (`CP-01`). Быстрый `msPerChar`
  *   нужен тесту минимума длительности групп субтитров (`CP-02`).
+ * @param extra синтетическая режиссура и правка профиля (`CP-03`).
  */
-export async function buildProject(text?: string, takeProfile: MockProfile = TAKE_PROFILE): Promise<BuiltProject> {
+export async function buildProject(
+  text?: string,
+  takeProfile: MockProfile = TAKE_PROFILE,
+  extra: ProjectExtra = {},
+): Promise<BuiltProject> {
   const raw = text ?? readFixture('fixtures/minimal/source/01-intro.md');
-  const profile = fixtureCompileProfile();
+  const profile = extra.profile === undefined ? fixtureCompileProfile() : extra.profile(fixtureCompileProfile());
   const maxChunkChars = fixtureMaxChunkChars();
   const voice = fixtureVoice();
 
@@ -154,7 +196,7 @@ export async function buildProject(text?: string, takeProfile: MockProfile = TAK
   });
 
   const takes = readTakes(root, plan);
-  const records = readDirection(readDirectionSources(path.join(FIXTURE, 'direction')), {
+  const records = readDirection(directionSourcesOf(root, extra.direction), {
     ledger: sync.records,
     document,
   });

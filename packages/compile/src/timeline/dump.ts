@@ -13,7 +13,8 @@
 
 import { TRACK_KINDS } from '@vpe/core-model';
 
-import type { Timeline, TimelineItem } from './types.js';
+import { atLabel } from './anchors.js';
+import type { CutRow, Segment, Timeline, TimelineItem } from './types.js';
 
 /** Интервал в форме ADR-0003 T4: полуоткрытый, всегда `[start, end)`. */
 function span(startSample: number, endSample: number): string {
@@ -40,11 +41,52 @@ function itemLine(item: TimelineItem): string {
           : `generated ${item.fill.template} alias=${item.fill.alias} asset=${item.fill.assetSha}`;
       return (
         `  ${span(item.startSample, item.endSample)} clip ${item.clipId} z=${String(item.z)} ` +
-        `ord=${String(item.sourceOrdinal)} at=${item.at.kind === 'anchor' ? item.at.anchor : `mediaTime:${item.at.asset}`} ` +
+        `ord=${String(item.sourceOrdinal)} at=${atLabel(item.at)} ` +
         `dur=${String(item.duration.samples)} ${fill}`
       );
     }
   }
+}
+
+/** Строка сегмента (`CP-03`). Форма та же, что у клипа: интервал первым, дальше поля. */
+function segmentLine(segment: Segment): string {
+  return (
+    `  ${span(segment.startSample, segment.endSample)} segment ${segment.segmentId} ` +
+    `chapter=ch:${segment.chapterId} scenes=${segment.sceneIds.map((id) => `sc:${id}`).join(',')} ` +
+    `nominal=${String(segment.nominalSamples)} ` +
+    `tail=${segment.tailGap === null ? '<нет>' : segment.tailGap.clipId}`
+  );
+}
+
+/**
+ * Строка таблицы кандидатов (`CP-03`; ADR-0003 T8 «кандидатов на разрез / стало разрезами /
+ * почему отклонён»).
+ *
+ * ЧТО ИМЕННО ПЕЧАТАЕТСЯ У КАЖДОЙ ПРИЧИНЫ — поправка владельца П3, и это не украшение: строка
+ * читается автором, у которого сегментов вышло меньше, чем он ждал. У `crossed-by-clips` —
+ * `clipId`, дорожка и интервал КАЖДОГО пересекающего клипа; у `*-too-short` — обе длины и
+ * порог рядом, чтобы не искать его в шапке блока и не считать в уме.
+ */
+function cutLine(row: CutRow, minSegmentSamples: number): string {
+  const head =
+    `  at=${String(row.atSample)} cut=${String(row.cutSample)} ` +
+    `len=${String(row.durationSamples)} ${row.silenceKind} ${row.boundary} ` +
+    `decision=${row.decision}${row.reason === null ? '' : ` reason=${row.reason}`}`;
+  const parts: string[] = [head];
+  if (row.leftSamples !== null && row.rightSamples !== null) {
+    parts.push(`left=${String(row.leftSamples)} right=${String(row.rightSamples)}`);
+  }
+  if (row.reason === 'left-too-short' || row.reason === 'right-too-short') {
+    parts.push(`min=${String(minSegmentSamples)}`);
+  }
+  if (row.crossedBy.length > 0) {
+    parts.push(
+      `crossed=[${row.crossedBy
+        .map((clip) => `${clip.clipId} ${clip.track} ${span(clip.startSample, clip.endSample)} at=${clip.at}`)
+        .join('; ')}]`,
+    );
+  }
+  return parts.join(' ');
 }
 
 /**
@@ -96,6 +138,19 @@ export function dumpTimeline(timeline: Timeline): string {
         `short=${group.belowMinimum ? 'yes' : 'no'}`,
     );
   }
+
+  // Сегменты и таблица (`CP-03`) — последними блоками, по той же причине, по какой `CP-02`
+  // дописал субтитры в конец: дифф `CP-02` → `CP-03` читается как «дописаны два блока», а не
+  // «сдвинулся весь файл».
+  lines.push(`segments count=${String(timeline.segments.length)}`);
+  for (const segment of timeline.segments) lines.push(segmentLine(segment));
+
+  const table = timeline.cutTable;
+  lines.push(
+    `cuts count=${String(table.rows.length)} accepted=${String(table.cutsAccepted)} ` +
+      `segments=${String(table.segments)} min=${String(table.minSegmentSamples)}`,
+  );
+  for (const row of table.rows) lines.push(cutLine(row, table.minSegmentSamples));
 
   return `${lines.join('\n')}\n`;
 }

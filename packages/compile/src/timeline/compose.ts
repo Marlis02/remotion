@@ -10,7 +10,10 @@
 //   1. дорожка речи — она задаёт `L`, области сцен и глав и все абсолютные позиции;
 //   2. якоря — им нужны и клипы речи (для `w:`), и области (для `sc:`/`ch:`);
 //   3. режиссура — ей нужны разрешённые якоря;
-//   4. субтитры (`CP-02`) — им нужны и якоря (время токенов), и клипы речи (границы групп).
+//   4. субтитры (`CP-02`) — им нужны и якоря (время токенов), и клипы речи (границы групп);
+//   5. сегментация (`CP-03`) — ей нужны УЛОЖЕННЫЕ клипы режиссуры: «пересекает ли что-нибудь
+//      границу» есть вопрос об абсолютных интервалах, а они появляются на шаге 3. Группы
+//      субтитров нужны ей же, но только под ассерт.
 // Обратный порядок невозможен ни в одной паре: время рождается снизу вверх.
 
 import { TRACK_KINDS, type AnchorBinding, type GeneratedDirectionRecord, type PlacedRecord, type SourceDocument } from '@vpe/core-model';
@@ -20,6 +23,7 @@ import type { SpeechPlan, Take } from '@vpe/voice';
 import { anchorTimes } from './anchors.js';
 import { captionGroups } from './captions.js';
 import { recordTracks } from './records.js';
+import { segments } from './segments.js';
 import { speechTrack } from './speech-track.js';
 import type { CompileProfileInput, Timeline, TimelineTrack } from './types.js';
 
@@ -51,11 +55,13 @@ export interface ComposeInput {
 }
 
 /**
- * Строит Timeline: треки, клипы, три вида `Silence`, кандидаты на разрез, якоря во времени.
+ * Строит Timeline: треки, клипы, три вида `Silence`, кандидаты на разрез, якоря во времени,
+ * сегменты и таблицу разрезов.
  *
  * @throws {CompileError} со СПИСКОМ — нет дубля, весь-тихий дубль, `absent` под ссылкой,
  *   неизвестный alias, нулевая авторская пауза на структурной границе, разбиение не тотально,
- *   `absent` под произносимым словом субтитра (`CP-02`).
+ *   `absent` под произносимым словом субтитра (`CP-02`), клип поперёк границы главы
+ *   (**R6**, `CP-03`).
  */
 export function compose(input: ComposeInput): Timeline {
   const track = speechTrack({
@@ -89,6 +95,13 @@ export function compose(input: ComposeInput): Timeline {
     profile: input.profile,
   });
 
+  const cut = segments({
+    track,
+    byTrack,
+    captionGroups: captions.groups,
+    profile: input.profile,
+  });
+
   const tracks: TimelineTrack[] = TRACK_KINDS.map((kind) => {
     if (kind === 'speech') return { kind, items: track.items };
     // `voice` — директивная дорожка: клипов на ней не бывает, и `recordTracks` их туда не
@@ -101,6 +114,8 @@ export function compose(input: ComposeInput): Timeline {
     durationSamples: track.durationSamples,
     tracks,
     cutCandidates: track.cutCandidates,
+    segments: cut.segments,
+    cutTable: cut.table,
     anchors: times.list,
     captionGroups: captions.groups,
     captionReport: captions.report,

@@ -5,7 +5,7 @@ import path from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
-import { compose, type PlacedSilence, type PlacedSpeech, type Timeline } from '../src/index.js';
+import { compose, speechTrack, type PlacedSilence, type PlacedSpeech, type Timeline } from '../src/index.js';
 
 import { REPO, fixtureCompileProfile } from './fixture.js';
 import { buildProject, cleanupRoots } from './project.js';
@@ -169,16 +169,31 @@ describe('CP-01 — `defaultSceneGapSamples: 0`', () => {
     expect(text).toContain('defaultSceneGapSamples: z.int().positive()');
   });
 
-  it('если вход всё же добрался до `compose` — кандидатов по сценам нет, и это видно', async () => {
+  it('если вход всё же добрался до дорожки — кандидатов по сценам нет, и это видно', async () => {
     const project = await buildProject();
-    const timeline = compose({
-      ...project.input,
-      profile: { ...project.input.profile, defaultSceneGapSamples: 0 },
+    const profile = { ...project.input.profile, defaultSceneGapSamples: 0 };
+    const track = speechTrack({
+      document: project.document,
+      plan: project.plan,
+      takes: project.takes,
+      profile,
     });
     // Дорожка при этом ЗАКОННА: два речевых клипа встык — не дыра. Именно поэтому инвариант
     // живёт в валидации профиля, а не в ассерте дорожки: тишины нет, и заметить её отсутствие
     // разбиение не может.
-    expect(timeline.cutCandidates.filter((candidate) => candidate.boundary === 'scene')).toHaveLength(0);
-    expect(timeline.cutCandidates).toHaveLength(6);
+    expect(track.cutCandidates.filter((candidate) => candidate.boundary === 'scene')).toHaveLength(0);
+    expect(track.cutCandidates).toHaveLength(6);
+  });
+
+  // *(дописано `CP-03`, 2026-08-26.)* Дорожка законна, а СЕГМЕНТАЦИЯ на ней — нет, и это не
+  // ужесточение задним числом, а исполнение ADR-0008: проверка «(б) там есть клип тишины
+  // ненулевой длины» — АССЕРТ, а не ветка. Тишины на границе сцен нет, значит разрез стоять
+  // негде, а сцены обязаны быть кандидатами (**T8**); молча склеить их в один сегмент значило
+  // бы сделать гранулярность AC3 функцией опечатки в профиле. `compose` называет ИМЕННО это.
+  it('`CP-03`: сегментация на такой дорожке падает — (б) исполнено ассертом', async () => {
+    const project = await buildProject();
+    expect(() =>
+      compose({ ...project.input, profile: { ...project.input.profile, defaultSceneGapSamples: 0 } }),
+    ).toThrow(/на границе сцен нет кандидата на разрез/u);
   });
 });

@@ -23,6 +23,7 @@ import {
   type AnchorBinding,
   type AnchorSlot,
   type AnchorTimePoint,
+  type RealizableTimePoint,
   type Samples,
   type SourceDocument,
 } from '@vpe/core-model';
@@ -348,4 +349,16 @@ export function resolvePoint(
     startSample: asSamples(time.startSample + nudge),
     endSample: asSamples(time.endSample + nudge),
   };
+}
+
+/**
+ * Авторское время клипа одной строкой: `b:reveal` либо `mediaTime:<sha ассета>`.
+ *
+ * ФУНКЦИЯ ОДНА НА РЕПОЗИТОРИЙ, И ЭТО ВАЖНЕЕ, ЧЕМ ЕЁ РАЗМЕР. Строку читает человек в двух
+ * разных местах — в каноническом дампе (`dump.ts`, `CP-01`) и в таблице кандидатов вместе с
+ * ошибкой **R6** (`segments.ts`, `CP-03`), — и две копии правила разошлись бы ровно тогда,
+ * когда у `RealizableTimePoint` появится третья форма.
+ */
+export function atLabel(at: RealizableTimePoint): string {
+  return at.kind === 'anchor' ? at.anchor : `mediaTime:${at.asset}`;
 }

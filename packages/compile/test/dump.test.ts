@@ -21,6 +21,9 @@ describe('CP-01 — канонический дамп', () => {
     expect(dump).toContain(`duration=${String(timeline.durationSamples)}`);
     // Блок субтитров (`CP-02`) — часть того же дампа: зонд владельца читает его строками.
     expect(dump).toContain(`captions count=${String(timeline.captionGroups.length)}`);
+    // Блоки сегментов и таблицы разрезов (`CP-03`) — тем же способом.
+    expect(dump).toContain(`segments count=${String(timeline.segments.length)}`);
+    expect(dump).toContain(`cuts count=${String(timeline.cutTable.rows.length)}`);
   });
 
   it('диффится ПОСТРОЧНО: у каждого клипа своя строка, и интервалы полуоткрыты', async () => {
@@ -28,11 +31,24 @@ describe('CP-01 — канонический дамп', () => {
     const lines = dumpTimeline(timeline).trimEnd().split('\n');
     const items = timeline.tracks.reduce((sum, track) => sum + track.items.length, 0);
     // 1 шапка + 7 строк дорожек + клипы + 1 строка кандидатов + кандидаты + 1 строка якорей +
-    // якоря + 1 строка субтитров + группы. Последнее слагаемое дописано `CP-02`: счёт строк —
+    // якоря + 1 строка субтитров + группы + 1 строка сегментов + сегменты + 1 строка таблицы +
+    // её строки. Два последних слагаемых дописаны `CP-03`, предыдущее — `CP-02`: счёт строк —
     // это утверждение «в дампе нет ничего, кроме перечисленного», и новый блок обязан войти
     // в него явно, иначе утверждение перестало бы быть тотальным.
     expect(lines).toHaveLength(
-      1 + 7 + items + 1 + timeline.cutCandidates.length + 1 + timeline.anchors.length + 1 + timeline.captionGroups.length,
+      1 +
+        7 +
+        items +
+        1 +
+        timeline.cutCandidates.length +
+        1 +
+        timeline.anchors.length +
+        1 +
+        timeline.captionGroups.length +
+        1 +
+        timeline.segments.length +
+        1 +
+        timeline.cutTable.rows.length,
     );
     for (const line of lines) {
       if (!line.startsWith('  [')) continue;

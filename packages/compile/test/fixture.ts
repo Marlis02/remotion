@@ -77,6 +77,10 @@ export function fixtureCompileProfile(): CompileProfileInput {
     defaultParagraphGapSamples: field(text, 'defaultParagraphGapSamples', where),
     defaultSceneGapSamples: field(text, 'defaultSceneGapSamples', where),
     defaultChapterGapSamples: field(text, 'defaultChapterGapSamples', where),
+    // `45` в тесте литералом не пишется по той же причине, что три gap'а T8: это принятая
+    // величина решения владельца 7, живущая в профиле, и повторить её здесь значило бы
+    // перестать замечать расхождение кода с профилем (`CP-03`).
+    minSegmentDurationFrames: field(text, 'minSegmentDurationFrames', where),
     captions: captionsBlock(text, where),
   };
 }

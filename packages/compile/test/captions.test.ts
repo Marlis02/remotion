@@ -381,10 +381,15 @@ describe('CP-02 — дамп и детерминизм', () => {
       `  [${String(first?.startSample)}, ${String(first?.endSample)}) "${first?.text ?? ''}" ` +
         `tokens=${String(first?.tokens.length)} chunk=${first?.chunkKey ?? ''} short=no`,
     );
-    // Строк ровно столько, сколько групп, плюс шапка блока.
+    // Строк ровно столько, сколько групп, плюс шапка блока. *(уточнено `CP-03`: блок субтитров
+    // больше не последний — за ним идут `segments` и `cuts`, — поэтому конец блока ищется по
+    // следующей шапке, а не по концу файла. Утверждение от этого стало точнее: раньше оно
+    // молча включило бы в счёт любой дописанный ниже блок.)*
     const lines = dump.trimEnd().split('\n');
     const from = lines.findIndex((line) => line.startsWith('captions '));
-    expect(lines.length - from - 1).toBe(timeline.captionGroups.length);
+    const to = lines.findIndex((line, index) => index > from && !line.startsWith('  '));
+    expect(to).toBeGreaterThan(from);
+    expect(to - from - 1).toBe(timeline.captionGroups.length);
   });
 
   it('два `compose` дают побайтово равные дампы, а перестановка входов их не меняет', async () => {

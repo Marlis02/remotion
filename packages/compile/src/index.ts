@@ -1,5 +1,10 @@
 // Публичная поверхность `@vpe/compile` (карта ADR-0009: Timeline, сегментация, RenderIR).
 //
+// `CP-03` — сегментация (`src/timeline/segments.ts`): сегмент как максимальный пробег подряд
+// идущих сцен (ADR-0008), разрез только на чистой границе сцены, граница главы — разрез
+// безусловно (**V4**, пересечение — ошибка **R6**), порог `minSegmentDurationFrames` обеим
+// частям (**R7**), таблица кандидатов с причиной у каждого отклонённого.
+//
 // `CP-02` — субтитры (`src/timeline/captions.ts`): `CaptionGroup` из 1–3 слов одной строкой,
 // потолок группы по числу символов, минимум длительности как порог записи в отчёт, подсветка
 // слова атрибутом внутри группы.
@@ -28,10 +33,16 @@ export {
   type CaptionsProfileInput,
   type ClipFill,
   type CompileProfileInput,
+  type CrossingClip,
   type CutCandidate,
+  type CutReason,
+  type CutRow,
+  type CutTable,
   type PlacedClip,
   type PlacedSilence,
   type PlacedSpeech,
+  type RejectReason,
+  type Segment,
   type Timeline,
   type TimelineItem,
   type TimelineTrack,
@@ -48,6 +59,7 @@ export {
 
 export {
   anchorTimes,
+  atLabel,
   resolvePoint,
   spaceOf,
   type AnchorTimes,
@@ -56,6 +68,16 @@ export {
 } from './timeline/anchors.js';
 
 export { recordTracks, type RecordTracksInput } from './timeline/records.js';
+
+export {
+  assertTotalSegments,
+  segments,
+  CHAPTER_PARALLELISM,
+  CROSSING_TRACKS,
+  NON_CROSSING_TRACKS,
+  type SegmentsInput,
+  type SegmentsResult,
+} from './timeline/segments.js';
 
 export { captionGroups, type CaptionsInput, type CaptionsResult } from './timeline/captions.js';
 
