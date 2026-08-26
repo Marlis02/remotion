@@ -57,6 +57,8 @@ export interface CompileProfileInput {
     readonly tokensPerGroupMin: number;
     readonly tokensPerGroupMax: number;
     readonly minGroupDurationFrames: number;
+    /** Потолок группы по числу символов (`CP-02`). Дробит группу раньше `tokensPerGroupMax`. */
+    readonly maxGroupChars: number;
   };
 }
 

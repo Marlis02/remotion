@@ -1,0 +1,61 @@
+=== ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ — CP-02 ===
+Откат после каждого — резервом cp (`git checkout` запрещён, урок CP-01); после отката
+md5sum сверяется с резервом и прогон повторяется.
+
+--- НАРУШЕНИЕ 1: сдвиг группы на 1 сэмпл «ради минимума» (T10) ---
+правка: startSample группы = start первого токена + 1
+     × `start` группы == начало первого токена, `end` == конец последнего — у КАЖДОЙ группы 535ms
+     × быстрый дубль (msPerChar 10) ⇒ группы короче 200 мс ЕСТЬ, записаны и НЕ СДВИНУТЫ 163ms
+     × непроизносимый `absent`-токен приклеен к соседу слева: «“waiting”.» одной строкой 467ms
+AssertionError: группа «The morning began»: expected 1 to be +0 // Object.is equality
+AssertionError: expected 1 to be +0 // Object.is equality
+AssertionError: expected 566521 to be 566520 // Object.is equality
+      Tests  3 failed | 15 passed (18)
+откат: md5 совпал с резервом? 1 (1 = да)
+      Tests  18 passed (18)
+
+--- НАРУШЕНИЕ 2: слияние двух токенов в один (T11) ---
+правка: первые два токена группы склеиваются в один CaptionGroupToken
+     × разрешённых во времени `w:` == токенов минус `absent`, и состав субтитров от fps не зависит 505ms
+     × потолок РЕЖЕТ раньше трёх слов: «The harbour warehouses» = 22 символа не собирается 495ms
+     × `tokensPerGroupMin` сильнее правила конца предложения (синтетический профиль min=2) 492ms
+     × `[say: 200 | two hundred]` показывает `200`, а не «two hundred» 531ms
+AssertionError: expected 109 to be 166 // Object.is equality
+AssertionError: expected [ { …(5) } ] to have a length of 2 but got 1
+AssertionError: одиночная группа «the days.» ничем не вынуждена: expected false to be true // Object.is equality
+AssertionError: expected [ 'The morning', 'began', …(107) ] to include '14'
+откат: md5 совпал с резервом? 1 (1 = да)
+      Tests  18 passed (18)
+
+--- НАРУШЕНИЕ 3: потолок символов проигнорирован ---
+правка: проверка maxGroupChars удалена из fits()
+     × слов в группе ∈ [tokensPerGroupMin, tokensPerGroupMax], строка ≤ maxGroupChars 436ms
+     × потолок РЕЖЕТ раньше трёх слов: «The harbour warehouses» = 22 символа не собирается 437ms
+AssertionError: «The harbour warehouses»: expected 22 to be less than or equal to 21
+AssertionError: expected [ 'The morning began', …(59) ] to not include 'The harbour warehouses'
+      Tests  2 failed | 16 passed (18)
+откат: md5 совпал с резервом? 1 (1 = да)
+      Tests  18 passed (18)
+
+--- НАРУШЕНИЕ 4: группа проходит через границу речевого клипа ---
+правка: проверка `first.clip !== next.clip` удалена из fits()
+      Tests  18 passed (18)
+откат: md5 совпал с резервом? 1 (1 = да)
+      Tests  18 passed (18)
+
+    ^^^ НАРУШЕНИЕ 4, ПОПЫТКА 1: ОХРАННИК НЕ ПОКРАСНЕЛ. Это находка, а не осечка протокола.
+    Причина: на фикстуре КАЖДЫЙ речевой клип кончается токеном с точкой, поэтому группу на
+    границе клипа закрывало ПРАВИЛО ПРЕДЛОЖЕНИЯ (решение владельца, вопрос 5), а проверка
+    клипа была замаскирована. Добавлен тест «граница речевого клипа держит группу ДАЖЕ КОГДА
+    правило предложения молчит» (`tokensPerGroupMin` = max глушит правило предложения, потолок
+    поднят до 200) + контроль предмета: в нём обязаны быть группы с точкой НЕ на последнем
+    слове, иначе тест зелен на пустоте. Попытка 2 — ниже.
+
+--- НАРУШЕНИЕ 4 (попытка 2, после закрытия дыры): группа через границу клипа ---
+
+правка: проверка `first.clip !== next.clip` удалена из fits()
+     × граница речевого клипа держит группу ДАЖЕ КОГДА правило предложения молчит 463ms
+AssertionError: «years running. Ships» вышла за клип 72xh5eni6aev6aqz: expected 97080 to be less than or equal to 84480
+      Tests  1 failed | 18 passed (19)
+откат: md5 совпал с резервом? 1 (1 = да)
+      Tests  19 passed (19)

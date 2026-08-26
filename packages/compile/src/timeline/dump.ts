@@ -80,5 +80,22 @@ export function dumpTimeline(timeline: Timeline): string {
     lines.push(`  ${anchor.anchorId} ${anchor.space} ${span(anchor.startSample, anchor.endSample)}`);
   }
 
+  // Субтитры (`CP-02`) печатаются ПОСЛЕДНИМ блоком намеренно: всё, что было в дампе до них,
+  // сохраняет свои позиции построчно, и дифф `CP-01` → `CP-02` читается как «дописан блок»,
+  // а не «сдвинулся весь файл». `short=yes` — группа короче `minGroupDurationFrames`: она
+  // принята как есть, а не сдвинута (**T10**), и лежит в `captionReport`.
+  lines.push(
+    `captions count=${String(timeline.captionGroups.length)} ` +
+      `short=${String(timeline.captionReport.short.length)} ` +
+      `tails=${String(timeline.captionReport.tailSingletons)}`,
+  );
+  for (const group of timeline.captionGroups) {
+    lines.push(
+      `  ${span(group.startSample, group.endSample)} "${group.text}" ` +
+        `tokens=${String(group.tokens.length)} chunk=${group.chunkKey} ` +
+        `short=${group.belowMinimum ? 'yes' : 'no'}`,
+    );
+  }
+
   return `${lines.join('\n')}\n`;
 }

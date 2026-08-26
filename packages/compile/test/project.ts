@@ -34,6 +34,7 @@ type AnchorEntry = Parameters<typeof readDirection>[1]['ledger'][number];
 import { LocalStore, readAssetCatalog, readStoreLock, type AssetCatalog } from '@vpe/media';
 import {
   MOCK_PROFILE,
+  type MockProfile,
   recordSpeechPlan,
   speechPlan,
   synthPcm,
@@ -86,11 +87,20 @@ export function countingRandom(start = 1): RandomBytes {
   };
 }
 
-/** Источник дубля поверх `tts:mock@1`: ответ и та же дорожка, из которой он посчитан. */
-const mockSource: SpeechSource = (request) => ({
-  alignment: synthesize({ text: request.spokenText, seed: fixtureVoice().seed, profile: TAKE_PROFILE }).alignment,
-  pcm: synthPcm(request.spokenText, fixtureVoice().seed, TAKE_PROFILE).pcm,
-});
+/**
+ * Источник дубля поверх `tts:mock@1`: ответ и та же дорожка, из которой он посчитан.
+ *
+ * ПАРАМЕТРИЗОВАН ПРОФИЛЕМ МОКА (`CP-02`): тест минимума длительности субтитров требует речи
+ * БЫСТРЕЕ дефолтной — при `msPerChar: 55` группа из трёх слов не бывает короче 200 мс, и
+ * ветка «короче минимума» осталась бы без предмета. Дефолт не меняется: `TAKE_PROFILE`
+ * остаётся тем же, каким его сделал `CP-01`.
+ */
+const mockSourceOf =
+  (profile: MockProfile): SpeechSource =>
+  (request) => ({
+    alignment: synthesize({ text: request.spokenText, seed: fixtureVoice().seed, profile }).alignment,
+    pcm: synthPcm(request.spokenText, fixtureVoice().seed, profile).pcm,
+  });
 
 export interface BuiltProject {
   readonly root: string;
@@ -111,8 +121,10 @@ export interface BuiltProject {
  *
  * @param text исходник; по умолчанию — `fixtures/minimal/source/01-intro.md` дословно.
  *   Параметр нужен тесту «правка слова»: фикстура при этом не изменяется ни символом.
+ * @param takeProfile профиль мока; по умолчанию `TAKE_PROFILE` (`CP-01`). Быстрый `msPerChar`
+ *   нужен тесту минимума длительности групп субтитров (`CP-02`).
  */
-export async function buildProject(text?: string): Promise<BuiltProject> {
+export async function buildProject(text?: string, takeProfile: MockProfile = TAKE_PROFILE): Promise<BuiltProject> {
   const raw = text ?? readFixture('fixtures/minimal/source/01-intro.md');
   const profile = fixtureCompileProfile();
   const maxChunkChars = fixtureMaxChunkChars();
@@ -132,7 +144,7 @@ export async function buildProject(text?: string): Promise<BuiltProject> {
   await recordSpeechPlan({
     plan,
     acceptance: fixtureTakeAcceptance(),
-    source: mockSource,
+    source: mockSourceOf(takeProfile),
     store: new LocalStore(path.join(root, '.store')),
     lock: readStoreLock(path.join(FIXTURE, 'store.lock')),
     projectRoot: root,

@@ -1,5 +1,9 @@
 // Публичная поверхность `@vpe/compile` (карта ADR-0009: Timeline, сегментация, RenderIR).
 //
+// `CP-02` — субтитры (`src/timeline/captions.ts`): `CaptionGroup` из 1–3 слов одной строкой,
+// потолок группы по числу символов, минимум длительности как порог записи в отчёт, подсветка
+// слова атрибутом внутри группы.
+//
 // `CP-01` — `compose` → Timeline (`src/timeline/`): треки, речевые клипы по измеренным краям
 // дубля, клипы `Silence` трёх видов (`author`/`gap`/`boundary-correction` — третий существует
 // в типе `core-model` и экземпляров в `CP-01` не порождает), дефолтные gap'ы T8, разрешение
@@ -17,6 +21,11 @@ export {
   type AnchorTime,
   type AssetSha,
   type BoundaryKind,
+  type CaptionGroup,
+  type CaptionGroupToken,
+  type CaptionReport,
+  type CaptionShortGroup,
+  type CaptionsProfileInput,
   type ClipFill,
   type CompileProfileInput,
   type CutCandidate,
@@ -47,6 +56,8 @@ export {
 } from './timeline/anchors.js';
 
 export { recordTracks, type RecordTracksInput } from './timeline/records.js';
+
+export { captionGroups, type CaptionsInput, type CaptionsResult } from './timeline/captions.js';
 
 export { compose, type ComposeInput } from './timeline/compose.js';
 

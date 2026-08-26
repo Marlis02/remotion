@@ -49,6 +49,11 @@ maxDurationFrames: 1800           # 60 с
 # Тот же класс величин и то же решение владельца 7: принято как есть,
 # пересмотр после первого опубликованного ролика.
 captions:
-  tokensPerGroupMin: 2
-  tokensPerGroupMax: 4
+  tokensPerGroupMin: 1
+  tokensPerGroupMax: 3
   minGroupDurationFrames: 6       # группы не сдвигаются; минимум — за счёт числа токенов (M6)
+  # Кегль 72 и потолок 21 — ВРЕМЕННЫЕ до TS-01/H-07, измерены по DejaVu Sans Bold
+  # (unitsPerEm 2048, xAvgCharWidth 1173 = 0.5728 em): в полосе 1080 − 60 − 60 = 960 px
+  # при кегле 72 самая широкая группа фикстуры длиной 21 символ занимает 957 px, длиной
+  # 22 символа — 1008 px. Кегль в профиле не живёт: он свойство шаблона (TS-01).
+  maxGroupChars: 21

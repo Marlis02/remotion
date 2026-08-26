@@ -69,7 +69,7 @@ excluded (3):
 # ADR-0006 §2, §5, §6
 # segmentKey = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )
 
-fields (38):
+fields (39):
   01. segmentIrHash : text
       = "ir-0001"
   02. compileProfile.fps.num : int
@@ -101,50 +101,52 @@ fields (38):
   15. compileProfile.maxDurationFrames : int
       = 1800
   16. compileProfile.captions.tokensPerGroupMin : int
-      = 2
+      = 1
   17. compileProfile.captions.tokensPerGroupMax : int
-      = 4
+      = 3
   18. compileProfile.captions.minGroupDurationFrames : int
       = 6
-  19. pixelProfile.browserGpu : json
+  19. compileProfile.captions.maxGroupChars : int
+      = 21
+  20. pixelProfile.browserGpu : json
       = false
-  20. pixelProfile.imageFormat : text
+  21. pixelProfile.imageFormat : text
       = "jpeg"
-  21. pixelProfile.jpegQuality : json
+  22. pixelProfile.jpegQuality : json
       = [90]
-  22. pixelProfile.scale : json
+  23. pixelProfile.scale : json
       = 1
-  23. pixelProfile.colorSpace : text
+  24. pixelProfile.colorSpace : text
       = "bt709"
-  24. pixelProfile.pixelFormat : text
+  25. pixelProfile.pixelFormat : text
       = "yuv420p"
-  25. pixelProfile.codec : text
+  26. pixelProfile.codec : text
       = "h264"
-  26. pixelProfile.crf : json
+  27. pixelProfile.crf : json
       = 18
-  27. pixelProfile.gopSize : int
+  28. pixelProfile.gopSize : int
       = 30
-  28. pixelProfile.encoder.threads : int
+  29. pixelProfile.encoder.threads : int
       = 4
-  29. pixelProfile.encoder.preset : text
+  30. pixelProfile.encoder.preset : text
       = "medium"
-  30. pixelProfile.encoder.tune : text
+  31. pixelProfile.encoder.tune : text
       = "none"
-  31. pixelProfile.encoder.rcLookahead : int
+  32. pixelProfile.encoder.rcLookahead : int
       = 40
-  32. pixelProfile.encoder.aqMode : int
+  33. pixelProfile.encoder.aqMode : int
       = 1
-  33. pixelProfile.encoder.psy : int
+  34. pixelProfile.encoder.psy : int
       = 1
-  34. pixelProfile.encoder.bitexact : json
+  35. pixelProfile.encoder.bitexact : json
       = true
-  35. assetShas : json
+  36. assetShas : json
       = ["a1","a2"]
-  36. fontShas : json
+  37. fontShas : json
       = ["f1"]
-  37. gridShas : json
+  38. gridShas : json
       = []
-  38. engineFingerprint : text
+  39. engineFingerprint : text
       = "engine-0001"
 
 upstream (0):

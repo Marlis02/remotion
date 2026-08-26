@@ -35,15 +35,49 @@ function field(text: string, name: string, where: string): number {
   return Number(match[1]);
 }
 
+/**
+ * `fps: { num: N, den: M }` фикстуры — инлайновая форма, поэтому своя регулярка.
+ *
+ * Читается ИЗ ПРОФИЛЯ, а не литералом: «fps = 30 — решение, а не умолчание» (ADR-0003), и
+ * повторить его в тесте значило бы перестать замечать расхождение кода с профилем.
+ */
+function fpsField(text: string, where: string): { num: number; den: number } {
+  const match = /^fps:\s*\{\s*num:\s*(\d+),\s*den:\s*(\d+)\s*\}/m.exec(text);
+  if (match?.[1] === undefined || match[2] === undefined) {
+    throw new Error(`${where}: поле \`fps\` не найдено или записано не инлайновым отображением.`);
+  }
+  return { num: Number(match[1]), den: Number(match[2]) };
+}
+
+/** Блок `captions` фикстуры (`CP-02`): 1–3 слова, минимум-порог, потолок символов. */
+function captionsBlock(text: string, where: string): CompileProfileInput['captions'] {
+  const block = /^captions:\n((?:(?:[ ]{2}.*)?\n)+)/m.exec(text);
+  if (block?.[1] === undefined) throw new Error(`${where}: блок \`captions\` не найден.`);
+  const body = block[1];
+  const one = (name: string): number => {
+    const match = new RegExp(`^\\s{2}${name}:\\s*(\\d+)`, 'm').exec(body);
+    if (match?.[1] === undefined) throw new Error(`${where}: captions.${name} не найдено.`);
+    return Number(match[1]);
+  };
+  return {
+    tokensPerGroupMin: one('tokensPerGroupMin'),
+    tokensPerGroupMax: one('tokensPerGroupMax'),
+    minGroupDurationFrames: one('minGroupDurationFrames'),
+    maxGroupChars: one('maxGroupChars'),
+  };
+}
+
 /** `compile-profile/1` фикстуры — ровно те поля, которых требует `compose`. */
 export function fixtureCompileProfile(): CompileProfileInput {
   const where = 'fixtures/minimal/profiles/compile.yaml';
   const text = readFixture(where);
   return {
     projectSampleRate: field(text, 'projectSampleRate', where),
+    fps: fpsField(text, where),
     defaultParagraphGapSamples: field(text, 'defaultParagraphGapSamples', where),
     defaultSceneGapSamples: field(text, 'defaultSceneGapSamples', where),
     defaultChapterGapSamples: field(text, 'defaultChapterGapSamples', where),
+    captions: captionsBlock(text, where),
   };
 }
 

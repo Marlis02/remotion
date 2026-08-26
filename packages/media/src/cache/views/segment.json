@@ -22,6 +22,7 @@
     { "path": "compileProfile.captions.tokensPerGroupMin", "kind": "int", "why": "группировка субтитров — пиксели кадра" },
     { "path": "compileProfile.captions.tokensPerGroupMax", "kind": "int", "why": "верхняя граница группы субтитров: другое число токенов в кадре — другие пиксели" },
     { "path": "compileProfile.captions.minGroupDurationFrames", "kind": "int", "why": "минимум держится числом токенов, а не сдвигом групп (M6): величина меняет разбиение, то есть кадры" },
+    { "path": "compileProfile.captions.maxGroupChars", "kind": "int", "why": "второй потолок группы — по числу символов (`CP-02`): он дробит группу раньше `tokensPerGroupMax`, то есть меняет САМО разбиение на группы, а значит и текст в кадре" },
     { "path": "pixelProfile.browserGpu", "kind": "json", "why": "бэкенд растеризации меняет пиксели (ADR-0008); поэтому поле в pixelProfile, а не в executionProfile" },
     { "path": "pixelProfile.imageFormat", "kind": "text", "why": "формат кадра между Chrome и энкодером" },
     { "path": "pixelProfile.jpegQuality", "kind": "json", "optional": true, "why": "обязателен при `imageFormat: jpeg` и ЗАПРЕЩЁН при `png`; признак `optional` кодирует отсутствие обёрткой-списком, чтобы «поля нет» и «поле есть» были РАЗНЫМИ входами ключа" },
