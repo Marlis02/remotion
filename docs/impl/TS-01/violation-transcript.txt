@@ -1,0 +1,131 @@
+ПРОТОКОЛ НАРУШЕНИЙ — TS-01 (templates-spec: контракт шаблона, манифест, реестр)
+Снят: 2026-08-27T22:04:14+06:00. Правило: каждый охранник показан ПАДАЮЩИМ на прямом нарушении.
+Откат — cp-резервом (git checkout запрещён протоколом задачи).
+Резервы: /tmp/claude-1000/-home-marlis-Documents-remotion/00c70be0-eb5f-4660-b1e7-a18a0da7af54/scratchpad/vio/
+
+Контроль ДО: pnpm typecheck / pnpm lint / pnpm test — зелёные (110 файлов, 1869 тестов, 99.54 с).
+
+================================================================
+Н1 — спек БЕЗ манифеста регистрируется
+Файл: packages/templates-spec/src/registry.ts, отказ 1 в register()
+Ожидание: краснеет packages/templates-spec/test/registry.test.ts
+================================================================
+     × спек БЕЗ манифеста — отказ (критерий готовности `TS-01`) 5ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [Function] to throw error matching /манифеста нет/ but got 'TS-01 реестр: спек #0: манифест не пр…'
+ Test Files  1 failed (1)
+      Tests  1 failed | 16 passed (17)
+ОТКАТ выполнен (cp)
+
+ИЗМЕРЕНИЕ, КОТОРОГО НЕ ЖДАЛИ: снятие ПЕРВОГО эшелона (рантаймовая проверка
+`spec.manifest === undefined`) шаблон всё равно НЕ пропускает — его ловит второй эшелон
+(`TemplateManifestSchema.safeParse(undefined)`). Тест краснеет не потому, что спек
+зарегистрирован, а потому, что СООБЩЕНИЕ деградировало: вместо «манифеста нет» человек
+получает список претензий схемы к `undefined`. Значит первый эшелон стережёт не отказ,
+а ТЕКСТ отказа. Ниже — Н1b, где сняты оба и спек действительно регистрируется.
+
+================================================================
+Н1b — сняты ОБА эшелона: спек без манифеста РЕГИСТРИРУЕТСЯ
+================================================================
+     × спек БЕЗ манифеста — отказ (критерий готовности `TS-01`) 3ms
+     × спек БЕЗ `msPerFrameBudget` — отказ (критерий готовности `E-00`) 2ms
+     × дубль пары (id, версия) — отказ 1ms
+     × спек, разошедшийся со своим манифестом по имени, — отказ 0ms
+     × манифест, не проходящий свою схему, — отказ реестра, а не `ZodError` наружу 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected function to throw an error, but it didn't
+AssertionError: expected [Function] to throw an error
+AssertionError: expected [Function] to throw an error
+AssertionError: expected [Function] to throw an error
+AssertionError: expected function to throw an error, but it didn't
+ Test Files  1 failed (1)
+      Tests  5 failed | 12 passed (17)
+ОТКАТ выполнен (cp)
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+
+================================================================
+Н2 — гейт принят по `profileId` БЕЗ сверки `engineFingerprint`
+Файл: packages/templates-spec/src/gate.ts — снята ветка сравнения отпечатка
+Ожидание: краснеет packages/templates-spec/test/gate.test.ts (пара, а не профиль)
+================================================================
+     × запись на ДРУГОМ отпечатке — падает 4ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [Function] to throw an error
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+ОТКАТ выполнен (cp)
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+
+================================================================
+Н3 — `N = 5` на профиле `final` принят
+Файл: packages/templates-spec/src/manifest.ts — снят superRefine сверки с GATE_RUNS
+Ожидание: краснеет packages/templates-spec/test/manifest.test.ts
+================================================================
+     × N = 5 на `final` — отказ: это гейт, которого никто не проводил 5ms
+     × N = 10 на `draftHalf` — отказ: N — часть правила, а не настройка 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 32 passed (34)
+ОТКАТ выполнен (cp)
+ Test Files  1 passed (1)
+      Tests  34 passed (34)
+
+================================================================
+Н4 — `gridPoint` пролез через схему `still@1`
+Файл: packages/templates-spec/src/templates/still@1.ts — снят `.strict()`
+Ожидание: краснеет packages/templates-spec/test/fixture-specs.test.ts
+================================================================
+     × `still@1` отвергает поле `opacity`, которого не объявлял 4ms
+     × `still@1`: `gridPoint` некуда положить — полей-точек он не объявляет вовсе 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 30 passed (32)
+ОТКАТ выполнен (cp)
+ Test Files  1 passed (1)
+      Tests  32 passed (32)
+
+================================================================
+Н5 — `declareAssets` читает `fs`
+Файл: packages/templates-spec/src/templates/still@1.ts — импорт `node:fs` + чтение
+Ожидание: краснеет tests/boundaries/templates-spec-imports.test.ts.
+ВАЖНО: тест чистоты «два вызова равны» (purity.test.ts) при этом ЗЕЛЁНЫЙ —
+чтение одного и того же файла дважды даёт равные результаты. Ловит только греп.
+================================================================
+--- греп-охранник границы ---
+     × в `src/**` нет ни одного внешнего импорта сверх разрешённых двух 7ms
+     × в `src/**` нет диска и сети — декларации ресурсов чисты (ADR-0008, вход **R3**) 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: Граница `templates-spec` нарушена. README пакета: «импортирует `@vpe/core-model`; НЕ импортирует рендерер и его библиотеку анимации, `react`, сеть, `media`/`voice`/`compile`». Найдено: packages/templates-spec/src/templates/still@1.ts → "node:fs": expected [ Array(1) ] to deeply equal []
+AssertionError: `declareAssets`/`declareFonts` обязаны быть чистыми: компилятор зовёт их ДО Policy Guard, и декларация, читающая диск, сделала бы ключ кэша зависящим от содержимого диска в момент компиляции (ADR-0008, «Декларация ресурсов шаблона»). Найдено: packages/templates-spec/src/templates/still@1.ts → "node:fs": expected [ Array(1) ] to deeply equal []
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+--- тест чистоты «два вызова равны» на том же нарушении ---
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+ОТКАТ выполнен (cp)
+
+================================================================
+КОНТРОЛЬ ПОСЛЕ ВСЕХ ОТКАТОВ (2026-08-27T22:07:57+06:00)
+================================================================
+git status: изменены 4 файла (package.json, tsconfig.json, src/index.ts, pnpm-lock.yaml),
+остальное — новые файлы. Ни одного следа мутаций.
+pnpm typecheck — зелёный
+pnpm lint — зелёный
+pnpm test — 110 файлов / 1869 тестов, 99.64 с
+
+================================================================
+ИЗМЕРЕНИЕ КРИТЕРИЯ R12 НА ФИКСТУРЕ (не нарушение — ожидаемый результат)
+================================================================
+TemplateSpecError: R12: сборка не стартует: 5 шаблон(ов) без пройденной записи гейта для пары (профиль `final`, отпечаток `0000000000000000000000000000000000000000000000000000000000000000`).
+  • kenburns@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate kenburns@1 --profile final`
+  • flash@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate flash@1 --profile final`
+  • bed@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate bed@1 --profile final`
+  • still@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate still@1 --profile final`
+  • captionEmphasis@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate captionEmphasis@1 --profile final`
+Правило — Charter V13: «шаблон, не прошедший гейт, не версионируется и не используется; сборка ролика с таким шаблоном не стартует». Запись ставит АВТОР командой `vpe template gate` (решение владельца 5, RM1) — ночного CI в v1 нет
