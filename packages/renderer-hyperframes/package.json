@@ -3,19 +3,28 @@
   "private": true,
   "type": "module",
   "version": "0.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     }
   },
   "dependencies": {
     "@vpe/core-model": "workspace:*",
-    "@vpe/templates-spec": "workspace:*"
+    "@vpe/templates-spec": "workspace:*",
+    "gsap": "3.15.0",
+    "hyperframes": "0.8.5"
   },
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "preflight": "hyperframes browser ensure"
+  },
+  "bin": {
+    "vpe-render-segment": "./dist/bin/render-segment.js"
+  },
+  "devDependencies": {
+    "@vpe/media": "workspace:*"
   }
 }

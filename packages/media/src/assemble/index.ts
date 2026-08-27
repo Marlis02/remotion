@@ -24,6 +24,16 @@ export {
   type ProbeOptions,
   type StreamFingerprint,
 } from './ffprobe.js';
+// `H-01` (2026-08-28, решение владельца, поправка A) — АДДИТИВНАЯ сборка артефакта из кадров,
+// отданных рендерером: композиция уже существующих `encodeSegment`/`probeStreamFingerprint`/
+// `framemd5Of`/sha256. Ни один вызов `M-04` не переписан.
+export {
+  buildSegmentArtifact,
+  type BuildSegmentArtifactOptions,
+  type RenderStatsInput,
+  type RenderedFramesInput,
+  type SegmentArtifact,
+} from './artifact.js';
 export {
   KNOWN_VIDEO_ENCODERS,
   SEGMENT_EXTENSION,

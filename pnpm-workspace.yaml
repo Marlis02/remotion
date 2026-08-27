@@ -13,5 +13,24 @@ packages:
 # УСЛОВИЕ ПЕРЕСМОТРА: на другой машине или архитектуре резолвер не загрузится
 # (prebuilt под неё не собран) — тогда значение меняется на `true` отдельным коммитом,
 # а не молча.
+# Четыре строки ниже вписал `pnpm add hyperframes@0.8.5` (`H-01`, 2026-08-28) с той же
+# заглушкой «set this to true or false». Заглушка — не значение, поэтому все четыре решены
+# ИЗМЕРЕНИЕМ, тем же способом, что `unrs-resolver`: ставим `false`, прогоняем НАСТОЯЩИЙ рендер
+# и смотрим, работает ли. `FACT` (`H-01`): сквозной тест `render.test.ts` — четыре рендера по
+# 30 кадров через `hyperframes render --format png-sequence` — зелёный при всех четырёх `false`.
+# Почему так и вышло:
+#   `esbuild`          — компилятор композиции внутри CLI; его postinstall лишь СКАЧИВАЕТ
+#                        платформенный бинарник, а pnpm ставит `@esbuild/linux-x64@0.25.12`
+#                        обычной optional-зависимостью, и esbuild берёт его оттуда;
+#   `onnxruntime-node` — модель анализа битов музыки (`hyperframes beat`); наш путь её не зовёт;
+#   `protobufjs`       — транзитивная зависимость двух предыдущих, кодогенерация в postinstall;
+#   `@google/genai`    — AI-функции CLI, и они выключены переменной `HYPERFRAMES_SKIP_SKILLS`
+#                        (одна из четырёх, которыми глушится сеть вне рендера, ADR-0008).
+# УСЛОВИЕ ПЕРЕСМОТРА: понадобится `hyperframes beat` (анализ музыки) — `onnxruntime-node`
+# меняется на `true` отдельным коммитом, а не молча.
 allowBuilds:
+  '@google/genai': false
+  esbuild: false
+  onnxruntime-node: false
+  protobufjs: false
   unrs-resolver: false

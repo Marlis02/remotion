@@ -1,0 +1,48 @@
+// Ошибка адаптера рендерера: форма запроса, согласованность, окружение, прогон.
+//
+// ОШИБКА НАЗЫВАЕТ ПРАВИЛО (образец — `TemplateSpecError` из `TS-01`, `AssembleError` из
+// `M-04`). «Файл не найден» — следствие; «R3: ассет `ir.assets[0]` не объявлен в
+// `request.assets`» — причина, и по ней сразу видно, какую строку реестра инвариантов читать.
+//
+// НАРУШЕНИЯ СОБИРАЮТСЯ СПИСКОМ, А НЕ ПЕРВЫМ ПОПАВШИМСЯ. Причина та же, что у `CompileError`
+// (`CP-01`): вызывающий — не человек за клавиатурой, а `vpe build`, и «почини одно, узнай про
+// второе» превращает одну сборку в пять. Поэтому у ошибки есть `problems`, а у ответа
+// подпроцесса — `error.details`.
+
+import type { RenderProblem } from './contract.js';
+
+/** Правила, на которые ссылаются ошибки адаптера. */
+export type RenderRule =
+  /** R2 — рендерер пишет только в `outputPath` и `tmpDir`. */
+  | 'R2'
+  /** R3 — адаптер не открывает файлов вне `assets`/`fonts` запроса. */
+  | 'R3'
+  /** R4 — запрос переживает JSON round-trip (нет `Map`/`Set`). */
+  | 'R4'
+  /** Форма запроса: типы полей, `requestVersion`, абсолютность путей. */
+  | 'ADR-0008 форма'
+  /** Профиль просит того, чего рендерер не умеет (дробный fps, `imageFormat: jpeg`). */
+  | 'ADR-0008 профиль'
+  /** Шаблон вызван, реализации в реестре рендерера нет (`H-06`). */
+  | 'V3'
+  /** Preflight: `chrome-headless-shell` не на диске (ADR-0008, «Стадия bundle»). */
+  | 'preflight'
+  /** Сам прогон рендерера: ненулевой код выхода, таймаут, не то число кадров. */
+  | 'прогон';
+
+/** Нарушение контракта адаптера: правило + список адресов, а не голый текст. */
+export class RenderAdapterError extends Error {
+  readonly rule: RenderRule;
+  readonly problems: readonly RenderProblem[];
+
+  constructor(rule: RenderRule, reason: string, problems: readonly RenderProblem[] = []) {
+    const tail =
+      problems.length === 0
+        ? ''
+        : '\n' + problems.map((p) => `  • ${p.at} — [${p.rule}] ${p.message}`).join('\n');
+    super(`${rule}: ${reason}${tail}`);
+    this.name = 'RenderAdapterError';
+    this.rule = rule;
+    this.problems = problems;
+  }
+}

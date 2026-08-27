@@ -1,12 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
+  "// Почему rootDir '.'": "H-01, по образцу `packages/media` (M-01), `packages/templates-spec` (TS-01) и `packages/compile` (CP-01): тесты пакета лежат в `test/` (vitest.config.ts включает `packages/*/test/**`). При rootDir './src' они выпадали бы из `tsc --build`, то есть `pnpm typecheck` их не видел. Цена — `dist/` содержит `src/`, `test/` и `bin/`, а `main` смещается в `dist/src/`; пакет приватный. Долг тот же — docs/DEBTS.md №6.",
+  "// Почему bin/ отдельным каталогом, а не в src/": "H-01, решение владельца (поправка П1). D4-линт запрещает `Date.now`/`performance.now` во всём `packages/*/src/**`; часы нужны ровно на границе процесса. Точка входа подпроцесса вынесена из-под линта РАСПОЛОЖЕНИЕМ, а не исключением по имени файла внутри зоны, и это единственное место, где адаптер читает системное время.",
+  "// Почему ссылка на ../media": "H-01: `@vpe/media` — devDependency ТОЛЬКО тестов (сквозной тест «кадры → артефакт» зовёт `buildSegmentArtifact`). Ссылка нужна `tsc --build`, чтобы типы `media` резолвились в `test/**`. Стрелки графа ADR-0009 это не меняет: охранник `tests/boundaries/adr0009-graph.test.ts` читает `dependencies`, а не `devDependencies`, и `src/**` пакета `media` не импортирует ни одной строкой (проверяет `test/boundaries.test.ts`).",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "test/**/*.ts", "bin/**/*.ts"],
   "references": [
     { "path": "../core-model" },
-    { "path": "../templates-spec" }
+    { "path": "../templates-spec" },
+    { "path": "../media" }
   ]
 }
