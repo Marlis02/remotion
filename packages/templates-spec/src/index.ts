@@ -52,7 +52,13 @@ export {
 } from './manifest.js';
 
 // Контракт одного шаблона и вход **R3**.
-export { requestFiles, type AnyTemplateSpec, type RequestedFiles, type TemplateSpec } from './spec.js';
+export {
+  declaredDurationOf,
+  requestFiles,
+  type AnyTemplateSpec,
+  type RequestedFiles,
+  type TemplateSpec,
+} from './spec.js';
 
 // Реестр и версия, которую сверяет `compileProfile` (**K6**, ADR-0006 §5).
 export {

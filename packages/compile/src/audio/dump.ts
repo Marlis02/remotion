@@ -81,12 +81,15 @@ export function dumpAudioPlan(plan: AudioPlan): string {
       `tail=${String(plan.trackTailSamples)}`,
     formatBreakdown(plan.breakdown, plan.totalFrames, plan.sampleRate),
     `eps=${plan.epsilonSamples.map((value) => String(value)).join(',')}`,
-    `music: ${String(plan.unmixedClips)} клипов не смикшированы (TS-01)`,
+    `music: ${String(plan.unmixedClips)} клипов не смикшированы (X-02)`,
   ];
   for (const clip of plan.music) {
     lines.push(
       `  ${clip.track}    [${String(clip.startSample)}, ${String(clip.endSample)}) ${clip.clipId} ` +
-        `template=${clip.template}`,
+        `template=${clip.template} assets=` +
+        (clip.assets.length === 0
+          ? '<нет>'
+          : clip.assets.map((asset) => `${asset.sha256}/${asset.role}`).join(',')),
     );
   }
   for (const element of plan.elements) lines.push(elementLine(element));

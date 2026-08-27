@@ -38,11 +38,29 @@ function itemLine(item: TimelineItem): string {
       const fill =
         item.fill.kind === 'record'
           ? `record ${item.fill.recordId} template=${item.fill.template}`
-          : `generated ${item.fill.template} alias=${item.fill.alias} asset=${item.fill.assetSha}`;
+          : `generated ${item.fill.template}`;
+      // Контракт печатается У КАЖДОГО клипа одинаково (`CP-07`): до этой задачи `alias`/`asset`
+      // стояли только у порождённой ветви, потому что только её alias компилятор разрешал.
+      // Теперь ассеты объявляет шаблон, и разница между ветвями осталась ровно одна — есть ли
+      // у записи `recordId`.
+      const { contract } = item.fill;
+      const assets =
+        contract.assets.length === 0
+          ? '<нет>'
+          : contract.assets.map((asset) => `${asset.sha256}/${asset.role}`).join(',');
+      const fonts =
+        contract.fonts.length === 0
+          ? '<нет>'
+          : contract.fonts.map((font) => `${font.sha256}/${font.family}/${font.role}`).join(',');
+      const declared =
+        contract.declaredDurationSamples === null
+          ? '<нет>'
+          : String(contract.declaredDurationSamples);
       return (
         `  ${span(item.startSample, item.endSample)} clip ${item.clipId} z=${String(item.z)} ` +
         `ord=${String(item.sourceOrdinal)} at=${atLabel(item.at)} ` +
-        `dur=${String(item.duration.samples)} ${fill}`
+        `dur=${String(item.duration.samples)} ${fill} assets=${assets} fonts=${fonts} ` +
+        `declaredDur=${declared} purposes=${contract.purposes.length === 0 ? '<нет>' : contract.purposes.join(',')}`
       );
     }
   }

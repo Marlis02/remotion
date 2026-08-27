@@ -24,9 +24,11 @@ import {
   assertT4,
   type AssemblyManifest,
   type Frames,
+  type IrAssetRef,
   type IrCaptionGroup,
   type IrCaptionToken,
   type IrClip,
+  type IrFontRef,
   type RenderIrSegment,
   type SegmentPlacement,
   type TimeGrid,
@@ -44,11 +46,40 @@ export interface BuildIrInput extends AssemblyInput {
   readonly seedRoot: number;
 }
 
+/**
+ * Пиковая сумма `msPerFrameBudget` по одному сегменту (ADR-0008 «Бюджет AC2»).
+ *
+ * *(Добавлено: `CP-07`, 2026-08-28, решение владельца F.)* Величина ПЕЧАТАЕТСЯ И НЕ РОНЯЕТ —
+ * дословно решение владельца 9 (RM1): «сумма `msPerFrameBudget` по пересекающимся клипам
+ * печатается в отчёте без падения, переход к падению — после `E-05`». Здесь она считается
+ * потому, что здесь есть оба слагаемых сразу: клипы сегмента в КАДРАХ и бюджет каждого
+ * шаблона из манифеста. `E-00` получит готовое число, а не второй обход IR.
+ *
+ * ПОЧЕМУ НЕ `IrBuildRecord`. Записи этого типа означают «компилятор что-то сделал за автора»
+ * (T3-принуждение), и на фикстуре их ноль — утверждение, охраняемое тестом. Бюджет не
+ * принуждение и не действие; смешать их значило бы сделать «`records` пуст» неотличимым от
+ * «бюджет не посчитан».
+ */
+export interface SegmentBudget {
+  readonly segmentId: string;
+  /**
+   * Максимум по кадрам сегмента от суммы бюджетов клипов, ПЕРЕСЕКАЮЩИХ этот кадр.
+   *
+   * Максимум, а не сумма по клипам: рендер тратит время на КАДР, и два клипа, стоящие встык,
+   * никогда не рисуются вместе. Считается по кадрам буквально — `[frameStart, frameEnd)`
+   * каждого клипа (T4, полуоткрытый), — а не по «пересекающимся парам»: пара не отвечает на
+   * вопрос «сколько стоит самый дорогой кадр», когда клипов три и более.
+   */
+  readonly maxMsPerFrame: number;
+}
+
 /** Выход стадии: IR сегментов, манифест сборки и всё, что компилятор сделал за автора. */
 export interface BuildIrResult {
   readonly segments: readonly RenderIrSegment[];
   readonly manifest: AssemblyManifest;
   readonly records: readonly IrBuildRecord[];
+  /** Пик бюджета по каждому сегменту, в порядке ролика (`CP-07`, решение владельца F). */
+  readonly budgets: readonly SegmentBudget[];
 }
 
 /**
@@ -130,8 +161,56 @@ function irClip(
     template: source.template,
     params: source.params,
     assets: source.assets,
-    seeds: materializeSeeds(seedRoot, source.seedScope, source.template),
+    fonts: source.fonts,
+    seeds: materializeSeeds(seedRoot, source.seedScope, source.purposes),
   };
+}
+
+/**
+ * Объединение ссылок клипов сегмента, отсортированное по `(sha256, role)`.
+ *
+ * ПОРЯДОК — СОРТИРОВКА, А НЕ ПОРЯДОК КЛИПОВ, и это часть AC4-b: ранг клипа зависит от `z` и
+ * `sourceOrdinal`, то есть от того, что автор поставил выше по тексту, — и список файлов
+ * сегмента поехал бы от вставки слоя, файлов не менявшей. Компаратор байтовый (`<`/`>` по
+ * UTF-16 code units): `localeCompare` запрещён (**V8**, ADR-0007 §4).
+ *
+ * ДЕДУПЛИКАЦИЯ ПО ПАРЕ, А НЕ ПО SHA: один файл в двух ролях — две строки, потому что роль
+ * есть часть того, что просит шаблон; один файл в одной роли у двух клипов — одна строка,
+ * потому что в каталог композиции он ляжет один раз.
+ */
+function unionOfRefs<T extends IrAssetRef | IrFontRef>(refs: readonly T[]): readonly T[] {
+  const byKey = new Map<string, T>();
+  for (const ref of refs) {
+    const key = `${ref.sha256}\u0000${ref.role}`;
+    if (!byKey.has(key)) byKey.set(key, ref);
+  }
+  return [...byKey.values()].sort((a, b) => {
+    if (a.sha256 !== b.sha256) return a.sha256 < b.sha256 ? -1 : 1;
+    return a.role < b.role ? -1 : a.role > b.role ? 1 : 0;
+  });
+}
+
+/**
+ * Пик суммы `msPerFrameBudget` по кадрам сегмента (**решение владельца F**, `CP-07`).
+ *
+ * Кадры сегмента — `[0, d_i)`; клип занимает `[frameStart, frameEnd)`. Разностный массив
+ * («вошёл — вышел») вместо двойного цикла: сегмент длиной 783 кадра с десятком клипов иначе
+ * стоил бы 8 тысяч сравнений на каждой компиляции, а величина всего лишь печатается.
+ */
+function budgetOf(duration: Frames, clips: readonly IrClipSource[], quantized: readonly IrClip[]): number {
+  const delta = new Float64Array(duration + 1);
+  for (const [index, clip] of quantized.entries()) {
+    const budget = clips[index]?.msPerFrameBudget ?? 0;
+    delta[clip.frames.frameStart] = (delta[clip.frames.frameStart] ?? 0) + budget;
+    delta[clip.frames.frameEnd] = (delta[clip.frames.frameEnd] ?? 0) - budget;
+  }
+  let running = 0;
+  let peak = 0;
+  for (let frame = 0; frame < duration; frame += 1) {
+    running += delta[frame] ?? 0;
+    if (running > peak) peak = running;
+  }
+  return peak;
 }
 
 /**
@@ -204,6 +283,7 @@ function irSegment(
   duration: Frames,
   seedRoot: number,
   records: IrBuildRecord[],
+  budgets: SegmentBudget[],
 ): RenderIrSegment {
   const frame: SegmentFrame = {
     segmentId: source.segmentId,
@@ -211,12 +291,17 @@ function irSegment(
     endSample: source.endSample,
     segmentDurationInFrames: duration,
   };
+  const ranked = [...source.clips].sort(byRank);
+  const clips = ranked.map((clip) => irClip(grid, frame, clip, seedRoot, records));
+  budgets.push({ segmentId: source.segmentId, maxMsPerFrame: budgetOf(duration, ranked, clips) });
+
   return {
     segmentId: source.segmentId,
     segmentDurationInFrames: duration,
-    clips: [...source.clips].sort(byRank).map((clip) => irClip(grid, frame, clip, seedRoot, records)),
+    clips,
     captions: source.captions.map((group) => irCaptionGroup(grid, frame, group, records)),
-    fonts: [],
+    assets: unionOfRefs(clips.flatMap((clip) => clip.assets)),
+    fonts: unionOfRefs(clips.flatMap((clip) => clip.fonts)),
   };
 }
 
@@ -233,6 +318,7 @@ export function buildIr(input: BuildIrInput): BuildIrResult {
   // только `L_i` (T6, свойство (1)). Порядок вычислений здесь и есть форма этого свойства.
   const manifest = assemblyManifest(input);
   const records: IrBuildRecord[] = [];
+  const budgets: SegmentBudget[] = [];
 
   const segments = input.segments.map((source, index) => {
     const row = manifest.segments[index];
@@ -245,12 +331,59 @@ export function buildIr(input: BuildIrInput): BuildIrResult {
           'сборки, а не вход',
       );
     }
-    return irSegment(input.grid, source, row.segmentDurationInFrames, input.seedRoot, records);
+    return irSegment(input.grid, source, row.segmentDurationInFrames, input.seedRoot, records, budgets);
   });
 
   assertT4(segments.map(toPlacement));
+  assertRequestedFiles(segments);
 
-  return { segments, manifest, records: sortIrRecords(records) };
+  return { segments, manifest, records: sortIrRecords(records), budgets };
+}
+
+/**
+ * **ВХОД R3, ВЗЯТЫЙ В ОБЕ СТОРОНЫ** (поправка владельца П2, `CP-07`).
+ *
+ * Инвариант **R3** — «адаптер не открывает файлов вне `assets`/`fonts` запроса». Запрос
+ * строится из `RenderIrSegment`, а список файлов объявляют СПЕКИ клипов; значит два множества
+ * обязаны совпадать, и проверять их совпадение нужно ОБОИМИ включениями:
+ *
+ *   * `⋃ клипы ⊆ сегмент` — иначе шаблон попросил файл, которого в запросе нет, и адаптер
+ *     либо нарисует пустоту, либо откроет файл вне запроса (то самое, что запрещает R3);
+ *   * `сегмент ⊆ ⋃ клипы` — иначе в запросе оказался ЛИШНИЙ файл, которого не просил ни один
+ *     шаблон. Односторонний ассерт этого не видит, а цена лишнего файла — не только байты:
+ *     он входит в каталог композиции, то есть в то, что адаптеру ОТКРЫВАТЬ РАЗРЕШЕНО.
+ *
+ * АССЕРТ, А НЕ ОШИБКА КОМПИЛЯЦИИ: оба списка строит одна и та же стадия из одного источника
+ * (`unionOfRefs` по тем же клипам), и расхождение означает дефект сборки, а не проект —
+ * автору чинить нечего. Ошибки ПРОИЗВЕДЕНИЯ (alias без записи, шрифт роли) ловит контракт
+ * (`timeline/contract.ts`) и называет их автору списком.
+ *
+ * @throws {RenderIrError} множества разошлись — с перечнем обеих разностей.
+ */
+function assertRequestedFiles(segments: readonly RenderIrSegment[]): void {
+  const key = (ref: IrAssetRef | IrFontRef): string => `${ref.sha256}/${ref.role}`;
+
+  for (const segment of segments) {
+    for (const [what, ofSegment, ofClips] of [
+      ['assets', segment.assets, segment.clips.flatMap((clip) => clip.assets)] as const,
+      ['fonts', segment.fonts, segment.clips.flatMap((clip) => clip.fonts)] as const,
+    ]) {
+      const declared = new Set(ofClips.map(key));
+      const requested = new Set(ofSegment.map(key));
+      const missing = [...declared].filter((one) => !requested.has(one));
+      const extra = [...requested].filter((one) => !declared.has(one));
+      if (missing.length === 0 && extra.length === 0) continue;
+      throw new RenderIrError(
+        'ADR-0008 «Декларация ресурсов шаблона»',
+        `сегмент \`${segment.segmentId}\`: список \`${what}\` запроса разошёлся с тем, что ` +
+          'объявили спеки его клипов (**R3**). ' +
+          (missing.length > 0 ? `Объявлено клипом, но нет в сегменте: ${missing.join(', ')}. ` : '') +
+          (extra.length > 0 ? `Есть в сегменте, но не объявлено ни одним клипом: ${extra.join(', ')}. ` : '') +
+          'Оба списка строит одна стадия из одного источника — расхождение означает дефект ' +
+          'сборки, а не проект',
+      );
+    }
+  }
 }
 
 /**

@@ -16,7 +16,14 @@
 // порядок записей — ключ `sortIrRecords`. Сортировать что-либо в дампе значило бы прятать
 // недетерминизм сборки от её же охранника.
 
-import { canonicalJson, type FrameInterval, type IrClip, type RenderIrSegment } from '@vpe/core-model';
+import {
+  canonicalJson,
+  type FrameInterval,
+  type IrAssetRef,
+  type IrClip,
+  type IrFontRef,
+  type RenderIrSegment,
+} from '@vpe/core-model';
 
 import { segmentIrHash } from './hash.js';
 import type { IrBuildRecord } from './records.js';
@@ -27,10 +34,16 @@ function span(interval: FrameInterval): string {
   return `[${String(interval.frameStart)}, ${String(interval.frameEnd)})`;
 }
 
-/** `<sha>/<role>` через запятую; `<нет>` — ассетов у клипа нет (всё, кроме `[img:]`, до `TS-01`). */
-function assetsOf(clip: IrClip): string {
-  if (clip.assets.length === 0) return '<нет>';
-  return clip.assets.map((asset) => `${asset.sha256}/${asset.role}`).join(',');
+/** `<sha>/<role>` через запятую; `<нет>` — шаблон ассетов не объявил (`declareAssets` пуст). */
+function assetsOf(refs: readonly IrAssetRef[]): string {
+  if (refs.length === 0) return '<нет>';
+  return refs.map((asset) => `${asset.sha256}/${asset.role}`).join(',');
+}
+
+/** `<sha>/<family>/<role>` через запятую; `<нет>` — шрифта шаблон не просит (`CP-07`). */
+function fontsOf(refs: readonly IrFontRef[]): string {
+  if (refs.length === 0) return '<нет>';
+  return refs.map((font) => `${font.sha256}/${font.family}/${font.role}`).join(',');
 }
 
 /** `<purpose>=<hex>` через запятую; `<нет>` — у порождённой `[img:]`-записи (решение 1-bis). */
@@ -43,13 +56,20 @@ function seedsOf(clip: IrClip): string {
 function clipLine(clip: IrClip): string {
   return (
     `  clip ${span(clip.frames)} ${clip.clipId} track=${clip.track} z=${String(clip.z)} ` +
-    `template=${clip.template} params=${canonicalJson(clip.params)} assets=${assetsOf(clip)} ` +
-    `seeds=${seedsOf(clip)}`
+    `template=${clip.template} params=${canonicalJson(clip.params)} assets=${assetsOf(clip.assets)} ` +
+    `fonts=${fontsOf(clip.fonts)} seeds=${seedsOf(clip)}`
   );
 }
 
-function segmentLines(segment: RenderIrSegment, row: string): string[] {
-  const out = [`segment ${segment.segmentId} ${row} hash=${segmentIrHash(segment)}`];
+function segmentLines(segment: RenderIrSegment, row: string, budget: string): string[] {
+  const out = [
+    `segment ${segment.segmentId} ${row} ${budget} hash=${segmentIrHash(segment)}`,
+    // Списки УРОВНЯ ЗАПРОСА (`SegmentRenderRequest.assets`/`fonts`, ADR-0008) — отдельными
+    // строками, а не в шапке сегмента: из них адаптер материализует каталог композиции, и
+    // дифф «какие файлы поехали в рендер» обязан читаться глазами.
+    `  request assets=${assetsOf(segment.assets)}`,
+    `  request fonts=${fontsOf(segment.fonts)}`,
+  ];
   for (const clip of segment.clips) out.push(clipLine(clip));
   for (const group of segment.captions) {
     const highlights = group.tokens
@@ -84,7 +104,11 @@ export function dumpIr(result: BuildIrResult): string {
       `d=${String(row.segmentDurationInFrames)} L=${String(row.nominalSamples)} ` +
       `A=${String(row.alignedSamples)} delta=${String(row.correctionSamples)} ` +
       `f=${String(row.firstFrame)} a=${String(row.firstSample)}`;
-    lines.push(...segmentLines(segment, numbers));
+    // Пик бюджета `msPerFrameBudget` — ПЕЧАТАЕТСЯ И НЕ РОНЯЕТ (решение владельца 9, RM1;
+    // `CP-07` решение F). Порога здесь нет ни одного: он появится в `E-00`, а падение — не
+    // раньше `E-05`.
+    const budget = `budgetMsPerFrame=${String(result.budgets[index]?.maxMsPerFrame ?? 0)}`;
+    lines.push(...segmentLines(segment, numbers, budget));
   }
 
   lines.push(`records count=${String(result.records.length)}`);

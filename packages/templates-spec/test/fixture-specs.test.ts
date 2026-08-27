@@ -8,7 +8,7 @@
 import { parseDirection } from '@vpe/core-model';
 import { describe, expect, it } from 'vitest';
 
-import { FIXTURE_TEMPLATES, createRegistry, parseTemplateName } from '../src/index.js';
+import { FIXTURE_TEMPLATES, createRegistry, declaredDurationOf, parseTemplateName } from '../src/index.js';
 import { readFixture } from './fixture.js';
 
 const DIRECTION = 'fixtures/minimal/direction/01-intro.yaml';
@@ -129,6 +129,43 @@ describe('`TS-01` — `flash@1.durationSamples`: положительное це
     expect(at(0)).toBe(false);
     expect(at(101)).toBe(false);
     expect(at(35.5)).toBe(false);
+  });
+});
+
+describe('`CP-07` — `declareDuration`: объявляет ОДИН шаблон из пяти', () => {
+  it('`flash@1` отдаёт свой `durationSamples`, и `declaredDurationOf` его читает', () => {
+    const flash = registry.resolve('flash@1');
+    expect(declaredDurationOf(flash, { strengthPct: 35, durationSamples: 4800 })).toBe(4800);
+    // Величина берётся у ПАРАМЕТРА, а не из константы шаблона: другой вызов — другая длина.
+    expect(declaredDurationOf(flash, { strengthPct: 35, durationSamples: 96000 })).toBe(96000);
+  });
+
+  it('остальные четыре метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
+    const without = FIXTURE_TEMPLATES.filter((spec) => spec.declareDuration === undefined);
+    expect(without.map((spec) => spec.templateId).sort()).toEqual([
+      'bed',
+      'captionEmphasis',
+      'kenburns',
+      'still',
+    ]);
+    // И `declaredDurationOf` на них отвечает `null`, не бросая `TypeError`: ветка `undefined`
+    // живёт в ОДНОМ месте, а не размножается по вызывающим.
+    const still = registry.resolve('still@1');
+    expect(declaredDurationOf(still, { asset: 'harbour' })).toBeNull();
+  });
+
+  it('`params` прогоняются схемой ДО вызова: негодный вызов не даёт длительности', () => {
+    const flash = registry.resolve('flash@1');
+    // Иначе шаблон вернул бы длительность, которой автор не писал (тот же довод, что у
+    // `requestFiles`: декларация на невалидных `params` — список, которого никто не объявлял).
+    expect(() => declaredDurationOf(flash, { strengthPct: 35, durationSamples: -1 })).toThrow();
+    expect(() => declaredDurationOf(flash, { strengthPct: 35 })).toThrow();
+  });
+
+  it('чистота: два вызова на одних `params` дают одно число', () => {
+    const flash = registry.resolve('flash@1');
+    const params = { strengthPct: 35, durationSamples: 4800 };
+    expect(declaredDurationOf(flash, params)).toBe(declaredDurationOf(flash, params));
   });
 });
 

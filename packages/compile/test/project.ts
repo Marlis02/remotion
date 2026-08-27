@@ -46,6 +46,8 @@ import {
   type Take,
 } from '@vpe/voice';
 
+import { createRegistry, FIXTURE_TEMPLATES, type AnyTemplateSpec, type TemplateRegistry } from '@vpe/templates-spec';
+
 import { readDirectionSources, readTakes, type CompileProfileInput, type ComposeInput } from '../src/index.js';
 
 import {
@@ -130,6 +132,7 @@ export interface BuiltProject {
   readonly records: readonly PlacedRecord[];
   readonly generated: readonly GeneratedDirectionRecord[];
   readonly catalog: AssetCatalog;
+  readonly registry: TemplateRegistry;
   readonly input: ComposeInput;
 }
 
@@ -151,6 +154,19 @@ export interface ProjectExtra {
   readonly direction?: string | null;
   /** Правка профиля компиляции поверх фикстурного: тесту порога и тесту `fps` нужны свои числа. */
   readonly profile?: (base: CompileProfileInput) => CompileProfileInput;
+  /**
+   * Реестр шаблонов прогона (`CP-07`). По умолчанию — пять спеков фикстуры.
+   *
+   * ПОДАЁТСЯ ТЕСТОМ, А НЕ ИМПОРТИРУЕТСЯ СТАДИЕЙ: `compose` реестра «по умолчанию» не знает
+   * (иначе сверять его с `templateRegistryVersion` было бы не с чем — **K6**). Тесту D1 нужен
+   * СВОЙ реестр — с синтетическим спеком, объявляющим непустые `purposes`.
+   */
+  readonly specs?: readonly AnyTemplateSpec[];
+}
+
+/** Реестр прогона: пять спеков фикстуры либо поданные тестом (`CP-07`). */
+export function registryOf(specs?: readonly AnyTemplateSpec[]): TemplateRegistry {
+  return createRegistry(specs ?? FIXTURE_TEMPLATES);
 }
 
 /**
@@ -206,6 +222,7 @@ export async function buildProject(
     recordDirs: [path.join(FIXTURE, 'assets/records'), path.join(FIXTURE, 'fonts/records')],
   });
 
+  const registry = registryOf(extra.specs);
   const input: ComposeInput = {
     document,
     anchors: sync.bindings,
@@ -214,9 +231,22 @@ export async function buildProject(
     records,
     generated,
     catalog,
+    registry,
     profile,
   };
-  return { root, document, anchors: sync.bindings, ledger: [...sync.records], plan, takes, records, generated, catalog, input };
+  return {
+    root,
+    document,
+    anchors: sync.bindings,
+    ledger: [...sync.records],
+    plan,
+    takes,
+    records,
+    generated,
+    catalog,
+    registry,
+    input,
+  };
 }
 
 /**

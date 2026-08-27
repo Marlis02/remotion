@@ -137,9 +137,14 @@ describe('CP-01 — ассеты и форма take-файла', () => {
     const raw = readFixture('fixtures/minimal/source/01-intro.md').replace('[img: sea]', '[img: nosuch]');
     const project = await buildProject(raw);
     const error = caught(() => compose(project.input));
-    expect(error.rule).toBe('ADR-0002 §4');
+    // ПРАВИЛО СМЕНИЛО ИМЯ, А НЕ СМЫСЛ (`CP-07`). До этой задачи alias порождённой записи был
+    // единственным, который `compose` разрешал сам, — и отказ ходил под `ADR-0002 §4` (сахар
+    // `[img:]`). Теперь alias объявляет `still@1.declareAssets`, тем же путём, что все прочие,
+    // и отказ ходит под контрактом шаблона. Адрес, alias и файл в сообщении — те же.
+    expect(error.rule).toBe('ADR-0008 «Декларация ресурсов шаблона»');
     expect(error.problems[0]?.message).toContain('`nosuch`');
     expect(error.problems[0]?.message).toContain('aliases.yaml');
+    expect(error.problems[0]?.address).toContain('[img:]');
   });
 
   it('строгий читатель take-файла называет ФАЙЛ и ПОЛЕ, а не «файл не разобрался»', async () => {

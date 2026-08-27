@@ -231,6 +231,7 @@ export type {
   IrCaptionGroup,
   IrCaptionToken,
   IrClip,
+  IrFontRef,
   RenderIrSegment,
   SeedHex,
 } from './model/render-ir.js';

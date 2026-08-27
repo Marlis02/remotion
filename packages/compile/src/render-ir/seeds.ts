@@ -11,14 +11,23 @@
 // исполнимая форма «`segmentId` в seed не входит» (ADR-0007 §1). Греп по коду вычисления —
 // вторая половина охранника, третья — сравнение IR двух проектов (**T3**/AC4-b).
 //
-// `purpose` = `templateId` (решение владельца 1, 2026-08-26, вариант «а»). ADR-0007 §1
-// определяет `purpose` как «строковую константу шаблона» (`'kenburns.jitter'`) — то есть
-// перечень purposes принадлежит МАНИФЕСТУ шаблона, а манифестов нет: `templates-spec`/`TS-01`
-// не написан. Взято самое узкое, что не выдумывает перечня: один seed на клип, ключ — id
-// шаблона целиком (`'kenburns@1'`). Когда `TS-01` объявит настоящие purposes, карта вырастет
-// числом ключей, а формула не изменится. **Цена, принятая явно:** seed шаблона тогда сменится
-// один раз, то есть кэш сегментов инвалидируется — до первого ролика это ничего не стоит.
-// Долг с адресом `TS-01`.
+// `purpose` ПРИХОДИТ ИЗ МАНИФЕСТА ШАБЛОНА (`CP-07`, 2026-08-28; долг №135 закрыт).
+// ~~`purpose` = `templateId` (решение владельца 1, 2026-08-26, вариант «а»)~~ — временная
+// форма, взятая `CP-04` потому, что манифестов не существовало. ADR-0007 §1 определяет
+// `purpose` как «строковую константу шаблона» (`'kenburns.jitter'`), то есть перечень
+// принадлежит манифесту; теперь он есть (`manifest.purposes`, `TS-01`) и приезжает сюда
+// ЗНАЧЕНИЕМ — списком строк, а не именем шаблона, из которого его якобы можно вывести.
+//
+// НА ФИКСТУРЕ КАРТА ПУСТА У ВСЕХ КЛИПОВ, и это ИЗМЕРЕНИЕ, а не деградация: `purposes: []` у
+// всех пяти шаблонов `fixtures/minimal` — случайности не требует ни один (`TS-01` §5 п. 2).
+// Цена, названная долгом №135 заранее, ЗАПЛАЧЕНА ровно один раз: seed'ы, которые `CP-04`
+// клал под ключом `templateId`, исчезли, и `segmentIrHash` обоих сегментов сменился.
+//
+// **ЧТО ОХРАНЯЕТ D1 ПРИ ПУСТОМ ПЕРЕЧНЕ.** Ничего — на фикстуре охранять нечего, и подгонять
+// число «четыре seed'а» под «ноль seed'ов» значило бы оставить утверждение без предмета
+// (`TS-01`, находка 9: «D1 обязан быть ПЕРЕЧИТАН, а не подогнан»). Поэтому D1 в `CP-07`
+// проверяется на СИНТЕТИЧЕСКОМ спеке с непустыми `purposes` в тестовом реестре: утверждение
+// «ни один вход seed'а не зависит от позиции и `params`» требует хотя бы одного seed'а.
 //
 // У ПОРОЖДЁННОЙ `[img:]`-ЗАПИСИ SEED'ОВ НЕТ ВОВСЕ (решение владельца 1-bis). `recordId` —
 // «явный случайный id записи режиссуры, выданный CLI и записанный в `direction/*.yaml`»
@@ -35,29 +44,37 @@ import type { SeedScope } from './types.js';
 const SEED_HEX_LENGTH = 16;
 
 /**
- * `purpose → seed` для одного клипа.
+ * `purpose → seed` для одного клипа: по одному seed'у на КАЖДЫЙ объявленный `purpose`.
  *
- * Пустой объект, если `scope === null`. Форма результата — обычный объект: **`Map` в IR
- * запрещён** (ADR-0008 «Гарантии входа»: JSON round-trip), и `canonicalJson` его отвергает.
+ * Пустой объект в двух случаях, и они разные по смыслу: `scope === null` — у клипа нет
+ * `recordId` (порождённая `[img:]`-запись, решение владельца 1-bis), `purposes` пуст — шаблон
+ * случайности НЕ ПРОСИТ (все пять шаблонов фикстуры). Форма результата — обычный объект:
+ * **`Map` в IR запрещён** (ADR-0008 «Гарантии входа»: JSON round-trip), и `canonicalJson`
+ * его отвергает.
  *
  * @param seedRoot `project.yaml` → `seedRoot` (ADR-0007 §1).
  * @param scope три поля формулы; `null` у порождённой `[img:]`-записи.
- * @param templateId он же `purpose` до `TS-01`.
+ * @param purposes `manifest.purposes` шаблона — перечень узлов одной записи.
  * @throws {ModelError} из `seedOf`, если `seedRoot` не целое ≥ 0.
  */
 export function materializeSeeds(
   seedRoot: number,
   scope: SeedScope | null,
-  templateId: string,
+  purposes: readonly string[],
 ): Readonly<Record<string, SeedHex>> {
   if (scope === null) return {};
-  const seed = seedOf(seedRoot, {
-    chapterId: scope.chapterId,
-    sceneId: scope.sceneId,
-    recordId: scope.recordId,
-    purpose: templateId,
-  });
-  return { [templateId]: toSeedHex(seed) };
+  const out: Record<string, SeedHex> = {};
+  for (const purpose of purposes) {
+    out[purpose] = toSeedHex(
+      seedOf(seedRoot, {
+        chapterId: scope.chapterId,
+        sceneId: scope.sceneId,
+        recordId: scope.recordId,
+        purpose,
+      }),
+    );
+  }
+  return out;
 }
 
 /**

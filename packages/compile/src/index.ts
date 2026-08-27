@@ -77,6 +77,12 @@ export {
   type PointResolution,
 } from './timeline/anchors.js';
 
+export {
+  templateContracts,
+  type ClipContract,
+  type ClipContracts,
+  type TemplateContractsInput,
+} from './timeline/contract.js';
 export { recordTracks, type RecordTracksInput } from './timeline/records.js';
 
 export {
@@ -122,6 +128,7 @@ export {
   type Placement,
   type RenderIrRule,
   type SeedScope,
+  type SegmentBudget,
   type SegmentFrame,
 } from './render-ir/index.js';
 

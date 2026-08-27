@@ -67,6 +67,15 @@ function captionsBlock(text: string, where: string): CompileProfileInput['captio
   };
 }
 
+/** Строковое поле профиля в кавычках: `templateRegistryVersion: "1"` (`CP-07`). */
+function stringField(text: string, name: string, where: string): string {
+  const match = new RegExp(`^${name}:\\s*"([^"]+)"`, 'm').exec(text);
+  if (match?.[1] === undefined) {
+    throw new Error(`${where}: поля \`${name}\` нет или оно не строка в кавычках`);
+  }
+  return match[1];
+}
+
 /** `compile-profile/1` фикстуры — ровно те поля, которых требует `compose`. */
 export function fixtureCompileProfile(): CompileProfileInput {
   const where = 'fixtures/minimal/profiles/compile.yaml';
@@ -81,6 +90,10 @@ export function fixtureCompileProfile(): CompileProfileInput {
     // величина решения владельца 7, живущая в профиле, и повторить её здесь значило бы
     // перестать замечать расхождение кода с профилем (`CP-03`).
     minSegmentDurationFrames: field(text, 'minSegmentDurationFrames', where),
+    // Строкой, а не числом, и читается из ФИКСТУРЫ (`CP-07`): `templateRegistryVersion: "1"`
+    // — то же значение, с которым `TS-01` сверяет `TEMPLATE_REGISTRY_VERSION` регуляркой
+    // (поправка владельца П2 `TS-01`). Литерал здесь сделал бы **K6** утверждением о тесте.
+    templateRegistryVersion: stringField(text, 'templateRegistryVersion', where),
     captions: captionsBlock(text, where),
   };
 }

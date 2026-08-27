@@ -38,7 +38,14 @@ import type {
 } from '@vpe/core-model';
 import { resolveAlias } from '@vpe/media';
 
-/** `Sha256` без импорта `@vpe/schema`: бренд берётся у функции, которая его выдаёт. */
+import type { ClipContract } from './contract.js';
+
+/**
+ * `Sha256` без импорта `@vpe/schema`: бренд берётся у функции, которая его выдаёт.
+ *
+ * *(`CP-07`: в `ClipFill` этого типа больше нет — sha ассетов приезжает `contract.assets`,
+ * форма `IrAssetRef`. Псевдоним остаётся входом того же бренда для читателей пакета.)*
+ */
 export type AssetSha = NonNullable<ReturnType<typeof resolveAlias>>;
 
 // ── Вход: профиль компиляции ────────────────────────────────────────────────
@@ -89,6 +96,22 @@ export interface CompileProfileInput {
    * одной функцией `core-model` (`frameStartSample`), новой точки конверсии времени нет.
    */
   readonly minSegmentDurationFrames: number;
+  /**
+   * Версия реестра шаблонов (`compile-profile/1`, ADR-0006 §5; **K6**).
+   *
+   * *(Добавлено: `CP-07`, 2026-08-28.)* Поле появилось в наборе `compile`, потому что у
+   * компилятора появился РЕЕСТР: `templateContracts` сверяет `registry.version` с этой
+   * строкой до первой записи. До `CP-07` поля здесь не было намеренно — за именем не стояло
+   * ничего, что стадия могла бы проверить (`CP-04` §7, «входа в стадию не имеют вовсе»).
+   *
+   * **K4: хэш IR оно НЕ ДВИГАЕТ.** Расхождение — ошибка компиляции, а совпадение оставляет
+   * IR тем же; в `segmentKey` поле входит отдельной строкой (материал долга №114), а не
+   * поглощается `segmentIrHash`. Строка K4-матрицы переписана в отчёте `CP-07`.
+   *
+   * Единственное имя в allowlist'е K6 (`S-02-fix`): версия реестра есть НАМЕРЕНИЕ автора, а
+   * не измеренное окружение, и потому живёт в профиле законно.
+   */
+  readonly templateRegistryVersion: string;
   /** Блок `captions` профиля целиком (`CP-02`). */
   readonly captions: CaptionsProfileInput;
 }
@@ -209,14 +232,32 @@ export interface PlacedSilence {
   readonly sceneId: string | null;
 }
 
-/** Чем заполнен клип режиссуры. */
+/**
+ * Чем заполнен клип режиссуры.
+ *
+ * ОБЕ ВЕТВИ НЕСУТ `contract` — то, что ОБЪЯВИЛ шаблон (`CP-07`). До этой задачи ассеты знала
+ * только порождённая `[img:]`-запись, потому что её alias был единственным, который `compose`
+ * разрешал сам (решение владельца `CP-01`, вопрос 8): манифеста у неё нет и быть не может.
+ * Теперь манифест есть у ШАБЛОНА, и `still@1` объявляет свой ассет тем же `declareAssets`, что
+ * и все прочие, — поэтому особая ветка `resolveAlias` в укладке УДАЛЕНА, а поля `alias` и
+ * `assetSha` у порождённой ветви исчезли: alias живёт в `params` (авторская форма, решение
+ * владельца `CP-07`, вопрос 2), sha — в `contract.assets` (долг №120).
+ */
 export type ClipFill =
   | {
       readonly kind: 'record';
       readonly recordId: string;
       readonly filePath: string;
       readonly template: string;
-      /** `params` проходят сквозь Timeline ДАННЫМИ: контракт параметров — `TS-01`. */
+      /**
+       * `params` проходят сквозь Timeline ДАННЫМИ и остаются **АВТОРСКИМИ**.
+       *
+       * *(Решение владельца `CP-07`, вопрос 2, 2026-08-28.)* Alias'ы внутри `params` НЕ
+       * подменяются на sha: подмена — это интерпретация шаблона (компилятор решал бы, какое
+       * поле есть ссылка на файл), и она ломает AC4-b при переименовании alias'а — сегмент,
+       * файлов не менявший, разошёлся бы побайтово. Sha живёт рядом, в `contract.assets`, где
+       * у каждого есть РОЛЬ; сопоставить роль/alias с файлом обязан адаптер (`H-01`).
+       */
       readonly params: TemplateParams;
       /**
        * Разрешённый scope записи (`readDirection`, `C-05`) — вход формулы seed'а.
@@ -233,19 +274,15 @@ export type ClipFill =
        * не записывается (решение владельца `C-05`, долг №21; `CP-04` решение 1-bis).
        */
       readonly scope: Scope;
+      readonly contract: ClipContract;
     }
   | {
       readonly kind: 'generated';
       /** Порождена `expandImg` (`C-04`) из `[img: alias]`; `recordId` у неё нет (ADR-0002 §4). */
       readonly template: 'still@1';
-      readonly alias: string;
-      /**
-       * ЕДИНСТВЕННЫЙ alias, который `compose` разрешает в sha (решение владельца 2026-08-26,
-       * вопрос 8): у порождённой записи манифеста шаблона нет и быть не может — она родилась
-       * из прозы. Alias'ы внутри `params` чужих шаблонов остаются строками до `TS-01`.
-       */
-      readonly assetSha: AssetSha;
+      /** Авторская форма: alias лежит здесь, sha — в `contract.assets` (роль `asset`). */
       readonly params: { readonly asset: string };
+      readonly contract: ClipContract;
     };
 
 /**

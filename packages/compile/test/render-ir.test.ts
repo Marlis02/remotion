@@ -59,6 +59,9 @@ function clip(id: string, start: number, end: number, extra: Partial<IrClipSourc
     template: 'still@1',
     params: { asset: 'x' },
     assets: [],
+    fonts: [],
+    purposes: [],
+    msPerFrameBudget: 0,
     seedScope: null,
     ...extra,
   };
@@ -386,6 +389,10 @@ describe('**JSON round-trip** — IR переживает границу про�
           seedScope: { chapterId: 'ch:main', sceneId: 'sc:intro', recordId: 'a3f19c2b' },
           template: 'kenburns@1',
           params: { from: { scale: 1 }, to: { scale: 1.12 } },
+          // `purposes` НЕПУСТ — иначе seed'а не будет вовсе и утверждение «seed переживает
+          // JSON строкой» осталось бы без предмета (`CP-07`: перечень объявляет манифест, а
+          // у пяти шаблонов фикстуры он пуст). Здесь синтетика, и она вправе просить seed.
+          purposes: ['jitter'],
         }),
       ],
       captions: [

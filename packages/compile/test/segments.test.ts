@@ -68,6 +68,23 @@ function oneChapter(count: number, short: readonly string[] = []): string {
 }
 
 /** Запись режиссуры `direction/1`. `params.asset` сквозь Timeline идёт ДАННЫМИ (`CP-01`). */
+/**
+ * `params` синтетической записи — ПО СХЕМЕ ЕЁ ШАБЛОНА (`CP-07`).
+ *
+ * До `CP-07` здесь стояло `asset: "harbour"` у любого шаблона: `params` шли сквозь Timeline
+ * данными, и `bed@1` с одним полем компилировался. Теперь вызов проходит `paramsSchema` спека,
+ * и «`bed@1` без `inPoint`/`gainDb`/`duckUnderSpeechDb`» — ошибка компиляции. Это не издержка
+ * теста, а его же утверждение: синтетика обязана быть таким же законным вызовом, как фикстура.
+ */
+const PARAMS_OF: Readonly<Record<string, string>> = {
+  'still@1': '      asset: "harbour"\n',
+  'bed@1':
+    '      asset: "harbour"\n' +
+    '      inPoint: { kind: mediaTime, asset: "harbour", offsetSamples: 0 }\n' +
+    '      gainDb: -18\n' +
+    '      duckUnderSpeechDb: -6\n',
+};
+
 function record(
   recordId: string,
   at: string,
@@ -75,11 +92,13 @@ function record(
   track: string,
   template: string,
 ): string {
+  const params = PARAMS_OF[template];
+  if (params === undefined) throw new Error(`тест не знает \`params\` шаблона \`${template}\``);
   return (
     `  - recordId: "${recordId}"\n` +
     `    at: { kind: anchor, anchor: "${at}" }\n` +
     (until === null ? '' : `    until: { kind: anchor, anchor: "${until}" }\n`) +
-    `    track: ${track}\n    z: 10\n    template: "${template}"\n    params:\n      asset: "harbour"\n`
+    `    track: ${track}\n    z: 10\n    template: "${template}"\n    params:\n${params}`
   );
 }
 
@@ -161,13 +180,22 @@ describe('CP-03 — `fixtures/minimal`: ровно два сегмента', () 
     expect(crossing).toEqual([]);
     // Полуоткрытость здесь не теория: нестрогое сравнение запретило бы единственный законный
     // разрез фикстуры сразу по трём клипам.
+    //
+    // ИХ СТАЛО ТРИ, А БЫЛО ЧЕТЫРЕ (`CP-07`), и ушедший назван: `r:7b20de44` (`flash@1`)
+    // кончался ровно на разрезе, пока тянулся «до конца области» вопреки собственному
+    // `params.durationSamples` (долг №119). Теперь он длится объявленные 4800 сэмплов и до
+    // разреза не достаёт. Утверждение теста от этого не слабеет — оно про ПЕРЕСЕЧЕНИЕ, а
+    // пересекающих по-прежнему ноль; список «вплотную» перечислен, чтобы полуоткрытость
+    // проверялась на непустом множестве.
     const touching = clips.filter((clip) => clip.startSample === 551760 || clip.endSample === 551760);
     expect(touching.map((clip) => clip.clipId).sort()).toEqual([
       'img:b:img-harbour-1',
       'img:b:img-ledger-1',
-      'r:7b20de44',
       'r:c81a05f7',
     ]);
+    const flash = clips.find((clip) => clip.clipId === 'r:7b20de44');
+    expect(flash?.duration.samples).toBe(4800);
+    expect(flash?.endSample).toBeLessThan(551760);
   });
 
   it('таблица несёт ВСЕ семь кандидатов `CP-01`, и у каждого отклонённого — причина', async () => {

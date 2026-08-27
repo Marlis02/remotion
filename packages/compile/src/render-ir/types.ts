@@ -14,7 +14,7 @@
 // квантования, а не на входе: `localFrame(x) = frameOfSample(x − segmentStartSample)`
 // (ADR-0003 T3), и чтобы вычесть начало сегмента, его надо ещё иметь.
 
-import type { IrAssetRef, Samples, TemplateParams, TrackKind } from '@vpe/core-model';
+import type { IrAssetRef, IrFontRef, Samples, TemplateParams, TrackKind } from '@vpe/core-model';
 
 /**
  * Четыре поля формулы seed'а минус `purpose` (ADR-0007 §1).
@@ -51,6 +51,19 @@ export interface IrClipSource {
   readonly template: string;
   readonly params: TemplateParams;
   readonly assets: readonly IrAssetRef[];
+  /** `declareFonts(params)` шаблона, разрешённые в записи каталога (`CP-07`). */
+  readonly fonts: readonly IrFontRef[];
+  /**
+   * `manifest.purposes` шаблона — перечень seed'ов узла (ADR-0007 §1).
+   *
+   * *(Добавлено: `CP-07`, 2026-08-28; долг №135.)* До этой задачи `purpose` был равен
+   * `templateId` — «самая узкая форма, не выдумывающая перечня» (решение владельца `CP-04` 1).
+   * Перечень объявляет МАНИФЕСТ, и он приезжает сюда значением: список `purpose`, а не имя
+   * шаблона, из которого он якобы выводится. На `fixtures/minimal` пуст у всех пяти шаблонов.
+   */
+  readonly purposes: readonly string[];
+  /** `manifest.msPerFrameBudget` — слагаемое суммы по кадру (ADR-0008 «Бюджет AC2»). */
+  readonly msPerFrameBudget: number;
   /** `null` ⇒ у клипа не будет ни одного seed'а (порождённая `[img:]`-запись). */
   readonly seedScope: SeedScope | null;
 }

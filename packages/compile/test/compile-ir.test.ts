@@ -7,6 +7,7 @@
 
 import { blake3, canonicalJson } from '@vpe/core-model';
 import type { PixelProfileInput } from '@vpe/media';
+import { FIXTURE_TEMPLATES, requestFiles, type TemplateRegistry } from '@vpe/templates-spec';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import {
@@ -21,6 +22,7 @@ import {
 
 import { fixtureCompileProfile, fixtureSeedRoot, readFixture } from './fixture.js';
 import { buildProject, cleanupRoots, type ProjectExtra } from './project.js';
+import { jitter1 } from './specs.js';
 
 afterAll(cleanupRoots);
 
@@ -28,11 +30,21 @@ afterAll(cleanupRoots);
 async function compileFixture(
   text?: string,
   extra: ProjectExtra = {},
-): Promise<{ timeline: Timeline; result: BuildIrResult; profile: CompileProfileInput }> {
+): Promise<{
+  timeline: Timeline;
+  result: BuildIrResult;
+  profile: CompileProfileInput;
+  registry: TemplateRegistry;
+}> {
   const built = await buildProject(text, undefined, extra);
   const timeline = compose(built.input);
   const profile = built.input.profile;
-  return { timeline, result: compileIr({ timeline, profile, seedRoot: fixtureSeedRoot() }), profile };
+  return {
+    timeline,
+    result: compileIr({ timeline, profile, seedRoot: fixtureSeedRoot() }),
+    profile,
+    registry: built.registry,
+  };
 }
 
 /**
@@ -96,7 +108,10 @@ describe('`compileIr` на `fixtures/minimal` — числа T6 названы, 
     expect(intro?.clips.map((clip) => clip.frames)).toEqual([
       { frameStart: 0, frameEnd: 690 },
       { frameStart: 0, frameEnd: 337 },
-      { frameStart: 337, frameEnd: 690 },
+      // `[337, 343)` — ШЕСТЬ КАДРОВ, а не 353 до конца сегмента (`CP-07`, долг №119):
+      // `flash@1` объявляет `durationSamples: 4800`, а `4800 / 800 = 6`. До этой задачи здесь
+      // стояло `{337, 690}` — клип тянулся «до конца области» вопреки собственному параметру.
+      { frameStart: 337, frameEnd: 343 },
     ]);
 
     // Клип `bed@1` дорожки `music` лежит на всём втором сегменте Timeline — и в IR его нет:
@@ -133,19 +148,108 @@ describe('`compileIr` на `fixtures/minimal` — числа T6 названы, 
     expect(result.records).toEqual([]);
   });
 
-  it('шрифты — пустой список с пометкой типом: `declareFonts` приезжает с `TS-01`', async () => {
+  it('шрифты приезжают `declareFonts`: `seg:turn` — DejaVu Sans Bold, `seg:intro` — пусто', async () => {
     const { result } = await compileFixture();
-    expect(result.segments.every((segment) => segment.fonts.length === 0)).toBe(true);
+    const [intro, turn] = result.segments;
+
+    // Единственный из пяти, кто шрифт просит, — `captionEmphasis@1` (роль `caption`), и стоит
+    // он на `b:close`, то есть во ВТОРОМ сегменте. `family` — ИЗМЕРЕННОЕ `intrinsic.family`
+    // записи `fonts/records/…0005.json`, а не то, что назвал шаблон: спек семейства не
+    // называет вовсе (`FontRef.family` необязателен — шрифт канала не выбран, №13).
+    expect(turn?.fonts).toEqual([
+      {
+        sha256: '0000000000000000000000000000000000000000000000000000000000000005',
+        family: 'DejaVu Sans',
+        role: 'caption',
+      },
+    ]);
+    expect(intro?.fonts).toEqual([]);
+
+    // У КЛИПА тот же список, и он один: список сегмента есть их объединение.
+    const emphasis = turn?.clips.find((clip) => clip.clipId === 'r:e40b7a92');
+    expect(emphasis?.fonts).toEqual(turn?.fonts);
+    expect(turn?.clips.filter((clip) => clip.fonts.length > 0)).toHaveLength(1);
   });
 
-  it('ассеты несут sha и роль; порождённая `[img:]` — единственная, у кого они есть до `TS-01`', async () => {
+  it('ассеты сегмента — объединение объявленных клипами, отсортированное по `(sha256, role)`', async () => {
     const { result } = await compileFixture();
-    const harbour = result.segments[0]?.clips.find((clip) => clip.clipId === 'img:b:img-harbour-1');
+    const [intro, turn] = result.segments;
+
+    // `harbour` — в `seg:intro`; `ledger` и `sea` — в `seg:turn`. `pad-loop` (`bed@1`) в
+    // видео-IR не попадает вовсе: он на дорожке `music`, и его ассет уезжает в `AudioPlan`.
+    expect(intro?.assets).toEqual([
+      { sha256: '0000000000000000000000000000000000000000000000000000000000000001', role: 'asset' },
+    ]);
+    expect(turn?.assets).toEqual([
+      { sha256: '0000000000000000000000000000000000000000000000000000000000000002', role: 'asset' },
+      { sha256: '0000000000000000000000000000000000000000000000000000000000000003', role: 'asset' },
+    ]);
+
+    // ОБЪЕДИНЕНИЕ, А НЕ КОНКАТЕНАЦИЯ: `ledger` объявлен ДВАЖДЫ — порождённой `[img: ledger]`
+    // и записью `r:5d6e1130` (`still@1`, `params.asset: "ledger"`), — а в списке запроса
+    // сегмента он один: в каталог композиции файл ляжет один раз.
+    const ledgerClips = (turn?.clips ?? []).filter((clip) =>
+      clip.assets.some((asset) => asset.sha256.endsWith('002')),
+    );
+    expect(ledgerClips.map((clip) => clip.clipId)).toEqual(['img:b:img-ledger-1', 'r:5d6e1130']);
+
+    // Роль называет ШАБЛОН (`declareAssets`), и у `still@1` это `'asset'` — та же строка,
+    // что компилятор ставил сам до `CP-07` (долг №138 закрыт `TS-01` без смены значения).
+    const harbour = intro?.clips.find((clip) => clip.clipId === 'img:b:img-harbour-1');
     expect(harbour?.assets).toEqual([
       { sha256: '0000000000000000000000000000000000000000000000000000000000000001', role: 'asset' },
     ]);
-    const kenburns = result.segments[0]?.clips.find((clip) => clip.clipId === 'r:a3f19c2b');
+    // `kenburns@1` ассетов не объявляет (решение владельца 5, `TS-01`) — и это не «забыли».
+    const kenburns = intro?.clips.find((clip) => clip.clipId === 'r:a3f19c2b');
     expect(kenburns?.assets).toEqual([]);
+  });
+
+  it('**R3**: списки запроса и объявления спеков совпадают В ОБЕ СТОРОНЫ', async () => {
+    const { result, registry } = await compileFixture();
+
+    // ЛЕВАЯ СТОРОНА — `requestFiles(spec, params)`, то есть ЕДИНСТВЕННЫЙ источник списка
+    // файлов запроса (вход R3, `TS-01`). Считается заново, из реестра и авторских `params`
+    // клипа, — а не берётся у стадии: иначе тест сверял бы стадию с самой собой.
+    for (const segment of result.segments) {
+      const declared = segment.clips.flatMap((clip) => {
+        const spec = registry.resolve(clip.template);
+        const files = requestFiles(spec, clip.params);
+        return [
+          ...files.assets.map((ref) => `asset:${ref.role}`),
+          ...files.fonts.map((ref) => `font:${ref.role}`),
+        ];
+      });
+      const inRequest = [
+        ...segment.assets.map((ref) => `asset:${ref.role}`),
+        ...segment.fonts.map((ref) => `font:${ref.role}`),
+      ];
+      // Множества ролей совпадают: ни один спек не попросил файла, которого нет в запросе,
+      // и в запросе нет файла, которого не просил ни один спек (поправка владельца П2).
+      expect(new Set(inRequest)).toEqual(new Set(declared));
+    }
+
+    // И то же по SHA: в IR нет ни одного sha, которого не объявил ни один спек.
+    const allShas = result.segments.flatMap((segment) => [
+      ...segment.assets.map((ref) => ref.sha256),
+      ...segment.fonts.map((ref) => ref.sha256),
+    ]);
+    expect(allShas.every((sha) => /^[0-9a-f]{64}$/.test(sha))).toBe(true);
+    expect(new Set(allShas).size).toBe(4); // harbour, ledger, sea, шрифт роли `caption`
+  });
+
+  it('бюджет `msPerFrameBudget` считается по кадрам и ПЕЧАТАЕТСЯ, ничего не роняя', async () => {
+    const { result } = await compileFixture();
+    // `seg:intro`: `still@1` (1) + `kenburns@1` (2) перекрываются на кадрах `[0, 337)` ⇒ 3;
+    // на `[337, 343)` — `still@1` (1) + `flash@1` (1) = 2. Максимум по сегменту — 3.
+    expect(result.budgets[0]).toEqual({ segmentId: 'seg:intro', maxMsPerFrame: 3 });
+    // `seg:turn`: два `still@1` (по 1) идут ВСТЫК, не перекрываясь; с ними перекрывается
+    // запись `r:5d6e1130` (`still@1`, 1) и `captionEmphasis@1` (1) ⇒ пик 3.
+    expect(result.budgets[1]?.segmentId).toBe('seg:turn');
+    expect(result.budgets[1]?.maxMsPerFrame).toBe(3);
+    expect(dumpIr(result)).toContain('budgetMsPerFrame=3');
+    // ПОРОГА НЕТ НИ ОДНОГО: решение владельца 9 (RM1) — «печатается, не роняет»; падение
+    // появится не раньше `E-05`, число готовит `E-00`.
+    expect(result.records).toEqual([]);
   });
 
   it('дамп детерминирован и кончается переводом строки', async () => {
@@ -157,52 +261,85 @@ describe('`compileIr` на `fixtures/minimal` — числа T6 названы, 
   });
 });
 
+// ── D1/D2: seed'ы. Перечитаны, а не подогнаны (`CP-07`) ─────────────────────
+
+/**
+ * Фикстурная режиссура, у которой ОДНА запись поставлена на шаблон, просящий случайность.
+ *
+ * `still@1` → `jitter@1` — подмена ровно одной строки: схема `params` у синтетического спека
+ * та же (он копия донора), поэтому запись `5d6e1130` остаётся законным вызовом и отличается
+ * только тем, что её шаблон объявляет `purposes: ['jitter']`. Фикстура не трогается: текст
+ * читается и правится в памяти, каталог режиссуры прогона — временный.
+ */
+function withJitter(extra = ''): string {
+  return readFixture('fixtures/minimal/direction/01-intro.yaml')
+    .replace('    template: "still@1"', '    template: "jitter@1"')
+    .replace('records:\n', `records:\n${extra}`);
+}
+
+/** Реестр прогона: пять спеков фикстуры плюс `jitter@1`. */
+const JITTER_SPECS = [...FIXTURE_TEMPLATES, jitter1];
+const WITH_JITTER: ProjectExtra = { direction: withJitter(), specs: JITTER_SPECS };
+
 describe('**D1**/**D2** — seed’ы материализованы, и ни один их вход не зависит от позиции', () => {
-  it('seed’ы есть у клипов записей файла и отсутствуют у порождённых `[img:]`', async () => {
+  it('на фикстуре seed’ов НЕТ НИ ОДНОГО: `purposes` пуст у всех пяти шаблонов', async () => {
     const { result } = await compileFixture();
-    const withSeeds = result.segments.flatMap((segment) =>
-      segment.clips.filter((clip) => Object.keys(clip.seeds).length > 0).map((clip) => clip.clipId),
-    );
-    // Четыре, а не пять записей фикстуры: `bed@1` лежит на дорожке `music`, и в видео-IR её нет.
-    expect(withSeeds).toEqual(['r:a3f19c2b', 'r:7b20de44', 'r:5d6e1130', 'r:e40b7a92']);
+    const clips = result.segments.flatMap((segment) => segment.clips);
+    expect(clips.length).toBeGreaterThan(0);
+    expect(clips.every((clip) => Object.keys(clip.seeds).length === 0)).toBe(true);
+
+    // ЭТО ИЗМЕРЕНИЕ, А НЕ ДЕГРАДАЦИЯ (`TS-01` §5 п. 2): случайности не требует ни один
+    // шаблон фикстуры. До `CP-07` здесь было четыре seed’а под ключом `purpose = templateId`
+    // — временная форма, взятая `CP-04` за неимением манифестов (долг №135). Ключ не сменился
+    // — карта СТАЛА ПУСТОЙ, и цена «кэш сегментов инвалидируется один раз» заплачена здесь.
+    expect(dumpIr(result)).toContain('seeds=<нет>');
+    expect(dumpIr(result)).not.toContain('seeds=kenburns@1=');
+  });
+
+  it('seed есть у записи файла с непустыми `purposes`; у порождённой `[img:]` — нет', async () => {
+    const { result } = await compileFixture(undefined, WITH_JITTER);
+    const jitter = result.segments
+      .flatMap((segment) => segment.clips)
+      .find((clip) => clip.clipId === 'r:5d6e1130');
+    expect(jitter?.template).toBe('jitter@1');
+    // Ключ карты — ОБЪЯВЛЕННЫЙ `purpose`, а не id шаблона: `'jitter'`, не `'jitter@1'`.
+    expect(Object.keys(jitter?.seeds ?? {})).toEqual(['jitter']);
+    expect(jitter?.seeds['jitter']).toMatch(/^[0-9a-f]{16}$/);
 
     const generated = result.segments.flatMap((segment) =>
       segment.clips.filter((clip) => clip.clipId.startsWith('img:')),
     );
     expect(generated).toHaveLength(3);
     expect(generated.every((clip) => Object.keys(clip.seeds).length === 0)).toBe(true);
-
-    // `purpose = templateId` (решение владельца 1, вариант «а»): один seed на клип, ключ —
-    // id шаблона. `TS-01` объявит настоящие purposes, и карта вырастет числом ключей.
-    const kenburns = result.segments[0]?.clips.find((clip) => clip.clipId === 'r:a3f19c2b');
-    expect(Object.keys(kenburns?.seeds ?? {})).toEqual(['kenburns@1']);
-    expect(kenburns?.seeds['kenburns@1']).toMatch(/^[0-9a-f]{16}$/);
   });
 
   it('**D1**: запись ВЫШЕ по сцене и правка чужих `params` не меняют множество seed’ов', async () => {
-    const base = await compileFixture();
     const seedsOf = (result: BuildIrResult): readonly string[] =>
       result.segments
         .flatMap((segment) => segment.clips.flatMap((clip) => Object.values(clip.seeds)))
         .sort();
 
-    // Своя режиссура: фикстурные записи ПЛЮС новая, стоящая выше по сцене `intro`, плюс
-    // изменённый `params` у чужой записи. Фикстура при этом не трогается ни символом.
-    const direction = readFixture('fixtures/minimal/direction/01-intro.yaml')
-      .replace('      easing: "power2.inOut"', '      easing: "power3.out"')
-      .replace(
-        'records:\n',
-        'records:\n' +
-          '  - recordId: "0000beef"\n' +
+    const base = await compileFixture(undefined, WITH_JITTER);
+    // Множество НЕПУСТО — иначе утверждение проверяло бы, что пустое множество не меняется.
+    expect(seedsOf(base.result)).toHaveLength(1);
+
+    // Две правки разом, обе — законные вызовы: (1) новая запись ВЫШЕ по сцене `intro`, тоже
+    // просящая случайность; (2) чужой `params` изменён (`strengthPct` у `flash@1`). Прежняя
+    // редакция теста меняла `easing` на `power3.out` — после `TS-01` это НЕ вызов, а ошибка
+    // схемы: `kenburns@1` принимает ровно `power2.inOut`.
+    const probe = await compileFixture(undefined, {
+      specs: JITTER_SPECS,
+      direction: withJitter(
+        '  - recordId: "0000beef"\n' +
           '    at: { kind: anchor, anchor: "sc:intro" }\n' +
           '    until: { kind: anchor, anchor: "b:reveal" }\n' +
-          '    track: effect\n' +
+          '    track: visual\n' +
           '    z: 5\n' +
-          '    template: "grade@1"\n' +
+          '    template: "jitter@1"\n' +
           '    params:\n' +
-          '      saturate: 1\n',
-      );
-    const probe = await compileFixture(undefined, { direction });
+          '      asset: "harbour"\n',
+      ).replace('strengthPct: 35', 'strengthPct: 55'),
+    });
 
     const added = seedsOf(probe.result).filter((seed) => !seedsOf(base.result).includes(seed));
     const lost = seedsOf(base.result).filter((seed) => !seedsOf(probe.result).includes(seed));
@@ -211,10 +348,11 @@ describe('**D1**/**D2** — seed’ы материализованы, и ни о
   });
 
   it('**D2**: `segmentId` не участвует ни в одном seed — иначе он менялся бы с сегментацией', async () => {
-    const base = await compileFixture();
+    const base = await compileFixture(undefined, WITH_JITTER);
     // Порог 800 кадров отклоняет единственный разрез (`CP-03` §11): состав сегментов
     // становится другим — один вместо двух, и `segmentId` у него другой.
     const merged = await compileFixture(undefined, {
+      ...WITH_JITTER,
       profile: (input) => ({ ...input, minSegmentDurationFrames: 800 }),
     });
     expect(merged.result.segments).toHaveLength(1);
@@ -224,6 +362,8 @@ describe('**D1**/**D2** — seed’ы материализованы, и ни о
       result.segments
         .flatMap((segment) => segment.clips.flatMap((clip) => Object.values(clip.seeds)))
         .sort();
+    // Непусто И равно: обе половины утверждения нужны — пустое равнялось бы пустому всегда.
+    expect(seedsOf(base.result)).toHaveLength(1);
     expect(seedsOf(merged.result)).toEqual(seedsOf(base.result));
   });
 });
@@ -444,10 +584,14 @@ describe('**K4** — матрица: `compileProfile` двигает `segmentIrH
     expect(Object.keys(input).sort()).toEqual(['profile', 'seedRoot', 'timeline']);
   });
 
-  it('поля `width`/`height`/`safeAreas`/`templateRegistryVersion`/`maxDurationFrames` входа не имеют вовсе', () => {
+  it('поля `width`/`height`/`safeAreas`/`maxDurationFrames` входа не имеют вовсе', () => {
     // Доказательство ОТСУТСТВИЕМ СТРОКИ (тот же приём, что в `CP-03` §11): их нет в
     // `CompileProfileInput` пакета `compile`, значит мутировать нечего. Это материал №114 —
     // ровно они обязаны остаться явными строками в `cacheKeyView` стадии `segment`.
+    //
+    // `templateRegistryVersion` ИЗ ЭТОГО СПИСКА УШЁЛ (`CP-07`): у стадии появился РЕЕСТР, и
+    // поле профиля теперь есть с чем сверять. Оно по-прежнему не двигает хэш — но не потому,
+    // что его негде прочитать, а потому, что расхождение есть ОШИБКА (строка K4-матрицы ниже).
     const keys = Object.keys(fixtureCompileProfile()).sort();
     expect(keys).toEqual([
       'captions',
@@ -457,10 +601,30 @@ describe('**K4** — матрица: `compileProfile` двигает `segmentIrH
       'fps',
       'minSegmentDurationFrames',
       'projectSampleRate',
+      'templateRegistryVersion',
     ]);
-    for (const absent of ['width', 'height', 'safeAreas', 'templateRegistryVersion', 'maxDurationFrames']) {
+    for (const absent of ['width', 'height', 'safeAreas', 'maxDurationFrames']) {
       expect(keys).not.toContain(absent);
     }
+  });
+
+  it('templateRegistryVersion: хэш НЕ двигает, потому что расхождение — ОШИБКА (**K6**)', async () => {
+    // СТРОКА МАТРИЦЫ ПЕРЕПИСАНА (`CP-07`). У `CP-04` она читалась «входа в стадию не имеет
+    // вовсе» — то есть поле профиля адресовало содержимое, которого стадия не видела, и
+    // исключение в allowlist'е **K6** было безнаказанным по построению. Теперь реестр
+    // подаётся входом `compose`, и мутация поля даёт не другой хэш, а ОТКАЗ КОМПИЛЯЦИИ до
+    // первой записи: собрать ролик реестром, которого автор не называл, нельзя.
+    await expect(
+      compileFixture(undefined, { profile: (input) => ({ ...input, templateRegistryVersion: '2' }) }),
+    ).rejects.toThrow(/K6/);
+
+    // А на СОВПАДАЮЩЕЙ версии хэш ровно тот же — поле в `segmentIrHash` не входит (№114:
+    // в `cacheKeyView` стадии `segment` оно обязано остаться отдельной строкой).
+    const base = await compileFixture();
+    const same = await compileFixture(undefined, {
+      profile: (input) => ({ ...input, templateRegistryVersion: input.templateRegistryVersion }),
+    });
+    expect(fingerprint(same.result)).toBe(fingerprint(base.result));
   });
 });
 

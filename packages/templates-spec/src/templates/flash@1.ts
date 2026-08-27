@@ -15,6 +15,7 @@
 // абсолютную форму только у `kind: anchor`), а единица авторского слоя — сэмпл (ADR-0003 T1).
 // Комментарий в самой фикстуре говорит ровно это.
 
+import { asSamples, type Samples } from '@vpe/core-model';
 import { z } from 'zod';
 
 import type { TemplateManifest } from '../manifest.js';
@@ -60,5 +61,10 @@ export const flash1: TemplateSpec<FlashParams> = {
   paramsSchema: ParamsSchema,
   declareAssets: () => [],
   declareFonts: () => [],
+  // ЕДИНСТВЕННЫЙ ИЗ ПЯТИ, КТО ОБЪЯВЛЯЕТ ДЛИТЕЛЬНОСТЬ (`CP-07`, долг №119). У `still@1`,
+  // `kenburns@1`, `captionEmphasis@1` и `bed@1` длительность задаёт АВТОР (`until` либо
+  // область), и метода у них нет вовсе — это различимо в контракте, а не выражено `null`.
+  // Вспышка — наоборот: её длина есть свойство эффекта, а не места, куда его поставили.
+  declareDuration: (params): Samples => asSamples(params.durationSamples),
   manifest,
 };

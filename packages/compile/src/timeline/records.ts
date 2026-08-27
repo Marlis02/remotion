@@ -1,30 +1,29 @@
 // Треки режиссуры: записи `direction/*.yaml` и порождённые `[img:]`-записи → клипы (`CP-01`).
 //
-// ЧТО ЗДЕСЬ ЕСТЬ И ЧЕГО НЕТ. Есть укладка: якорь → сэмпл, `until` → длина, порядок на треке.
-// Нет ни одной строки, которая ЧИТАЛА бы `params`: контракт параметров нормирует манифест
-// шаблона (`TS-01`), и до него `params` проходят сквозь Timeline ДАННЫМИ. Следствие названо
-// честно и записано долгом: `flash@1` в фикстуре несёт `params.durationSamples: 4800`, а его
-// клип получит длину до конца области — потому что `until` у записи нет, а читать параметр
-// компилятор не вправе.
+// ЧТО ЗДЕСЬ ЕСТЬ И ЧЕГО НЕТ. Есть укладка: якорь → сэмпл, `until`/объявленная длительность →
+// длина, порядок на треке. Нет ни одной строки, которая читала бы `params` ПО ИМЕНИ ПОЛЯ:
+// контракт вызова разобран стадией `contract.ts` (`CP-07`), и сюда он приезжает готовым —
+// `assets`, `fonts`, `purposes` и `declaredDurationSamples` в `ClipContract`. Греп-охранник
+// (`tests/lints/cp07-template-params.test.ts`) стережёт это по всему `compile/src/**`.
 //
 // РАЗВОРАЧИВАНИЕ `[img:]` СЮДА НЕ ВХОДИТ. Его делает `expandImg` (`core-model/src/anchors/img.ts`,
 // `C-04`) — чистая функция документа, ровно как требует ADR-0002 §4. Здесь порождённые записи
 // только УКЛАДЫВАЮТСЯ, и это видно по типу входа: `GeneratedDirectionRecord[]`, а не документ.
 //
-// ЕДИНСТВЕННЫЙ ALIAS, КОТОРЫЙ РАЗРЕШАЕТСЯ (решение владельца 2026-08-26, вопрос 8) — alias
-// порождённой `[img:]`-записи: он родился из прозы, и манифеста шаблона у него нет и быть не
-// может. Alias'ы внутри `params` чужих шаблонов остаются строками до `TS-01` — в фикстуре это
-// `bed@1.params.asset` и `bed@1.params.inPoint.asset`; там же лежит расхождение формы
-// (`MediaTimePoint.asset` типизирован `Sha256`, а в файле стоит alias), записанное долгом.
+// ОСОБОЙ ВЕТКИ У `[img:]` БОЛЬШЕ НЕТ (`CP-07`, долг №120). До этой задачи `compose` разрешал
+// ровно один alias — alias порождённой записи, «потому что манифеста шаблона у неё нет и быть
+// не может» (решение владельца `CP-01`, вопрос 8). Манифест есть у ШАБЛОНА, а не у записи:
+// `still@1` объявляет `{alias: params.asset, role: 'asset'}` тем же `declareAssets`, что и
+// `bed@1` свой `pad-loop`. Значит путь один на все клипы, и `resolveAlias` из этого файла ушёл.
 
 import type { GeneratedDirectionRecord, PlacedRecord, Samples } from '@vpe/core-model';
 import { asSamples } from '@vpe/core-model';
-import { resolveAlias, type AssetCatalog } from '@vpe/media';
 
 import { resolvePoint, type AnchorTimes } from './anchors.js';
+import type { ClipContract, ClipContracts } from './contract.js';
 import { CompileError, type CompileProblem } from './errors.js';
 import type { SpeechTrackResult } from './speech-track.js';
-import type { AssetSha, ClipFill, PlacedClip, TimelineTrack } from './types.js';
+import type { ClipFill, PlacedClip, TimelineTrack } from './types.js';
 
 /** Вход укладки режиссуры. */
 export interface RecordTracksInput {
@@ -32,9 +31,35 @@ export interface RecordTracksInput {
   readonly records: readonly PlacedRecord[];
   /** Порождённые `[img:]`-записи (`expandImg`, `C-04`). */
   readonly generated: readonly GeneratedDirectionRecord[];
-  readonly catalog: AssetCatalog;
+  /**
+   * Контракты вызовов (`templateContracts`, `CP-07`) — `clipId → ClipContract`.
+   *
+   * ГОТОВЫМИ, А НЕ РЕЕСТРОМ И КАТАЛОГОМ: укладка не зовёт спеков и не разрешает alias'ов, она
+   * только КЛАДЁТ. Реестр здесь означал бы второе место, где вызов шаблона интерпретируется, —
+   * и первый же расход между ними был бы не виден ни одному тесту.
+   */
+  readonly contracts: ClipContracts;
   readonly times: AnchorTimes;
   readonly track: SpeechTrackResult;
+}
+
+/**
+ * Контракт клипа по его `clipId`.
+ *
+ * @throws {Error} контракта нет — это ДЕФЕКТ СБОРКИ, а не вход: `templateContracts` строит
+ *   карту по тем же двум спискам и тем же ключам, и запись, дошедшая сюда без контракта,
+ *   означала бы, что две функции разошлись в том, что такое `clipId`. Ошибка компиляции
+ *   здесь была бы неправдой — автору чинить нечего.
+ */
+function contractOf(input: RecordTracksInput, clipId: string): ClipContract {
+  const contract = input.contracts.get(clipId);
+  if (contract === undefined) {
+    throw new Error(
+      `CP-07: у клипа \`${clipId}\` нет контракта шаблона. Карту строит \`templateContracts\` ` +
+        'по тем же записям и тем же ключам — расхождение означает дефект сборки, а не проект',
+    );
+  }
+  return contract;
 }
 
 /** Клип до сортировки: несёт свой трек. */
@@ -73,11 +98,23 @@ function draftsOfRecords(input: RecordTracksInput, problems: CompileProblem[]): 
     if (record.track === 'voice') continue;
 
     const where = `${placed.filePath} · r:${record.recordId}`;
+    const clipId = `r:${record.recordId}`;
+    const contract = contractOf(input, clipId);
     const start = resolvePoint(record.at, input.times, where).startSample;
+    // ТРИ ИСТОЧНИКА КОНЦА, В ЭТОМ ПОРЯДКЕ (`CP-07`, долг №119):
+    //   1. `until` автора — он всегда сильнее (и вместе с объявленной длительностью запрещён:
+    //      противоречие ловит `templateContracts`, решение владельца вопрос 4);
+    //   2. длительность, ОБЪЯВЛЕННАЯ шаблоном (`declareDuration`) — `flash@1` на фикстуре;
+    //   3. конец области (решение владельца `CP-01`, вопрос 7) — как было.
+    // Второй пункт и есть закрытие долга: до `CP-07` клип `flash@1` тянулся до конца
+    // `sc:intro` (281 880 сэмплов) при `params.durationSamples: 4800`, потому что читать
+    // параметр по имени компилятор не вправе. Читает его теперь СПЕК, а не компилятор.
     const end =
-      record.until === undefined
-        ? areaEndOf(placed, input)
-        : resolvePoint(record.until, input.times, where).endSample;
+      record.until !== undefined
+        ? resolvePoint(record.until, input.times, where).endSample
+        : contract.declaredDurationSamples !== null
+          ? asSamples(start + contract.declaredDurationSamples)
+          : areaEndOf(placed, input);
     if (end === null) {
       problems.push({
         address: where,
@@ -105,10 +142,11 @@ function draftsOfRecords(input: RecordTracksInput, problems: CompileProblem[]): 
       // Тот же `scope`, который уже прочитан выше для `areaEndOf`: вход формулы seed'а
       // (ADR-0007 §1), сохранённый вместе с записью, а не выведенный заново (`CP-04`).
       scope: placed.scope,
+      contract,
     };
     out.push({
       kind: 'clip',
-      clipId: `r:${record.recordId}`,
+      clipId,
       trackKind: record.track,
       at: record.at,
       duration: { samples: asSamples(end - start) },
@@ -126,20 +164,14 @@ function draftsOfRecords(input: RecordTracksInput, problems: CompileProblem[]): 
 function draftsOfGenerated(input: RecordTracksInput, problems: CompileProblem[]): Draft[] {
   const out: Draft[] = [];
   for (const record of input.generated) {
-    const where = `[img: ${record.params.asset}] · ${record.at.anchor}`;
+    // АДРЕС — ЯКОРЬ НЕЯВНОГО БИТА, А НЕ ALIAS. `record.params.asset` дал бы ту же строку и был
+    // бы чтением `params` по имени поля шаблона; якорь `b:img-<alias>-<n>` alias уже содержит
+    // по построению (ADR-0002 §4), то есть человек находит место так же точно.
+    const where = `[img:] · ${record.at.anchor}`;
+    const clipId = `img:${record.at.anchor}`;
+    const contract = contractOf(input, clipId);
     const start = resolvePoint(record.at, input.times, where).startSample;
     const end = resolvePoint(record.until, input.times, where).endSample;
-    const sha: AssetSha | undefined = resolveAlias(input.catalog, record.params.asset);
-    if (sha === undefined) {
-      problems.push({
-        address: where,
-        message:
-          `alias \`${record.params.asset}\` не найден в \`assets/aliases.yaml\`. Порождённая ` +
-          'запись `[img:]` — единственная, чей alias компилятор разрешает сам (у неё нет ' +
-          'манифеста шаблона), поэтому пропустить его молча значило бы собрать ролик без картинки',
-      });
-      continue;
-    }
     if (end <= start) {
       problems.push({
         address: where,
@@ -151,7 +183,7 @@ function draftsOfGenerated(input: RecordTracksInput, problems: CompileProblem[])
     }
     out.push({
       kind: 'clip',
-      clipId: `img:${record.at.anchor}`,
+      clipId,
       trackKind: record.track,
       at: record.at,
       duration: { samples: asSamples(end - start) },
@@ -162,9 +194,8 @@ function draftsOfGenerated(input: RecordTracksInput, problems: CompileProblem[])
       fill: {
         kind: 'generated',
         template: record.template,
-        alias: record.params.asset,
-        assetSha: sha,
         params: record.params,
+        contract,
       },
     });
   }
@@ -193,7 +224,8 @@ function byAuthorOrder(left: Draft, right: Draft): number {
  * Укладывает режиссуру по трекам.
  *
  * @returns трек → клипы в порядке ADR-0007 §5.
- * @throws {CompileError} неизвестный alias, пустой интервал, отсутствующая область.
+ * @throws {CompileError} пустой интервал, отсутствующая область. Alias без записи и `params`
+ *   не по схеме сюда уже не доходят: их отвергает `templateContracts` (`CP-07`) до укладки.
  */
 export function recordTracks(input: RecordTracksInput): ReadonlyMap<string, readonly PlacedClip[]> {
   const problems: CompileProblem[] = [];

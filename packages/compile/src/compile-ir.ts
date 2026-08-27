@@ -56,12 +56,21 @@ export interface CompileIrInput {
  * `scope` берётся у записи файла и отсутствует у порождённой `[img:]` — отсюда и `null` в
  * `seedScope`: у порождённой записи нет `recordId`, а формула ADR-0007 §1 без него не
  * записывается (решение владельца 1-bis, 2026-08-26).
+ *
+ * ВСЁ, ЧТО ОБЪЯВИЛ ШАБЛОН, ПРИЕЗЖАЕТ ОДНИМ ОБЪЕКТОМ (`fill.contract`, `CP-07`) и КОПИРУЕТСЯ
+ * БЕЗ ЕДИНОГО РЕШЕНИЯ. Ни `resolveAlias`, ни выбора роли, ни ветки «а у порождённой записи
+ * по-другому» здесь больше нет: до `CP-07` ровно в этой функции стояла строка
+ * `assets: fill.kind === 'generated' ? [{sha256: fill.assetSha, role: 'asset'}] : []` — то
+ * есть компилятор САМ назначал роль по имени параметра (долг №138). Теперь роль называет
+ * `declareAssets` спека, и у `still@1` это та же строка `'asset'`: форма ссылки не
+ * изменилась ни полем, ни значением (решение владельца G).
  */
 function clipSource(clip: PlacedClip, track: TrackKind): IrClipSource {
   const seedScope: SeedScope | null =
     clip.fill.kind === 'record'
       ? { chapterId: clip.fill.scope.chapterId, sceneId: clip.fill.scope.sceneId, recordId: clip.fill.recordId }
       : null;
+  const { contract } = clip.fill;
 
   return {
     clipId: clip.clipId,
@@ -72,11 +81,10 @@ function clipSource(clip: PlacedClip, track: TrackKind): IrClipSource {
     endSample: clip.endSample,
     template: clip.fill.template,
     params: clip.fill.params,
-    // Ассеты знает сегодня только порождённая `[img:]`-запись: она ЕДИНСТВЕННАЯ, чей alias
-    // компилятор разрешает сам (решение владельца `CP-01`, вопрос 8) — у неё нет манифеста
-    // шаблона. Alias'ы внутри `params` чужих шаблонов остаются строками до `TS-01`, и роль
-    // им назначает `declareAssets`, а не эта строка.
-    assets: clip.fill.kind === 'generated' ? [{ sha256: clip.fill.assetSha, role: 'asset' }] : [],
+    assets: contract.assets,
+    fonts: contract.fonts,
+    purposes: contract.purposes,
+    msPerFrameBudget: contract.msPerFrameBudget,
     seedScope,
   };
 }

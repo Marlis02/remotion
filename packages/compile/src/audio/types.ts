@@ -26,7 +26,7 @@
 //     `final-padding` НЕТ. Добивка T5 приезжает ПОЛЕМ элемента `boundary-correction`
 //     последнего сегмента — см. `AudioCorrectionSilence`.
 
-import type { Frames, Samples, TemplateParams } from '@vpe/core-model';
+import type { Frames, IrAssetRef, Samples, TemplateParams } from '@vpe/core-model';
 
 /**
  * Вид тишины на дорожке — `TimelineSilence.silenceKind` (ADR-0001) КАК ЕСТЬ, три имени.
@@ -137,17 +137,22 @@ export interface AudioBreakdown {
  * Клип аудио-домена, который дорожка v1 НЕ СМИКШИРОВАЛА (решение владельца 1, вариант «а»).
  *
  * `params` — ДАННЫМИ насквозь, ровно как в Timeline: контракт параметров объявляет `TS-01`,
- * и до него `params.asset` у `bed@1` остаётся alias'ом (`'pad-loop'` на `fixtures/minimal`),
- * который компилятор разрешать не вправе — alias резолвится только у порождённой
- * `[img:]`-записи (решение владельца `CP-01`, вопрос 8). Поэтому здесь НЕТ поля `sha256`:
- * его нечем заполнить, а выдуманное значение было бы хуже отсутствующего.
+ * *(изменено: `CP-07`, 2026-08-28.)* ~~`params.asset` у `bed@1` остаётся alias'ом, который
+ * компилятор разрешать не вправе, поэтому здесь НЕТ поля `sha256`.~~ Sha есть: alias
+ * разрешает `declareAssets` спека (`bed@1` объявляет одну ссылку `{alias: 'pad-loop',
+ * role: 'asset'}`, хотя alias встречается в `params` дважды), и она приезжает сюда полем
+ * `assets` — той же формы `IrAssetRef`, что в видео-IR. Долг №141 сужается до `X-02`: микса
+ * по-прежнему нет, и `unmixedClips` по-прежнему считает клипы, которых нет в дорожке.
  */
 export interface AudioMusicClip {
   /** `music` либо `sfx` — обе дорожки аудио-домена (`NON_CROSSING_TRACKS`, `CP-03`). */
   readonly track: 'music' | 'sfx';
   readonly clipId: string;
   readonly template: string;
+  /** Авторские `params` (решение владельца `CP-07`, вопрос 2): alias'ы не подменены. */
   readonly params: TemplateParams;
+  /** `declareAssets(params)` шаблона, разрешённые в sha (`CP-07`, долг №141 → `X-02`). */
+  readonly assets: readonly IrAssetRef[];
   readonly startSample: Samples;
   readonly endSample: Samples;
 }

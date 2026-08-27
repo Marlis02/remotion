@@ -20,7 +20,7 @@ export {
 export { sortIrRecords, type IrBuildRecord, type IrRecordRule } from './records.js';
 export { materializeSeeds, toSeedHex } from './seeds.js';
 export { segmentIrHash } from './hash.js';
-export { buildIr, type BuildIrInput, type BuildIrResult } from './build.js';
+export { buildIr, type BuildIrInput, type BuildIrResult, type SegmentBudget } from './build.js';
 export { dumpIr } from './dump.js';
 export type {
   IrCaptionGroupSource,

@@ -244,9 +244,17 @@ describe('`CP-05` — план дорожки на `fixtures/minimal`', () => {
     const bed = plan.music[0];
     expect(bed?.track).toBe('music');
     expect(bed?.template).toBe('bed@1');
-    // `params` идут насквозь: alias, а не sha — разрешать его компилятор не вправе (`TS-01`).
+    // `params` идут насквозь АВТОРСКИМИ: alias, а не sha (решение владельца `CP-07`, вопрос 2).
     expect(bed?.params).toMatchObject({ asset: 'pad-loop' });
-    expect(dumpAudioPlan(plan)).toContain('music: 1 клипов не смикшированы (TS-01)');
+    // А SHA ТЕПЕРЬ ЕСТЬ (`CP-07`, долг №141 сужен до `X-02`): его объявил `bed@1.declareAssets`
+    // и разрешил контракт вызова. Микса по-прежнему нет — и это по-прежнему сказано ЧИСЛОМ.
+    expect(bed?.assets).toEqual([
+      { sha256: '0000000000000000000000000000000000000000000000000000000000000004', role: 'asset' },
+    ]);
+    expect(dumpAudioPlan(plan)).toContain('music: 1 клипов не смикшированы (X-02)');
+    expect(dumpAudioPlan(plan)).toContain(
+      'template=bed@1 assets=0000000000000000000000000000000000000000000000000000000000000004/asset',
+    );
   });
 });
 

@@ -469,6 +469,11 @@ function musicClips(timeline: Timeline): readonly AudioMusicClip[] {
         clipId: item.clipId,
         template: item.fill.template,
         params: item.fill.params,
+        // Ассеты музыки СУЩЕСТВУЮТ с `CP-07`: их объявил спек (`bed@1.declareAssets`), и
+        // разрешил alias'ы контракт вызова. Микса это не даёт — дорожка v1 по-прежнему
+        // «речь + тишины движка» (решение владельца `CP-05` 1) — но `pad-loop` в плане
+        // теперь адресуется байтами, а не строкой каталога.
+        assets: item.fill.contract.assets,
         startSample: item.startSample,
         endSample: item.endSample,
       });
