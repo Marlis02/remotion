@@ -1,7 +1,8 @@
 // ESLint — исполнимая форма трёх групп правил, а не стиль:
-//   * M5 (ADR-0009 Decision)  — внутренние границы `compile` и `media` через
-//     `import/no-restricted-paths`. Это охранник СЛАБЕЕ пакетной границы (его можно снять
-//     строкой `// eslint-disable`), и это принято явно — ADR-0009, Consequences;
+//   * M5 (ADR-0009 Decision)  — внутренние границы `compile` (три зоны: `timeline`,
+//     `render-ir`, `audio`) и `media` через `import/no-restricted-paths`. Это охранник СЛАБЕЕ
+//     пакетной границы (его можно снять строкой `// eslint-disable`), и это принято явно —
+//     ADR-0009, Consequences;
 //   * M3 / M4 (ADR-0009 тесты 3 и 7) — второй охранник поверх грепа: `core-model` не читает
 //     диск, сеть — только в `voice`;
 //   * V8 / D4 (Charter V8, ADR-0007 §4) — `Math.random`, `Date.now`, `new Date`,
@@ -49,6 +50,7 @@ const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const M3 = 'M3 (ADR-0009 тест 3): модель не умеет читать диск. Работа с байтами на диске живёт в `media`.';
 const M4 = 'M4 (ADR-0009 тест 7): сеть — только в пакете `voice`. Рендерер «глупый» (Charter V9).';
 const M5_COMPILE = 'M5 (ADR-0009 Decision): «IR не знает Timeline». Граница `compile/render-ir` ↔ `compile/timeline` понижена до межмодульной осознанно; её протечка возвращает границу в ранг пакетной.';
+const M5_AUDIO = 'M5 (ADR-0009 Decision), решение владельца 6 (`CP-05`, 2026-08-27): граница `compile/audio` ↔ `compile/render-ir`. Аудио НЕ ЗНАЕТ КАДРОВ: звук не сегментируется никогда (ADR-0008), дорожка одна на ролик, и в `RenderIrSegment` нет ни одного сэмпла. Всё, что зоне `audio` нужно от IR, — это ЧИСЛА манифеста (`d_i`/`A_i`/`δ_i`/`f_i`/`a_i`, `F`, хвост), а `AssemblyManifest` лежит в `core-model`, где его видят обе стороны. Импорт `render-ir` из `audio` означал бы, что дорожка начала зависеть от раскладки клипов по кадрам, — а это ровно то, что T5 запрещает.';
 const M5_MEDIA = 'M5 (ADR-0009 Decision): граница `media/cache` ↔ `media/audio` — межмодульная. Кэш не знает про PCM, PCM не знает про кэш.';
 const CANON = 'ADR-0007 §3 / `S-01`: `JSON.stringify` не является канонической формой — он не сортирует ключи, пишет `null` вместо `NaN`/`Infinity`, теряет `-0` и зовёт `toJSON`. Используйте `canonicalJson` из `@vpe/schema`. Единственное исключение — сам `packages/schema/src/canonical/json.ts`.';
 const V8 = 'Charter V8 / ADR-0007 §4: запрещено во ВСЕХ процессах сборки, не только в рендере. Только seeded random; `now` — вход сборки (BuildRecord), внутри compile его нет.';
@@ -256,6 +258,8 @@ export default tseslint.config(
         zones: [
           { target: './packages/compile/src/render-ir', from: './packages/compile/src/timeline', message: M5_COMPILE },
           { target: './packages/compile/src/timeline', from: './packages/compile/src/render-ir', message: M5_COMPILE },
+          { target: './packages/compile/src/audio', from: './packages/compile/src/render-ir', message: M5_AUDIO },
+          { target: './packages/compile/src/render-ir', from: './packages/compile/src/audio', message: M5_AUDIO },
           { target: './packages/media/src/cache', from: './packages/media/src/audio', message: M5_MEDIA },
           { target: './packages/media/src/audio', from: './packages/media/src/cache', message: M5_MEDIA },
         ],

@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { CompileProfileInput } from '../src/index.js';
+import type { AudioProfileInput, CompileProfileInput } from '../src/index.js';
 
 export const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 export const FIXTURE = path.join(REPO, 'fixtures/minimal');
@@ -82,6 +82,23 @@ export function fixtureCompileProfile(): CompileProfileInput {
     // перестать замечать расхождение кода с профилем (`CP-03`).
     minSegmentDurationFrames: field(text, 'minSegmentDurationFrames', where),
     captions: captionsBlock(text, where),
+  };
+}
+
+/**
+ * Узкий вход стадии звука (`CP-05`): частота, сетка и предел T9 — всё из того же профиля.
+ *
+ * `maxDurationFrames` читается ЗДЕСЬ, а не берётся у `fixtureCompileProfile()`, потому что
+ * в `CompileProfileInput` его нет и не будет (решение владельца П3, 2026-08-27): тест **K4**
+ * утверждает, что у стадии IR входа этому полю нет вовсе, и утверждение остаётся верным.
+ */
+export function fixtureAudioProfile(): AudioProfileInput {
+  const where = 'fixtures/minimal/profiles/compile.yaml';
+  const text = readFixture(where);
+  return {
+    projectSampleRate: field(text, 'projectSampleRate', where),
+    fps: fpsField(text, where),
+    maxDurationFrames: field(text, 'maxDurationFrames', where),
   };
 }
 

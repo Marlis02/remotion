@@ -226,6 +226,7 @@ export { SEED_BYTES, seedOf, type SeedNode } from './model/seed.js';
 export type {
   AssemblyManifest,
   AssemblySegment,
+  AudioTrackRef,
   IrAssetRef,
   IrCaptionGroup,
   IrCaptionToken,

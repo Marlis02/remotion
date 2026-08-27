@@ -166,6 +166,32 @@ export interface AssemblySegment {
 }
 
 /**
+ * Ссылка на собранную аудио-дорожку ролика (`AssemblyManifest` ADR-0001: «ссылка на дорожку»).
+ *
+ * **ССЫЛКА, А НЕ БАЙТЫ.** Манифест — значение, переживающее JSON round-trip (ADR-0008
+ * «Гарантии входа»); дорожка 60-секундного Short — 2.8 МБ `Int16Array`. Поэтому здесь адрес
+ * в CAS и две величины, по которым дорожку можно проверить, не читая её.
+ *
+ * **`sha256`, А НЕ `blake3`, И ЭТО ИЗМЕРЕНО** (`CP-05`, решение владельца 4): адрес блоба в
+ * CAS считает `sha256Of` (`media/src/store/local.ts`) — `sha256` по байтам. Возьми здесь
+ * `blake3` (которым считаются ключи кэша, ADR-0006 §2), и положить дорожку в стор той же
+ * функцией стало бы нельзя: адрес и поле разошлись бы. `blake3` адресует ВЫЧИСЛЕНИЕ,
+ * `sha256` — БАЙТЫ; здесь именно байты.
+ *
+ * **`numSamples` и `sampleRate` рядом с адресом — не дубль содержимого.** Из них считается
+ * ассерт ADR-0008 «после конката»: `Σ durationInFrames == ceil(N_samples / samplesPerFrame)`.
+ * Читатель манифеста (`L-01`, мукс `M-04`) обязан уметь его проверить, не декодируя дорожку.
+ */
+export interface AudioTrackRef {
+  /** `sha256` по байтам PCM s16le — тот же адрес, которым блоб лежит в CAS. */
+  readonly sha256: Sha256;
+  /** Длина дорожки в сэмплах. Равна `frameStartSample(F)` (ADR-0003 T5, добивка `CP-05`). */
+  readonly numSamples: Samples;
+  /** `projectSampleRate` (ADR-0003 «Разделение sampleRate»), а не `deliverySampleRate`. */
+  readonly sampleRate: number;
+}
+
+/**
  * Порядок сегментов, их длины в кадрах, ссылка на аудио-дорожку (ADR-0001).
  *
  * «НЕ знает содержимого сегментов» — исполнимо: ни одного поля отсюда нельзя дойти до клипа,
@@ -186,11 +212,14 @@ export interface AssemblyManifest {
    */
   readonly trackTailSamples: Samples;
   /**
-   * Дорожка приезжает с `CP-05` (`compileAudio` → `AudioPlan`).
+   * Дорожка приезжает с `CP-05` (`compileAudio` → `AudioPlan` → `renderAudioTrack`).
    *
    * `null`, а не отсутствующее поле: отсутствие ключа неотличимо от опечатки в имени, а
    * `null` — значимое значение «дорожки ещё нет», и оно попадает в `canonicalJson`, то есть
-   * в `segmentIrHash` его отсутствие видно. Тип `AudioTrackRef | null` заводит `CP-05`.
+   * в `segmentIrHash` его отсутствие видно. ~~Тип `AudioTrackRef | null` заводит `CP-05`.~~
+   * *(заведено: `CP-05`, 2026-08-27.)* `null` остаётся законным значением и означает ровно
+   * «манифест собран, дорожки при нём нет»: `assemblyManifest` (`CP-04`) отдаёт манифест до
+   * стадии звука, а `withAudioTrack` (`CP-05`) возвращает его копию с заполненным полем.
    */
-  readonly audioTrack: null;
+  readonly audioTrack: AudioTrackRef | null;
 }

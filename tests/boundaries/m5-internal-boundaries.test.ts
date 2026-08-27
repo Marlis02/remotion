@@ -1,5 +1,8 @@
 // M5 (ADR-0009 Decision): внутренние границы `compile` и `media`.
 //   `compile/src/render-ir/**` ↛ `compile/src/timeline/**` и обратно — «IR не знает Timeline»;
+//   `compile/src/audio/**`     ↛ `compile/src/render-ir/**` и обратно — «аудио не знает кадров»
+//     (решение владельца 6, `CP-05`, 2026-08-27: всё, что зоне звука нужно от IR, — это ЧИСЛА
+//     манифеста, а `AssemblyManifest` лежит в `core-model`);
 //   `media/src/cache/**`      ↛ `media/src/audio/**`      и обратно.
 //
 // Эта граница СЛАБЕЕ пакетной и понижена в ранге осознанно (ADR-0009, Consequences):
@@ -47,6 +50,20 @@ const ZONES: Zone[] = [
     targetDir: 'packages/compile/src/timeline',
     fromDir: 'packages/compile/src/render-ir',
     specifier: '../render-ir/x',
+    expect: 'M5',
+  },
+  {
+    title: 'compile/audio ↛ compile/render-ir',
+    targetDir: 'packages/compile/src/audio',
+    fromDir: 'packages/compile/src/render-ir',
+    specifier: '../render-ir/x',
+    expect: 'M5',
+  },
+  {
+    title: 'compile/render-ir ↛ compile/audio',
+    targetDir: 'packages/compile/src/render-ir',
+    fromDir: 'packages/compile/src/audio',
+    specifier: '../audio/x',
     expect: 'M5',
   },
   {

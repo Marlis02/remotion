@@ -1,4 +1,5 @@
-// **V6** (половина) — в `packages/media/src/**` нет mp3-энкодеров и mp3-декодеров.
+// **V6** (половина) — в `packages/media/src/**` и в зоне звука компилятора
+// (`packages/compile/src/audio/**`) нет mp3-энкодеров и mp3-декодеров.
 //
 // ЧЕСТНО О ГРАНИЦАХ ЭТОГО ОХРАННИКА. Правило реестра звучит «внутри пайплайна нет mp3 ни на
 // одном шаге», а охранником назван «тест: ни один промежуточный артефакт не имеет
@@ -12,6 +13,12 @@
 //   * ПОВЕДЕНИЕ — в `packages/media/test/audio-{v6,wav,resample}.test.ts`: байты mp3
 //     отвергаются на входе тракта, mp3 внутри RIFF (`audioFormat` 0x0055) отвергается
 //     отдельно, и охранник стоит на обеих границах — на чтении и на записи.
+//
+// ЗОНА ЗВУКА КОМПИЛЯТОРА ДОБАВЛЕНА `CP-05` (2026-08-27). Это ВТОРОЕ место репозитория, где
+// живут байты аудио: `compile/src/audio/render.ts` собирает непрерывную дорожку ролика. Шаг
+// «сборка дорожки» — ровно тот «шаг пайплайна», про который правило и написано, и до `CP-05`
+// его не существовало. Исключений в этой зоне НЕТ ни одного: детектор V6 живёт в `media`,
+// а компилятор mp3 не должен уметь ни читать, ни писать, ни называть.
 //
 // Строка V6 реестра остаётся `named`: половина «ни на одном шаге» покрыта настолько,
 // насколько существуют шаги, и натягивать это до `guarded` не за что.
@@ -39,8 +46,16 @@ const CALL_SITES = [
   'packages/media/src/audio/resample.ts',
 ];
 
+/** Зона звука компилятора: второе место репозитория, где живут байты аудио (`CP-05`). */
+const AUDIO_ZONE = 'packages/compile/src/audio/';
+
 function mediaSources(): string[] {
   return sourceFiles('media');
+}
+
+/** Всё, что охраняется правилом: тракт `media` плюс зона звука компилятора. */
+function guardedSources(): string[] {
+  return [...mediaSources(), ...sourceFiles('compile').filter((file) => file.startsWith(AUDIO_ZONE))];
 }
 
 function offendingLines(relPath: string): { number: number; text: string }[] {
@@ -59,9 +74,15 @@ describe('**V6** — mp3 не может появиться в `media/src/**`', 
     expect(files).toContain(NEIGHBOUR);
   });
 
-  it('ни один файл `media/src/**`, кроме детектора V6, не упоминает mp3-кодек', () => {
+  it('зона звука компилятора существует и охраняется', () => {
+    // Без этой проверки правило ниже охраняло бы пустое множество в тот день, когда зону
+    // переименуют: `filter` по несуществующему префиксу молча даёт `[]`.
+    expect(guardedSources().filter((file) => file.startsWith(AUDIO_ZONE)).length).toBeGreaterThan(0);
+  });
+
+  it('ни один файл `media/src/**` и `compile/src/audio/**`, кроме детектора V6, не упоминает mp3-кодек', () => {
     const offenders: string[] = [];
-    for (const file of mediaSources()) {
+    for (const file of guardedSources()) {
       if (file === EXEMPT) continue;
       for (const line of offendingLines(file)) offenders.push(`${file}:${String(line.number)} — ${line.text}`);
     }

@@ -32,7 +32,7 @@ import {
 
 /** Запись ledger'а — тип берётся у `AnchorWorld`, чтобы не импортировать `@vpe/schema`. */
 type AnchorEntry = Parameters<typeof readDirection>[1]['ledger'][number];
-import { LocalStore, readAssetCatalog, readStoreLock, type AssetCatalog } from '@vpe/media';
+import { LocalStore, asBlobSha, pcmFromBytes, readAssetCatalog, readStoreLock, type AssetCatalog, type PcmS16 } from '@vpe/media';
 import {
   MOCK_PROFILE,
   type MockProfile,
@@ -217,4 +217,25 @@ export async function buildProject(
     profile,
   };
   return { root, document, anchors: sync.bindings, ledger: [...sync.records], plan, takes, records, generated, catalog, input };
+}
+
+/**
+ * Источник PCM для `renderAudioTrack` (`CP-05`): `sha256 → PcmS16`, прочитанный из CAS
+ * ВРЕМЕННОГО проекта.
+ *
+ * ФИКСТУРА НЕ ТРОГАЕТСЯ НИ СИМВОЛОМ — ни `voice/takes/`, ни `store.lock`. Дубли порождает
+ * `recordSpeechPlan` через `tts:mock@1` в `os.tmpdir()`, и байты лежат в `.store` того же
+ * временного каталога; здесь они просто читаются обратно тем же адресом, каким записаны.
+ *
+ * ЧИТАЕТ ТЕСТ, А НЕ СТАДИЯ, И ЭТО СМЫСЛ РАЗДЕЛЕНИЯ: `compileAudio` чистая, а байты живут на
+ * диске. `Map` подходит под `PcmSource` без обёртки — у неё есть `get` той же сигнатуры.
+ */
+export async function pcmSourceOf(built: BuiltProject): Promise<Map<string, PcmS16>> {
+  const store = new LocalStore(path.join(built.root, '.store'));
+  const out = new Map<string, PcmS16>();
+  for (const take of built.takes.values()) {
+    if (take.pcm.sha256 === null) continue;
+    out.set(take.pcm.sha256, pcmFromBytes(take.pcm.sampleRate, await store.read(asBlobSha(take.pcm.sha256))));
+  }
+  return out;
 }

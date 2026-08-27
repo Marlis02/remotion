@@ -14,6 +14,11 @@
 // Стадия лежит ВНЕ обеих зон намеренно: она читает Timeline и пишет IR, а **M5** запрещает
 // зонам видеть друг друга.
 //
+// `CP-05` — звук (`src/audio/`): `compileAudio` → `AudioPlan` → одна НЕПРЕРЫВНАЯ дорожка
+// (речь окном T7 + тишины трёх видов + добивка T5), `AudioTrackRef` в манифест. Третья зона
+// пакета: `audio ↛ render-ir` и обратно (решение владельца 6, 2026-08-27) — аудио не знает
+// кадров, а манифест лежит в `core-model`, где его видят обе стороны.
+//
 // `CP-01` — `compose` → Timeline (`src/timeline/`): треки, речевые клипы по измеренным краям
 // дубля, клипы `Silence` трёх видов (`author`/`gap`/`boundary-correction` — третий существует
 // в типе `core-model` и экземпляров в `CP-01` не порождает), дефолтные gap'ы T8, разрешение
@@ -121,3 +126,26 @@ export {
 } from './render-ir/index.js';
 
 export { compileIr, type CompileIrInput } from './compile-ir.js';
+
+export {
+  audioTrackRef,
+  compileAudio,
+  CompileAudioError,
+  dumpAudioPlan,
+  formatBreakdown,
+  renderAudioTrack,
+  withAudioTrack,
+  type AudioBreakdown,
+  type AudioCorrectionSilence,
+  type AudioElement,
+  type AudioMusicClip,
+  type AudioPlainSilence,
+  type AudioPlan,
+  type AudioProfileInput,
+  type AudioSilenceElement,
+  type AudioSilenceKind,
+  type AudioSpeechElement,
+  type CompileAudioInput,
+  type CompileAudioRule,
+  type PcmSource,
+} from './audio/index.js';
