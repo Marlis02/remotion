@@ -98,6 +98,43 @@ function withoutPcm(timeline: Timeline): Timeline {
   };
 }
 
+/**
+ * Побайтовое равенство двух окон PCM — БЕЗ `toEqual` (`CP-05fix`, 2026-08-27).
+ *
+ * ПОЧЕМУ НЕ `expect(a).toEqual(b)`. Глубокое сравнение vitest обходит типизированный массив
+ * поэлементно и на несовпадении строит дифф. На дорожке ролика это **1 178 400 элементов**, и
+ * на медленной машине проверка занимает больше пяти секунд — то есть таймаут теста, снятый при
+ * приёмке `CP-05` (1711/1712). `Buffer.compare` сравнивает те же байты одним вызовом в
+ * нативном коде: он смотрит на `ArrayBuffer` как на память, а не как на объект со свойствами.
+ *
+ * ДИАГНОСТИКА НЕ ПОТЕРЯНА, А УЛУЧШЕНА, И ЭТО ЧАСТЬ ПРАВКИ. Голое `Buffer.compare(...) === 0`
+ * дало бы «false !== true» — сообщение, по которому чинить нечего. Поэтому при несовпадении
+ * ищется ПЕРВЫЙ расходящийся индекс и печатается окно вокруг него: `toEqual` показывал первые
+ * несколько элементов, а расхождение может лежать на 84 480-м, и его было не видно всё равно.
+ *
+ * `byteOffset`/`byteLength` передаются явно: `subarray` — это ОКНО в чужой буфер, и
+ * `Buffer.from(a.buffer)` без них прочёл бы соседние байты.
+ */
+function expectSameSamples(actual: Int16Array, expected: Int16Array, where: string): void {
+  const view = (array: Int16Array): Buffer => Buffer.from(array.buffer, array.byteOffset, array.byteLength);
+  if (actual.length === expected.length && Buffer.compare(view(actual), view(expected)) === 0) return;
+
+  if (actual.length !== expected.length) {
+    throw new Error(
+      `${where}: длина ${String(actual.length)} против ${String(expected.length)} сэмплов`,
+    );
+  }
+  let at = 0;
+  while (at < actual.length && actual[at] === expected[at]) at += 1;
+  const from = Math.max(0, at - 2);
+  const to = Math.min(actual.length, at + 3);
+  throw new Error(
+    `${where}: первое расхождение на сэмпле ${String(at)} из ${String(actual.length)}. ` +
+      `Получено [${[...actual.subarray(from, to)].join(', ')}], ` +
+      `ожидалось [${[...expected.subarray(from, to)].join(', ')}] (окно [${String(from)}, ${String(to)}))`,
+  );
+}
+
 // ── Числа фикстуры ──────────────────────────────────────────────────────────
 
 describe('`CP-05` — план дорожки на `fixtures/minimal`', () => {
@@ -229,8 +266,11 @@ describe('`CP-05` — материализация дорожки', () => {
     const raw = source.get(first.pcmSha256);
     if (raw === undefined) throw new Error('источник PCM не отдал байты первого дубля');
     // Окно `[leadIn, numSamples − tail)` — T7 после `DOC-04`: байты кладутся КАК ЕСТЬ.
-    expect(track.samples.subarray(first.atSample, first.atSample + first.lengthSamples)).toEqual(
+    // Сравнение побайтовое, а не `toEqual`: 84 480 сэмплов (`CP-05fix`, см. `expectSameSamples`).
+    expectSameSamples(
+      track.samples.subarray(first.atSample, first.atSample + first.lengthSamples),
       raw.samples.subarray(first.fromSample, first.toSample),
+      `окно T7 клипа \`${first.clipId}\``,
     );
     // Края дубля на дорожку НЕ попали: лид-ин мока — 2400 сэмплов искусственной тишины.
     expect(first.fromSample).toBe(2400);
@@ -473,7 +513,10 @@ describe('`CP-05` — детерминизм', () => {
     });
 
     expect(shuffled.dump).toBe(base.dump);
-    expect(shuffled.bytes.samples).toEqual(base.bytes.samples);
+    // 1 178 400 сэмплов: `toEqual` здесь стоил больше пяти секунд и давал таймаут на медленной
+    // машине (`CP-05fix`). Сверка адресов рядом ОСТАЁТСЯ: она проверяет другое — что совпали не
+    // только байты, но и величина, которая поедет в манифест.
+    expectSameSamples(shuffled.bytes.samples, base.bytes.samples, 'дорожка после перестановки входов');
     expect(audioTrackRef(shuffled.bytes)).toEqual(audioTrackRef(base.bytes));
   });
 

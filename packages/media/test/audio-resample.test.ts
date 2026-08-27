@@ -23,7 +23,7 @@ import {
   writeWavFile,
 } from '../src/index.js';
 
-import { audioProfileFixture, projectSampleRateFixture } from './audio-helpers.js';
+import { audioProfileFixture, expectSameSamples, projectSampleRateFixture, sameSamples } from './audio-helpers.js';
 
 const RATE = projectSampleRateFixture();
 const PROFILE = audioProfileFixture();
@@ -183,7 +183,8 @@ describe('ingest: ресемплинг ровно один раз, на вход
       const options = { inputPath: SOURCE, audioProfile: PROFILE, projectSampleRate: RATE };
       const first = await ingestMusic(options);
       const second = await ingestMusic(options);
-      expect([...second.pcm.samples]).toEqual([...first.pcm.samples]);
+      // Побайтово, а не `toEqual` (`CP-05fix`): 24 000 сэмплов на выходе ресемплера.
+      expectSameSamples(second.pcm.samples, first.pcm.samples, 'два прогона одной версии ffmpeg');
     },
     FFMPEG_TIMEOUT,
   );
@@ -197,7 +198,8 @@ describe('ingest: ресемплинг ровно один раз, на вход
         audioProfile: { ...PROFILE, resampler: { ...PROFILE.resampler, precision: 20 } },
         projectSampleRate: RATE,
       });
-      expect([...coarse.pcm.samples]).not.toEqual([...exact.pcm.samples]);
+      // Отрицание того же сравнения: `precision` профиля обязан МЕНЯТЬ выход (`CP-05fix`).
+      expect(sameSamples(coarse.pcm.samples, exact.pcm.samples)).toBe(false);
     },
     FFMPEG_TIMEOUT,
   );
