@@ -1,0 +1,318 @@
+ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ — TS-02 (закрытый реестр easing, D5)
+Машина: Linux 6.8.0-138-generic, node v25.6.1, pnpm 11.9.0, vitest 4.1.11, gsap 3.15.0
+Правило протокола: резерв и откат ТОЛЬКО `cp`; `git checkout` НЕ применяется ни разу.
+«Откатил» подтверждается `git status --porcelain` в этом же транскрипте.
+
+ИСХОДНОЕ СОСТОЯНИЕ (до нарушений) — полный прогон репозитория:
+  pnpm build  → зелёный (tsc --build, 3.5 c)
+  pnpm lint   → зелёный (eslint .)
+  pnpm test   → 135 файлов, 2151 passed | 2 skipped, 295.46 c
+  (браузерных красных на этой машине нет: браузер установлен, `H-05`/`H-04` прогоны живые)
+
+================================================================================
+Н1 — кривая вне реестра в `easingIds` СИНТЕТИЧЕСКОГО манифеста (не в фикстуре)
+Ожидание: отказ схемы манифеста, называющий кривую И полный реестр.
+================================================================================
+
+ RUN  v4.1.11 /home/marlis/Documents/remotion
+
+ ❯ packages/templates-spec/test/__violation-n1.test.ts (1 test | 1 failed) 9ms
+     × ПРОХОДИТ схему (так быть не должно) 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/templates-spec/test/__violation-n1.test.ts > Н1 — синтетический манифест с кривой вне реестра > ПРОХОДИТ схему (так быть не должно)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/templates-spec/test/__violation-n1.test.ts:19:28
+     17|       purposes: [],
+     18|     });
+     19|     expect(parsed.success).toBe(true);
+       |                            ^
+     20|   });
+     21| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  16:58:30
+   Duration  678ms (transform 344ms, setup 0ms, import 522ms, tests 9ms, environment 0ms)
+
+--- удаляю временный файл Н1 ---
+git status --porcelain после удаления:
+ M packages/templates-spec/src/errors.ts
+ M packages/templates-spec/src/index.ts
+ M packages/templates-spec/src/manifest.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+?? docs/impl/TS-02/
+?? packages/renderer-hyperframes/test/easing-parity.test.ts
+?? packages/templates-spec/src/easing.ts
+?? packages/templates-spec/test/easing.test.ts
+?? tests/lints/d5-easing-render-path.test.ts
+
+ТЕКСТ ОТКАЗА (тот же манифест, прогон по dist пакета):
+success = false
+path = easingIds.0 
+message = easingIds: кривая `inOutCubic` вне закрытого реестра easing (**D5**, ADR-0007 §3). Реестр состоит из шести кривых и ЗАКРЫТ: `power1.inOut`, `power2.inOut`, `power3.out`, `back.out(1.7)`, `sine.inOut`, `none`. Кривая называется ПО ИМЕНИ РЕНДЕРЕРА, а не «по смыслу» (`FACT` SP-3c §6.2 п. 1: цена расхождения между «одинаковыми» роликами — PSNR 30 dB), поэтому имя вроде `inOutCubic` или `easeInOutCubic` реестром не принимается даже тогда, когда кривая с таким смыслом в нём есть. Седьмая кривая — решение владельца, а не правка этого файла
+
+Н1б — та же кривая, но В СПЕКЕ (`kenburns@1`): проверка обещания «спек не построится».
+Резерв: cp kenburns@1.ts → scratchpad/backup/
+--- pnpm --filter @vpe/templates-spec build ---
+$ tsc --build
+src/templates/kenburns@1.ts(53,21): error TS2322: Type '"inOutCubic"' is not assignable to type '"power1.inOut" | "power2.inOut" | "power3.out" | "back.out(1.7)" | "sine.inOut" | "none"'.
+src/templates/kenburns@1.ts(92,15): error TS2322: Type '"inOutCubic"' is not assignable to type '"power1.inOut" | "power2.inOut" | "power3.out" | "back.out(1.7)" | "sine.inOut" | "none"'.
+/home/marlis/Documents/remotion/packages/templates-spec:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @vpe/templates-spec@0.0.0 build: `tsc --build`
+Exit status 1
+--- откат: cp из резерва ---
+$ tsc --build
+git status --porcelain после отката:
+ M packages/templates-spec/src/errors.ts
+ M packages/templates-spec/src/index.ts
+ M packages/templates-spec/src/manifest.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+?? docs/impl/TS-02/
+?? packages/renderer-hyperframes/test/easing-parity.test.ts
+?? packages/templates-spec/src/easing.ts
+?? packages/templates-spec/test/easing.test.ts
+?? tests/lints/d5-easing-render-path.test.ts
+
+================================================================================
+Н2 — `Math.pow` вписан в рендер-путь (`composition/runtime.js`)
+Ожидание: линт D5 красный, с именем файла и номером строки.
+================================================================================
+Резерв: cp runtime.js → scratchpad/backup/
+42:  var cubicInOut = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+--- vitest run tests/lints/d5-easing-render-path.test.ts ---
+
+ RUN  v4.1.11 /home/marlis/Documents/remotion
+
+ ❯ tests/lints/d5-easing-render-path.test.ts (4 tests | 1 failed) 15ms
+     × ни одной запрещённой формы ни в одном файле рендер-пути 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/lints/d5-easing-render-path.test.ts > **D5** — в рендер-пути нет `Math.pow`/`Math.sin`/`Math.exp` > ни одной запрещённой формы ни в одном файле рендер-пути
+AssertionError: В рендер-пути появилось вычисление кривой нашим кодом (ADR-0007 §3, **D5**). `Math.pow`/`sin`/`exp` объявлены ECMA-262 implementation-approximated: посчитанная ими кривая даёт разные пиксели на одном IR, то есть ломает V13 ровно в том месте, которое меряет гейт. Кривая берётся ИМЕНЕМ из закрытого реестра (`templates-spec/src/easing.ts`), а считает её пришпиленный `gsap`, чья версия входит в `engineFingerprint`.: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "packages/renderer-hyperframes/src/composition/runtime.js:42 → Math.pow",
++ ]
+
+ ❯ tests/lints/d5-easing-render-path.test.ts:101:7
+     99|         '(`templates-spec/src/easing.ts`), а считает её пришпиленный `…
+    100|         'входит в `engineFingerprint`.',
+    101|     ).toEqual([]);
+       |       ^
+    102|   });
+    103|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  16:59:18
+   Duration  289ms (transform 41ms, setup 0ms, import 155ms, tests 15ms, environment 0ms)
+
+--- откат: cp из резерва ---
+diff резерв↔файл (пусто = откатил):
+(пусто)
+git status --porcelain после отката:
+ M packages/templates-spec/src/errors.ts
+ M packages/templates-spec/src/index.ts
+ M packages/templates-spec/src/manifest.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+?? docs/impl/TS-02/
+?? packages/renderer-hyperframes/test/easing-parity.test.ts
+?? packages/templates-spec/src/easing.ts
+?? packages/templates-spec/test/easing.test.ts
+?? tests/lints/d5-easing-render-path.test.ts
+
+================================================================================
+Н3 — parity: (а) идентификатор подменён на `power1.inOut`; (б) формула cubic искажена
+Ожидание: оба раза красный, и в тексте — расстояние между кривыми числом.
+================================================================================
+Резерв: cp easing-parity.test.ts → scratchpad/backup/
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/renderer-hyperframes/test/easing-parity.test.ts > **D5** — реестр easing разбирается тем самым `gsap`, что уходит в композицию > `power2.inOut` ЕСТЬ cubic in-out — `INFERENCE` RM2 проверен и стал `FACT`
+AssertionError: Кривая `power2.inOut` разошлась с cubic in-out на 0.072 — больше допуска 1e-12. Это тот случай, о котором roadmap §4.8 говорит: «если соответствие окажется неверным, правится ФИКСТУРА, а не реестр» (`fixtures/minimal/direction/01-intro.yaml`, `easing: "power2.inOut"`).: expected 0.072 to be less than 1e-12
+ ❯ packages/renderer-hyperframes/test/easing-parity.test.ts:100:7
+     98|         '«если соответствие окажется неверным, правится ФИКСТУРА, а не…
+     99|         '(`fixtures/minimal/direction/01-intro.yaml`, `easing: "power2…
+    100|     ).toBeLessThan(TOLERANCE);
+       |       ^
+    101|   });
+    102|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+--- откат Н3а: diff резерв↔файл ---
+(пусто)
+
+Н3б — формула cubic искажена (коэффициент 4 → 5 в первой ветви):
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/renderer-hyperframes/test/easing-parity.test.ts > **D5** — реестр easing разбирается тем самым `gsap`, что уходит в композицию > `power2.inOut` ЕСТЬ cubic in-out — `INFERENCE` RM2 проверен и стал `FACT`
+AssertionError: Кривая `power2.inOut` разошлась с cubic in-out на 0.064 — больше допуска 1e-12. Это тот случай, о котором roadmap §4.8 говорит: «если соответствие окажется неверным, правится ФИКСТУРА, а не реестр» (`fixtures/minimal/direction/01-intro.yaml`, `easing: "power2.inOut"`).: expected 0.064 to be less than 1e-12
+ ❯ packages/renderer-hyperframes/test/easing-parity.test.ts:100:7
+     98|         '«если соответствие окажется неверным, правится ФИКСТУРА, а не…
+     99|         '(`fixtures/minimal/direction/01-intro.yaml`, `easing: "power2…
+    100|     ).toBeLessThan(TOLERANCE);
+       |       ^
+    101|   });
+    102|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+--- откат Н3б: diff резерв↔файл ---
+(пусто)
+git status --porcelain после отката:
+ M packages/templates-spec/src/errors.ts
+ M packages/templates-spec/src/index.ts
+ M packages/templates-spec/src/manifest.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+?? docs/impl/TS-02/
+?? packages/renderer-hyperframes/test/easing-parity.test.ts
+?? packages/templates-spec/src/easing.ts
+?? packages/templates-spec/test/easing.test.ts
+?? tests/lints/d5-easing-render-path.test.ts
+
+================================================================================
+Н4 — седьмая кривая дописана в реестр. Вопрос задания: какой тест это ловит?
+Проверяются ДВА случая, потому что ответ у них разный.
+================================================================================
+Резерв: cp easing.ts → scratchpad/backup/
+--- Н4а: седьмая кривая, ЗАКОННАЯ для gsap ---
+ RUN  v4.1.11 /home/marlis/Documents/remotion
+
+ ❯ packages/renderer-hyperframes/test/easing-parity.test.ts (5 tests | 1 failed) 9ms
+     × все шесть кривых реестра РАЗБИРАЮТСЯ `parseEase` 6ms
+ ❯ packages/templates-spec/test/easing.test.ts (12 tests | 2 failed) 17ms
+     × ровно шесть кривых, теми именами и в том порядке, что записаны в D5 7ms
+     × `spring` в реестре НЕТ — и запрет исполняется именно этим 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/renderer-hyperframes/test/easing-parity.test.ts > **D5** — реестр easing разбирается тем самым `gsap`, что уходит в композицию > все шесть кривых реестра РАЗБИРАЮТСЯ `parseEase`
+AssertionError: expected [ Array(7) ] to have a length of 6 but got 7
+
+- Expected
++ Received
+
+- 6
++ 7
+
+ ❯ packages/renderer-hyperframes/test/easing-parity.test.ts:70:29
+     68|     // Список берётся из `templates-spec` импортом, а не переписываетс…
+     69|     // реестра — ровно та беда, ради которой реестр заведён одним файл…
+     70|     expect(EASING_REGISTRY).toHaveLength(6);
+       |                             ^
+     71|     const unparsed = EASING_REGISTRY.filter((id) => typeof gsap.parseE…
+     72|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/templates-spec/test/easing.test.ts > **D5** — состав закрытого реестра > ровно шесть кривых, теми именами и в том порядке, что записаны в D5
+AssertionError: expected [ Array(7) ] to deeply equal [ Array(6) ]
+
+- Expected
++ Received
+
+@@ -3,6 +3,7 @@
+    "power2.inOut",
+    "power3.out",
+    "back.out(1.7)",
+    "sine.inOut",
+
+Н4б — вместо ДОПИСЫВАНИЯ седьмой: одна из шести ПОДМЕНЕНА именем, которого gsap не знает
+(`power3.out` → `quintic.out`). Здесь состав-тест ловит имя, а parity — то, что такой кривой
+у рендерера нет вовсе. Это разные факты, и охранники у них разные.
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/renderer-hyperframes/test/easing-parity.test.ts > **D5** — реестр easing разбирается тем самым `gsap`, что уходит в композицию > все шесть кривых реестра РАЗБИРАЮТСЯ `parseEase`
+AssertionError: Имя из закрытого реестра **D5**, которого не знает `gsap@3.15.0`. Реестр называет кривые ПО ИМЕНИ РЕНДЕРЕРА (`FACT` SP-3c §6.2 п. 1), поэтому имя, которое рендерер не разбирает, — это не «опечатка в данных», а кривая, которой не существует.: expected [ 'quintic.out' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "quintic.out",
++ ]
+
+ ❯ packages/renderer-hyperframes/test/easing-parity.test.ts:77:7
+     75|         'кривые ПО ИМЕНИ РЕНДЕРЕРА (`FACT` SP-3c §6.2 п. 1), поэтому и…
+     76|         'разбирает, — это не «опечатка в данных», а кривая, которой не…
+     77|     ).toEqual([]);
+       |       ^
+     78|   });
+     79|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+--- откат Н4: cp из резерва + пересборка dist ---
+$ tsc --build
+diff резерв↔файл: (пусто)
+git status --porcelain после отката:
+ M packages/templates-spec/src/errors.ts
+ M packages/templates-spec/src/index.ts
+ M packages/templates-spec/src/manifest.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+?? docs/impl/TS-02/
+?? packages/renderer-hyperframes/test/easing-parity.test.ts
+?? packages/templates-spec/src/easing.ts
+?? packages/templates-spec/test/easing.test.ts
+?? tests/lints/d5-easing-render-path.test.ts
+
+================================================================================
+ИТОГ ПРОТОКОЛА
+================================================================================
+Н1  — отказ схемы манифеста: `easingIds.0`, текст называет кривую (`inOutCubic`) И все шесть
+      имён реестра. Ловит: `packages/templates-spec/test/easing.test.ts`.
+Н1б — та же кривая в СПЕКЕ: `tsc` даёт ДВЕ ошибки TS2322 — на `satisfies readonly EasingId[]`
+      (строка 53) и на поле `easingIds` манифеста (строка 92). Второе означает, что членство
+      держится ТИПОМ манифеста и без `satisfies`: спек не построится ни при каком порядке
+      правок. Ловит: сборка пакета.
+Н2  — `Math.pow` в `composition/runtime.js`: линт красный с адресом
+      `runtime.js:42 → Math.pow`. Ловит: `tests/lints/d5-easing-render-path.test.ts`.
+Н3а — идентификатор подменён на `power1.inOut`: расхождение 0.072 при допуске 1e-12.
+Н3б — формула cubic искажена (4 → 5): расхождение 0.064 при том же допуске.
+      Ловит оба: `packages/renderer-hyperframes/test/easing-parity.test.ts`.
+Н4а — седьмая кривая (`elastic.out(1, 0.3)`, законная для gsap): красными стали ТРИ теста —
+      состав реестра и «`spring` в реестре нет» в `easing.test.ts` плюс длина реестра в
+      parity. То есть седьмая кривая ловится, и находкой это не является.
+Н4б — подмена имени на неизвестное gsap (`quintic.out`): parity называет имя поимённо.
+      Разделение охранников подтверждено делом: состав — в `templates-spec` (там, где `gsap`
+      недоступен), соответствие имени кривой — у рендерера.
+
+ЧЕГО ПРОТОКОЛ НЕ ПОКАЗАЛ (и это не пробел, а граница задачи):
+`TRANSFORM_ORDER` сломать нечем — порядок объявлен данными, а поведения, которое ему следует,
+до `H-06` не существует. Долг заведён (№173).
+
+`git checkout` в протоколе не применялся ни разу; все откаты — `cp` из
+`scratchpad/backup/`, каждый подтверждён `diff` и `git status --porcelain`.
+ RUN  v4.1.11 /home/marlis/Documents/remotion
+
+
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+   Start at  17:00:50
+   Duration  1.30s (transform 514ms, setup 0ms, import 956ms, tests 22ms, environment 0ms)
+

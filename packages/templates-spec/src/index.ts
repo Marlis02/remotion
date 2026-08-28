@@ -7,11 +7,27 @@
 // сборку запускает `vpe build` (`L-01`). Поэтому обе строки реестра инвариантов получают
 // ПОМЕТКУ, а не переход в `guarded`.
 //
-// ЧЕГО ЗДЕСЬ НЕТ: реестра easing (`TS-02`), кода шаблонов (`E-*`, `renderer-hyperframes`),
-// команды `vpe template gate` (`E-00`) и любого чтения диска.
+// ЧЕГО ЗДЕСЬ НЕТ: кода шаблонов (`E-*`, `renderer-hyperframes`), команды `vpe template gate`
+// (`E-00`) и любого чтения диска. ~~Реестра easing (`TS-02`).~~ *(изменено: `TS-02`,
+// 2026-08-28)* — реестр easing здесь, и он ДАННЫЕ: шесть имён кривых и порядок трансформаций,
+// которые потребляют схема манифеста (членство), схемы `params` шаблонов и рендерер
+// (`H-06`, `gsap.parseEase`) — по стрелке `renderer-hyperframes → templates-spec` карты
+// ADR-0009. Обратной стрелки нет: `gsap` этот пакет не видит (**M6**).
 
 // Ошибки контракта.
 export { TemplateSpecError, type TemplateErrorPlace, type TemplateRule } from './errors.js';
+
+// Закрытый реестр easing — данные **D5** (`TS-02`): шесть кривых и порядок трансформаций.
+export {
+  assertEasingId,
+  easingRejection,
+  isEasingId,
+  EasingIdSchema,
+  EASING_REGISTRY,
+  TRANSFORM_ORDER,
+  type EasingId,
+  type TransformComponent,
+} from './easing.js';
 
 // Грамматика имени вызова — единственная в репозитории (долг №37).
 export {
