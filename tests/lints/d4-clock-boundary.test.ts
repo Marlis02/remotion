@@ -23,8 +23,27 @@ import { describe, expect, it } from 'vitest';
 
 import { ROOT, codeLines, lintTemporary, errorsFor } from '../boundaries/repo';
 
-/** Единственный файл, которому разрешены часы. Путь записан здесь и нигде больше. */
-const EXEMPT = 'packages/renderer-hyperframes/bin/render-segment.ts';
+/**
+ * Файлы, которым разрешены часы. Список записан здесь и нигде больше.
+ *
+ * ~~Единственный файл~~ *(изменено: `E-00`, 2026-08-29.)* ИХ ДВА, и второй — не послабление,
+ * а ВТОРАЯ ГРАНИЦА ПРОЦЕССА: `packages/cli/bin/vpe.ts` — точка входа команды `vpe`, а
+ * `GateRecord.date` есть поле записи гейта (**R12**: «запись обязана содержать N, оба хэша,
+ * ДАТУ и отпечаток» — иначе она не отличима от «прогнали когда-то на другой машине»). Дату
+ * знает только тот, кто снимает гейт, и внутрь она приезжает входом `now`, а не читается в
+ * `runGate`. Правило от этого не меняется: часы живут на границе процесса, `src/**` их не
+ * видит, а список границ — ИМЕНОВАННЫЙ, и каждая проверяется на «исключение не мёртвое».
+ */
+const EXEMPT_FILES = [
+  'packages/renderer-hyperframes/bin/render-segment.ts',
+  'packages/cli/bin/vpe.ts',
+] as const;
+
+/** Каталоги `bin/**`, которые стережёт греп ниже. */
+const BIN_DIRS = ['packages/renderer-hyperframes/bin', 'packages/cli/bin'] as const;
+
+/** Каталоги `src/**`, где часов не должно быть вовсе. */
+const SRC_DIRS = ['packages/renderer-hyperframes/src', 'packages/cli/src'] as const;
 
 const CLOCK = /\bDate\s*\.\s*now\b|\bperformance\s*\.\s*now\b|\bnew\s+Date\b/u;
 
@@ -46,31 +65,35 @@ function filesUnder(rel: string, ext: string): string[] {
 }
 
 describe('D4 (часы) — системное время живёт на границе процесса и больше нигде', () => {
-  it('в `bin/**` часы читает РОВНО ОДИН файл, и это исключение названо поимённо', () => {
-    const offenders = filesUnder('packages/renderer-hyperframes/bin', '.ts').filter((file) => {
-      if (file === EXEMPT) return false;
+  it('в `bin/**` часы читают РОВНО ДВА файла, и оба названы поимённо', () => {
+    const allowed = new Set<string>(EXEMPT_FILES);
+    const offenders = BIN_DIRS.flatMap((dir) => filesUnder(dir, '.ts')).filter((file) => {
+      if (allowed.has(file)) return false;
       return codeLines(fs.readFileSync(path.join(ROOT, file), 'utf8')).some((l) => CLOCK.test(l));
     });
     expect(
       offenders,
-      `Часы появились вне единственного разрешённого файла (${EXEMPT}). Возьмите время ` +
-        `параметром \`clock\`, как это делает \`renderSegment\`. Найдено: ${offenders.join(', ')}`,
+      `Часы появились вне названных границ процесса (${EXEMPT_FILES.join(', ')}). Возьмите ` +
+        `время параметром \`clock\`/\`now\`, как это делают \`renderSegment\` и \`runGate\`. ` +
+        `Найдено: ${offenders.join(', ')}`,
     ).toEqual([]);
   });
 
-  it('ИСКЛЮЧЕНИЕ НЕ МЁРТВОЕ: в названном файле часы действительно есть', () => {
+  it('ИСКЛЮЧЕНИЯ НЕ МЁРТВЫЕ: в КАЖДОМ названном файле часы действительно есть', () => {
     // Без этой проверки правило могло бы «выполняться» просто потому, что `wallMs` перестал
-    // измеряться, — и мы бы этого не заметили.
-    const source = codeLines(fs.readFileSync(path.join(ROOT, EXEMPT), 'utf8')).join('\n');
-    expect(source).toMatch(CLOCK);
+    // измеряться (или `date` записи гейта), — и мы бы этого не заметили.
+    for (const file of EXEMPT_FILES) {
+      const source = codeLines(fs.readFileSync(path.join(ROOT, file), 'utf8')).join('\n');
+      expect(source, file).toMatch(CLOCK);
+    }
   });
 
-  it('в `src/**` пакета часов нет ни в одном файле', () => {
-    const offenders = filesUnder('packages/renderer-hyperframes/src', '.ts')
-      .concat(filesUnder('packages/renderer-hyperframes/src', '.js'))
-      .filter((file) =>
-        codeLines(fs.readFileSync(path.join(ROOT, file), 'utf8')).some((l) => CLOCK.test(l)),
-      );
+  it('в `src/**` обоих пакетов часов нет ни в одном файле', () => {
+    const offenders = SRC_DIRS.flatMap((dir) =>
+      filesUnder(dir, '.ts').concat(filesUnder(dir, '.js')),
+    ).filter((file) =>
+      codeLines(fs.readFileSync(path.join(ROOT, file), 'utf8')).some((l) => CLOCK.test(l)),
+    );
     expect(offenders).toEqual([]);
   });
 

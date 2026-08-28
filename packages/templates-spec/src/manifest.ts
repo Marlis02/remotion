@@ -44,7 +44,7 @@ import { parseTemplateName } from './name.js';
  * ровно то, что **R12** запрещает («запись обязана содержать оба хэша, иначе она неотличима
  * от „прогнали когда-то на другой машине“»). Долг заведён с адресом.
  */
-const hexDigest = (what: string): z.ZodString =>
+export const hexDigest = (what: string): z.ZodString =>
   z
     .string()
     .length(64, `${what}: ожидалось 64 hex-символа (32-байтовый дайджест)`)

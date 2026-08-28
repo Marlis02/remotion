@@ -110,30 +110,36 @@ pnpm --filter @vpe/renderer-hyperframes preflight     # = hyperframes browser en
 `error` («гейта не было»). Прогоны идут через `renderSegment`, то есть в тех же гарантиях,
 что и продакшн-сборка; второго пути рендера нет.
 
-### Обязанность вызывающего: порт `GateMedia`
+### Порт `GateMedia` — склейка ОДНОЙ функцией (`E-00`, долг №169 закрыт)
 
 Кодирует кадры `media`, а стрелки `renderer-hyperframes → media` в карте ADR-0009 **нет**,
-поэтому кодирование приезжает ВХОДОМ. Склейка — три строки, и она одна на всех вызывающих
-(сегодня — браузерный тест, дальше `vpe template gate` из `E-00`):
+поэтому кодирование приезжает ВХОДОМ. ~~Склейка — обязанность вызывающего~~ *(изменено:
+`E-00`, 2026-08-29.)* Склейку пишет **`createGateMedia`**, и её зовут ОБА вызывающих —
+браузерный тест `gate-render.test.ts` и команда `vpe template gate` (`@vpe/cli`):
 
 ```ts
-const media: GateMedia = {
-  measure: async ({ frames, outputPath, stats }) => {
-    const artifact = await buildSegmentArtifact({ frames, pixelProfile, fps, outputPath, stats });
-    const md5 = await framemd5Of({ path: artifact.path });   // ПОКАДРОВЫЕ строки — вход `where`
-    return {
-      path: artifact.path,
-      sha256: artifact.sha256,
-      framemd5Sha256: artifact.framemd5Sha256,
-      framemd5Lines: md5.lines,
-      frameCount: artifact.frameCount,
-    };
-  },
-};
+import { createGateMedia } from '@vpe/renderer-hyperframes';
+import { buildSegmentArtifact, framemd5Of } from '@vpe/media';
+
+const media = createGateMedia({ buildSegmentArtifact, framemd5Of, pixelProfile, fps });
 ```
 
-Без `framemd5Lines` гейт всё ещё классифицирует прогоны, но `where` не назовёт ни одного
-кадра: свёрнутый дайджест отвечает «та же ли картинка», а не «где она разошлась».
+Обе функции `media` приезжают ЗНАЧЕНИЕМ — стрелка от этого не появляется (охранник
+`test/boundaries.test.ts`), а `pixelProfile`/`fps` типизированы параметрически, поэтому каст
+(если он нужен) остаётся на значении профиля, а не на функции.
+
+Внутри — ровно три обязанности: создать каталог выхода, закодировать кадры одним и тем же
+профилем (обе величины ADR-0008), добрать **покадровые** строки `framemd5`. Без
+`framemd5Lines` гейт всё ещё классифицирует прогоны, но `where` не назовёт ни одного кадра:
+свёрнутый дайджест отвечает «та же ли картинка», а не «где она разошлась».
+
+### Каталог шаблонов на диске (`E-00`, долги №170/№171)
+
+`loadTemplateLibrary()` собирает ПРОД-каталог из двух мест: спеки `TEMPLATE_LIBRARY`
+(`@vpe/templates-spec`) плюс записи гейта из файлов `<id>@<N>.gates.json`, лежащих рядом со
+спеками. Это единственное место в репозитории, где записи гейта читаются с диска: правило
+слияния живёт в `templates-spec` (диск там запрещён — **R3**), а `readdir`/`readFile` — здесь.
+`bin/render-segment` берёт реестр **R12** отсюда же.
 
 ### `gate` у `renderSegment` — умолчания «рендерить» нет
 

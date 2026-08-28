@@ -53,9 +53,14 @@ function compositionFiles(): string[] {
 
   walk(path.join(pkg, 'src/composition'), ['.js']);
   walk(path.join(pkg, 'src/templates'), ['.ts']);
-  // Тестовый реестр — тоже рендер-путь: `solid@1` исполняется в браузере.
-  for (const name of ['test/solid.ts']) {
-    const abs = path.join(pkg, name);
+  // Тестовые реестры — тоже рендер-путь: `solid@1` исполняется в браузере. Файлов ДВА
+  // (`E-00`): второй появился у команды `vpe template gate`, чей живой тест держит свою копию
+  // `mountSource` — импорт тестового файла чужого пакета не собирается `tsc --build`. Список
+  // ИМЕНОВАННЫЙ и проверяется на существование ниже: молча «потерять» файл нельзя.
+  for (const abs of [
+    path.join(pkg, 'test/solid.ts'),
+    path.join(ROOT, 'packages/cli/test/solid.ts'),
+  ]) {
     if (fs.existsSync(abs)) out.push(path.relative(ROOT, abs));
   }
   return out;
@@ -69,6 +74,7 @@ describe('D4 — рендер-путь композиции (греп там, к
     expect(files.length).toBeGreaterThan(0);
     expect(files).toContain('packages/renderer-hyperframes/src/composition/runtime.js');
     expect(files).toContain('packages/renderer-hyperframes/test/solid.ts');
+    expect(files).toContain('packages/cli/test/solid.ts');
   });
 
   it('ни одной запрещённой формы ни в одном файле рендер-пути', () => {

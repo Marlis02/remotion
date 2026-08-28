@@ -7,7 +7,7 @@
 
 import { blake3, canonicalJson } from '@vpe/core-model';
 import type { PixelProfileInput } from '@vpe/media';
-import { FIXTURE_TEMPLATES, requestFiles, type TemplateRegistry } from '@vpe/templates-spec';
+import { TEMPLATE_LIBRARY, requestFiles, type TemplateRegistry } from '@vpe/templates-spec';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import {
@@ -278,7 +278,7 @@ function withJitter(extra = ''): string {
 }
 
 /** Реестр прогона: пять спеков фикстуры плюс `jitter@1`. */
-const JITTER_SPECS = [...FIXTURE_TEMPLATES, jitter1];
+const JITTER_SPECS = [...TEMPLATE_LIBRARY, jitter1];
 const WITH_JITTER: ProjectExtra = { direction: withJitter(), specs: JITTER_SPECS };
 
 describe('**D1**/**D2** — seed’ы материализованы, и ни один их вход не зависит от позиции', () => {

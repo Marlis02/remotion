@@ -1,0 +1,47 @@
+// Диспетчер команд: argv → команда → КОД ВЫХОДА. Единственное место, где отказ превращается
+// в код, а исключение — в строку stderr.
+//
+// ПОЧЕМУ ОН НЕ ЧИТАЕТ `process` НИ ОДНИМ ПОЛЕМ. Часы, аргументы, окружение и оба потока вывода
+// приезжают в `CliDeps` — тем же приёмом, что `clock` у `renderSegment` (**D4**). Следствие,
+// ради которого приём и взят: юнит-тест команды не подменяет глобалей и не читает stdout
+// процесса, а просто смотрит на строки, которые команда напечатала.
+
+import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
+
+import { parseArgv } from './argv.js';
+import { CliError, EXIT } from './errors.js';
+import { templateGate, type TemplateGateDeps } from './template-gate.js';
+import { formatTemplateTable, templateRows } from './template-list.js';
+
+export interface CliDeps extends TemplateGateDeps {
+  /** Диагностика и отказы. Отделено от `out`: stdout — результат, stderr — почему. */
+  readonly err: (text: string) => void;
+}
+
+/**
+ * Исполняет одну команду. Возвращает код выхода; исключения наружу не выпускает — иначе
+ * вызывающий скрипт получил бы стек вместо ответа.
+ */
+export async function runCli(argv: readonly string[], deps: CliDeps): Promise<number> {
+  try {
+    const command = parseArgv(argv);
+    if (command.command === 'template gate') return await templateGate(command, deps);
+
+    // `template list` — чтение каталога тем же загрузчиком, что и гейт: «манифест собирается
+    // из двух мест» обязано означать ОДНО чтение, а не два похожих.
+    const library = loadTemplateLibrary(
+      command.gatesDir === null ? {} : { dir: command.gatesDir },
+    );
+    deps.out(`${formatTemplateTable(templateRows(library.loaded))}\n`);
+    return EXIT.pass;
+  } catch (error) {
+    if (error instanceof CliError) {
+      deps.err(`vpe: ${error.message}\n`);
+      return error.exitCode;
+    }
+    // Чужая ошибка (`TemplateSpecError` из `attachGates`, `RenderAdapterError` из каталога) —
+    // это договорный отказ, а не сбой команды: правило названо в её собственном тексте.
+    deps.err(`vpe: ${error instanceof Error ? error.message : String(error)}\n`);
+    return EXIT.refusal;
+  }
+}

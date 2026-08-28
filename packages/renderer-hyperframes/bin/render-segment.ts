@@ -25,9 +25,10 @@
 
 import { readFileSync } from 'node:fs';
 
-import { GATE_PROFILES, createRegistry, FIXTURE_TEMPLATES, type GateProfileId } from '@vpe/templates-spec';
+import { GATE_PROFILES, type GateProfileId } from '@vpe/templates-spec';
 
 import {
+  loadTemplateLibrary,
   renderSegment,
   validateRequest,
   RenderAdapterError,
@@ -45,10 +46,17 @@ import {
  * `--gate-profile final|draftHalf` — какая ПАРА проверяется. Умолчание `final`: профиль
  * выпуска; черновик называется явно.
  *
- * РЕЕСТР СПЕКОВ — ФИКСТУРНЫЙ, И ЭТО СЕГОДНЯШНЕЕ СОСТОЯНИЕ, А НЕ ЗАГЛУШКА. Настоящей библиотеки
- * шаблонов ещё нет (`E-00`/`H-06`); у пяти фикстурных спеков `gates: []`, то есть `require`
- * ОТКАЖЕТ, и это правильный ответ: ни один шаблон гейта пока не проходил. Когда библиотека
- * появится, здесь поменяется одна строка — источник реестра.
+ * ~~РЕЕСТР СПЕКОВ — ФИКСТУРНЫЙ~~ *(изменено: `E-00`, 2026-08-28; долг №171 закрыт.)*
+ * **РЕЕСТР — ПРОД-КАТАЛОГ, СОБРАННЫЙ ИЗ ДВУХ МЕСТ:** пять версионированных единиц
+ * `TEMPLATE_LIBRARY` плюс записи гейта из файлов `<id>@<N>.gates.json`, лежащих рядом со
+ * спеками (`loadTemplateLibrary`). Прежний `createRegistry(FIXTURE_TEMPLATES)` брал спеки с
+ * `gates: []` литералом, то есть `require` отказывал ВСЕГДА и не мог не отказывать: записи
+ * физически негде было хранить.
+ *
+ * Сегодняшний ответ от этого не изменился и не должен был: реализаций шаблонов нет до `H-06`,
+ * ни одного гейта на прод-паре не снято, файлов записей в каталоге ноль ⇒ `require` по-прежнему
+ * отказывает. Разница в том, ПОЧЕМУ: раньше — потому что источник заведомо пуст, теперь —
+ * потому что гейт действительно не снят.
  */
 function gateFromArgv(argv: readonly string[]): NonNullable<RenderOptions['gate']> {
   const skipAt = argv.indexOf('--gate-skip');
@@ -76,7 +84,7 @@ function gateFromArgv(argv: readonly string[]): NonNullable<RenderOptions['gate'
       ],
     );
   }
-  return { mode: 'require', specs: createRegistry(FIXTURE_TEMPLATES), profileId };
+  return { mode: 'require', specs: loadTemplateLibrary().registry, profileId };
 }
 
 function readStdin(): string {

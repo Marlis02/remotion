@@ -46,7 +46,7 @@ import {
   type Take,
 } from '@vpe/voice';
 
-import { createRegistry, FIXTURE_TEMPLATES, type AnyTemplateSpec, type TemplateRegistry } from '@vpe/templates-spec';
+import { createRegistry, TEMPLATE_LIBRARY, type AnyTemplateSpec, type TemplateRegistry } from '@vpe/templates-spec';
 
 import { readDirectionSources, readTakes, type CompileProfileInput, type ComposeInput } from '../src/index.js';
 
@@ -166,7 +166,7 @@ export interface ProjectExtra {
 
 /** Реестр прогона: пять спеков фикстуры либо поданные тестом (`CP-07`). */
 export function registryOf(specs?: readonly AnyTemplateSpec[]): TemplateRegistry {
-  return createRegistry(specs ?? FIXTURE_TEMPLATES);
+  return createRegistry(specs ?? TEMPLATE_LIBRARY);
 }
 
 /**

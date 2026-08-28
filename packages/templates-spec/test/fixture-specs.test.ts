@@ -8,12 +8,12 @@
 import { parseDirection } from '@vpe/core-model';
 import { describe, expect, it } from 'vitest';
 
-import { FIXTURE_TEMPLATES, createRegistry, declaredDurationOf, parseTemplateName } from '../src/index.js';
+import { TEMPLATE_LIBRARY, createRegistry, declaredDurationOf, parseTemplateName } from '../src/index.js';
 import { readFixture } from './fixture.js';
 
 const DIRECTION = 'fixtures/minimal/direction/01-intro.yaml';
 
-const registry = createRegistry(FIXTURE_TEMPLATES);
+const registry = createRegistry(TEMPLATE_LIBRARY);
 
 /** Записи фикстуры, уже переведённые в типы модели (`C-05`). */
 const records = parseDirection({ filePath: DIRECTION, text: readFixture(DIRECTION) }).records;
@@ -141,7 +141,7 @@ describe('`CP-07` — `declareDuration`: объявляет ОДИН шабло�
   });
 
   it('остальные четыре метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
-    const without = FIXTURE_TEMPLATES.filter((spec) => spec.declareDuration === undefined);
+    const without = TEMPLATE_LIBRARY.filter((spec) => spec.declareDuration === undefined);
     expect(without.map((spec) => spec.templateId).sort()).toEqual([
       'bed',
       'captionEmphasis',

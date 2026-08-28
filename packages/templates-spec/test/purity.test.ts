@@ -3,7 +3,7 @@ import { parseDirection } from '@vpe/core-model';
 import { describe, expect, it } from 'vitest';
 
 import {
-  FIXTURE_TEMPLATES,
+  TEMPLATE_LIBRARY,
   createRegistry,
   determinismClassOf,
   requestFiles,
@@ -11,7 +11,7 @@ import {
 import { readFixture } from './fixture.js';
 
 const DIRECTION = 'fixtures/minimal/direction/01-intro.yaml';
-const registry = createRegistry(FIXTURE_TEMPLATES);
+const registry = createRegistry(TEMPLATE_LIBRARY);
 
 const templateRecords = parseDirection({ filePath: DIRECTION, text: readFixture(DIRECTION) })
   .records.flatMap((record) => (record.track === 'voice' ? [] : [record]));

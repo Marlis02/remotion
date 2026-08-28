@@ -1,0 +1,82 @@
+ПРОТОКОЛ РУЧНЫХ НАРУШЕНИЙ — E-00 (реестр эффектов и `vpe template gate`)
+Правило: каждый охранник показывается ПАДАЮЩИМ. Резерв и откат — только `cp`; `git checkout` не применялся.
+Машина: Linux 6.8.0-138, node v25.6.1, pnpm 11.9.0. Дата: 2026-08-29T00:24:11+06:00
+
+── Н1. FAIL СОЗДАЁТ ЗАПИСЬ (охранник «запись создаёт только PASS», решение владельца, развилка 2)
+$ timeout 300 npx vitest run packages/cli/test/template-gate.test.ts
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 12 passed (15)
+   Start at  00:24:12
+   Duration  830ms (transform 469ms, setup 0ms, import 672ms, tests 50ms, environment 0ms)
+
+$ git status --porcelain packages/cli/src/template-gate.ts
+?? packages/cli/src/template-gate.ts
+
+── Н2. ФАЙЛ ЗАПИСЕЙ БЕЗ СПЕКА ПРИНЯТ (охранник `attachGates`, поправка владельца П1)
+$ pnpm --filter @vpe/templates-spec build
+$ tsc --build
+$ timeout 300 npx vitest run packages/templates-spec/test/gates-file.test.ts packages/renderer-hyperframes/test/library.test.ts packages/cli/test/template-gate.test.ts
+
+ Test Files  3 failed (3)
+      Tests  3 failed | 37 passed (40)
+   Start at  00:24:15
+   Duration  1.39s (transform 529ms, setup 0ms, import 988ms, tests 86ms, environment 0ms)
+
+$ pnpm --filter @vpe/templates-spec build
+$ tsc --build
+$ git status --porcelain packages/templates-spec/src/gates-file.ts
+?? packages/templates-spec/src/gates-file.ts
+
+── Н3. УСТАРЕВШАЯ ЗАПИСЬ ПРОПУЩЕНА (`gateStaleness`: отпечаток и `bundleHash` не сверяются)
+$ pnpm --filter @vpe/templates-spec build
+$ tsc --build
+$ timeout 300 npx vitest run packages/templates-spec/test/gate.test.ts packages/templates-spec/test/gates-file.test.ts packages/cli/test/template-gate.test.ts
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 43 passed (48)
+   Start at  00:24:20
+   Duration  1.38s (transform 513ms, setup 0ms, import 975ms, tests 80ms, environment 0ms)
+
+$ pnpm --filter @vpe/templates-spec build
+$ tsc --build
+$ git status --porcelain packages/templates-spec/src/gate.ts
+ M packages/templates-spec/src/gate.ts
+
+── Н4. СУММА БЮДЖЕТА РОНЯЕТ СБОРКУ (охранник «печать, НЕ падение», решение владельца 9 RM1)
+$ timeout 300 npx vitest run packages/cli/test/budget.test.ts
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  00:24:24
+   Duration  766ms (transform 450ms, setup 0ms, import 650ms, tests 8ms, environment 0ms)
+
+$ git status --porcelain packages/cli/src/budget.ts
+?? packages/cli/src/budget.ts
+
+── Н5 (П5). ЗАПРОС С ЧУЖИМ ШАБЛОНОМ ПРИНЯТ (охранник фикстуры, развилка 1)
+$ timeout 300 npx vitest run packages/cli/test/template-gate.test.ts
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  00:24:25
+   Duration  816ms (transform 457ms, setup 0ms, import 659ms, tests 48ms, environment 0ms)
+
+$ git status --porcelain packages/cli/src/template-gate.ts
+?? packages/cli/src/template-gate.ts
+
+── КОНТРОЛЬ: дерево вернулось к состоянию до протокола
+$ git status --porcelain packages/cli/src packages/templates-spec/src
+?? packages/cli/src/budget.ts
+?? packages/cli/src/errors.ts
+?? packages/cli/src/run.ts
+?? packages/cli/src/template-gate.ts
+?? packages/cli/src/template-list.ts
+?? packages/templates-spec/src/gates-file.ts
+$ timeout 600 npx vitest run packages/cli/test/template-gate.test.ts packages/cli/test/budget.test.ts packages/templates-spec/test/gates-file.test.ts packages/templates-spec/test/gate.test.ts packages/renderer-hyperframes/test/library.test.ts
+
+ Test Files  5 passed (5)
+      Tests  63 passed (63)
+   Start at  00:24:27
+   Duration  1.91s (transform 548ms, setup 0ms, import 1.32s, tests 88ms, environment 0ms)
+

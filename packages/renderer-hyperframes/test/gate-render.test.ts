@@ -15,11 +15,14 @@
 //      без охранника `PAGEERROR` тридцать чёрных кадров совпали бы во всех трёх прогонах и
 //      гейт записал бы PASS про пустой сегмент. Это ложно-зелёный, который дороже красного.
 //
-// ЗДЕСЬ ЖЕ ЖИВЁТ ОБРАЗЕЦ СКЛЕЙКИ ПОРТА `GateMedia` с `@vpe/media` — то, что `E-00` обязана
-// повторить у себя (в `src/` пакета этой склейки быть не может: стрелки
-// `renderer-hyperframes → media` в карте ADR-0009 нет).
+// ~~ЗДЕСЬ ЖЕ ЖИВЁТ ОБРАЗЕЦ СКЛЕЙКИ ПОРТА `GateMedia`~~ *(изменено: `E-00`, 2026-08-28, долг
+// №169 закрыт.)* Склейка переехала в `src/gate-media.ts` ОДНОЙ функцией `createGateMedia`, и
+// этот тест зовёт ЕЁ ЖЕ, что и команда `vpe template gate`. Копия из теста удалена: две
+// реализации одной склейки расходятся молча (например, разным `pixelProfile`), и тогда обе
+// величины записи описывают не тот файл. Стрелки `renderer-hyperframes → media` по-прежнему
+// нет — обе функции `media` приезжают ЗНАЧЕНИЕМ, из `devDependencies` теста.
 
-import { mkdirSync, mkdtempSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -29,6 +32,7 @@ import { buildSegmentArtifact, framemd5Of } from '@vpe/media';
 import { assertBuildMayStart, createRegistry, still1, type AnyTemplateSpec } from '@vpe/templates-spec';
 
 import type { SegmentRenderRequest } from '../src/contract.js';
+import { createGateMedia } from '../src/gate-media.js';
 import { formatGateOutcome, runGate, type GateMedia } from '../src/gate.js';
 import { renderSegment } from '../src/run.js';
 import { validateRequest } from '../src/validate.js';
@@ -78,32 +82,18 @@ const PIXEL_PROFILE = {
 } as unknown as Parameters<typeof buildSegmentArtifact>[0]['pixelProfile'];
 
 /**
- * **ОБРАЗЕЦ СКЛЕЙКИ ПОРТА** (обязанность вызывающего — `E-00`).
+ * Порт `GateMedia` — ЕДИНСТВЕННОЙ склейкой `createGateMedia` (`E-00`, долг №169).
  *
- * `buildSegmentArtifact` даёт обе величины ADR-0008 (`sha256` файла и свёрнутый `framemd5`),
- * `framemd5Of` — ПОКАДРОВЫЕ строки, без которых `where` не назвал бы ни одного кадра.
+ * Тест подаёт ровно то, что подаёт команда: две функции `@vpe/media` значением плюс профиль
+ * энкодера и `fps`. Каст остаётся на ЗНАЧЕНИИ синтетического профиля, а не на функции.
  */
 function gateMedia(fps: SegmentRenderRequest['compileProfile']['fps']): GateMedia {
-  return {
-    measure: async ({ frames, outputPath, stats }) => {
-      mkdirSync(path.dirname(outputPath), { recursive: true });
-      const artifact = await buildSegmentArtifact({
-        frames,
-        pixelProfile: PIXEL_PROFILE,
-        fps: fps as unknown as Parameters<typeof buildSegmentArtifact>[0]['fps'],
-        outputPath,
-        stats,
-      });
-      const md5 = await framemd5Of({ path: artifact.path });
-      return {
-        path: artifact.path,
-        sha256: artifact.sha256,
-        framemd5Sha256: artifact.framemd5Sha256,
-        framemd5Lines: md5.lines,
-        frameCount: artifact.frameCount,
-      };
-    },
-  };
+  return createGateMedia({
+    buildSegmentArtifact,
+    framemd5Of,
+    pixelProfile: PIXEL_PROFILE,
+    fps: fps as unknown as Parameters<typeof buildSegmentArtifact>[0]['fps'],
+  });
 }
 
 /** Запрос с ВЕРНЫМ `bundle.hash` — тот же приём, что в `render.test.ts`. */

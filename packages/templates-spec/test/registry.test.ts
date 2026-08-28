@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  FIXTURE_TEMPLATES,
+  TEMPLATE_LIBRARY,
   TEMPLATE_REGISTRY_VERSION,
   TemplateSpecError,
   createRegistry,
@@ -25,7 +25,7 @@ function withManifest(base: AnyTemplateSpec, over: Partial<TemplateManifest>): A
 
 describe('`TS-01` — реестр отказывает, а не предупреждает', () => {
   it('пять спеков фикстуры регистрируются', () => {
-    const registry = createRegistry(FIXTURE_TEMPLATES);
+    const registry = createRegistry(TEMPLATE_LIBRARY);
     expect(registry.names).toEqual(['kenburns@1', 'flash@1', 'bed@1', 'still@1', 'captionEmphasis@1']);
     expect(registry.specs).toHaveLength(5);
   });
@@ -75,7 +75,7 @@ describe('`TS-01` — реестр отказывает, а не предупр�
 });
 
 describe('`TS-01` — разрешение адреса', () => {
-  const registry = createRegistry(FIXTURE_TEMPLATES);
+  const registry = createRegistry(TEMPLATE_LIBRARY);
 
   it('строкой файла', () => {
     expect(registry.resolve('kenburns@1').templateId).toBe('kenburns');
@@ -123,7 +123,7 @@ describe('`TS-01` — версия реестра против фикстуры 
   });
 
   it('реестр отдаёт ту же строку, что экспортирует модуль', () => {
-    expect(createRegistry(FIXTURE_TEMPLATES).version).toBe(TEMPLATE_REGISTRY_VERSION);
+    expect(createRegistry(TEMPLATE_LIBRARY).version).toBe(TEMPLATE_REGISTRY_VERSION);
   });
 
   it('пустой реестр — законен и несёт ту же версию', () => {

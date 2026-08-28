@@ -10,7 +10,7 @@
 
 import type { GeneratedDirectionRecord, PlacedRecord, TemplateParams } from '@vpe/core-model';
 import type { AssetCatalog } from '@vpe/media';
-import { FIXTURE_TEMPLATES, still1, type AnyTemplateSpec } from '@vpe/templates-spec';
+import { TEMPLATE_LIBRARY, still1, type AnyTemplateSpec } from '@vpe/templates-spec';
 import { afterAll, describe, expect, it } from 'vitest';
 
 import { compose, CompileError, templateContracts } from '../src/index.js';
@@ -224,7 +224,7 @@ describe('`CP-07` — компилятор НЕ ВЫДУМЫВАЕТ: семь �
     // `recordId` (ADR-0007 §1: id выдаёт CLI и записывает в `direction/*.yaml`). Выдумать
     // его — значит выдумать картинку; отказ здесь и есть содержание долга №136.
     const base = await ofFixture();
-    const specs = [...FIXTURE_TEMPLATES.filter((spec) => spec !== still1), stillWithPurposes];
+    const specs = [...TEMPLATE_LIBRARY.filter((spec) => spec !== still1), stillWithPurposes];
     const error = caught(() => run(base, { records: [], specs }));
     expect(error.problems).toHaveLength(3); // три `[img:]` фикстуры
     expect(error.problems[0]?.message).toContain('purpose');
@@ -297,7 +297,7 @@ describe('`CP-07` — порядок проверок зафиксирован: 
         return donor.declareAssets(params);
       },
     };
-    const specs = [...FIXTURE_TEMPLATES.filter((spec) => spec !== still1), trap];
+    const specs = [...TEMPLATE_LIBRARY.filter((spec) => spec !== still1), trap];
 
     // Валидный вызов — спек позван (иначе тест был бы зелёным на сломанной стадии).
     run(base, { records: only(base.records, '5d6e1130', {}), generated: [], specs });
@@ -341,7 +341,7 @@ describe('`CP-07` — `compose` зовёт контракт ПЕРВЫМ шаг�
     const direction = { direction: readDirectionWithJitter() };
     const withSpec = await buildProject(undefined, undefined, {
       ...direction,
-      specs: [...FIXTURE_TEMPLATES, jitter1],
+      specs: [...TEMPLATE_LIBRARY, jitter1],
     });
     expect(() => compose(withSpec.input)).not.toThrow();
 

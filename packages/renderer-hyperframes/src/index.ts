@@ -91,6 +91,26 @@ export {
   type GateRun,
 } from './gate.js';
 
+// Склейка порта `GateMedia` — ОДНА на репозиторий (`E-00`, долг №169). Зависимости `media`
+// приезжают значением: стрелки `renderer-hyperframes → media` в карте ADR-0009 нет.
+export {
+  createGateMedia,
+  type GateArtifact,
+  type GateFramemd5,
+  type GateMediaDeps,
+} from './gate-media.js';
+
+// Каталог шаблонов на диске: спеки из кода + записи `<id>@<N>.gates.json` рядом (`E-00`).
+export {
+  LIBRARY_SUBDIR,
+  gateFileSources,
+  loadTemplateLibrary,
+  templateLibraryDir,
+  templatesSpecDir,
+  type LibraryInput,
+  type TemplateLibrary,
+} from './library.js';
+
 export {
   bboxOfDiff,
   decodeRgb,

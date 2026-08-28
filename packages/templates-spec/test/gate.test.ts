@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  FIXTURE_TEMPLATES,
+  TEMPLATE_LIBRARY,
   TemplateSpecError,
   assertBuildMayStart,
   createRegistry,
@@ -43,7 +43,7 @@ function gated(
 const specWith = (manifest: TemplateManifest): typeof kenburns1 => ({ ...kenburns1, manifest });
 
 describe('`TS-01` — вход R12 на ФИКСТУРЕ: сборка не стартует', () => {
-  const registry = createRegistry(FIXTURE_TEMPLATES);
+  const registry = createRegistry(TEMPLATE_LIBRARY);
   const used = [...registry.names];
 
   it('пять шаблонов фикстуры — падение, и это критерий, а не сбой', () => {

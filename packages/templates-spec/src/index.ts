@@ -8,7 +8,8 @@
 // ПОМЕТКУ, а не переход в `guarded`.
 //
 // ЧЕГО ЗДЕСЬ НЕТ: кода шаблонов (`E-*`, `renderer-hyperframes`), команды `vpe template gate`
-// (`E-00`) и любого чтения диска. ~~Реестра easing (`TS-02`).~~ *(изменено: `TS-02`,
+// (`E-00`: она живёт в `@vpe/cli` и зовёт отсюда `attachGates`/`makeGateFile`) и любого чтения
+// диска — записи гейта приезжают сюда ТЕКСТОМ, а `readdir`/`readFile` делает рендерер. ~~Реестра easing (`TS-02`).~~ *(изменено: `TS-02`,
 // 2026-08-28)* — реестр easing здесь, и он ДАННЫЕ: шесть имён кривых и порядок трансформаций,
 // которые потребляют схема манифеста (членство), схемы `params` шаблонов и рендерер
 // (`H-06`, `gsap.parseEase`) — по стрелке `renderer-hyperframes → templates-spec` карты
@@ -84,12 +85,38 @@ export {
   type TemplateRegistry,
 } from './registry.js';
 
-// Вход **R12** — сборка не стартует без записи гейта для пары.
-export { assertBuildMayStart, type BuildPair, type GateRejection } from './gate.js';
-
-// Пять спеков фикстуры.
+// Вход **R12** — сборка не стартует без записи гейта для пары; правило «запись годится или
+// устарела» — одной функцией `gateStaleness` (`E-00`).
 export {
-  FIXTURE_TEMPLATES,
+  assertBuildMayStart,
+  gateStaleness,
+  type BuildPair,
+  type GateActual,
+  type GateCandidate,
+  type GateRejection,
+} from './gate.js';
+
+// Дом записей гейта: файл `<id>@<N>.gates.json` рядом со спеком (`E-00`, долг №170).
+// Диска здесь нет — содержимое файлов приезжает значением (граница пакета, R3).
+export {
+  attachGates,
+  gatesFileName,
+  loadedSpecs,
+  makeGateFile,
+  parseGatesFileName,
+  replaceEntry,
+  GateFileSchema,
+  GATES_FILE_SCHEMA,
+  GATES_FILE_SUFFIX,
+  type GateFile,
+  type GateFileEntry,
+  type GateFileSource,
+  type LoadedTemplate,
+} from './gates-file.js';
+
+// Прод-библиотека: пять версионированных единиц каталога (`E-00`; прежнее имя `FIXTURE_TEMPLATES`).
+export {
+  TEMPLATE_LIBRARY,
   bed1,
   captionEmphasis1,
   flash1,
