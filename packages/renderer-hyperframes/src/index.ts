@@ -31,11 +31,14 @@ export {
 } from './materialize.js';
 
 export {
+  BROWSER_PATH_ENV,
+  BROWSER_PATH_ENV_OVERRIDE,
   FIXED_RENDER_ARGS,
   FIXED_RENDER_ENV,
   renderArgs,
   renderEnv,
   type RenderArgsInput,
+  type RenderEnvInput,
 } from './argv.js';
 
 // `engineFingerprint` — единственное место измеренного окружения (`H-03`, ADR-0006 §3).
@@ -59,14 +62,47 @@ export {
 export {
   FRAME_PATTERN,
   FRAME_START_NUMBER,
+  browserLaunchLineOf,
   browserPath,
+  compositionLintReport,
   engineCompositionHashOf,
+  launchCommand,
+  pageErrorsOf,
   parseTrace,
   renderSegment,
   resolveOnPath,
   type RenderOptions,
   type TraceRecord,
 } from './run.js';
+
+// Детерминированный выбор браузера (`H-05`, долг №160): правда о том, ЧТО ЗАПУСТИТСЯ.
+export {
+  BROWSER_CACHE_SEGMENTS,
+  FOREIGN_CACHE_SEGMENTS,
+  HEADLESS_SHELL_EXECUTABLE,
+  cliReportedBrowserPath,
+  foreignBrowserRoot,
+  hostPlatformKey,
+  pinnedBrowserInstalls,
+  pinnedBrowserPath,
+  pinnedBrowserRoot,
+  resolvePinnedBrowser,
+  type BrowserInstall,
+  type BrowserResolveInput,
+} from './browser.js';
+
+// Сетевая изоляция (`H-05`, **R1**).
+export {
+  DEFAULT_ISOLATION,
+  NETNS_SCRIPT,
+  UNSHARE_ARGS,
+  assertIsolationAvailable,
+  netnsCommand,
+  type IsolationMode,
+  type IsolationTools,
+  type NetnsCommand,
+  type NetnsCommandInput,
+} from './isolation.js';
 
 export {
   rendererTemplates,

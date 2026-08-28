@@ -13,6 +13,19 @@
 // HyperFrames запрещён, и запрет живёт здесь — в единственном месте, где формат вообще
 // называется.
 //
+// `--strict` БЕЗУСЛОВЕН (долг №157). ИЗМЕРЕНО (`H-01`, повторено `H-05`): без него компилятор
+// рендерера на кривой разметке печатает `✗`, говорит «Continuing render despite lint issues»
+// и уходит калибровать длительность браузером — 0–2 PNG из 30 за 13 минут. То есть дефект
+// разметки выглядит как ЗАВИСАНИЕ, а не как ошибка, и обнаруживается по таймауту сегмента.
+// С флагом (ИЗМЕРЕНО `H-05`, та же кривая композиция): отказ за 3.0 с с кодом 1.
+//
+// ЦЕНА ФЛАГА НАЗВАНА ОТДЕЛЬНО: `--strict` вместе с `--quiet` НЕ ПЕЧАТАЕТ НИЧЕГО (ИЗМЕРЕНО:
+// ноль байт вывода при коде 1 — `presentRenderLintAbort` молчит при `effectiveQuiet`). «Exit 1
+// без объяснения» отказом не считается (решение владельца `H-05`, П2), поэтому текст линта
+// добирает `run.ts` отдельным вызовом `hyperframes lint` — но только на падении, и `--quiet`
+// остаётся здесь: он слагаемое `engineFingerprint`, и снятие его сменило бы отпечаток ради
+// диагностики, которая нужна раз в сто прогонов.
+//
 // ЧЕТЫРЕ `HYPERFRAMES_NO_*` — НЕ ПЕРЕСТРАХОВКА. `FACT` (SP-3c §4, SP-3d §5): CLI по умолчанию
 // ходит в сеть ВНЕ рендера — проверка обновлений, телеметрия, обратная связь, AI-skills.
 // Инвариант **R1** («рендерер не ходит в сеть») закрывается сетевым namespace'ом (`H-05`), но
@@ -47,6 +60,7 @@ export const FIXED_RENDER_ARGS: readonly string[] = Object.freeze([
   '--format',
   'png-sequence',
   '--quiet',
+  '--strict',
 ]);
 
 export interface RenderArgsInput {
@@ -87,7 +101,8 @@ export function renderArgs(input: RenderArgsInput): string[] {
     );
   }
 
-  const [verb, outFlag, formatFlag, formatValue, quietFlag] = FIXED_RENDER_ARGS as [
+  const [verb, outFlag, formatFlag, formatValue, quietFlag, strictFlag] = FIXED_RENDER_ARGS as [
+    string,
     string,
     string,
     string,
@@ -109,7 +124,7 @@ export function renderArgs(input: RenderArgsInput): string[] {
   // Флаг ставится ТОЛЬКО при `browserGpu: false` — так снятие поля профиля видно в аргументах,
   // а не прячется за «мы всё равно всегда так делаем».
   if (!pixelProfile.browserGpu) args.push('--no-browser-gpu');
-  args.push(quietFlag);
+  args.push(quietFlag, strictFlag);
   return args;
 }
 
@@ -118,7 +133,33 @@ export interface RenderEnvInput {
   readonly parentEnv: NodeJS.ProcessEnv;
   readonly ffmpegPath: string;
   readonly ffprobePath: string;
+  /**
+   * Бинарь браузера, выбранный НАШИМ резолвером (`browser.ts`, долг №160).
+   *
+   * Отсутствует — переменная не ставится, и рендерер выбирает сам (режим до `H-05`). Так
+   * тесты, которым браузер не нужен, не обязаны выдумывать путь.
+   */
+  readonly browserPath?: string;
+  /** Свой `TMPDIR` — внутри `request.tmpDir` (**R2**). */
+  readonly tmpDir?: string;
 }
+
+/**
+ * Переменная, которой рендереру пришпиливается бинарь браузера.
+ *
+ * ИЗМЕРЕНО (`hyperframes@0.8.5`, `dist/cli.js:65272` `resolveHeadlessShellPath`): при запуске
+ * она читается ВТОРОЙ, сразу после `PRODUCER_HEADLESS_SHELL_PATH`, и раньше обоих кэшей.
+ */
+export const BROWSER_PATH_ENV = 'HYPERFRAMES_BROWSER_PATH';
+
+/**
+ * Переменная, которая ПЕРЕБИВАЕТ нашу, — поэтому она снимается.
+ *
+ * Тот же `resolveHeadlessShellPath` проверяет её ПЕРВОЙ. Оставить её проезжать из родительского
+ * окружения значило бы отдать выбор растеризатора чужой переменной, то есть вернуть долг №160
+ * через другую дверь: `engineFingerprint` мерил бы наш бинарь, а рендерил бы чужой.
+ */
+export const BROWSER_PATH_ENV_OVERRIDE = 'PRODUCER_HEADLESS_SHELL_PATH';
 
 /**
  * Окружение подпроцесса рендерера.
@@ -146,10 +187,18 @@ export const FIXED_RENDER_ENV: Readonly<Record<string, string>> = Object.freeze(
 });
 
 export function renderEnv(input: RenderEnvInput): NodeJS.ProcessEnv {
-  return {
+  const env: NodeJS.ProcessEnv = {
     ...input.parentEnv,
     ...FIXED_RENDER_ENV,
     HYPERFRAMES_FFMPEG_PATH: input.ffmpegPath,
     HYPERFRAMES_FFPROBE_PATH: input.ffprobePath,
   };
+  // Снимается ВСЕГДА, а не только когда мы ставим свою: «чужая переменная перебивает выбор
+  // растеризатора» — дефект независимо от того, выбрали мы бинарь или нет.
+  delete env[BROWSER_PATH_ENV_OVERRIDE];
+  if (input.browserPath !== undefined) env[BROWSER_PATH_ENV] = input.browserPath;
+  // `TMPDIR` внутри `tmpDir` запроса: временные файлы рендерера — тоже запись на диск, и
+  // **R2** («пишет только в `outputPath` и `tmpDir`») не знает исключений для «служебных».
+  if (input.tmpDir !== undefined) env['TMPDIR'] = input.tmpDir;
+  return env;
 }

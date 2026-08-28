@@ -192,6 +192,20 @@ export type RenderResponse =
        */
       readonly engineFingerprint: string | null;
       readonly engineProbe: EngineProbe | null;
+      /**
+       * Строка `[BrowserManager] Browser launched (…)` из вывода рендерера — ИЗМЕРЕНИЕ
+       * (`H-05`, сужение долга №161).
+       *
+       * В КЛЮЧ НЕ ВХОДИТ. Это не намерение профиля и не отпечаток окружения, а наблюдение за
+       * конкретным запуском: версия браузера, режим захвата, бэкенд GL. Потребитель —
+       * класс проверок `verifyComposition` (ADR-0006 §2): «при одних входах запустилось
+       * разное». Полной командной строкой Chrome она НЕ является — флаги, которые CLI ставит
+       * внутри себя (`--font-render-hinting=none`), в ней не видны, и поэтому №161 сужен, а
+       * не закрыт.
+       *
+       * `null` — рендерер строки не напечатал (или прогон шёл с подставленным запускателем).
+       */
+      readonly browserLaunchLine: string | null;
       readonly stats: RenderStats;
     }
   | {

@@ -26,7 +26,7 @@ import { browserPath, resolveOnPath } from '../src/run.js';
 
 const PKG_DIR = rendererPackageDir(fileURLToPath(import.meta.url));
 const CLI = path.join(PKG_DIR, 'node_modules/hyperframes/bin/hyperframes.mjs');
-const CHROME = browserPath(CLI, process.env);
+const CHROME = browserPath(process.env);
 const NO_BROWSER = CHROME === null;
 
 function probe() {

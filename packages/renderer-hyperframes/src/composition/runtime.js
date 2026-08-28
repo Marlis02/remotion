@@ -20,6 +20,12 @@
  * она в `toSeconds` ниже, а материализация зовёт её же на Node-стороне — одно правило, две
  * стороны границы, и тест `H-02` проверит обе.
  *
+ * D4 ОХРАНЯЕТСЯ ЗДЕСЬ ДВАЖДЫ. Написанное стережёт греп (ниже), исполняемое —
+ * `freeze.js` (`H-05`, долг №2): он встроен в `index.html` перед этим файлом и бросает на
+ * каждом API из списка ADR-0007 §4 — но только во ВЗВЕДЁННОМ окне. Взводит окна этот файл:
+ * вокруг `mount` каждого клипа и вокруг колбэков, которые шаблон кладёт в таймлайн
+ * (`guardedTimeline`). Почему не безусловно — измерение в шапке `freeze.js`.
+ *
  * D4 ЗДЕСЬ ДЕЙСТВУЕТ В ПОЛНУЮ СИЛУ. В рендер-пути нет `Math.random`, `Date`, `performance.now`,
  * `Intl`, `toLocaleString`, `localeCompare` (ADR-0007 §4). Охранник — греп-тест
  * `tests/lints/d4-composition.test.ts`: ESLint сюда не дотягивается (файл не в `src/**` и не
@@ -70,6 +76,56 @@
     return f;
   };
 
+  /**
+   * Таймлайн, у которого колбэки шаблона исполняются ПОД ОХРАНОЙ (**D4**).
+   *
+   * Зачем: `ctx.timeline.to(el, {onUpdate: f})` — законный способ шаблона получить код,
+   * исполняемый на КАЖДОМ кадре. Этот код пишет тот же компилятор, что и `mount`, но зовёт
+   * его GSAP много позже, когда окно `mount` давно снято. Обёртка возвращает те же методы, но
+   * подменяет функции внутри переданных объектов на взведённые.
+   *
+   * Прокси, а не белый список методов: перечислять `to`/`from`/`fromTo`/`set`/`call`/`add`
+   * значило бы завести список, который молча устареет с новой версией GSAP, — и промах в нём
+   * выглядел бы как «охрана есть», а не как ошибка.
+   */
+  var guardedTimeline = function (timeline, address) {
+    var guardVars = function (value) {
+      if (value === null || typeof value !== 'object') return value;
+      // Только простые объекты параметров: DOM-узлы и массивы целей не трогаем.
+      if (Object.getPrototypeOf(value) !== Object.prototype) return value;
+      var out = {};
+      var keys = Object.keys(value);
+      for (var k = 0; k < keys.length; k++) {
+        var key = keys[k];
+        var item = value[key];
+        out[key] = typeof item === 'function' ? wrapCallback(item) : item;
+      }
+      return out;
+    };
+    var wrapCallback = function (fn) {
+      // Стрелка, чтобы `this` колбэка достался ему нетронутым: GSAP зовёт `onUpdate` с
+      // `this` = сам тюн, и подменить его значило бы менять поведение шаблона ради охраны.
+      return function (...callArgs) {
+        return window.__VPE_FREEZE.run(address, () => fn.apply(this, callArgs));
+      };
+    };
+    var proxy = new Proxy(timeline, {
+      get: function (target, prop) {
+        var value = Reflect.get(target, prop, target);
+        if (typeof value !== 'function') return value;
+        return function () {
+          var args = [];
+          for (var a = 0; a < arguments.length; a++) args.push(guardVars(arguments[a]));
+          var result = value.apply(target, args);
+          // Цепочка (`tl.to(…).to(…)`) обязана оставаться охраняемой: GSAP возвращает сам
+          // таймлайн, и отдать его сырым значило бы потерять охрану со второго звена.
+          return result === target ? proxy : result;
+        };
+      },
+    });
+    return proxy;
+  };
+
   // ── слои клипов ────────────────────────────────────────────────────────────
   // Порядок массива `IR.clips` УЖЕ есть ранг по `(z, sourceOrdinal, clipId)` — его посчитал
   // компилятор (`CP-04`). Пересортировка здесь была бы вторым местом, где живёт порядок слоёв.
@@ -88,7 +144,13 @@
 
     var mount = window.__VPE_TEMPLATES[clip.template];
     if (!mount) throw new Error('V3: у шаблона ' + clip.template + ' нет реализации');
-    mount(host, {
+    // ВЗВОД ЗАМОРОЗКИ НА ВРЕМЯ МОНТИРОВАНИЯ (**D4**, `freeze.js`). Guard знает ИМЯ
+    // запрещённого API сам, но не знает, ЧЕЙ код его позвал: шаблоны монтируются в цикле, и
+    // без адреса отказ звучал бы «в композиции есть недетерминизм» — без указания, где. Взвод
+    // снимается СРАЗУ после `mount`: между клипами исполняется код рендерера, и ему часы
+    // нужны (измерение `H-05`).
+    var address = clip.template + ' (клип ' + clip.clipId + ')';
+    var ctx = {
       params: clip.params,
       frames: clip.frames,
       seeds: clip.seeds,
@@ -99,7 +161,13 @@
       assets: clip.assets,
       fonts: clip.fonts,
       gsap: window.gsap,
-      timeline: tl,
+      // Таймлайн приходит ОБЁРНУТЫМ: колбэки, которые шаблон в него кладёт, исполняет GSAP
+      // на тике — вне окна `mount`, — и без обёртки они остались бы вне охраны. Это вторая
+      // половина условия владельца к варианту «б».
+      timeline: guardedTimeline(tl, address),
+    };
+    window.__VPE_FREEZE.run(address, function () {
+      mount(host, ctx);
     });
   }
 

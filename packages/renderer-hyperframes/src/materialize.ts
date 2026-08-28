@@ -72,6 +72,19 @@ function runtimeSourcePath(): string {
   return path.join(packageRoot(), 'src/composition/runtime.js');
 }
 
+/**
+ * Исходник runtime-guard'а D4 (`H-05`, долг №2). Читается оттуда же и по той же причине.
+ *
+ * ВХОДИТ В `bundle.hash`. Guard встраивается в `index.html`, `index.html` попадает в перечень
+ * каталога, перечень — в `compositionHash`, который сверяется с `bundle.hash` (**R2**). То есть
+ * снятие заморозки МЕНЯЕТ КЛЮЧ и не может пройти незамеченным: сегмент, снятый без guard'а, и
+ * сегмент, снятый с ним, — разные входы кэша. Это сказано вслух, потому что «часть
+ * материализации» звучит как деталь размещения, а на деле это свойство ключа.
+ */
+function freezeSourcePath(): string {
+  return path.join(packageRoot(), 'src/composition/freeze.js');
+}
+
 /** Один файл каталога композиции: относительный путь и sha256 ЛЁГШИХ байтов. */
 export interface CompositionListing {
   readonly path: string;
@@ -211,6 +224,7 @@ export function materializeComposition(
   // которую тест перехвата обязан знать (`test/r2-r3.test.ts`, белый список).
   copyFileSync(gsapDistPath(), path.join(dir, 'vendor/gsap.min.js'));
   const runtimeSource = readFileSync(runtimeSourcePath(), 'utf8');
+  const freezeSource = readFileSync(freezeSourcePath(), 'utf8');
 
   // ── 5. IR данными, а не кодом ──────────────────────────────────────────────
   const irJson = canonicalJson(request.ir);
@@ -249,7 +263,7 @@ export function materializeComposition(
   // ── 6. index.html ──────────────────────────────────────────────────────────
   writeFileSync(
     path.join(dir, 'index.html'),
-    indexHtml(manifest, manifestJson, irJson, used, runtimeSource),
+    indexHtml(manifest, manifestJson, irJson, used, runtimeSource, freezeSource),
   );
 
   // ── 7. перечень и хэш ──────────────────────────────────────────────────────
@@ -333,6 +347,7 @@ function indexHtml(
   irJson: string,
   templates: ReadonlyMap<string, string>,
   runtimeSource: string,
+  freezeSource: string,
 ): string {
   const faces = Object.values(manifest.fonts)
     .map(
@@ -360,6 +375,17 @@ function indexHtml(
     <meta name="viewport" content="width=${String(manifest.width)}, height=${String(manifest.height)}" />
     <title>${manifest.compositionId}</title>
     <script src="./vendor/gsap.min.js"></script>
+    <!--
+      Заморозка глобалей (D4, ADR-0007 параграф 4). Устанавливается ПОСЛЕ GSAP и ДО всего
+      нашего, а БРОСАЕТ только во взведённом окне: реестр шаблонов ниже, вызов mount и колбэки
+      таймлайна (их взводит runtime). Так — по измерению H-05, а не из осторожности:
+      безусловный бросок ломает инжектируемый рантайм самого HyperFrames, который читает часы
+      на своей инициализации (страница падает с PAGEERROR про чтение часов, следом
+      window.__hf not ready 45000ms, и рендер не стартует). Что при этом НЕ покрыто, названо в клетке D4 реестра инвариантов и долгом 167.
+    -->
+    <script>
+${freezeSource}
+    </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: ${String(manifest.width)}px; height: ${String(manifest.height)}px; overflow: hidden; background: #000; }
@@ -382,9 +408,14 @@ ${faces}
     <script>
       window.__VPE_IR = JSON.parse(document.getElementById('vpe-ir').textContent);
       window.__VPE_MANIFEST = JSON.parse(document.getElementById('vpe-manifest').textContent);
-      window.__VPE_TEMPLATES = {
+      // МОДУЛЬНЫЙ КОД ШАБЛОНОВ — ПОД ОХРАНОЙ (D4, вариант «б», условие владельца H-05):
+      // шаблон, укравший случайность в замыкание на ЗАГРУЗКЕ, ловится здесь, а не остаётся
+      // невидимым до первого кадра.
+      window.__VPE_TEMPLATES = window.__VPE_FREEZE.run('модульный код шаблонов', function () {
+        return {
 ${registry}
-      };
+        };
+      });
     </script>
     <script>
 ${runtimeSource}

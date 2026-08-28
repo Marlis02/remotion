@@ -11,10 +11,18 @@
 //     и собирает артефакт». Решение владельца `H-01` (поправка A) читает эту букву дословно:
 //     стрелки `renderer-hyperframes → media` в карте ADR-0009 нет, `SegmentArtifact` строит
 //     `buildSegmentArtifact` из `media`. Ответ адаптера — `RenderedFrames`.
-//   • НЕ ИЗОЛИРУЕТ СЕТЬ. Сетевой namespace, заморозка глобалей и ulimit по RSS — задача
-//     `H-05`. Здесь исполнимо то, что исполнимо без неё: `TZ`/`LC_ALL`, четыре
-//     `HYPERFRAMES_NO_*`, `--no-browser-gpu`, `workers` из профиля, wall-clock kill. Инвариант
-//     **R1** этим НЕ закрывается, и делать вид, что закрывается, нельзя.
+//   • ИЗОЛИРУЕТ СЕТЬ — с `H-05`. Запуск CLI заворачивается в сетевой namespace с поднятым
+//     loopback (`isolation.ts`); материализация и кодирование остаются СНАРУЖИ: сети им не
+//     нужно, а нужны файлы. Дефолт — `netns` (решение владельца `H-05`, вопрос 1); `none` —
+//     только явным полем, и тогда **R1** держится на четырёх `HYPERFRAMES_NO_*`, которые
+//     глушат каналы CLI, а не запрещают сеть.
+//   • НЕ СТАВИТ ПОТОЛОК ПАМЯТИ, и это ИЗМЕРЕНИЕ, а не пропуск. `prlimit --as` ограничивает
+//     ВИРТУАЛЬНОЕ пространство, а не RSS: `--as=256 МБ` убивает node на инициализации V8
+//     (`Fatal process out of memory: SegmentedTable::InitializeTable`), `--as=64 МБ` — segfault,
+//     при копеечном фактическом RSS. `RLIMIT_RSS` (`ulimit -m`) ядром Linux не обеспечивается
+//     вовсе. Единственный настоящий потолок — cgroup v2, и он стоит systemd-сессии и SIGKILL
+//     вместо диагностики (решение владельца `H-05`, вопрос 3: отложено, долг №165).
+//     Принудитель остаётся один — wall-clock kill; пик RSS дерева МЕРЯЕТСЯ (`stats.peakRssBytes`).
 //   • НЕ ЧИТАЕТ ЧАСЫ. `Date.now`/`performance.now` запрещены D4 во всём `packages/*/src/**`;
 //     часы приходят входом `options.clock`, а системное время читает ровно одна точка —
 //     `bin/render-segment.ts` (решение владельца, поправка П1).
@@ -24,14 +32,22 @@
 // тот на диске, и падает с инструкцией. Скачивание — `pnpm preflight` (`hyperframes browser
 // ensure`), отдельным шагом и отдельным решением человека.
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import type { RenderResponse, RenderedFrames, SegmentRenderRequest } from './contract.js';
 import { renderArgs, renderEnv } from './argv.js';
+import { pinnedBrowserPath, resolvePinnedBrowser } from './browser.js';
 import { RenderAdapterError } from './errors.js';
+import {
+  DEFAULT_ISOLATION,
+  assertIsolationAvailable,
+  netnsCommand,
+  type IsolationMode,
+  type IsolationTools,
+} from './isolation.js';
 import {
   assertEngineMatches,
   collectEngineProbe,
@@ -81,6 +97,21 @@ export interface RenderOptions {
    */
   readonly recordedEngineProbe?: EngineProbe;
   /**
+   * Режим сетевой изоляции. По умолчанию — `netns` (решение владельца `H-05`, вопрос 1).
+   *
+   * `none` — осознанный выход: **R1** тогда не охраняется ОС. Значение читается ЗДЕСЬ, а не из
+   * `executionProfile`, потому что поля там нет: `render-profile/1` объявлен `.strict()`, а
+   * `@vpe/schema` — закрытая зона задания `H-05`. Когда поле появится (`L-01` или правка
+   * схемы), оно приедет сюда значением, и эта строка станет его умолчанием.
+   */
+  readonly isolation?: IsolationMode;
+  /**
+   * Явный бинарь браузера — ответ на отказ «в корне две установки» (`browser.ts`, №160).
+   *
+   * Подан — берётся как есть (проверяется только существование): выбор сделал человек.
+   */
+  readonly browserPath?: string;
+  /**
    * Подмена запуска — ТОЛЬКО для тестов R2/R3, которым браузер не нужен.
    *
    * Отдельным полем, а не «если не найден CLI»: подмена обязана быть видимой в вызове, иначе
@@ -92,25 +123,17 @@ export interface RenderOptions {
 /**
  * Путь к `chrome-headless-shell`, который возьмёт рендерер. `null` — браузера нет.
  *
- * Спрашиваем САМ рендерер (`hyperframes browser path`), а не ищем по известным каталогам:
- * версию пришпиливает он (`CHROME_VERSION` в его коде — ИЗМЕРЕНО у 0.8.5: `152.0.7928.2`),
- * и второй источник правды о том, где лежит браузер, разошёлся бы с первым при первом же
- * обновлении пакета. Это же закрывает **K6**: версия живёт в lockfile и `engineFingerprint`
- * (**R14**, `H-03`), а не в профиле.
+ * БОЛЬШЕ НЕ СПРАШИВАЕТ РЕНДЕРЕР. До `H-05` здесь стоял вызов `hyperframes browser path` с
+ * доводом «версию пришпиливает он, второй источник правды разошёлся бы с первым». Довод
+ * оказался неверен ИЗМЕРЕНИЕМ (`H-03`, причина найдена `H-05` в коде CLI): у рендерера ДВА
+ * порядка резолва — команда `browser path` берёт puppeteer-кэш первым, а фактический запуск
+ * читает сперва env и свой кэш. То есть «спросить рендерер» отвечало на другой вопрос, чем
+ * «что запустится». Теперь путь ВЫБИРАЕМ мы (`browser.ts`) и пришпиливаем его рендереру
+ * переменной `HYPERFRAMES_BROWSER_PATH` — источник правды по-прежнему один, но он на нашей
+ * стороне и проверяем. Разбор — шапка `browser.ts`, долг №160.
  */
-export function browserPath(cliPath: string, parentEnv: NodeJS.ProcessEnv): string | null {
-  const { spawnSync } = require('node:child_process') as typeof import('node:child_process');
-  const run = spawnSync(process.execPath, [cliPath, 'browser', 'path'], {
-    encoding: 'utf8',
-    env: parentEnv,
-  });
-  if (run.status !== 0) return null;
-  const line = String(run.stdout)
-    .split('\n')
-    .map((s) => s.trim())
-    .filter((s) => s.startsWith('/'))
-    .at(-1);
-  return line !== undefined && existsSync(line) ? line : null;
+export function browserPath(parentEnv: NodeJS.ProcessEnv): string | null {
+  return pinnedBrowserPath(parentEnv);
 }
 
 /** CLI HyperFrames в `node_modules` пакета. */
@@ -230,9 +253,12 @@ export async function renderSegment(
   const started = options.clock();
   const parentEnv = options.parentEnv ?? {};
   const framesDir = path.join(request.tmpDir, 'frames');
+  const isolation: IsolationMode = options.isolation ?? DEFAULT_ISOLATION;
   let composition: MaterializedComposition | null = null;
   let probe: EngineProbe | null = null;
   let engine: EngineFingerprint | null = null;
+  let chrome: string | null = null;
+  let tools: IsolationTools | null = null;
 
   try {
     const cliPath = options.cliPath ?? defaultCliPath();
@@ -246,24 +272,19 @@ export async function renderSegment(
     if (options.spawnRenderer === undefined) {
       ffmpegPath = requireTool('ffmpeg', options.ffmpegPath, parentEnv);
       ffprobePath = requireTool('ffprobe', options.ffprobePath, parentEnv);
-      const chrome: string | null = browserPath(cliPath, parentEnv);
-      if (chrome === null) {
-        throw new RenderAdapterError(
-          'preflight',
-          '`chrome-headless-shell` не найден на диске',
-          [
-            {
-              rule: 'preflight',
-              at: 'окружение',
-              message:
-                'выполните `pnpm --filter @vpe/renderer-hyperframes preflight` ' +
-                '(= `hyperframes browser ensure`). Скачивание браузера — ОТДЕЛЬНЫЙ шаг: ' +
-                'ADR-0008 требует, чтобы оно случилось ДО сетевой изоляции (`H-05`), поэтому ' +
-                'адаптер браузер не качает, а проверяет. Версию пришпиливает сам ' +
-                '`hyperframes` (`CHROME_VERSION` в его коде), в профиле её нет (**K6**)',
-            },
-          ],
-        );
+      // Бинарь браузера — НАШИМ резолвером (№160). Отказы («нет установки», «их две») несут
+      // инструкцию и приходят броском: см. `browser.ts`.
+      chrome = resolvePinnedBrowser(
+        options.browserPath === undefined
+          ? { parentEnv }
+          : { parentEnv, override: options.browserPath },
+      );
+
+      // Изоляция — ДО скачивания чего бы то ни было и до материализации. ADR-0008 требует,
+      // чтобы `ensureBrowser` случился ДО изоляции; здесь браузер уже проверен на диске, и
+      // namespace можно создавать: качать внутри него будет нечего.
+      if (isolation === 'netns') {
+        tools = assertIsolationAvailable({ parentEnv, resolveOnPath, spawnSync });
       }
 
       // ── отпечаток окружения: R14, ДО материализации и ДО рендера ────────────
@@ -274,10 +295,10 @@ export async function renderSegment(
         cliPath,
         ffmpegPath,
         ffprobePath,
-        // Резолвер УЖЕ отработал десятью строками выше. Передаётся его результат, а не второй
-        // вызов: `hyperframes browser path` — подпроцесс на 2–3 с, и второй его запуск стоил
-        // бы столько же на КАЖДОМ сегменте, отвечая ровно то же самое. Источник правды при
-        // этом остаётся один — тот самый `browserPath`; здесь только не спрашивается дважды.
+        // Резолвер УЖЕ отработал выше. Передаётся его результат: источник правды один, и
+        // отпечаток обязан описывать ТОТ бинарь, который пришпилен рендереру переменной
+        // `HYPERFRAMES_BROWSER_PATH` ниже. Контур «отпечаток == env запуска == запущенный
+        // бинарь» проверяется тестом (`browser.test.ts`, `render.test.ts`, №160).
         browserPath: () => chrome,
         resolveOnPath,
       });
@@ -294,6 +315,11 @@ export async function renderSegment(
 
     rmSync(framesDir, { recursive: true, force: true });
     mkdirSync(framesDir, { recursive: true });
+    // Свой `TMPDIR` — внутри `tmpDir` запроса (**R2**). Создаётся здесь, а не рендерером:
+    // несуществующий `TMPDIR` он молча заменил бы системным, и правило «пишет только в
+    // `tmpDir`» держалось бы на том, что каталог случайно есть.
+    const renderTmp = path.join(request.tmpDir, 'hf-tmp');
+    mkdirSync(renderTmp, { recursive: true });
 
     // ── запуск ──────────────────────────────────────────────────────────────
     const args = renderArgs({
@@ -303,7 +329,13 @@ export async function renderSegment(
       pixelProfile: request.pixelProfile,
       executionProfile: request.executionProfile,
     });
-    const env = renderEnv({ parentEnv, ffmpegPath, ffprobePath });
+    const env = renderEnv({
+      parentEnv,
+      ffmpegPath,
+      ffprobePath,
+      tmpDir: renderTmp,
+      ...(chrome === null ? {} : { browserPath: chrome }),
+    });
 
     let log = '';
     let peakRssBytes = 0;
@@ -312,8 +344,13 @@ export async function renderSegment(
     if (options.spawnRenderer !== undefined) {
       exitCode = await options.spawnRenderer(args, env);
     } else {
-      const child = spawn(process.execPath, [cliPath, ...args], {
-        env,
+      // ЗАВОРАЧИВАЕТСЯ РОВНО ЗАПУСК CLI. Материализация уже прошла (выше, вне namespace),
+      // кодирование кадров делает `media` (снаружи, после ответа): namespace нужен тому
+      // единственному процессу, который открывает браузер.
+      const launch = launchCommand([process.execPath, cliPath, ...args], env, isolation, tools);
+      const [exe, ...exeArgs] = launch.argv as [string, ...string[]];
+      const child = spawn(exe, exeArgs, {
+        env: launch.env,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
       const sampler = startMemorySampler(child.pid ?? process.pid);
@@ -348,9 +385,44 @@ export async function renderSegment(
 
     const trace = parseTrace(log);
     if (exitCode !== 0) {
-      throw new RenderAdapterError('прогон', `рендерер вышел с кодом ${String(exitCode)}`, [
-        { rule: 'прогон', at: `hyperframes ${args.join(' ')}`, message: tail(log) },
-      ]);
+      // ТЕКСТ ЛИНТА ДОБИРАЕТСЯ ОТДЕЛЬНЫМ ВЫЗОВОМ (решение владельца `H-05`, П2). ИЗМЕРЕНО:
+      // `--strict` вместе с `--quiet` печатает НОЛЬ БАЙТ при коде 1, то есть отказ приходит
+      // без причины, а «exit 1 без объяснения» отказом не считается. `hyperframes lint` —
+      // статический, браузера не требует, стоил 2.3 с на измерении, и платится он только
+      // здесь, на уже случившемся падении.
+      const problems = [{ rule: 'прогон', at: `hyperframes ${args.join(' ')}`, message: tail(log) }];
+      const lint = compositionLintReport(cliPath, composition.dir, env, isolation, tools);
+      if (lint !== null) {
+        problems.push({
+          rule: 'ADR-0008 композиция',
+          at: composition.dir,
+          message: lint,
+        });
+      }
+      throw new RenderAdapterError('прогон', `рендерер вышел с кодом ${String(exitCode)}`, problems);
+    }
+
+    // ── исключения в композиции — ОТКАЗ, а не чёрные кадры ──────────────────
+    // ИЗМЕРЕНО (`H-05`): исключение в скрипте композиции рендерер отказом НЕ СЧИТАЕТ. Клип не
+    // смонтировался, `runtime.js` бросил — а прогон завершился кодом 0 и отдал ровно столько
+    // PNG, сколько заказано; просто чёрных. Это худший из возможных исходов: сегмент валиден
+    // по числу кадров, по коду выхода и по ключу кэша — и пуст по содержанию.
+    //
+    // Поэтому охранник здесь. Он же делает исполнимыми ДВА критерия готовности `H-05`:
+    // негативная фикстура с внешним URL падает (её `mount` бросает, потому что из namespace
+    // адрес недостижим), и заморозка глобалей (**D4**) роняет рендер, а не остаётся записью
+    // в консоли браузера. Строку печатает сам рендерер — мы её только читаем.
+    const pageErrors = pageErrorsOf(log);
+    if (pageErrors.length > 0) {
+      throw new RenderAdapterError(
+        'ADR-0008 композиция',
+        `композиция бросила исключение в браузере (${String(pageErrors.length)})`,
+        pageErrors.map((message) => ({
+          rule: 'ADR-0008 композиция',
+          at: request.bundle.compositionId,
+          message,
+        })),
+      );
     }
 
     // ── сверка числа кадров ─────────────────────────────────────────────────
@@ -386,6 +458,7 @@ export async function renderSegment(
       engineCompositionHash: engineCompositionHashOf(trace),
       engineFingerprint: engine?.fingerprint ?? null,
       engineProbe: probe,
+      browserLaunchLine: browserLaunchLineOf(log),
       stats: {
         wallMs: options.clock() - started,
         // `retries` — поле ADR-0008. Повторов у адаптера НЕТ: политика ретраев — часть
@@ -427,4 +500,112 @@ function tail(log: string): string {
     .filter((l) => l.trim() !== '' && !/Streaming frame|^\s*[█░]/u.test(l))
     .slice(-20)
     .join('\n');
+}
+
+/**
+ * Команда запуска: сама по себе или завёрнутая в сетевой namespace.
+ *
+ * Отдельной функцией, а не веткой по месту, потому что на неё стоит тест: разница между
+ * «изоляция включена» и «изоляция включена, но забыли завернуть» — это два одинаково зелёных
+ * рендера и один невыполненный инвариант.
+ */
+export function launchCommand(
+  argv: readonly string[],
+  env: NodeJS.ProcessEnv,
+  isolation: IsolationMode,
+  tools: IsolationTools | null,
+): { readonly argv: readonly string[]; readonly env: NodeJS.ProcessEnv } {
+  if (isolation === 'none') return { argv, env };
+  if (tools === null) {
+    // Недостижимо штатным путём (preflight отработал выше), и потому именно здесь бросок:
+    // молчаливый откат к запуску БЕЗ namespace был бы худшим из возможных исходов — рендер
+    // прошёл бы, а **R1** оказался невыполнен без единого следа.
+    throw new RenderAdapterError(
+      'R1',
+      'изоляция запрошена, но preflight `unshare`/`ip` не отработал',
+      [
+        {
+          rule: 'R1',
+          at: 'RenderOptions.isolation',
+          message:
+            'это внутреннее противоречие адаптера, а не окружения: запуск без namespace при ' +
+            'запрошенной изоляции запрещён — правило либо исполнено, либо отказ',
+        },
+      ],
+    );
+  }
+  return netnsCommand({ argv, env, unsharePath: tools.unsharePath, ipPath: tools.ipPath });
+}
+
+/**
+ * Текст линт-ошибок композиции — диагностика УЖЕ СЛУЧИВШЕГОСЯ отказа.
+ *
+ * Экспортируется, потому что на неё стоит тест: разметку, которую строит `materialize`,
+ * линт принимает по построению (`H-01`), и подать сюда кривой каталог может только тест.
+ *
+ * Зовётся в той же изоляции, что и рендер: `lint` читает локальный каталог и сети не требует,
+ * но это тот же CLI, и выпускать его наружу namespace'а ради удобства сообщения значило бы
+ * пробить **R1** в обработчике ошибок — месте, которое обычно никто не читает.
+ *
+ * @returns `null` — линт чист (значит причина падения НЕ в разметке) или сам не запустился.
+ */
+export function compositionLintReport(
+  cliPath: string,
+  compositionDir: string,
+  env: NodeJS.ProcessEnv,
+  isolation: IsolationMode,
+  tools: IsolationTools | null,
+): string | null {
+  try {
+    const launch = launchCommand([process.execPath, cliPath, 'lint', compositionDir], env, isolation, tools);
+    const [exe, ...rest] = launch.argv as [string, ...string[]];
+    const run = spawnSync(exe, rest, { encoding: 'utf8', env: launch.env, timeout: LINT_TIMEOUT_MS });
+    if (run.status === 0) return null;
+    const text = tail(`${String(run.stdout ?? '')}${String(run.stderr ?? '')}`);
+    return text === '' ? null : text;
+  } catch {
+    return null;
+  }
+}
+
+/** Диагностика не имеет права стоить больше, чем сам отказ: измерено 2.3 с, дано 60. */
+const LINT_TIMEOUT_MS = 60_000;
+
+/**
+ * Строка запуска браузера, НАЗВАННАЯ САМИМ РЕНДЕРЕРОМ, — сужение долга №161.
+ *
+ * ИЗМЕРЕНО (`hyperframes@0.8.5`, в том числе под `--quiet`): CLI печатает
+ * `[BrowserManager] Browser launched (HeadlessChrome/<версия>, <режим захвата>, gl=…,
+ * headlessShell=…, platform=…)`. Это НЕ полная командная строка Chrome: `--font-render-hinting`
+ * и прочие флаги, которые CLI ставит внутри себя, в ней не видны, — то есть №161 сужается, а не
+ * закрывается. Величина возвращается ОТВЕТОМ и в ключ НЕ входит: её потребитель — класс проверок
+ * `verifyComposition` (ADR-0006 §2), «при одних входах запустилось разное».
+ *
+ * Побочно она закрывает контур №160 третьей точкой: версия отсюда обязана совпасть с версией
+ * бинаря, который назвал резолвер и который уехал в `HYPERFRAMES_BROWSER_PATH`.
+ */
+export function browserLaunchLineOf(log: string): string | null {
+  const m = /\[BrowserManager\] Browser launched \(([^)]*)\)/u.exec(stripAnsi(log));
+  return m?.[1] ?? null;
+}
+
+/**
+ * Исключения страницы, названные самим рендерером: строки `[Browser:PAGEERROR] …`.
+ *
+ * ИМЕННО `PAGEERROR`, а не любые диагностические строки браузера. `[Browser:HTTP404]` и
+ * `[FileServer] 404` рендерер печатает и на СВОИХ необязательных файлах (ИЗМЕРЕНО:
+ * `/caption-overrides.json` на каждом прогоне) — падать на них значило бы падать всегда.
+ * `PAGEERROR` же означает необработанное исключение в скрипте композиции, то есть код,
+ * который писали мы или компилятор.
+ */
+export function pageErrorsOf(log: string): string[] {
+  const out: string[] = [];
+  for (const line of stripAnsi(log).split('\n')) {
+    const m = /\[Browser:PAGEERROR\]\s*(.*)$/u.exec(line);
+    const text = m?.[1]?.trim();
+    // Одна и та же ошибка приезжает дважды: строкой лога и внутри итоговой сводки
+    // `browserConsoleErrors`. Дубликат в отказе — шум, а не второе нарушение.
+    if (text !== undefined && text !== '' && !out.includes(text)) out.push(text);
+  }
+  return out;
 }

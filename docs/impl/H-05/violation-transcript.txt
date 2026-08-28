@@ -1,0 +1,112 @@
+ПРОТОКОЛ НАРУШЕНИЙ — IMPL-H-05 (изоляция рендера)
+Метод: правка одной строки, прогон целевых тестов, откат из `cp`-резерва (`<файл>.bak`).
+Смысл: показать, что каждый охранник ловит именно то, что обязан, а не зеленеет по совпадению.
+Машина: Linux 7.0.0-30-generic, node v25.6.1, hyperframes 0.8.5, chrome-headless-shell 152.0.7928.2.
+
+════════════════════════════════════════════════════════════════════
+Н2. Окружение НЕ проносится в namespace (TZ теряется)
+файл: packages/renderer-hyperframes/src/isolation.ts
+тесты: packages/renderer-hyperframes/test/isolation.test.ts 
+--------------------------------------------------------------------
+     × окружение возвращается ЗНАЧЕНИЕМ — пронос явный, а не наследование молча 6ms
+     × окружение ДОЕЗЖАЕТ внутрь namespace (`TZ`/`LC_ALL` не теряются) 32ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/isolation.test.ts > `netnsCommand` — форма команды (таблица argv) > окружение возвращается ЗНАЧЕНИЕМ — пронос явный, а не наследование молча
+AssertionError: expected undefined to be 'UTC' // Object.is equality
+ FAIL  packages/renderer-hyperframes/test/isolation.test.ts > ПОВЕДЕНИЕ namespace на этой машине (нужны `unshare` и `ip`) > окружение ДОЕЗЖАЕТ внутрь namespace (`TZ`/`LC_ALL` не теряются)
+AssertionError: expected 'undefined|undefined' to be 'UTC|C' // Object.is equality
+      Tests  2 failed | 16 passed | 1 skipped (19)
+
+════════════════════════════════════════════════════════════════════
+Н1. Loopback НЕ поднимается в namespace (рендер без file_server)
+файл: packages/renderer-hyperframes/src/isolation.ts
+тесты: packages/renderer-hyperframes/test/subprocess.test.ts 
+--------------------------------------------------------------------
+     × подпроцесс рендерит сегмент и отдаёт те же кадры, что и функция 15ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/subprocess.test.ts > тот же запрос через `spawn` даёт тот же результат > подпроцесс рендерит сегмент и отдаёт те же кадры, что и функция
+AssertionError: {"ok":false,"error":{"rule":"R1","message":"R1: сетевой namespace не создаётся или loopback в нём не поднимается\n  • /usr/bin/unshare -rn --map-root-user — [R1] проба вышла с кодом 0; вывод: 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000\\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00. Обычная причина — выключенные непривилегированные user namespace (`sysctl kernel.unprivileged_userns_clone=1`, `user.max_user_namespaces`) или запрет seccomp в контейнере. Либо включите их, либо выключите изоляцию явно (`RenderOptions.isolation: \"none\"`) — но тогда **R1** держится только на четырёх `HYPERFRAMES_NO_*`, которые глушат каналы CLI, а не запрещают сеть","details":[{"rule":"R1","at":"/usr/bin/unshare -rn --map-root-user","message":"проба вышла с кодом 0; вывод: 1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000\\    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00. Обычная причина — выключенные непривилегированные user namespace (`sysctl kernel.unprivileged_userns_clone=1`, `user.max_user_namespaces`) или запрет seccomp в контейнере. Либо включите их, либо выключите изоляцию явно (`RenderOptions.isolation: \"none\"`) — но тогда **R1** держится только на четырёх `HYPERFRAMES_NO_*`, которые глушат каналы CLI, а не запрещают сеть"}]}}: expected false to be true // Object.is equality
+      Tests  1 failed | 4 passed (5)
+
+════════════════════════════════════════════════════════════════════
+Н3. Заморозка ТИХО ПОДМЕНЯЕТ константой вместо броска (Math.random → 0.5)
+файл: packages/renderer-hyperframes/src/composition/freeze.js
+тесты: packages/renderer-hyperframes/test/freeze.test.ts 
+--------------------------------------------------------------------
+     × `Math.random()` ⇒ отказ с именем `Math.random` 6ms
+     × `Date.now()` ⇒ отказ с именем `Date.now` 1ms
+     × `new Date()` ⇒ отказ с именем `Date()` 1ms
+     × `Date()` ⇒ отказ с именем `Date()` 1ms
+     × `performance.now()` ⇒ отказ с именем `performance.now` 1ms
+     × `(5).toLocaleString()` ⇒ отказ с именем `Number.prototype.toLocaleString` 35ms
+     × `'a'.localeCompare('b')` ⇒ отказ с именем `String.prototype.localeCompare` 1ms
+     × `[1, 2].toLocaleString()` ⇒ отказ с именем `Array.prototype.toLocaleString` 0ms
+     × `Object.create(Date.prototype).toLocaleString()` ⇒ отказ с именем `Date.prototype.toLocaleString` 3ms
+     × `Object.create(Date.prototype).toLocaleDateString()` ⇒ отказ с именем `Date.prototype.toLocaleDateString` 1ms
+     × `Object.create(Date.prototype).toLocaleTimeString()` ⇒ отказ с именем `Date.prototype.toLocaleTimeString` 1ms
+     × `Intl` ⇒ отказ с именем `Intl` 0ms
+     × `Intl` бросает на ЧТЕНИИ, а не только на вызове конструктора 1ms
+     × `Math.random` не возвращает число — ни 0.5, ни любое другое 2ms
+     × `Date.now` не возвращает ноль и не возвращает ничего 1ms
+     × адрес взвода назван в отказе 1ms
+     × отказ говорит, ОТКУДА брать значение законно (seed и номер кадра) 1ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/freeze.test.ts > каждый API списка D4 БРОСАЕТ, называя себя > `Math.random()` ⇒ отказ с именем `Math.random`
+AssertionError: `Math.random()` не бросил — заморозка не сработала: expected null not to be null
+
+════════════════════════════════════════════════════════════════════
+Н4. `--strict` снят из строки запуска
+файл: packages/renderer-hyperframes/src/argv.ts
+тесты: packages/renderer-hyperframes/test/argv.test.ts packages/renderer-hyperframes/test/isolation-render.test.ts (-t 'ОТКРЫТАЯ форма')
+--------------------------------------------------------------------
+     × ОТКРЫТАЯ форма — отказ `--strict` ДО браузера (долг №157), и это дешевле 46762ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/isolation-render.test.ts > **D4**: заморозка глобалей роняет рендер с именем API и адресом клипа > ОТКРЫТАЯ форма — отказ `--strict` ДО браузера (долг №157), и это дешевле
+AssertionError: expected '{"rule":"ADR-0008 композиция","messag…' to contain 'non_deterministic_code'
+Expected: "non_deterministic_code"
+Received: "{"rule":"ADR-0008 композиция","message":"ADR-0008 композиция: композиция бросила исключение в браузере (1)\n  • seg-a1 — [ADR-0008 композиция] D4 (ADR-0007 §4): `Math.random` в композиции запрещён — randomizerStatic@1 (клип r:aaaa0001). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`.","details":[{"rule":"ADR-0008 композиция","at":"seg-a1","message":"D4 (ADR-0007 §4): `Math.random` в композиции запрещён — randomizerStatic@1 (клип r:aaaa0001). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`."}]}"
+      Tests  1 failed | 27 skipped (28)
+
+════════════════════════════════════════════════════════════════════
+Н5. Резолвер вернулся к ответу `hyperframes browser path` (как было до H-05)
+файл: packages/renderer-hyperframes/src/run.ts
+тесты: packages/renderer-hyperframes/test/isolation-render.test.ts (-t 'три точки контура')
+--------------------------------------------------------------------
+     × три точки контура сходятся; ответ `browser path` печатается как измерение 3791ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/isolation-render.test.ts > №160: отпечаток, окружение запуска и запущенный бинарь — ОДНА установка > три точки контура сходятся; ответ `browser path` печатается как измерение
+AssertionError: резолвер выбрал `/home/ct/.cache/hyperframes/chrome/chrome-headless-shell/linux-152.0.7928.2/chrome-headless-shell-linux64/chrome-headless-shell`, а запустился `152.0.7977.42`: expected false to be true // Object.is equality
+      Tests  1 failed | 8 skipped (9)
+
+════════════════════════════════════════════════════════════════════
+Н6. Охранник исключений композиции снят (`[Browser:PAGEERROR]` не читается)
+файл: packages/renderer-hyperframes/src/run.ts
+тесты: packages/renderer-hyperframes/test/isolation-render.test.ts (-t 'адресом ВНЕ namespace')
+--------------------------------------------------------------------
+     × композиция с адресом ВНЕ namespace — рендер ПАДАЕТ 46672ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/isolation-render.test.ts > **R1**: сеть недоступна рендеру, и это ПРОВЕРЯЕТСЯ ПАДЕНИЕМ > композиция с адресом ВНЕ namespace — рендер ПАДАЕТ
+AssertionError: рендер обязан упасть: адрес недостижим из namespace: expected true to be false // Object.is equality
+      Tests  1 failed | 8 skipped (9)
+
+════════════════════════════════════════════════════════════════════
+ИТОГ ПРОТОКОЛА
+
+Н1 — loopback не поднят. Поймано ДО рендера, за 15 мс: preflight смотрит на СОСТОЯНИЕ
+     интерфейса, а не на код выхода `ip` (`state DOWN` при `status: 0`). Рендер не стартует.
+Н2 — окружение не проносится. Поймано ДВАЖДЫ: таблицей argv/env (без namespace, на любой
+     машине) и настоящим прогоном в namespace (`TZ|LC_ALL` → `undefined|undefined`).
+Н3 — заморозка подменяет константой вместо броска. 17 красных в `freeze.test.ts`, включая
+     именной тест «`Math.random` не возвращает число — ни 0.5, ни любое другое».
+Н4 — `--strict` снят. Красный браузерный тест открытой формы `Math.random`. ПОБОЧНОЕ
+     ИЗМЕРЕНИЕ, ради которого у D4 две половины: грех всё равно пойман — но РАНТАЙМ-ГУАРДОМ и
+     за 46.8 с вместо 1.3 с статического отказа. Дешёвая половина исчезла, дорогая осталась.
+Н5 — резолвер вернулся к `hyperframes browser path`. Красный контур: «резолвер выбрал
+     …/hyperframes/…152.0.7928.2/…, а запустился 152.0.7977.42». Долг №160 воспроизведён живьём.
+Н6 — снят охранник `[Browser:PAGEERROR]`. Негативная фикстура R1 стала ЗЕЛЁНОЙ по-неверному:
+     рендер «прошёл» с кодом 0 и отдал ровно N ЧЁРНЫХ кадров, потому что композиция не
+     смонтировалась. Ровно тот исход, ради которого охранник и заведён.
+
+Не покрыто протоколом (сказано вслух): голден-вектор `renderArgs` при Н4 не прогонялся —
+фильтр `-t` оставил его пропущенным; он проверен отдельным прогоном `argv.test.ts` (19 зелёных)
+и краснеет на снятии `--strict` первым же ассертом массива целиком.

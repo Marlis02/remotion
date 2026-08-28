@@ -6,7 +6,14 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { FIXED_RENDER_ARGS, FIXED_RENDER_ENV, renderArgs, renderEnv } from '../src/argv.js';
+import {
+  BROWSER_PATH_ENV,
+  BROWSER_PATH_ENV_OVERRIDE,
+  FIXED_RENDER_ARGS,
+  FIXED_RENDER_ENV,
+  renderArgs,
+  renderEnv,
+} from '../src/argv.js';
 import { RenderAdapterError } from '../src/errors.js';
 
 const base = {
@@ -32,7 +39,27 @@ describe('`renderArgs` — голден-вектор на массив цели�
       '1',
       '--no-browser-gpu',
       '--quiet',
+      // `--strict` (долг №157) — БЕЗУСЛОВНО и в каждом профиле. ИЗМЕРЕНО (`H-05`): без него
+      // кривая разметка даёт не отказ, а рендер неограниченной длительности (0–2 PNG из 30 за
+      // 13 минут); с ним — отказ за 3.0 с. Стоит в голден-векторе именно поэтому: снятие флага
+      // видно как правка строки запуска, а не как «стало чуть тише».
+      '--strict',
     ]);
+  });
+
+  it('`--strict` стоит при ЛЮБОМ профиле — снятие невыразимо профилем', () => {
+    for (const workers of [1, 4]) {
+      for (const browserGpu of [true, false]) {
+        for (const scale of [0.25, 1]) {
+          const args = renderArgs({
+            ...base,
+            pixelProfile: { ...base.pixelProfile, browserGpu, scale },
+            executionProfile: { workers, segmentTimeoutMs: 1 },
+          });
+          expect(args).toContain('--strict');
+        }
+      }
+    }
   });
 
   it('`workers` приходит ИЗ ПРОФИЛЯ, а не литералом — проверено ТРЕМЯ значениями', () => {
@@ -156,6 +183,49 @@ describe('`FIXED_RENDER_ARGS`/`FIXED_RENDER_ENV` — вход отпечатка
     expect(varying.sort()).toEqual(
       ['/tmp/seg/composition', '/tmp/seg/frames', '1', '30', '--no-browser-gpu'].sort(),
     );
+  });
+
+  it('бинарь браузера ПРИШПИЛИВАЕТСЯ переменной, а чужая переменная СНИМАЕТСЯ (№160)', () => {
+    // ИЗМЕРЕНО (`hyperframes@0.8.5`, `resolveHeadlessShellPath`): при запуске читается сперва
+    // `PRODUCER_HEADLESS_SHELL_PATH`, потом `HYPERFRAMES_BROWSER_PATH`, и только потом кэши.
+    // Значит мало поставить свою — надо снять ту, что перебивает: иначе отпечаток мерил бы
+    // наш бинарь, а рендерил бы чужой, и это ровно тот дефект, который описывает №160.
+    const pinned = renderEnv({
+      parentEnv: {
+        PATH: '/usr/bin',
+        PRODUCER_HEADLESS_SHELL_PATH: '/chuzhoy/chrome-headless-shell',
+      },
+      ffmpegPath: '/a',
+      ffprobePath: '/b',
+      browserPath: '/home/u/.cache/hyperframes/chrome/chrome-headless-shell/linux-1.2.3.4/x/bin',
+    });
+    expect(pinned[BROWSER_PATH_ENV]).toBe(
+      '/home/u/.cache/hyperframes/chrome/chrome-headless-shell/linux-1.2.3.4/x/bin',
+    );
+    expect(pinned[BROWSER_PATH_ENV_OVERRIDE]).toBeUndefined();
+    expect(Object.keys(pinned)).not.toContain(BROWSER_PATH_ENV_OVERRIDE);
+  });
+
+  it('чужая переменная снимается ДАЖЕ КОГДА своей нет', () => {
+    // Иначе правило звучало бы «мы защищаем выбор, когда сами выбрали», а дефект — в том, что
+    // выбор растеризатора вообще делает посторонняя переменная.
+    const env2 = renderEnv({
+      parentEnv: { PRODUCER_HEADLESS_SHELL_PATH: '/chuzhoy/bin' },
+      ffmpegPath: '/a',
+      ffprobePath: '/b',
+    });
+    expect(env2[BROWSER_PATH_ENV_OVERRIDE]).toBeUndefined();
+    expect(env2[BROWSER_PATH_ENV]).toBeUndefined();
+  });
+
+  it('`TMPDIR` уводится внутрь `tmpDir` запроса (**R2**)', () => {
+    const env3 = renderEnv({
+      parentEnv: { TMPDIR: '/tmp' },
+      ffmpegPath: '/a',
+      ffprobePath: '/b',
+      tmpDir: '/tmp/seg-42/hf-tmp',
+    });
+    expect(env3['TMPDIR']).toBe('/tmp/seg-42/hf-tmp');
   });
 
   it('`renderEnv` строится ИЗ `FIXED_RENDER_ENV`: разъехаться они не могут', () => {

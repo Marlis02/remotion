@@ -147,7 +147,11 @@ describe('живая проба: отпечаток', () => {
     const args = p.fields['launch.args'];
     expect(args?.state).toBe('present');
     if (args?.state !== 'present') return;
-    expect(args.value).toBe('render -o --format png-sequence --quiet');
+    // `--strict` добавлен `H-05` (долг №157) и ВХОДИТ в отпечаток намеренно: он меняет
+    // ПОВЕДЕНИЕ рендерера на кривой композиции (отказ вместо неограниченного рендера), а
+    // отпечаток описывает то, что запускается. ИЗМЕРЕНО (`H-05`): строка сменилась, и вместе
+    // с ней `engineFingerprint` — `a48cdce5…ea89` → `61db2ca8…63a0`.
+    expect(args.value).toBe('render -o --format png-sequence --quiet --strict');
     // M9 + K1: `--fps`, `--workers`, `--no-browser-gpu` — значения профилей, они уже в
     // `views/segment.json`; второй учёт той же величины запрещён ADR-0006 §3.
     for (const profileFlag of ['--fps', '--workers', '--browser-gpu']) {

@@ -23,8 +23,14 @@
 // строки энкодера, живущий в исходниках `media` (`-sc_threshold 0`, `open-gop=0`,
 // `-fps_mode cfr`, отображение `h264 → libx264`), не входит ни в один ключ.
 //
-// ОДИН РЕЗОЛВЕР С РЕНДЕРОМ, А НЕ ВТОРОЙ. Chrome ищется тем же `browserPath(cliPath, env)`,
+// ОДИН РЕЗОЛВЕР С РЕНДЕРОМ, А НЕ ВТОРОЙ. Chrome ищется тем же `browserPath(env)`,
 // ffmpeg/ffprobe — тем же `resolveOnPath(name, env)`, что и настоящий прогон (`run.ts`).
+// ПРАВКА `H-05`: сам резолвер стал другим — путь больше не спрашивается у `hyperframes browser
+// path`, а выбирается по НАШЕМУ корню кэша и пришпиливается рендереру переменной
+// `HYPERFRAMES_BROWSER_PATH`. Причина ИЗМЕРЕНА: у CLI два несовпадающих порядка резолва, и
+// команда `browser path` отвечала на другой вопрос, чем «что запустится» (долг №160,
+// разбор — шапка `browser.ts`). Требование «отпечаток мерит ТО, ЧТО ЗАПУСКАЕТСЯ» от этого не
+// ослабло, а впервые стало исполнимым.
 // Отпечаток обязан мерить ТО, ЧТО ЗАПУСКАЕТСЯ; второй источник правды о том, где лежит
 // браузер, разошёлся бы с первым при первом же обновлении пакета.
 // Слабости переносимого `docs/spikes/sp3c/lib/versions.mjs` НЕ переносятся, обе поимённо:
@@ -108,8 +114,13 @@ export interface EngineProbeInput {
   readonly ffprobePath?: string;
   /** Каталог пакета `@vpe/renderer-hyperframes`. По умолчанию — найденный от этого модуля. */
   readonly packageDir?: string;
-  /** Резолвер пути к браузеру. ВХОД, чтобы тест мог подать «браузера нет» без бинаря. */
-  readonly browserPath: (cliPath: string, parentEnv: NodeJS.ProcessEnv) => string | null;
+  /**
+   * Резолвер пути к браузеру. ВХОД, чтобы тест мог подать «браузера нет» без бинаря.
+   *
+   * Сигнатура сменилась в `H-05` (`cliPath` больше не нужен): путь теперь НЕ спрашивается у
+   * CLI, а выбирается нами по пришпиленному корню — долг №160, разбор в шапке `browser.ts`.
+   */
+  readonly browserPath: (parentEnv: NodeJS.ProcessEnv) => string | null;
   /** Резолвер исполняемых по `PATH`. Тот же, что у рендера. */
   readonly resolveOnPath: (name: string, parentEnv: NodeJS.ProcessEnv) => string | null;
   readonly timeoutMs?: number;
@@ -300,14 +311,15 @@ export function collectEngineProbe(input: EngineProbeInput): EngineProbe {
   }
 
   // ── браузер: ТЕМ ЖЕ резолвером, что у рендера ──────────────────────────────
-  const chrome = input.browserPath(input.cliPath, input.parentEnv);
+  const chrome = input.browserPath(input.parentEnv);
   fields['chrome'] = probeBinary(
     chrome,
     ['--version'],
     'chrome-headless-shell',
     timeoutMs,
-    '`hyperframes browser path` не вернул существующего пути — браузер не скачан ' +
-      '(`pnpm --filter @vpe/renderer-hyperframes preflight`)',
+    'в `$HOME/.cache/hyperframes/chrome/chrome-headless-shell` нет установки браузера — ' +
+      'скачайте её (`pnpm --filter @vpe/renderer-hyperframes preflight`). Чужой puppeteer-кэш ' +
+      'не читается намеренно (долг №160)',
   );
 
   // ── ffmpeg/ffprobe: ТЕ бинари, которые получит HyperFrames через env ───────
