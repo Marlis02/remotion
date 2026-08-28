@@ -43,6 +43,7 @@ import {
 import { RENDER_AC4_FILE, RENDER_FINAL_FILE } from './assemble-helpers.js';
 import {
   REPO,
+  RENDER_DRAFT_FILE,
   audioProfileFixture,
   compileProfileFixture,
   composeInputs,
@@ -55,6 +56,12 @@ const COUNTS_GOLDEN = path.join(REPO, 'packages/media/test/golden/cache-matrix.t
 const compile = compileProfileFixture();
 const render = renderProfileFixture(RENDER_FINAL_FILE);
 const ac4 = renderProfileFixture(RENDER_AC4_FILE);
+// ТРЕТИЙ ОБРАЗЕЦ `render-profile` (`H-03`, 2026-08-28, решение владельца). После правки №154
+// у `final` стоит `imageFormat: png`, и `jpegQuality` перестал быть достижим на ОБОИХ прежних
+// образцах (`final`, `ac4` — оба png) — строка view осталась бы без мутанта, то есть половина
+// K1 «поле в view ⇒ ключ меняется» держалась бы на дисциплине. `draft` несёт
+// `imageFormat: jpeg` + `jpegQuality: 80`. Правило не ослаблено — добавлен образец.
+const draft = renderProfileFixture(RENDER_DRAFT_FILE);
 const audio = audioProfileFixture();
 
 const SEGMENT_VIEW = cacheKeyView('segment');
@@ -112,7 +119,11 @@ describe('K1 — матрица мутации `segmentKey` по всем пол
     // такое поле молча выпало бы из матрицы, то есть «покрыты все поля» было бы правдой
     // только про заполненные. Поле считается покрытым, если достижимо ХОТЬ В ОДНОМ образце.
     const samples: unknown[] =
-      family === 'compile-profile' ? [compile] : family === 'render-profile' ? [render, ac4] : [audio];
+      family === 'compile-profile'
+        ? [compile]
+        : family === 'render-profile'
+          ? [render, ac4, draft]
+          : [audio];
 
     // МУТАНТ СРАВНИВАЕТСЯ СО СВОИМ ОБРАЗЦОМ, А НЕ С ОБЩИМ. Профили `final` и `ac4` отличаются
     // друг от друга законно (`imageFormat`, `scale`, `threads`), и ключ мутанта от `ac4`

@@ -204,8 +204,35 @@ describe('roadmap `R-02` — draft отличается от final только 
   // (ADR-0008 «Draft»: меняются `scale`, `imageFormat`, `jpegQuality`, `crf`, `executionProfile`).
   const ALLOWED = /^(profileId|executionProfile\..+|pixelProfile\.(scale|imageFormat|jpegQuality|crf))$/;
 
-  it('множество путей одинаково: ни одно поле не появилось и не исчезло', () => {
-    expect([...leaves(draft()).keys()].sort()).toEqual([...leaves(final()).keys()].sort());
+  // ПРАВИЛО ИЗМЕНЕНО, А НЕ ОБРАЗЕЦ (`H-03`, 2026-08-28) — и это сказано вслух, потому что
+  // остальные правки этой сессии меняли образец. Прежняя форма — «множество путей ОДИНАКОВО:
+  // ни одно поле не появилось и не исчезло» — после правки №154 недостижима ПО ПОСТРОЕНИЮ:
+  // `final` стал `imageFormat: png`, а схема `render-profile/1` при `png` поле `jpegQuality`
+  // ЗАПРЕЩАЕТ (и при `jpeg` — ТРЕБУЕТ). То есть как только `imageFormat` разрешено различаться
+  // (а он разрешён — `ALLOWED` выше, ADR-0008 «Draft»), различие множеств путей ровно на
+  // `jpegQuality` становится не дефектом фикстуры, а СЛЕДСТВИЕМ условия самой схемы.
+  //
+  // Новая форма не «слабее», а ДРУГАЯ, и в этом месте информативнее: вместо «различий нет»
+  // проверяется, что различие РОВНО ОДНО, названо поимённо, и что оно объясняется условием
+  // схемы у ОБОИХ профилей. Прежняя форма про `jpegQuality` не утверждала ничего, кроме
+  // «поле есть у обоих»; новая утверждает «поле есть тогда и только тогда, когда jpeg».
+  it('множества путей различаются РОВНО на `jpegQuality`, и это условие самой схемы', () => {
+    const keysFinal = [...leaves(final()).keys()].sort();
+    const keysDraft = [...leaves(draft()).keys()].sort();
+    const onlyDraft = keysDraft.filter((key) => !keysFinal.includes(key));
+    const onlyFinal = keysFinal.filter((key) => !keysDraft.includes(key));
+    expect(onlyDraft).toEqual(['pixelProfile.jpegQuality']);
+    expect(onlyFinal).toEqual([]);
+
+    // И различие ОБЪЯСНЕНО, а не разрешено: наличие поля обязано совпадать с `imageFormat`
+    // у КАЖДОГО профиля. Без этой пары утверждение выше разрешало бы `jpegQuality` пропасть
+    // из `draft` (он `jpeg`!) — то есть ровно ту дыру, ради которой правило и написано.
+    for (const [name, profile] of [['final', final()], ['draft', draft()]] as const) {
+      const hasField = [...leaves(profile).keys()].includes('pixelProfile.jpegQuality');
+      expect(hasField, `${name}: наличие \`jpegQuality\` разошлось с \`imageFormat\``).toBe(
+        profile.pixelProfile.imageFormat === 'jpeg',
+      );
+    }
   });
 
   it('дифф считается механически и целиком лежит в разрешённом множестве', () => {
@@ -215,7 +242,14 @@ describe('roadmap `R-02` — draft отличается от final только 
 
     expect(differing.filter((key) => !ALLOWED.test(key))).toEqual([]);
     // Контроль осмысленности: если дифф пуст, предыдущая строка зелёная по недоразумению.
-    expect(differing).toEqual(['pixelProfile.crf', 'pixelProfile.jpegQuality', 'pixelProfile.scale', 'profileId']);
+    // Список сменился с правкой №154 (`H-03`): `jpegQuality` больше не РАЗЛИЧАЮЩЕЕСЯ поле —
+    // его у `final` нет вовсе (это проверяет тест выше), зато различаться стал `imageFormat`.
+    expect(differing).toEqual([
+      'pixelProfile.crf',
+      'pixelProfile.imageFormat',
+      'pixelProfile.scale',
+      'profileId',
+    ]);
   });
 
   it('`fps` в профиле рендера отсутствует у обоих — геометрия времени живёт в compileProfile', () => {
@@ -233,6 +267,12 @@ describe('roadmap `R-02` — draft отличается от final только 
 describe('ограничения ADR: каждое нарушение отвергается', () => {
   const final = fixtureText('render.final.yaml');
   const ac4 = fixtureText('render.ac4.yaml');
+  // ОБРАЗЕЦ ДЛЯ `jpegQuality` — `draft`, а не `final` (`H-03`, 2026-08-28, решение владельца).
+  // Причина измеренная: после правки №154 у `final` стоит `imageFormat: png`, и поле
+  // `jpegQuality` там ЗАПРЕЩЕНО схемой — то есть снять его больше неоткуда. `draft` остался
+  // `imageFormat: jpeg` + `jpegQuality: 80`, и правило проверяется на ЖИВОМ профиле, а не на
+  // синтетике. Правило не ослаблено — сменён образец.
+  const draftText = fixtureText('render.draft.yaml');
 
   const cases: ReadonlyArray<readonly [string, string, string]> = [
     // ADR-0006 §5 / D13: число, никогда `auto` — `threads=1` и `threads=4` дают разный битстрим.
@@ -246,7 +286,7 @@ describe('ограничения ADR: каждое нарушение отвер
     // `jpegQuality` при `png` — вычисляемо бессмысленное поле: `ac4` хэширует кадр ДО энкода.
     ['jpeg-quality-with-png', patch(ac4, 'pixelProfile:\n', 'pixelProfile:\n  jpegQuality: 90\n'), 'pixelProfile.jpegQuality'],
     // Обратная половина того же правила.
-    ['jpeg-quality-missing', patch(final, '  jpegQuality: 90\n', ''), 'pixelProfile.jpegQuality'],
+    ['jpeg-quality-missing', patch(draftText, '  jpegQuality: 80\n', ''), 'pixelProfile.jpegQuality'],
     // `workers` — целое ≥ 1 (ADR-0008).
     ['workers-zero', patch(final, 'workers: 4', 'workers: 0'), 'executionProfile.workers'],
   ];

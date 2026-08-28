@@ -30,7 +30,31 @@ export {
   type MaterializedComposition,
 } from './materialize.js';
 
-export { renderArgs, renderEnv, type RenderArgsInput } from './argv.js';
+export {
+  FIXED_RENDER_ARGS,
+  FIXED_RENDER_ENV,
+  renderArgs,
+  renderEnv,
+  type RenderArgsInput,
+} from './argv.js';
+
+// `engineFingerprint` — единственное место измеренного окружения (`H-03`, ADR-0006 §3).
+export {
+  HOST_CLASS,
+  PROBE_TIMEOUT_MS,
+  assertEngineMatches,
+  assertEngineProbeComplete,
+  collectEngineProbe,
+  computeEngineFingerprint,
+  fingerprintedPackages,
+  formatEngineProbe,
+  installedVersion,
+  rendererPackageDir,
+  type EngineFingerprint,
+  type EngineProbe,
+  type EngineProbeInput,
+  type ProbeValue,
+} from './fingerprint.js';
 
 export {
   FRAME_PATTERN,

@@ -32,6 +32,13 @@ import path from 'node:path';
 import type { RenderResponse, RenderedFrames, SegmentRenderRequest } from './contract.js';
 import { renderArgs, renderEnv } from './argv.js';
 import { RenderAdapterError } from './errors.js';
+import {
+  assertEngineMatches,
+  collectEngineProbe,
+  computeEngineFingerprint,
+  type EngineFingerprint,
+  type EngineProbe,
+} from './fingerprint.js';
 import { materializeComposition, type MaterializedComposition } from './materialize.js';
 import { startMemorySampler } from './proctree.js';
 import { rendererTemplates, type RendererTemplateRegistry } from './templates/index.js';
@@ -62,6 +69,17 @@ export interface RenderOptions {
   readonly parentEnv?: NodeJS.ProcessEnv;
   /** Оставить `tmpDir/composition` и кадры после прогона — для отладки. */
   readonly keepTmp?: boolean;
+  /**
+   * Записанный отпечаток окружения — тот, при котором сегмент клали в кэш (`L-01`).
+   *
+   * **R14**: расхождение фактического дерева с записанным есть ПАДЕНИЕ СБОРКИ, а не
+   * предупреждение (ADR-0006 §3). Сборка сегмента — тоже сборка, поэтому сверка стоит ЗДЕСЬ
+   * и ДО рендера: обнаружить смену растеризатора после 1800 кадров дороже, чем до первого.
+   *
+   * Отсутствует — сверять не с чем (записи ещё нет): отпечаток тогда просто СЧИТАЕТСЯ и
+   * возвращается в `RenderResponse.engineFingerprint`, а полнота пробы проверяется всё равно.
+   */
+  readonly recordedEngineProbe?: EngineProbe;
   /**
    * Подмена запуска — ТОЛЬКО для тестов R2/R3, которым браузер не нужен.
    *
@@ -213,6 +231,8 @@ export async function renderSegment(
   const parentEnv = options.parentEnv ?? {};
   const framesDir = path.join(request.tmpDir, 'frames');
   let composition: MaterializedComposition | null = null;
+  let probe: EngineProbe | null = null;
+  let engine: EngineFingerprint | null = null;
 
   try {
     const cliPath = options.cliPath ?? defaultCliPath();
@@ -226,7 +246,7 @@ export async function renderSegment(
     if (options.spawnRenderer === undefined) {
       ffmpegPath = requireTool('ffmpeg', options.ffmpegPath, parentEnv);
       ffprobePath = requireTool('ffprobe', options.ffprobePath, parentEnv);
-      const chrome = browserPath(cliPath, parentEnv);
+      const chrome: string | null = browserPath(cliPath, parentEnv);
       if (chrome === null) {
         throw new RenderAdapterError(
           'preflight',
@@ -245,6 +265,26 @@ export async function renderSegment(
           ],
         );
       }
+
+      // ── отпечаток окружения: R14, ДО материализации и ДО рендера ────────────
+      // Меряется ТЕМИ ЖЕ резолверами, что и запуск выше (`browserPath`, `resolveOnPath`), —
+      // отпечаток обязан описывать то, что запускается, а не то, что нашлось похожего.
+      probe = collectEngineProbe({
+        parentEnv,
+        cliPath,
+        ffmpegPath,
+        ffprobePath,
+        // Резолвер УЖЕ отработал десятью строками выше. Передаётся его результат, а не второй
+        // вызов: `hyperframes browser path` — подпроцесс на 2–3 с, и второй его запуск стоил
+        // бы столько же на КАЖДОМ сегменте, отвечая ровно то же самое. Источник правды при
+        // этом остаётся один — тот самый `browserPath`; здесь только не спрашивается дважды.
+        browserPath: () => chrome,
+        resolveOnPath,
+      });
+      // Падает — не рендерим: сегмент, собранный другим растеризатором, валиден по ключу и
+      // неверен по пикселям, а это самая дорогая ошибка из тех, что ловит ADR-0006.
+      assertEngineMatches(options.recordedEngineProbe ?? null, probe);
+      engine = computeEngineFingerprint(probe);
     }
 
     // ── материализация ──────────────────────────────────────────────────────
@@ -344,6 +384,8 @@ export async function renderSegment(
       ok: true,
       frames,
       engineCompositionHash: engineCompositionHashOf(trace),
+      engineFingerprint: engine?.fingerprint ?? null,
+      engineProbe: probe,
       stats: {
         wallMs: options.clock() - started,
         // `retries` — поле ADR-0008. Повторов у адаптера НЕТ: политика ретраев — часть

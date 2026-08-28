@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { renderArgs, renderEnv } from '../src/argv.js';
+import { FIXED_RENDER_ARGS, FIXED_RENDER_ENV, renderArgs, renderEnv } from '../src/argv.js';
 import { RenderAdapterError } from '../src/errors.js';
 
 const base = {
@@ -117,5 +117,60 @@ describe('`renderEnv` — четыре `HYPERFRAMES_NO_*`, `TZ`, `LC_ALL`, пу�
 
   it('остальное окружение родителя проезжает насквозь', () => {
     expect(env['PATH']).toBe('/usr/bin');
+  });
+});
+
+// ── H-03: фиксированная часть строки запуска — слагаемое `engineFingerprint` ──────────────
+//
+// Константы обязаны быть НЕ МЁРТВЫМИ и НЕ РАСХОДЯЩИМИСЯ с реальной строкой запуска. Иначе
+// отпечаток нёс бы «наши флаги», которых рендерер не получает, — то есть измерял бы намерение
+// автора константы, а не запуск. Проверяется в обе стороны: всё фиксированное присутствует в
+// выводе, и в выводе нет фиксированных токенов сверх перечня.
+describe('`FIXED_RENDER_ARGS`/`FIXED_RENDER_ENV` — вход отпечатка (`H-03`)', () => {
+  it('все фиксированные токены присутствуют в реальном выводе `renderArgs`', () => {
+    const args = renderArgs(base);
+    for (const token of FIXED_RENDER_ARGS) expect(args).toContain(token);
+  });
+
+  it('строка запуска разлагается на ТРИ названные группы, и четвёртой нет', () => {
+    // ИЗМЕРЕНИЕ по вычитанию: два входа, различающиеся ВСЕМИ профильными полями и путями.
+    // Общее у них — это (1) наши пришпиленные значения и (2) ИМЕНА профильных флагов.
+    // Разница — (3) значения профилей и пути машины. Тест держит границу между группами:
+    // токен, переехавший из (3) в (1), — это профильное значение, уехавшее в отпечаток
+    // (запрет M9), а переехавший из (1) в (3) — пришпиленное значение, выпавшее из ключа.
+    const a = renderArgs(base);
+    const b = renderArgs({
+      compositionDir: '/other/composition',
+      framesDir: '/other/frames',
+      fps: { num: 60, den: 1 },
+      pixelProfile: { browserGpu: true, scale: 1, imageFormat: 'png' },
+      executionProfile: { workers: 9, segmentTimeoutMs: 1 },
+    });
+    /** Имена флагов, ЗНАЧЕНИЕ которых берётся из профиля. В отпечаток не входят вместе с ним. */
+    const PROFILE_FLAG_NAMES = ['--fps', '--workers'];
+    const common = a.filter((token) => b.includes(token)).sort();
+    expect(common).toEqual([...FIXED_RENDER_ARGS, ...PROFILE_FLAG_NAMES].sort());
+
+    // Группа (3) — ровно значения профилей и два пути, ни одного лишнего токена.
+    const varying = a.filter((token) => !common.includes(token));
+    expect(varying.sort()).toEqual(
+      ['/tmp/seg/composition', '/tmp/seg/frames', '1', '30', '--no-browser-gpu'].sort(),
+    );
+  });
+
+  it('`renderEnv` строится ИЗ `FIXED_RENDER_ENV`: разъехаться они не могут', () => {
+    const env = renderEnv({ parentEnv: {}, ffmpegPath: '/a', ffprobePath: '/b' });
+    for (const [key, value] of Object.entries(FIXED_RENDER_ENV)) expect(env[key]).toBe(value);
+  });
+
+  it('пути ffmpeg/ffprobe в фиксированную часть НЕ входят (машинный шум)', () => {
+    expect(Object.keys(FIXED_RENDER_ENV)).not.toContain('HYPERFRAMES_FFMPEG_PATH');
+    expect(Object.keys(FIXED_RENDER_ENV)).not.toContain('HYPERFRAMES_FFPROBE_PATH');
+  });
+
+  it('профильные флаги в фиксированную часть НЕ входят (M9 + K1)', () => {
+    for (const flag of ['--fps', '--workers', '--no-browser-gpu']) {
+      expect(FIXED_RENDER_ARGS).not.toContain(flag);
+    }
   });
 });

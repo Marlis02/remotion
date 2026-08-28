@@ -14,8 +14,10 @@ pixelProfile:
   browserGpu: false               # --no-browser-gpu: софтверный путь, независимый от GPU и драйвера
                                   # (ADR-0008; FACT SP-3c §2: цена отказа от GPU — 27 %, зато
                                   # растеризация не зависит от видеокарты и не перемеряется при её смене)
-  imageFormat: jpeg
-  jpegQuality: 90
+  imageFormat: png                # jpeg рендерером не выражается, №154 (решение владельца 2026-08-28)
+  # jpegQuality: 90               # не используется при png; схема render-profile/1 его при png
+                                  # ЗАПРЕЩАЕТ, поэтому строка закомментирована, а не оставлена.
+                                  # Сужение схемы — DOC-06
   scale: 1
   colorSpace: bt709
   pixelFormat: yuv420p

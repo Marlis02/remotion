@@ -111,9 +111,9 @@ fields (39):
   20. pixelProfile.browserGpu : json
       = false
   21. pixelProfile.imageFormat : text
-      = "jpeg"
+      = "png"
   22. pixelProfile.jpegQuality : json
-      = [90]
+      = []
   23. pixelProfile.scale : json
       = 1
   24. pixelProfile.colorSpace : text

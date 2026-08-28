@@ -20,6 +20,8 @@
 
 import type { IrAssetRef, IrFontRef, RenderIrSegment } from '@vpe/core-model';
 
+import type { EngineProbe } from './fingerprint.js';
+
 /**
  * `Sha256` — БРЕНД, взятый у типа модели, а не объявленный заново.
  *
@@ -176,6 +178,20 @@ export type RenderResponse =
       readonly ok: true;
       readonly frames: RenderedFrames;
       readonly engineCompositionHash: string | null;
+      /**
+       * `engineFingerprint` — ИЗМЕРЕННОЕ окружение этого прогона (ADR-0006 §3, **R14**).
+       *
+       * Строка — то, что входит в `segmentKey` ровно один раз; `engineProbe` — поля, из
+       * которых она посчитана: без них расхождение читалось бы как «две разные строки», а
+       * не как «версия ffmpeg сменилась с 6.1.1 на 7.0.2» (решение владельца `H-03`,
+       * вопрос 1: ответ несёт И строку, И пробу).
+       *
+       * `null` у обоих означает, что прогон шёл с подставленным запускателем (тесты R2/R3):
+       * там настоящего рендерера нет, и мерить окружение, которого прогон не коснётся, —
+       * значит записать измерение, которого не было.
+       */
+      readonly engineFingerprint: string | null;
+      readonly engineProbe: EngineProbe | null;
       readonly stats: RenderStats;
     }
   | {
@@ -189,3 +205,6 @@ export type RenderResponse =
 
 /** Реэкспорт для читателя контракта: чем адресуются ассеты и шрифты внутри IR. */
 export type { IrAssetRef, IrFontRef, RenderIrSegment };
+
+/** Реэкспорт: форма измеренного окружения, лежащая в ответе (`H-03`). */
+export type { EngineProbe };

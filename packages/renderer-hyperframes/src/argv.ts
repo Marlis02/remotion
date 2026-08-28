@@ -22,6 +22,33 @@
 import type { ExecutionProfileInput, FpsFraction, PixelProfileInput } from './contract.js';
 import { RenderAdapterError } from './errors.js';
 
+/**
+ * ФИКСИРОВАННАЯ (профиль-НЕЗАВИСИМАЯ) часть строки запуска — слагаемое `engineFingerprint`
+ * (`H-03`, ADR-0006 §3 «фактическая строка запуска Chrome»).
+ *
+ * ПОЧЕМУ ЗДЕСЬ ТОЛЬКО ЭТИ ТОКЕНЫ. Остальное, что уезжает в командную строку, — ЗНАЧЕНИЯ
+ * ПРОФИЛЕЙ (`--fps`, `--workers`, `--no-browser-gpu`) и пути текущей машины
+ * (`compositionDir`, `framesDir`). Значения профилей в отпечаток не входят по двум причинам
+ * сразу: M9 («профиль — намерение, отпечаток — измерение») и K1 (`pixelProfile.browserGpu`
+ * и `compileProfile.fps.*` уже перечислены в `views/segment.json`, второй учёт той же
+ * величины запрещён ADR-0006 §3). Пути — шум машины: их содержимое меряется отдельно.
+ *
+ * Остаётся ровно то, что пришпилили МЫ и что при этом не видно ни в одном профиле: формат
+ * вывода (`png-sequence`, **R10**) и `--quiet`. Смена любого из них — смена растеризации или
+ * потока трассы при НЕИЗМЕННОМ профиле, то есть ровно тот класс тихой ошибки, ради которого
+ * написан ADR-0006.
+ *
+ * Не мёртвая константа: `renderArgs` строится ИЗ неё (тест `argv.test.ts` требует, чтобы все
+ * её токены присутствовали в выводе, а вывод не содержал фиксированных токенов сверх неё).
+ */
+export const FIXED_RENDER_ARGS: readonly string[] = Object.freeze([
+  'render',
+  '-o',
+  '--format',
+  'png-sequence',
+  '--quiet',
+]);
+
 export interface RenderArgsInput {
   /** Каталог композиции (== `bundle.path`). */
   readonly compositionDir: string;
@@ -60,13 +87,20 @@ export function renderArgs(input: RenderArgsInput): string[] {
     );
   }
 
+  const [verb, outFlag, formatFlag, formatValue, quietFlag] = FIXED_RENDER_ARGS as [
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
   const args = [
-    'render',
+    verb,
     input.compositionDir,
-    '-o',
+    outFlag,
     input.framesDir,
-    '--format',
-    'png-sequence',
+    formatFlag,
+    formatValue,
     '--fps',
     String(fps.num),
     '--workers',
@@ -75,7 +109,7 @@ export function renderArgs(input: RenderArgsInput): string[] {
   // Флаг ставится ТОЛЬКО при `browserGpu: false` — так снятие поля профиля видно в аргументах,
   // а не прячется за «мы всё равно всегда так делаем».
   if (!pixelProfile.browserGpu) args.push('--no-browser-gpu');
-  args.push('--quiet');
+  args.push(quietFlag);
   return args;
 }
 
@@ -94,15 +128,27 @@ export interface RenderEnvInput {
  * `ffmpeg-static`/`ffprobe-static` в проекте нет; путь передаётся значением, а не надеждой
  * на `PATH`.
  */
+/**
+ * ФИКСИРОВАННАЯ часть окружения подпроцесса — вторая половина слагаемого «строка запуска»
+ * в `engineFingerprint` (`H-03`).
+ *
+ * Пути к ffmpeg/ffprobe сюда НЕ входят: они машинно-зависимы, а то, что за ними стоит,
+ * меряется отпечатком отдельными полями (`ffmpeg`/`ffprobe` — первая строка `-version`).
+ * `renderEnv` строится ИЗ этой константы, поэтому разъехаться они не могут.
+ */
+export const FIXED_RENDER_ENV: Readonly<Record<string, string>> = Object.freeze({
+  TZ: 'UTC',
+  LC_ALL: 'C',
+  HYPERFRAMES_NO_TELEMETRY: '1',
+  HYPERFRAMES_NO_UPDATE_CHECK: '1',
+  HYPERFRAMES_NO_FEEDBACK: '1',
+  HYPERFRAMES_SKIP_SKILLS: '1',
+});
+
 export function renderEnv(input: RenderEnvInput): NodeJS.ProcessEnv {
   return {
     ...input.parentEnv,
-    TZ: 'UTC',
-    LC_ALL: 'C',
-    HYPERFRAMES_NO_TELEMETRY: '1',
-    HYPERFRAMES_NO_UPDATE_CHECK: '1',
-    HYPERFRAMES_NO_FEEDBACK: '1',
-    HYPERFRAMES_SKIP_SKILLS: '1',
+    ...FIXED_RENDER_ENV,
     HYPERFRAMES_FFMPEG_PATH: input.ffmpegPath,
     HYPERFRAMES_FFPROBE_PATH: input.ffprobePath,
   };

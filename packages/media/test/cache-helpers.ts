@@ -22,11 +22,15 @@ import {
 
 import type { ComposeKeyInput, SegmentKeyInput } from '../src/index.js';
 
-import { COMPILE_PROFILE_FILE, REPO, compileProfileFixture, renderProfileFixture } from './assemble-helpers.js';
+import {
+  COMPILE_PROFILE_FILE,
+  REPO,
+  RENDER_DRAFT_FILE,
+  compileProfileFixture,
+  renderProfileFixture,
+} from './assemble-helpers.js';
 
-export { COMPILE_PROFILE_FILE, REPO, compileProfileFixture, renderProfileFixture };
-
-export const RENDER_DRAFT_FILE = path.join(REPO, 'fixtures/minimal/profiles/render.draft.yaml');
+export { COMPILE_PROFILE_FILE, REPO, RENDER_DRAFT_FILE, compileProfileFixture, renderProfileFixture };
 export const AUDIO_FILE = path.join(REPO, 'fixtures/minimal/profiles/audio.yaml');
 
 /** Настоящий `audio-profile/1` фикстуры — тем же читателем, что и остальные профили. */

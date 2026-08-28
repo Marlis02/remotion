@@ -20,6 +20,7 @@ import {
 
 import {
   RENDER_AC4_FILE,
+  RENDER_DRAFT_FILE,
   RENDER_FINAL_FILE,
   compileProfileFixture,
   renderProfileFixture,
@@ -30,6 +31,11 @@ import { AudioProfileSchema, readFamily, type AudioProfile } from '@vpe/schema';
 
 const AC4 = renderProfileFixture(RENDER_AC4_FILE);
 const FINAL = renderProfileFixture(RENDER_FINAL_FILE);
+// ОБРАЗЕЦ jpeg-профиля — `draft` (`H-03`, 2026-08-28, решение владельца). После правки №154
+// у `final` стоит `imageFormat: png`, и негативный тест «шаблон кадра обязан соответствовать
+// `imageFormat`» на нём стережёт пустое место. `draft` остался `imageFormat: jpeg`.
+// Правило не ослаблено — сменён образец.
+const DRAFT = renderProfileFixture(RENDER_DRAFT_FILE);
 const COMPILE = compileProfileFixture();
 
 function audioProfile(): AudioProfile {
@@ -166,14 +172,14 @@ describe('`M-04` — аргументы кодирования сегмента'
   it('шаблон кадра обязан соответствовать `imageFormat`', () => {
     // Без этой проверки `imageFormat` и `jpegQuality` не исполняет никто: ffmpeg определяет
     // формат по содержимому и съел бы PNG при `imageFormat: jpeg` молча.
-    expect(FINAL.pixelProfile.imageFormat).toBe('jpeg');
+    expect(DRAFT.pixelProfile.imageFormat).toBe('jpeg');
     expect(() =>
       segmentEncodeArgs({
         framePattern: '/tmp/f/%06d.png',
         startNumber: 1,
         frameCount: 1,
         fps: COMPILE.fps,
-        pixelProfile: FINAL.pixelProfile,
+        pixelProfile: DRAFT.pixelProfile,
         outputPath: '/tmp/a.mts',
       }),
     ).toThrow(AssembleError);

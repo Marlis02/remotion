@@ -34,6 +34,11 @@ export const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 
 export const RENDER_AC4_FILE = path.join(REPO, 'fixtures/minimal/profiles/render.ac4.yaml');
 export const RENDER_FINAL_FILE = path.join(REPO, 'fixtures/minimal/profiles/render.final.yaml');
+// Переехал сюда из `cache-helpers.ts` (`H-03`, 2026-08-28): после правки №154 `draft` —
+// ЕДИНСТВЕННЫЙ образец с `imageFormat: jpeg`, и нужен он теперь обоим файлам тестов.
+// Определение одно; `cache-helpers.ts` его реэкспортирует, адрес импорта у прежних
+// читателей не меняется.
+export const RENDER_DRAFT_FILE = path.join(REPO, 'fixtures/minimal/profiles/render.draft.yaml');
 export const COMPILE_PROFILE_FILE = path.join(REPO, 'fixtures/minimal/profiles/compile.yaml');
 export const AUDIO_PROFILE_FILE = path.join(REPO, 'fixtures/minimal/profiles/audio.yaml');
 
