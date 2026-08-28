@@ -318,8 +318,10 @@ export function collectEngineProbe(input: EngineProbeInput): EngineProbe {
     'chrome-headless-shell',
     timeoutMs,
     'в `$HOME/.cache/hyperframes/chrome/chrome-headless-shell` нет установки браузера — ' +
-      'скачайте её (`pnpm --filter @vpe/renderer-hyperframes preflight`). Чужой puppeteer-кэш ' +
-      'не читается намеренно (долг №160)',
+      'скачайте её (`pnpm --filter @vpe/renderer-hyperframes preflight`). Лежащий рядом чужой ' +
+      'puppeteer-кэш не является браузером этого пакета и не читается: его версию выбирает ' +
+      'посторонний инструмент, и рендер на нём дал бы другую растеризацию при том же ключе ' +
+      'кэша (долг №160)',
   );
 
   // ── ffmpeg/ffprobe: ТЕ бинари, которые получит HyperFrames через env ───────

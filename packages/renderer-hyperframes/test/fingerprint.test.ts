@@ -104,9 +104,12 @@ describe('`computeEngineFingerprint` — чистая функция пробы'
 });
 
 describe('`absent`-Chrome: отпечаток СЧИТАЕТСЯ, сборка — НЕТ', () => {
+  // Текст причины — ФИКСТУРА теста, а не продакшн-строка: проверяется, что причина ЛЮБОГО
+  // поля доезжает до отказа. Формулировка обновлена `H-05fix` вслед за резолвером — прежняя
+  // («`hyperframes browser path` не вернул пути») описывала механизм, которого больше нет.
   const noChrome = withField(full, 'chrome', {
     state: 'absent',
-    reason: '`hyperframes browser path` не вернул существующего пути',
+    reason: 'в `$HOME/.cache/hyperframes/chrome/chrome-headless-shell` нет установки браузера',
   });
 
   it('отпечаток на неполной пробе считается — иначе функцию нельзя проверить без браузера', () => {
@@ -136,7 +139,7 @@ describe('`absent`-Chrome: отпечаток СЧИТАЕТСЯ, сборка �
         'engineFingerprint.ffmpeg',
         'engineFingerprint.ffprobe',
       ]);
-      expect(e.problems[0]?.message).toContain('browser path');
+      expect(e.problems[0]?.message).toContain('нет установки браузера');
       expect(e.problems[1]?.message).toContain('PATH');
     }
   });
