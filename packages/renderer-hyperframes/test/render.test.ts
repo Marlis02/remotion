@@ -30,6 +30,12 @@ import { renderSegment } from '../src/run.js';
 import { validateRequest } from '../src/validate.js';
 import { makeFixture, withPatch } from './fixture.js';
 import { TEST_REGISTRY } from './solid.js';
+/**
+ * **R12** (`H-04`): у `renderSegment` нет умолчания «рендерить без гейта» — решение о
+ * проходе принимается ЯВНО и с причиной. Здесь причина одна на файл: тест адаптера (`H-01`), а не сборка ролика: гейта V13 у синтетического `solid@1` нет и быть не может.
+ */
+const GATE_SKIP = { mode: 'skip', why: 'тест адаптера (`H-01`), а не сборка ролика: гейта V13 у синтетического `solid@1` нет и быть не может' } as const;
+
 
 /** Полный `pixelProfile` из `fixtures/minimal/profiles/render.ac4.yaml` — для `media`. */
 const AC4_PIXEL_PROFILE = {
@@ -70,6 +76,7 @@ async function renderOnce(seq: number): Promise<{ artifact: SegmentArtifact; eng
   // `compose`); здесь её узнаёт тест — тем же способом, каким узнает `L-01`.
   const probe = await renderSegment(fixture.request, {
     clock: fakeClock(),
+    gate: GATE_SKIP,
     registry: TEST_REGISTRY,
     spawnRenderer: () => Promise.resolve(0),
   });
@@ -83,6 +90,7 @@ async function renderOnce(seq: number): Promise<{ artifact: SegmentArtifact; eng
 
   const response = await renderSegment(request, {
     clock: fakeClock(),
+    gate: GATE_SKIP,
     registry: TEST_REGISTRY,
     parentEnv: process.env,
   });
@@ -174,6 +182,7 @@ describe('отказы до браузера остаются отказами �
       const fixture = makeFixture({ frames: 2, template: 'kenburns@1' });
       const response = await renderSegment(fixture.request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         parentEnv: process.env,
       });
@@ -191,6 +200,7 @@ describe('отказы до браузера остаются отказами �
       const fixture = makeFixture({ frames: 2 });
       const probe = await renderSegment(fixture.request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         spawnRenderer: () => Promise.resolve(0),
         keepTmp: true,
@@ -203,6 +213,7 @@ describe('отказы до браузера остаются отказами �
       );
       await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         parentEnv: process.env,
         keepTmp: true,
@@ -214,3 +225,4 @@ describe('отказы до браузера остаются отказами �
     TIMEOUT,
   );
 });
+

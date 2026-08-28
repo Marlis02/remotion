@@ -25,7 +25,59 @@
 
 import { readFileSync } from 'node:fs';
 
-import { renderSegment, validateRequest, RenderAdapterError, type RenderResponse } from '../src/index.js';
+import { GATE_PROFILES, createRegistry, FIXTURE_TEMPLATES, type GateProfileId } from '@vpe/templates-spec';
+
+import {
+  renderSegment,
+  validateRequest,
+  RenderAdapterError,
+  type RenderOptions,
+  type RenderResponse,
+} from '../src/index.js';
+
+/**
+ * Решение о гейте **R12** из аргументов: дефолт — `require` (решение владельца `H-04`, вопрос 2).
+ *
+ * `--gate-skip <причина>` — осознанный проход мимо охранника, и причина ОБЯЗАТЕЛЬНА: она
+ * приезжает аргументом, потому что подпроцесс запускает не человек, а `vpe build`, и «почему
+ * этот сегмент собирается без гейта» обязано быть видно в командной строке, а не в умолчании.
+ *
+ * `--gate-profile final|draftHalf` — какая ПАРА проверяется. Умолчание `final`: профиль
+ * выпуска; черновик называется явно.
+ *
+ * РЕЕСТР СПЕКОВ — ФИКСТУРНЫЙ, И ЭТО СЕГОДНЯШНЕЕ СОСТОЯНИЕ, А НЕ ЗАГЛУШКА. Настоящей библиотеки
+ * шаблонов ещё нет (`E-00`/`H-06`); у пяти фикстурных спеков `gates: []`, то есть `require`
+ * ОТКАЖЕТ, и это правильный ответ: ни один шаблон гейта пока не проходил. Когда библиотека
+ * появится, здесь поменяется одна строка — источник реестра.
+ */
+function gateFromArgv(argv: readonly string[]): NonNullable<RenderOptions['gate']> {
+  const skipAt = argv.indexOf('--gate-skip');
+  if (skipAt >= 0) {
+    const why = argv[skipAt + 1] ?? '';
+    return { mode: 'skip', why };
+  }
+  const profileAt = argv.indexOf('--gate-profile');
+  const given = profileAt >= 0 ? (argv[profileAt + 1] ?? '') : 'final';
+  const profileId = (GATE_PROFILES as readonly string[]).includes(given)
+    ? (given as GateProfileId)
+    : null;
+  if (profileId === null) {
+    throw new RenderAdapterError(
+      'R12',
+      `\`--gate-profile ${given}\` — не профиль гейта; их ровно два: ${GATE_PROFILES.join(', ')}`,
+      [
+        {
+          rule: 'R12',
+          at: '--gate-profile',
+          message:
+            '`render.ac4.yaml` формально тоже пара, но гейта шаблона на нём нет: он остаётся ' +
+            'полным прогоном фикстурного проекта (решение владельца 12, RM1)',
+        },
+      ],
+    );
+  }
+  return { mode: 'require', specs: createRegistry(FIXTURE_TEMPLATES), profileId };
+}
 
 function readStdin(): string {
   try {
@@ -54,6 +106,9 @@ async function main(): Promise<number> {
       // ЕДИНСТВЕННОЕ чтение системного времени во всём пакете — см. шапку.
       clock: () => Date.now(),
       parentEnv: process.env,
+      // **R12**: сборка сегмента без записи гейта не стартует. Умолчания «рендерить» нет —
+      // см. `gateFromArgv`.
+      gate: gateFromArgv(process.argv.slice(2)),
     });
   } catch (err) {
     if (err instanceof RenderAdapterError) {

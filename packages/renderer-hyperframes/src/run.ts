@@ -37,6 +37,8 @@ import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
+import { assertBuildMayStart, type GateProfileId, type TemplateRegistry } from '@vpe/templates-spec';
+
 import type { RenderResponse, RenderedFrames, SegmentRenderRequest } from './contract.js';
 import { renderArgs, renderEnv } from './argv.js';
 import { pinnedBrowserPath, resolvePinnedBrowser } from './browser.js';
@@ -112,6 +114,28 @@ export interface RenderOptions {
    */
   readonly browserPath?: string;
   /**
+   * **R12: сборка сегмента не стартует без записи гейта для пары** (Charter V13, ADR-0008).
+   *
+   * ПОЛЕ ОБЯЗАТЕЛЬНО, И У НЕГО НЕТ УМОЛЧАНИЯ «рендерить» (решение владельца `H-04`, вопрос 2).
+   * Вызов без него — отказ правилом `R12`, а не тихий проход: правило «сборка без гейта не
+   * стартует» обязано держаться на ПОВЕДЕНИИ ФУНКЦИИ, а не на дисциплине вызывающего, иначе
+   * первый же забывший его вызов соберёт ролик на непроверенной паре и об этом никто не узнает.
+   *
+   * `mode: 'require'` — проверяется ПАРА (профиль, отпечаток) по реестру спеков; отпечаток
+   * берётся ИЗМЕРЕННЫЙ этим же прогоном (`H-03`), а не поданный. `mode: 'skip'` — осознанный
+   * проход мимо охранника, и `why` у него ОБЯЗАТЕЛЕН непустой: это след в коде, почему вызов
+   * смеет мимо гейта (тест адаптера, снятие самого гейта).
+   */
+  readonly gate?:
+    | {
+        readonly mode: 'require';
+        /** Реестр спеков шаблонов (`templates-spec`), где живут манифесты с записями гейта. */
+        readonly specs: TemplateRegistry;
+        /** `final` (N = 10) либо `draftHalf` (N = 3). `render.ac4.yaml` парой гейта не является. */
+        readonly profileId: GateProfileId;
+      }
+    | { readonly mode: 'skip'; readonly why: string };
+  /**
    * Подмена запуска — ТОЛЬКО для тестов R2/R3, которым браузер не нужен.
    *
    * Отдельным полем, а не «если не найден CLI»: подмена обязана быть видимой в вызове, иначе
@@ -136,8 +160,13 @@ export function browserPath(parentEnv: NodeJS.ProcessEnv): string | null {
   return pinnedBrowserPath(parentEnv);
 }
 
-/** CLI HyperFrames в `node_modules` пакета. */
-function defaultCliPath(): string {
+/**
+ * CLI HyperFrames в `node_modules` пакета.
+ *
+ * Экспортируется с `H-04`: гейт снимает пробу окружения ДО и ПОСЛЕ прогонов теми же
+ * резолверами, что и рендер, — иначе проба описывала бы не то, что запускалось.
+ */
+export function defaultCliPath(): string {
   return require.resolve('hyperframes/bin/hyperframes.mjs');
 }
 
@@ -261,6 +290,12 @@ export async function renderSegment(
   let tools: IsolationTools | null = null;
 
   try {
+    // ── R12 ДО ВСЕГО, что стоит денег ──────────────────────────────────────
+    // Решение владельца `H-04` (вопрос 2): у поля `gate` нет умолчания. Отсутствие решения —
+    // это отказ, и он обязан случиться ДО preflight'а, материализации и браузера: «сборка не
+    // стартует» означает «не стартует», а не «стартует и падает через две минуты».
+    assertGateDecided(options.gate);
+
     const cliPath = options.cliPath ?? defaultCliPath();
 
     // ── preflight ───────────────────────────────────────────────────────────
@@ -307,6 +342,12 @@ export async function renderSegment(
       assertEngineMatches(options.recordedEngineProbe ?? null, probe);
       engine = computeEngineFingerprint(probe);
     }
+
+    // ── R12: пара (профиль, отпечаток) ──────────────────────────────────────
+    // ПОСЛЕ отпечатка и ДО материализации: проверяется ПАРА целиком, а отпечаток — ИЗМЕРЕННЫЙ
+    // этим прогоном, а не поданный вызывающим. Запись, сверенная только по имени профиля, «не
+    // отличима от „прогнали когда-то на другой машине“» (**R12**).
+    assertGatePassed(options.gate, request, engine?.fingerprint ?? null);
 
     // ── материализация ──────────────────────────────────────────────────────
     composition = materializeComposition(request, {
@@ -490,6 +531,94 @@ export async function renderSegment(
     if (options.keepTmp !== true && composition !== null) {
       rmSync(composition.dir, { recursive: true, force: true });
     }
+  }
+}
+
+/**
+ * Отсутствие решения о гейте — отказ, называющий ОБА выхода (решение владельца `H-04`).
+ *
+ * Текст перечисляет и `require`, и `skip` намеренно: вызывающий, увидевший только один выход,
+ * выберет тот, который увидел, — а выбор здесь есть, и он осознанный в обе стороны.
+ */
+function assertGateDecided(gate: RenderOptions['gate']): void {
+  if (gate === undefined) {
+    throw new RenderAdapterError(
+      'R12',
+      'решение о гейте детерминизма шаблона не принято: поле `gate` не подано',
+      [
+        {
+          rule: 'R12',
+          at: 'RenderOptions.gate',
+          message:
+            'передайте `gate: {mode: \'require\', specs, profileId}` — сборка сегмента, ' +
+            'проверяющая пару (профиль, отпечаток) по записям гейта в манифестах, — либо ' +
+            '`gate: {mode: \'skip\', why: \'…\'}` с НЕПУСТОЙ причиной, если этот вызов не ' +
+            'сборка (тест адаптера, снятие самого гейта). Умолчания нет: правило Charter V13 ' +
+            '«ролик с непроверенным шаблоном не собирается» держится на поведении функции, а ' +
+            'не на памяти вызывающего',
+        },
+      ],
+    );
+  }
+  if (gate.mode === 'skip' && gate.why.trim() === '') {
+    throw new RenderAdapterError('R12', 'проход мимо гейта без причины: `gate.why` пуст', [
+      {
+        rule: 'R12',
+        at: 'RenderOptions.gate.why',
+        message:
+          'причина обязана быть непустой: это единственный след в коде, почему этот вызов ' +
+          'смеет мимо охранника. Пустая строка означала бы «просто так»',
+      },
+    ]);
+  }
+}
+
+/**
+ * **R12** на измеренной паре. Шаблоны берутся из ВЫЗОВОВ IR — того, что сегмент реально
+ * рисует, а не из списка, поданного отдельно: второй список разошёлся бы с первым.
+ */
+function assertGatePassed(
+  gate: RenderOptions['gate'],
+  request: SegmentRenderRequest,
+  engineFingerprint: string | null,
+): void {
+  if (gate === undefined || gate.mode === 'skip') return;
+  if (engineFingerprint === null) {
+    throw new RenderAdapterError(
+      'R12',
+      'гейт затребован (`gate.mode: \'require\'`), но отпечаток окружения этим прогоном не ' +
+        'измерен',
+      [
+        {
+          rule: 'R12',
+          at: 'RenderOptions.gate.mode',
+          message:
+            'отпечаток не меряется при подставленном запускателе (`spawnRenderer`): настоящего ' +
+            'рендерера в таком прогоне нет. Проверять пару не с чем — либо уберите подмену, ' +
+            'либо назовите проход причиной: `gate: {mode: \'skip\', why: \'…\'}`',
+        },
+      ],
+    );
+  }
+  try {
+    assertBuildMayStart(
+      gate.specs,
+      request.ir.clips.map((clip) => clip.template),
+      { profileId: gate.profileId, engineFingerprint },
+    );
+  } catch (error) {
+    // Текст `TemplateSpecError` перечисляет ВСЕ шаблоны без записи и несёт команду пересъёмки
+    // — он и есть отказ; здесь он только меняет тип на ошибку адаптера, чтобы приехать
+    // вызывающему той же формой, что и остальные отказы (`RenderResponse.error`).
+    throw new RenderAdapterError('R12', error instanceof Error ? error.message : String(error), [
+      {
+        rule: 'R12',
+        at: `ir.clips[].template (профиль \`${gate.profileId}\`, отпечаток \`${engineFingerprint}\`)`,
+        message:
+          'запись гейта ставит АВТОР командой `vpe template gate <id>@<N> --profile ' +
+          'final|draftHalf` (решение владельца 5, RM1) — ночного CI в v1 нет',
+      },
+    ]);
   }
 }
 

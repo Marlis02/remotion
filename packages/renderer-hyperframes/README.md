@@ -99,9 +99,53 @@ pnpm --filter @vpe/renderer-hyperframes preflight     # = hyperframes browser en
 `H-05` вместе с заморозкой глобалей и `ulimit` по RSS. Аналогично **R2**: каталоги вокруг
 `tmpDir`/`outputPath` проверяются `chmod 0555` в тесте, полный ro-namespace — тоже `H-05`.
 
-Ещё не здесь: квантование субтитров и тест **R13** (`H-02`), `engineFingerprint` (`H-03`),
-гейт детерминизма шаблона V13 (`H-04`), реализации шаблонов (`H-06`), команды `vpe build` и
-`vpe render-segment` (`L-01`/`L-02`).
+Ещё не здесь: квантование субтитров и тест **R13** (`H-02`), реализации шаблонов (`H-06`),
+команды `vpe build` и `vpe render-segment` (`L-01`/`L-02`). `engineFingerprint` появился с
+`H-03`, изоляция — с `H-05`, гейт детерминизма шаблона — с `H-04` (ниже).
+
+## Гейт детерминизма шаблона (`H-04`, Charter V13, **R12**)
+
+`runGate(input)` снимает гейт: **N прогонов одной конфигурации** (N = 10 на `final`, 3 на
+`draftHalf` — из схемы манифеста, не из литерала), две величины, три класса ADR-0008 плюс
+`error` («гейта не было»). Прогоны идут через `renderSegment`, то есть в тех же гарантиях,
+что и продакшн-сборка; второго пути рендера нет.
+
+### Обязанность вызывающего: порт `GateMedia`
+
+Кодирует кадры `media`, а стрелки `renderer-hyperframes → media` в карте ADR-0009 **нет**,
+поэтому кодирование приезжает ВХОДОМ. Склейка — три строки, и она одна на всех вызывающих
+(сегодня — браузерный тест, дальше `vpe template gate` из `E-00`):
+
+```ts
+const media: GateMedia = {
+  measure: async ({ frames, outputPath, stats }) => {
+    const artifact = await buildSegmentArtifact({ frames, pixelProfile, fps, outputPath, stats });
+    const md5 = await framemd5Of({ path: artifact.path });   // ПОКАДРОВЫЕ строки — вход `where`
+    return {
+      path: artifact.path,
+      sha256: artifact.sha256,
+      framemd5Sha256: artifact.framemd5Sha256,
+      framemd5Lines: md5.lines,
+      frameCount: artifact.frameCount,
+    };
+  },
+};
+```
+
+Без `framemd5Lines` гейт всё ещё классифицирует прогоны, но `where` не назовёт ни одного
+кадра: свёрнутый дайджест отвечает «та же ли картинка», а не «где она разошлась».
+
+### `gate` у `renderSegment` — умолчания «рендерить» нет
+
+`renderSegment` требует РЕШЕНИЯ о гейте (**R12**, решение владельца `H-04`):
+
+* `gate: {mode: 'require', specs, profileId}` — проверяется ПАРА (профиль, измеренный
+  `engineFingerprint`) по записям в манифестах спеков; нет записи, чужой отпечаток, чужой
+  профиль или класс не `PASS` — отказ правилом `R12`;
+* `gate: {mode: 'skip', why: '…'}` — осознанный проход, `why` обязателен непустой.
+
+Подпроцесс: `vpe-render-segment --gate-profile final|draftHalf` (умолчание `final`) либо
+`--gate-skip "<причина>"`.
 
 ### Тесты
 
@@ -115,7 +159,10 @@ pnpm --filter @vpe/renderer-hyperframes preflight     # = hyperframes browser en
 | `test/r2-r3.test.ts` | нет | **R2** (`chmod 0555`), **R3** (перехват `fs`) |
 | `test/boundaries.test.ts` | нет | стрелки пакета, которых охранник графа не видит |
 | `test/render.test.ts` | **да** | сквозной путь: IR → PNG → `media` → артефакт |
-| `test/subprocess.test.ts` | **да** | `bin/render-segment` через `spawn` |
+| `test/subprocess.test.ts` | **да** (кроме отказов) | `bin/render-segment` через `spawn`, **R12** на границе процесса |
+| `test/gate.test.ts` | нет | классы гейта, N из схемы, запись и то, что она открывает сборку |
+| `test/where.test.ts` | нет (нужен ffmpeg) | кадры → клипы IR, bbox и PSNR на известной разности |
+| `test/gate-render.test.ts` | **да** | живой гейт `solid@1`/`draftHalf`, **R12** делом, исключение ⇒ `error` |
 
 Skip'а по переменной у рендер-тестов **нет** (решение владельца, паритет с `M-03` п. 9):
 на машине без браузера они красные по окружению, и это свойство приёмки, а не тестов.

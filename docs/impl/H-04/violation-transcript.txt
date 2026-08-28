@@ -1,0 +1,44 @@
+ПРОТОКОЛ НАРУШЕНИЙ — `H-04` (гейт детерминизма шаблона V13)
+
+Правило: охранник, не проверенный падением, охранником не является. Каждое нарушение
+вносится В КОД `src/gate.ts` (резерв `cp`, откат тем же `cp`), прогоняется
+`pnpm vitest run packages/renderer-hyperframes/test/gate.test.ts`, и записывается,
+КАКОЙ тест покраснел и каким сообщением. После отката — зелёный прогон.
+
+── Н1. классификация по ОДНОЙ величине: `sha256` вместо `framemd5`, класс FLAKY недостижим
+   Tests  3 failed | 11 passed (14)
+   × FAIL: разошёлся framemd5 (кадры 7–9 третьего прогона) — `where` позван, записи НЕТ 6ms
+   × FLAKY-по-контейнеру: sha256 разные, framemd5 один — класс, диагноз про контейнер, записи НЕТ 2ms
+   × FAIL печатает `where` человекочитаемо — с клипом, а не с процентами 3ms
+     AssertionError: expected 'PASS' to be 'FAIL' // Object.is equality
+     TypeError: Cannot read properties of undefined (reading 'run')
+     AssertionError: expected 'ГЕЙТ: PASS · профиль `draftHalf` · N …' to contain 'ГЕЙТ: FAIL'
+
+── Н2. FAIL СОЗДАЁТ запись гейта (шаблон, не прошедший гейт, попадает в манифест)
+   Tests  1 failed | 13 passed (14)
+   × FAIL: разошёлся framemd5 (кадры 7–9 третьего прогона) — `where` позван, записи НЕТ 8ms
+     AssertionError: expected { class: 'FAIL', …(6) } to not have property "record"
+
+── Н3. `ac4` принят как пара гейта (третий профиль получает запись)
+   Tests  1 failed | 13 passed (14)
+   × `ac4` парой гейта не является — отказ ДО прогонов 4ms
+     TypeError: Cannot read properties of undefined (reading 'sha256')
+
+── Н4. ПОРЯДОК ВЕЛИЧИН ПЕРЕВЁРНУТ: расхождение контейнера классифицируется как FAIL
+   Tests  4 failed | 10 passed (14)
+   × FAIL: разошёлся framemd5 (кадры 7–9 третьего прогона) — `where` позван, записи НЕТ 6ms
+   × FLAKY-по-контейнеру: sha256 разные, framemd5 один — класс, диагноз про контейнер, записи НЕТ 2ms
+   × ПОРЯДОК ВЕЛИЧИН: расхождение и картинки, и файла — это FAIL, а не FLAKY 2ms
+   × FAIL печатает `where` человекочитаемо — с клипом, а не с процентами 3ms
+     AssertionError: expected 'PASS' to be 'FAIL' // Object.is equality
+     TypeError: Cannot read properties of undefined (reading 'run')
+     AssertionError: expected 'FLAKY-по-контейнеру' to be 'FAIL' // Object.is equality
+     AssertionError: expected 'ГЕЙТ: PASS · профиль `draftHalf` · N …' to contain 'ГЕЙТ: FAIL'
+
+── Н5. N — ЛИТЕРАЛ в обход схемы манифеста (`GATE_RUNS` не читается)
+   Tests  1 failed | 13 passed (14)
+   × `final` — 10 прогонов, `draftHalf` — 3, и обе величины взяты из `GATE_RUNS` 6ms
+     AssertionError: expected 3 to be 10 // Object.is equality
+
+── ОТКАТ (`cp` из резерва)
+   Test Files  2 passed (2) | Tests  25 passed (25)

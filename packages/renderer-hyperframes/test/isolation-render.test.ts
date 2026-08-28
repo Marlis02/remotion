@@ -33,6 +33,12 @@ import { SOLID_TEMPLATE } from './solid.js';
 import type { SegmentRenderRequest } from '../src/contract.js';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+/**
+ * **R12** (`H-04`): у `renderSegment` нет умолчания «рендерить без гейта» — решение о
+ * проходе принимается ЯВНО и с причиной. Здесь причина одна на файл: тест изоляции (`H-05`), а не сборка ролика: проверяется namespace и заморозка, не пара гейта.
+ */
+const GATE_SKIP = { mode: 'skip', why: 'тест изоляции (`H-05`), а не сборка ролика: проверяется namespace и заморозка, не пара гейта' } as const;
+
 
 const FRAMES = 6;
 const TIMEOUT = 300_000;
@@ -126,6 +132,7 @@ async function ready(
   });
   const probe = await renderSegment(withParams, {
     clock: fakeClock(),
+    gate: GATE_SKIP,
     registry: REGISTRY,
     spawnRenderer: () => Promise.resolve(0),
   });
@@ -171,6 +178,7 @@ describe('**R1**: сеть недоступна рендеру, и это ПРО
       const request = await ready('netprobe@1', { url });
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
         isolation: 'netns',
@@ -201,6 +209,7 @@ describe('**R1**: сеть недоступна рендеру, и это ПРО
       const request = await ready('netprobe@1', { url });
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
         isolation: 'none',
@@ -233,6 +242,7 @@ describe('**R1**: сеть недоступна рендеру, и это ПРО
     const request = await ready('solid@1');
     const response = await renderSegment(request, {
       clock: fakeClock(),
+      gate: GATE_SKIP,
       registry: REGISTRY,
       parentEnv: process.env,
       isolation,
@@ -258,6 +268,7 @@ describe('**D4**: заморозка глобалей роняет рендер 
       const request = await ready('randomizer@1');
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
       });
@@ -283,6 +294,7 @@ describe('**D4**: заморозка глобалей роняет рендер 
       const request = await ready('randomizerStatic@1');
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
       });
@@ -303,6 +315,7 @@ describe('**D4**: заморозка глобалей роняет рендер 
       const request = await ready('solid@1');
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
       });
@@ -319,6 +332,7 @@ describe('№160: отпечаток, окружение запуска и за�
       const request = await ready('solid@1');
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
       });
@@ -407,6 +421,7 @@ describe('№157: текст линт-ошибок доходит до авто�
       const request = await ready('solid@1');
       const response = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: REGISTRY,
         parentEnv: process.env,
         keepTmp: true,
@@ -445,3 +460,4 @@ const AC4_PIXEL_PROFILE = {
     bitexact: true,
   },
 } as unknown as Parameters<typeof buildSegmentArtifact>[0]['pixelProfile'];
+

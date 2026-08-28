@@ -65,6 +65,7 @@ export {
   browserLaunchLineOf,
   browserPath,
   compositionLintReport,
+  defaultCliPath,
   engineCompositionHashOf,
   launchCommand,
   pageErrorsOf,
@@ -74,6 +75,37 @@ export {
   type RenderOptions,
   type TraceRecord,
 } from './run.js';
+
+// Гейт детерминизма шаблона (`H-04`, Charter V13, **R12**) и его прибор `where`.
+export {
+  GATE_SKIP_WHY,
+  engineFingerprintProbe,
+  formatGateOutcome,
+  runGate,
+  type GateInput,
+  type GateMedia,
+  type GateMeasurement,
+  type GateMediaInput,
+  type GateOutcome,
+  type GateRenderFn,
+  type GateRun,
+} from './gate.js';
+
+export {
+  bboxOfDiff,
+  decodeRgb,
+  differingFramesOf,
+  formatWhereReport,
+  pngSize,
+  psnrOf,
+  whereReport,
+  type Bbox,
+  type ClipDivergence,
+  type FrameProbe,
+  type WhereOptions,
+  type WhereReport,
+  type WhereRun,
+} from './where.js';
 
 // Детерминированный выбор браузера (`H-05`, долг №160): правда о том, ЧТО ЗАПУСТИТСЯ.
 export {

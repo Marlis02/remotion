@@ -35,6 +35,12 @@ import { renderSegment } from '../src/run.js';
 import { validateRequest } from '../src/validate.js';
 import { makeFixture, PNG_1X1, withPatch } from './fixture.js';
 import { TEST_REGISTRY } from './solid.js';
+/**
+ * **R12** (`H-04`): у `renderSegment` нет умолчания «рендерить без гейта» — решение о
+ * проходе принимается ЯВНО и с причиной. Здесь причина одна на файл: тест R2/R3 с подставленным запускателем: настоящего рендерера нет, пару проверять нечем.
+ */
+const GATE_SKIP = { mode: 'skip', why: 'тест R2/R3 с подставленным запускателем: настоящего рендерера нет, пару проверять нечем' } as const;
+
 
 /** Часы теста: монотонный счётчик, а не `Date.now` — тест не измеряет время, он его подаёт. */
 const fakeClock = (): (() => number) => {
@@ -46,6 +52,7 @@ const fakeClock = (): (() => number) => {
 async function requestWithHash(fixture: ReturnType<typeof makeFixture>) {
   const probe = await renderSegment(fixture.request, {
     clock: fakeClock(),
+    gate: GATE_SKIP,
     registry: TEST_REGISTRY,
     spawnRenderer: () => Promise.resolve(0),
     keepTmp: true,
@@ -95,6 +102,7 @@ describe('R2 — адаптер пишет ТОЛЬКО в `tmpDir` и `outputPa
 
     const response = await renderSegment(request, {
       clock: fakeClock(),
+      gate: GATE_SKIP,
       registry: TEST_REGISTRY,
       spawnRenderer: fakeRenderer(3),
     });
@@ -120,6 +128,7 @@ describe('R2 — адаптер пишет ТОЛЬКО в `tmpDir` и `outputPa
     const request = await requestWithHash(fixture);
     const response = await renderSegment(request, {
       clock: fakeClock(),
+      gate: GATE_SKIP,
       registry: TEST_REGISTRY,
       spawnRenderer: fakeRenderer(2),
     });
@@ -138,6 +147,7 @@ describe('R2 — адаптер пишет ТОЛЬКО в `tmpDir` и `outputPa
     const request = await requestWithHash(fixture);
     const response = await renderSegment(request, {
       clock: fakeClock(),
+      gate: GATE_SKIP,
       registry: TEST_REGISTRY,
       spawnRenderer: fakeRenderer(1),
       keepTmp: true,
@@ -154,6 +164,7 @@ describe('R2 — адаптер пишет ТОЛЬКО в `tmpDir` и `outputPa
 
     await renderSegment(request, {
       clock: fakeClock(),
+      gate: GATE_SKIP,
       registry: TEST_REGISTRY,
       spawnRenderer: fakeRenderer(2),
     });
@@ -214,6 +225,7 @@ describe('R3 — адаптер открывает ТОЛЬКО файлы за�
     const { opened } = await withFsSpy(async () =>
       renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         spawnRenderer: fakeRenderer(2),
       }),
@@ -274,3 +286,4 @@ describe('R3 — адаптер открывает ТОЛЬКО файлы за�
     expect(opened).not.toContain(alienPath);
   });
 });
+

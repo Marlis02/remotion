@@ -22,6 +22,12 @@ import { renderSegment } from '../src/run.js';
 import { validateRequest } from '../src/validate.js';
 import { makeFixture, withPatch } from './fixture.js';
 import { TEST_REGISTRY } from './solid.js';
+/**
+ * **R12** (`H-04`): у `renderSegment` нет умолчания «рендерить без гейта» — решение о
+ * проходе принимается ЯВНО и с причиной. Здесь причина одна на файл: тест границы подпроцесса (`H-01`), а не сборка ролика.
+ */
+const GATE_SKIP = { mode: 'skip', why: 'тест границы подпроцесса (`H-01`), а не сборка ролика' } as const;
+
 
 const PKG = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const BIN = path.join(PKG, 'dist/bin/render-segment.js');
@@ -32,9 +38,22 @@ const fakeClock = (): (() => number) => {
   return () => (t += 10);
 };
 
+/**
+ * Аргументы подпроцесса по умолчанию: `--gate-skip` с причиной.
+ *
+ * `H-04`: дефолт `bin/render-segment` — `require`, то есть без флага подпроцесс отказывает
+ * правилом **R12** ещё до preflight'а (у фикстурных спеков `gates: []`). Тесты этого файла
+ * проверяют ГРАНИЦУ ПРОЦЕССА, а не пару гейта, поэтому проход назван причиной; отдельный тест
+ * ниже проверяет, что БЕЗ флага отказ приходит и он — `R12`.
+ */
+const BIN_ARGS = ['--gate-skip', 'тест границы подпроцесса (`H-01`), а не сборка ролика'];
+
 /** Запускает точку входа подпроцессом и разбирает stdout. */
-function runBin(request: unknown): { response: RenderResponse; status: number; stderr: string } {
-  const run = spawnSync(process.execPath, [BIN], {
+function runBin(
+  request: unknown,
+  args: readonly string[] = BIN_ARGS,
+): { response: RenderResponse; status: number; stderr: string } {
+  const run = spawnSync(process.execPath, [BIN, ...args], {
     input: canonicalJson(request),
     encoding: 'utf8',
     env: process.env,
@@ -93,6 +112,42 @@ describe('договорные отказы: ответ на stdout валиде
   });
 });
 
+describe('**R12** на границе процесса: без записи гейта сегмент не собирается', () => {
+  it('подпроцесс БЕЗ `--gate-skip` отказывает правилом `R12` — и до браузера дело не доходит', () => {
+    const fixture = makeFixture({ frames: 2 });
+    // Аргументов нет вовсе: это и есть «вызывающий забыл про гейт». Умолчание — `require`
+    // (решение владельца `H-04`, вопрос 2), реестр — пять фикстурных спеков с `gates: []`.
+    const { response, status } = runBin(fixture.request, []);
+    expect(status).toBe(1);
+    expect(response.ok).toBe(false);
+    if (response.ok) return;
+    expect(response.error.rule).toBe('R12');
+    // Текст обязан называть шаблон и команду пересъёмки — иначе автор не знает, что делать.
+    expect(response.error.message).toContain('solid@1');
+    expect(response.error.message).toContain('vpe template gate');
+  });
+
+  it('`--gate-skip` с ПУСТОЙ причиной — тоже отказ `R12`: проход без следа запрещён', () => {
+    const fixture = makeFixture({ frames: 2 });
+    const { response, status } = runBin(fixture.request, ['--gate-skip', '   ']);
+    expect(status).toBe(1);
+    expect(response.ok).toBe(false);
+    if (response.ok) return;
+    expect(response.error.rule).toBe('R12');
+    expect(response.error.details[0]?.at).toBe('RenderOptions.gate.why');
+  });
+
+  it('`--gate-profile ac4` — отказ: профилей гейта ровно два', () => {
+    const fixture = makeFixture({ frames: 2 });
+    const { response } = runBin(fixture.request, ['--gate-profile', 'ac4']);
+    expect(response.ok).toBe(false);
+    if (response.ok) return;
+    expect(response.error.rule).toBe('R12');
+    expect(response.error.message).toContain('final');
+    expect(response.error.message).toContain('draftHalf');
+  });
+});
+
 describe('тот же запрос через `spawn` даёт тот же результат', () => {
   it(
     'подпроцесс рендерит сегмент и отдаёт те же кадры, что и функция',
@@ -101,6 +156,7 @@ describe('тот же запрос через `spawn` даёт тот же ре�
 
       const probe = await renderSegment(fixture.request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         spawnRenderer: () => Promise.resolve(0),
       });
@@ -115,6 +171,7 @@ describe('тот же запрос через `spawn` даёт тот же ре�
       mkdirSync(path.dirname(request.outputPath), { recursive: true });
       const direct = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         registry: TEST_REGISTRY,
         parentEnv: process.env,
       });
@@ -131,6 +188,7 @@ describe('тот же запрос через `spawn` даёт тот же ре�
 
       const sameViaFunction = await renderSegment(request, {
         clock: fakeClock(),
+        gate: GATE_SKIP,
         parentEnv: process.env,
       });
       expect(sameViaFunction.ok).toBe(false);
@@ -149,3 +207,4 @@ describe('тот же запрос через `spawn` даёт тот же ре�
     TIMEOUT,
   );
 });
+
