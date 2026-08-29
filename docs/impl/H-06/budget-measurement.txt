@@ -1,0 +1,323 @@
+ИЗМЕРЕНИЕ `msPerFrameBudget` — СЫРОЙ ЛОГ ПРИБОРА Ш5 (`H-06`, 2026-08-29)
+========================================================================
+
+МАШИНА И ОКРУЖЕНИЕ
+  node v25.6.1, Linux x64, TZ=UTC LC_ALL=C
+  chrome-headless-shell 152.0.7928.2 (пришпиленный, ~/.cache/hyperframes/chrome/)
+  engineFingerprint прогонов этой сессии: 61db2ca89df0c42fb939ae1f58c52f753e98e2f14e521d785b906ae85e1363a0
+
+ЧТО ИЗМЕРЯЕТСЯ И КАК
+  Дифференциально. На каждый шаблон ДВА запроса, различающиеся РОВНО ОДНИМ КЛИПОМ:
+  настоящий шаблон против `noop@1` — реализации с ПУСТЫМ mount, зарегистрированной
+  только в приборе. Ассеты, шрифт, окно клипа, группы субтитров, число кадров,
+  геометрия и профиль — те же. Константа запуска браузера, материализации каталога
+  и старта рендерера в разности сокращается.
+
+  `kenburns@1` меряется на паре `[still@1, kenburns@1]` против `[still@1, noop@1]`:
+  один он стоять не может по построению (нет слоя ниже — отказ).
+
+  `bed@1` не меряется вовсе: его mount — ОТКАЗ, кадров он не рисует, и ноль манифеста
+  остаётся измерением по построению, а не оценкой.
+
+  ШУМ ПРИБОРА меряется тем же прибором: ДВЕ НЕЗАВИСИМЫЕ серии одного и того же
+  базового запроса. Их разность обязана быть нулём; она не ноль — это и есть шум.
+
+ПРОФИЛЬ ИЗМЕРЕНИЯ — ГЕОМЕТРИЯ `final` (1080x1920, scale 1), 60 кадров, 5 повторов.
+  Почему не `draftHalf`: бюджет объявлен ОЦЕНКОЙ СВЕРХУ, а `draftHalf` даёт вчетверо
+  меньший линейный размер, то есть в шестнадцать раз меньше пикселей на кадр.
+  ИЗМЕРЕНО на пробе (6 кадров, scale 0.25): при такой геометрии ВСЕ ЧЕТЫРЕ разности
+  тонут в шуме запуска (шум 10.9 мс/кадр против разностей 1.1..4.0), то есть прибор
+  на дешёвом профиле не меряет ничего.
+
+ПРАВИЛО ОКРУГЛЕНИЯ — решение владельца д1 (закрывает долг №148):
+  `Math.ceil`; разность НИЖЕ ШУМА прибора ИЛИ ОТРИЦАТЕЛЬНАЯ ⇒ 1 у визуального шаблона,
+  0 у `bed@1`, с пометкой «измерено `H-06`: ниже шума прибора».
+
+ИСХОДНЫЙ ТЕКСТ ПРИБОРА
+  Жил в `packages/renderer-hyperframes/out/measure-budget.mjs` — каталог `out/` в
+  `.gitignore` и в `ignores` eslint, поэтому в дифф задачи прибор не входит; здесь он
+  приведён целиком, чтобы измерение можно было повторить.
+------------------------------------------------------------------------
+  // ПРИБОР Ш5 `H-06`: измерение `msPerFrameBudget` дифференциально.
+  //
+  // В РЕПОЗИТОРИЙ НЕ ИДЁТ: каталог `out/` в `.gitignore` и в `ignores` eslint. Сырой лог
+  // прибора уезжает в `docs/impl/H-06/`, метод — в отчёт.
+  //
+  // МЕТОД. На каждый шаблон два запроса, различающиеся РОВНО ОДНИМ КЛИПОМ: настоящий шаблон
+  // против `noop@1` — реализации с ПУСТЫМ mount, зарегистрированной только здесь. Ассеты,
+  // шрифт, окно клипа, группы субтитров, число кадров, геометрия и профиль — те же. Разность
+  // медиан серий, делённая на число кадров, и есть цена шаблона: константа запуска браузера,
+  // материализации и энкодера в разности сокращается.
+  //
+  // ШУМ ПРИБОРА МЕРЯЕТСЯ ТЕМ ЖЕ ПРИБОРОМ: две НЕЗАВИСИМЫЕ серии одного и того же базового
+  // запроса дают разность, которая обязана быть нулём. Она не ноль — это и есть шум.
+  
+  import { renderSegment } from '../dist/src/run.js';
+  import { rendererTemplates } from '../dist/src/templates/index.js';
+  import { FIXTURE_PARAMS, makeTemplateFixture, readyRequest } from '../dist/test/fixture.js';
+  
+  /** Реализация-пустышка. Тот же контракт `(host, ctx)`, ноль работы. */
+  const NOOP = Object.freeze({
+    templateId: 'noop',
+    templateVersion: 1,
+    mountSource: 'function (host, ctx) { return; }',
+  });
+  
+  const REGISTRY = Object.freeze({
+    version: rendererTemplates.version,
+    templates: Object.freeze([...rendererTemplates.templates, NOOP]),
+  });
+  
+  const FRAMES = Number(process.env.H06_FRAMES ?? 30);
+  const REPS = Number(process.env.H06_REPS ?? 5);
+  const SCALE = Number(process.env.H06_SCALE ?? 1);
+  
+  /** Клипы: `real` — настоящий шаблон, `base` — тот же клип, но `noop@1`. */
+  const CASES = [
+    {
+      id: 'still@1',
+      captions: false,
+      real: [{ template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true }],
+      base: [{ template: 'noop@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true }],
+    },
+    {
+      id: 'kenburns@1',
+      captions: false,
+      real: [
+        { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
+        { template: 'kenburns@1', params: FIXTURE_PARAMS.kenburns, z: 10 },
+      ],
+      base: [
+        { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
+        { template: 'noop@1', params: FIXTURE_PARAMS.kenburns, z: 10 },
+      ],
+    },
+    {
+      id: 'flash@1',
+      captions: false,
+      real: [{ template: 'flash@1', params: FIXTURE_PARAMS.flash, z: 20 }],
+      base: [{ template: 'noop@1', params: FIXTURE_PARAMS.flash, z: 20 }],
+    },
+    {
+      id: 'captionEmphasis@1',
+      captions: true,
+      real: [
+        { template: 'captionEmphasis@1', params: FIXTURE_PARAMS.captionEmphasis, z: 30, withFont: true },
+      ],
+      base: [
+        { template: 'noop@1', params: FIXTURE_PARAMS.captionEmphasis, z: 30, withFont: true },
+      ],
+    },
+  ];
+  
+  const clock = () => () => performance.now();
+  
+  async function runOnce(clips, captions) {
+    const fixture = makeTemplateFixture(clips, {
+      frames: FRAMES,
+      scale: SCALE,
+      withCaptions: captions,
+    });
+    const request = await readyRequest(fixture.request, REGISTRY);
+    const response = await renderSegment(request, {
+      clock: clock(),
+      gate: { mode: 'skip', why: 'измерение `msPerFrameBudget` (`H-06`, Ш5): гейт снимается отдельно' },
+      registry: REGISTRY,
+      parentEnv: process.env,
+    });
+    if (!response.ok) throw new Error(`${response.error.rule}: ${response.error.message}`);
+    if (response.frames.frameCount !== FRAMES) {
+      throw new Error(`кадров ${response.frames.frameCount}, ожидалось ${FRAMES}`);
+    }
+    return response.stats.wallMs;
+  }
+  
+  async function series(label, clips, captions, reps = REPS) {
+    const out = [];
+    for (let i = 0; i < reps; i++) {
+      const ms = await runOnce(clips, captions);
+      out.push(ms);
+      process.stdout.write(`  ${label} #${i + 1}: ${ms.toFixed(1)} мс\n`);
+    }
+    return out;
+  }
+  
+  const median = (xs) => {
+    const s = [...xs].sort((a, b) => a - b);
+    const m = s.length >> 1;
+    return s.length % 2 === 1 ? s[m] : (s[m - 1] + s[m]) / 2;
+  };
+  const fmt = (x) => x.toFixed(1);
+  const spread = (xs) => Math.max(...xs) - Math.min(...xs);
+  
+  async function main() {
+    console.log(`ПРИБОР Ш5 \`H-06\`: кадров ${FRAMES}, повторов ${REPS}, scale ${SCALE}, 1080x1920 базовой геометрии`);
+    console.log(`node ${process.version}\n`);
+  
+    // ── ШУМ: две независимые серии ОДНОГО базового запроса ──────────────────────
+    console.log('ШУМ ПРИБОРА — две независимые серии одного базового запроса (`noop@1` + ассет):');
+    const noise = CASES[0].base;
+    const n1 = await series('noise-A', noise, false);
+    const n2 = await series('noise-B', noise, false);
+    const noiseMs = Math.abs(median(n1) - median(n2));
+    const noisePerFrame = noiseMs / FRAMES;
+    console.log(
+      `  медианы: A ${fmt(median(n1))} мс (разброс ${fmt(spread(n1))}), ` +
+        `B ${fmt(median(n2))} мс (разброс ${fmt(spread(n2))})`,
+    );
+    console.log(
+      `  ШУМ = |A − B| = ${fmt(noiseMs)} мс = ${noisePerFrame.toFixed(4)} мс/кадр\n`,
+    );
+  
+    const rows = [];
+    for (const kase of CASES) {
+      console.log(`=== ${kase.id} ===`);
+      const real = await series('real', kase.real, kase.captions);
+      const base = await series('base', kase.base, kase.captions);
+      const dMs = median(real) - median(base);
+      const perFrame = dMs / FRAMES;
+      rows.push({
+        id: kase.id,
+        real: median(real),
+        realSpread: spread(real),
+        base: median(base),
+        baseSpread: spread(base),
+        dMs,
+        perFrame,
+        realRuns: real,
+        baseRuns: base,
+      });
+      console.log(
+        `  медианы: real ${fmt(median(real))} (разброс ${fmt(spread(real))}), ` +
+          `base ${fmt(median(base))} (разброс ${fmt(spread(base))})`,
+      );
+      console.log(`  разность ${fmt(dMs)} мс ⇒ ${perFrame.toFixed(4)} мс/кадр\n`);
+    }
+  
+    console.log('┌─ ИТОГ ─────────────────────────────────────────────────────────────────');
+    console.log(`│ шум прибора: ${noisePerFrame.toFixed(4)} мс/кадр (${fmt(noiseMs)} мс на ${FRAMES} кадров)`);
+    console.log('│ шаблон            | median real | median base | Δ мс   | Δ мс/кадр | правило д1');
+    for (const r of rows) {
+      const belowNoise = r.perFrame <= noisePerFrame;
+      const verdict = belowNoise
+        ? `1 (ниже шума)`
+        : `${String(Math.ceil(r.perFrame))} (ceil)`;
+      console.log(
+        `│ ${r.id.padEnd(18)}| ${fmt(r.real).padStart(11)} | ${fmt(r.base).padStart(11)} | ` +
+          `${fmt(r.dMs).padStart(6)} | ${r.perFrame.toFixed(4).padStart(9)} | ${verdict}`,
+      );
+    }
+    console.log('│ bed@1             | — рендера нет по построению: 0 остаётся измерением');
+    console.log('└────────────────────────────────────────────────────────────────────────');
+  
+    console.log('\nСЫРЫЕ СЕРИИ (мс):');
+    console.log(`  noise-A: ${n1.map(fmt).join(', ')}`);
+    console.log(`  noise-B: ${n2.map(fmt).join(', ')}`);
+    for (const r of rows) {
+      console.log(`  ${r.id} real: ${r.realRuns.map(fmt).join(', ')}`);
+      console.log(`  ${r.id} base: ${r.baseRuns.map(fmt).join(', ')}`);
+    }
+  }
+  
+  await main();
+------------------------------------------------------------------------
+
+ПРОГОН: `H06_FRAMES=60 H06_REPS=5 H06_SCALE=1 node out/measure-budget.mjs`
+ПРИБОР Ш5 `H-06`: кадров 60, повторов 5, scale 1, 1080x1920 базовой геометрии
+node v25.6.1
+
+ШУМ ПРИБОРА — две независимые серии одного базового запроса (`noop@1` + ассет):
+  noise-A #1: 4395.2 мс
+  noise-A #2: 4336.5 мс
+  noise-A #3: 4304.3 мс
+  noise-A #4: 4251.6 мс
+  noise-A #5: 4484.1 мс
+  noise-B #1: 4407.2 мс
+  noise-B #2: 4354.5 мс
+  noise-B #3: 4711.7 мс
+  noise-B #4: 4394.4 мс
+  noise-B #5: 4414.1 мс
+  медианы: A 4336.5 мс (разброс 232.5), B 4407.2 мс (разброс 357.2)
+  ШУМ = |A − B| = 70.7 мс = 1.1780 мс/кадр
+
+=== still@1 ===
+  real #1: 4536.2 мс
+  real #2: 4516.4 мс
+  real #3: 4519.3 мс
+  real #4: 4496.7 мс
+  real #5: 4854.5 мс
+  base #1: 4463.2 мс
+  base #2: 4469.8 мс
+  base #3: 4619.4 мс
+  base #4: 4446.3 мс
+  base #5: 4314.3 мс
+  медианы: real 4519.3 (разброс 357.8), base 4463.2 (разброс 305.1)
+  разность 56.1 мс ⇒ 0.9355 мс/кадр
+
+=== kenburns@1 ===
+  real #1: 6382.3 мс
+  real #2: 6347.4 мс
+  real #3: 6364.5 мс
+  real #4: 6346.5 мс
+  real #5: 6369.2 мс
+  base #1: 4684.0 мс
+  base #2: 4349.1 мс
+  base #3: 4557.9 мс
+  base #4: 4387.9 мс
+  base #5: 4360.8 мс
+  медианы: real 6364.5 (разброс 35.8), base 4387.9 (разброс 334.9)
+  разность 1976.7 мс ⇒ 32.9444 мс/кадр
+
+=== flash@1 ===
+  real #1: 6223.4 мс
+  real #2: 6142.4 мс
+  real #3: 6106.5 мс
+  real #4: 6159.3 мс
+  real #5: 6159.0 мс
+  base #1: 4443.5 мс
+  base #2: 4366.1 мс
+  base #3: 4375.3 мс
+  base #4: 4373.7 мс
+  base #5: 4434.7 мс
+  медианы: real 6159.0 (разброс 117.0), base 4375.3 (разброс 77.5)
+  разность 1783.6 мс ⇒ 29.7271 мс/кадр
+
+=== captionEmphasis@1 ===
+  real #1: 4551.3 мс
+  real #2: 4748.9 мс
+  real #3: 4454.8 мс
+  real #4: 4614.9 мс
+  real #5: 4474.8 мс
+  base #1: 4439.5 мс
+  base #2: 4495.3 мс
+  base #3: 4555.7 мс
+  base #4: 4498.1 мс
+  base #5: 4575.2 мс
+  медианы: real 4551.3 (разброс 294.1), base 4498.1 (разброс 135.7)
+  разность 53.2 мс ⇒ 0.8866 мс/кадр
+
+┌─ ИТОГ ─────────────────────────────────────────────────────────────────
+│ шум прибора: 1.1780 мс/кадр (70.7 мс на 60 кадров)
+│ шаблон            | median real | median base | Δ мс   | Δ мс/кадр | правило д1
+│ still@1           |      4519.3 |      4463.2 |   56.1 |    0.9355 | 1 (ниже шума)
+│ kenburns@1        |      6364.5 |      4387.9 | 1976.7 |   32.9444 | 33 (ceil)
+│ flash@1           |      6159.0 |      4375.3 | 1783.6 |   29.7271 | 30 (ceil)
+│ captionEmphasis@1 |      4551.3 |      4498.1 |   53.2 |    0.8866 | 1 (ниже шума)
+│ bed@1             | — рендера нет по построению: 0 остаётся измерением
+└────────────────────────────────────────────────────────────────────────
+
+СЫРЫЕ СЕРИИ (мс):
+  noise-A: 4395.2, 4336.5, 4304.3, 4251.6, 4484.1
+  noise-B: 4407.2, 4354.5, 4711.7, 4394.4, 4414.1
+  still@1 real: 4536.2, 4516.4, 4519.3, 4496.7, 4854.5
+  still@1 base: 4463.2, 4469.8, 4619.4, 4446.3, 4314.3
+  kenburns@1 real: 6382.3, 6347.4, 6364.5, 6346.5, 6369.2
+  kenburns@1 base: 4684.0, 4349.1, 4557.9, 4387.9, 4360.8
+  flash@1 real: 6223.4, 6142.4, 6106.5, 6159.3, 6159.0
+  flash@1 base: 4443.5, 4366.1, 4375.3, 4373.7, 4434.7
+  captionEmphasis@1 real: 4551.3, 4748.9, 4454.8, 4614.9, 4474.8
+  captionEmphasis@1 base: 4439.5, 4495.3, 4555.7, 4498.1, 4575.2
+
+real	4m2.039s
+user	2m38.440s
+sys	0m34.683s

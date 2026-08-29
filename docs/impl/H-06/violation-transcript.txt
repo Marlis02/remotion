@@ -1,0 +1,390 @@
+ПРОТОКОЛ НАРУШЕНИЙ `H-06` — транскрипт
+=======================================
+Машина: Linux x64, node v25.6.1, pnpm 11.9.0, chrome-headless-shell 152.0.7928.2, TZ=UTC LC_ALL=C.
+Дата: 2026-08-29. База: коммит-снимок `0d1a3cc` плюс правка Ш5 (пять манифестов templates-spec).
+
+ПРАВИЛА ПРОТОКОЛА, ИСПОЛНЯВШИЕСЯ БУКВАЛЬНО:
+  * каждое нарушение вносится в ЖИВОЙ файл и обязано дать КРАСНОЕ — «охранник есть» без
+    покраснения есть утверждение, а не измерение;
+  * резерв и откат — ТОЛЬКО `cp` (никаких `git checkout`, `git stash`, `git restore`);
+  * после каждого отката — `git status --porcelain` И контрольный ЗЕЛЁНЫЙ прогон затронутого
+    файла (уточнение владельца: «откатил» проверяется поведением, а не словами);
+  * ожидаемый porcelain на всём протоколе — РОВНО пять файлов правки Ш5 и каталог docs/impl/H-06:
+        M packages/templates-spec/src/templates/bed@1.ts
+        M packages/templates-spec/src/templates/captionEmphasis@1.ts
+        M packages/templates-spec/src/templates/flash@1.ts
+        M packages/templates-spec/src/templates/kenburns@1.ts
+        M packages/templates-spec/src/templates/still@1.ts
+        ?? docs/impl/H-06/
+    ЛЮБАЯ шестая строка означала бы, что откат не состоялся.
+  * ДВА КРАСНЫХ ФАЙЛА ВНЕ ПРОТОКОЛА, известных и названных до его начала:
+    `packages/compile/test/template-contract.test.ts` и `packages/compile/test/compile-ir.test.ts`
+    — их ассерты держат ДОИЗМЕРИТЕЛЬНЫЕ бюджеты (`kenburns@1` = 2, `seg:intro` = 3). Это
+    следствие Ш5, а не протокола; вопрос владельцу задан отдельно. Ни одно нарушение ниже их
+    не касается, и контрольные прогоны идут по затронутым файлам, а не по всему репозиторию.
+
+───────────────────────────────────────────────────────────────────────────────
+Н1 — EASING ВНЕ РЕЕСТРА В РЕАЛИЗАЦИИ. Нарушение имеет ДВЕ формы, и охранники у них разные.
+
+Н1а. Кривая вне реестра в TS-константе реализации:
+     flash@1.ts: FLASH_EASE = 'power3.out' → 'elastic.out' (satisfies EasingId)
+     Ожидание: ошибка КОМПИЛЯЦИИ (реестр D5 закрыт типом, TS-02).
+
+$ pnpm typecheck
+packages/renderer-hyperframes/src/templates/flash@1.ts(38,43): error TS1360: Type '"elastic.out"' does not satisfy the expected type '"power1.inOut" | "power2.inOut" | "power3.out" | "back.out(1.7)" | "sine.inOut" | "none"'.
+
+Н1б. Кривая ИЗ реестра, но НЕ объявленная манифестом, — литералом в тексте mountSource
+     (тип её не видит: текст функции есть строка):
+     flash@1.ts: ease: ${canonicalJson(FLASH_EASE)} → ease: 'sine.inOut'
+     Ожидание: КРАСНЫЙ юнит Н1 в templates.test.ts («объявлено = использовано»).
+
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts -t 'Н1'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates.test.ts > **Н1** — easing только из закрытого реестра **D5** и только объявленный манифестом > `flash@1`: ни одной кривой вне реестра, все объявлены спеком
+AssertionError: flash@1: кривая `sine.inOut` не объявлена манифестом: expected [ 'power3.out' ] to include 'sine.inOut'
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed | 30 skipped (36)
+
+Н1в. ТРЕТЬЯ ФОРМА — ПРОБА ДЫРЫ, а не охранника: кривая ВНЕ реестра литералом в ТЕКСТЕ
+     mountSource. Тип её не видит (строка), юнит Н1б её отфильтровывает (isEasingId
+     оставляет только ИМЕНА реестра). Значит статически её не ловит НИКТО.
+     flash@1.ts: ease: 'elastic.out' в тексте mountSource.
+     Вопрос измерения: чем это кончается на ЖИВОМ рендере.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'flash@1'
+  РЕЗУЛЬТАТ Н1в — ГЕЙТ ЗЕЛЁНЫЙ: ГЕЙТ: PASS · draftHalf · N = 3, три прогона дали один
+  sha256 cd853a1fbcad17d6… и один framemd5 e26e9e763d3e8ce8… за 1730/1736/1740 мс.
+  ЭТО НАХОДКА, А НЕ УСПЕХ: 'elastic.out' — настоящая кривая gsap, её просто НЕТ в нашем
+  закрытом реестре D5. Она отрисовалась, отрисовалась ДЕТЕРМИНИРОВАННО, и гейт V13
+  честно сказал PASS — потому что гейт мерит воспроизводимость, а не членство в реестре.
+  Ловить её нечем: тип видит только TS-константу (Н1а), юнит Н1 фильтрует литералы через
+  isEasingId и потому кривую ВНЕ реестра отбрасывает вместе с прочим текстом (Н1б ловит
+  ровно обратный случай — имя ИЗ реестра, не объявленное манифестом), а линт D5
+  (tests/lints/d5-easing-render-path.test.ts) ищет Math.pow/sin/exp, а не имена кривых.
+  Долг заведён (см. DEBTS, адрес TS-02/E-00).
+
+  ОТКАТ Н1 (только cp, резерв удалён):
+$ git status --porcelain
+ M packages/templates-spec/src/templates/bed@1.ts
+ M packages/templates-spec/src/templates/captionEmphasis@1.ts
+ M packages/templates-spec/src/templates/flash@1.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+ M packages/templates-spec/src/templates/still@1.ts
+?? docs/impl/H-06/
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts   # контроль: ЗЕЛЁНЫЙ
+ Test Files  1 passed (1)
+      Tests  36 passed (36)
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'flash@1'  # контроль картинки
+ГЕЙТ: PASS · профиль `draftHalf` · N = 3
+  различных framemd5: 1; различных sha256: 1 (порядок проверки: framemd5 → sha256)
+    sha256:            bb18d149a25a542537ec4319b67d978e941793c4f5f2c4a1877a2f6e636047dc
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+  ОТКАТ ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — ровно пять файлов Ш5 и docs/impl/H-06 (шестой
+  строки нет); templates.test.ts 36 passed (36); гейт flash@1 снова PASS.
+  И ЦЕНА ДЫРЫ Н1в НАЗВАНА ЧИСЛОМ: sha256 объявленной кривой power3.out — bb18d149a25a5425…,
+  чужой elastic.out — cd853a1fbcad17d6…. Кривая вне реестра не «почти то же»: это ДРУГИЕ
+  кадры, прошедшие гейт как свои.
+
+───────────────────────────────────────────────────────────────────────────────
+Н2 — `Date.now` В mountSource. Охранник — заморозка глобалей D4 (`composition/freeze.js`,
+     H-05), и проверяется он ЖИВЫМ РЕНДЕРОМ, а не грепом.
+     still@1.ts: первой строкой mountSource добавлено `var stamp = Date.now();`
+     Ожидание: гейт still@1 даёт `error` (композиция бросила), а НЕ PASS на кадрах.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'still@1'
+  • /tmp/vpe-h06-fwhrS8/run-01/tmp/composition — [ADR-0008 композиция] ◆  Linting composition/index.html
+  ✗ non_deterministic_code: Script contains `Date.now()` which produces non-deterministic output. Renders may differ between frames or runs.
+◇  1 error(s), 1 warning(s) [прогон @ hyperframes render /tmp/vpe-h06-fwhrS8/run-01/tmp/composition -o /tmp/vpe-h06-fwhrS8/run-01/tmp/frames --format png-sequence --fps 30 --workers 1 --no-browser-gpu --quiet --strict; ADR-0008 композиция @ /tmp/vpe-h06-fwhrS8/run-01/tmp/composition]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates-gate.test.ts > `H-06` — живой гейт V13 на профиле `draftHalf`, N = 3 > `still@1`: три прогона дают один `framemd5` и один `sha256`
+  • /tmp/vpe-h06-fwhrS8/run-01/tmp/composition — [ADR-0008 композиция] ◆  Linting composition/index.html
+  ✗ non_deterministic_code: Script contains `Date.now()` which produces non-deterministic output. Renders may differ between frames or runs.
+◇  1 error(s), 1 warning(s) [прогон @ hyperframes render /tmp/vpe-h06-fwhrS8/run-01/tmp/composition -o /tmp/vpe-h06-fwhrS8/run-01/tmp/frames --format png-sequence --fps 30 --workers 1 --no-browser-gpu --quiet --strict; ADR-0008 композиция @ /tmp/vpe-h06-fwhrS8/run-01/tmp/composition]: expected 'error' to be 'PASS' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+  РЕЗУЛЬТАТ Н2а — КРАСНОЕ, гейт `error`, но ОСТАНОВИЛ НЕ НАШ GUARD:
+    ✗ non_deterministic_code: Script contains `Date.now()` … [ADR-0008 композиция]
+  Это статический линт САМОГО рендерера, включённый флагом `--strict` (долг №157, закрыт
+  H-05). Он сработал ДО запуска браузера, поэтому заморозка глобалей D4 в этом прогоне даже
+  не понадобилась. Чтобы измерить ВТОРОЙ эшелон, нарушение переписывается так, чтобы
+  статический греп его не увидел.
+
+Н2б. То же обращение к часам, спрятанное от грепа:
+     still@1.ts: `var clk = Date; var stamp = clk.now();`
+     Ожидание: линт рендерера молчит, роняет НАШ guard D4 (composition/freeze.js).
+
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'still@1'
+  • seg-h06 — [ADR-0008 композиция] D4 (ADR-0007 §4): `Date.now` в композиции запрещён — still@1 (клип r:h060001). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`. [ADR-0008 композиция @ seg-h06]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates-gate.test.ts > `H-06` — живой гейт V13 на профиле `draftHalf`, N = 3 > `still@1`: три прогона дают один `framemd5` и один `sha256`
+  • seg-h06 — [ADR-0008 композиция] D4 (ADR-0007 §4): `Date.now` в композиции запрещён — still@1 (клип r:h060001). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`. [ADR-0008 композиция @ seg-h06]: expected 'error' to be 'PASS' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+  РЕЗУЛЬТАТ Н2б — КРАСНОЕ, и на этот раз уронил ИМЕННО guard D4, назвав шаблон И клип:
+    D4 (ADR-0007 §4): `Date.now` в композиции запрещён — still@1 (клип r:h060001).
+  ДВА ЭШЕЛОНА ИЗМЕРЕНЫ ПООТДЕЛЬНОСТИ: статический линт рендерера (--strict) ловит
+  написанное в лоб и не доходит до браузера; guard D4 ловит то же самое, спрятанное от
+  грепа, — уже в браузере, во взведённом окне вокруг mount. Ни один из двух не покрывает
+  другого: снятие --strict оставило бы Н2а на guard'е, а снятие guard'а — Н2б без охраны.
+
+  ОТКАТ Н2 (только cp, резерв удалён):
+$ git status --porcelain
+ M packages/templates-spec/src/templates/bed@1.ts
+ M packages/templates-spec/src/templates/captionEmphasis@1.ts
+ M packages/templates-spec/src/templates/flash@1.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+ M packages/templates-spec/src/templates/still@1.ts
+?? docs/impl/H-06/
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'still@1'  # контроль: ЗЕЛЁНЫЙ
+ГЕЙТ: PASS · профиль `draftHalf` · N = 3
+  различных framemd5: 1; различных sha256: 1 (порядок проверки: framemd5 → sha256)
+    sha256:            7bac50d3e125c7ea67b0146cfa6c509bbf649513860614769ee440b392cabc9c
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+  ОТКАТ Н2 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — те же пять строк; гейт still@1 снова PASS,
+  и sha256 7bac50d3e125c7ea… ПОБАЙТОВО тот же, что в контрольном прогоне Ш0. Картинка
+  вернулась, а не «тест снова зелёный».
+
+───────────────────────────────────────────────────────────────────────────────
+Н3 — ПОРЯДОК ТРАНСФОРМАЦИЙ ПЕРЕВЁРНУТ. Охранник — САМОПРОВЕРКА а1 внутри mountSource
+     kenburns@1 (долг №173): проба ставит ненулевые x/y/scale на свой пустой host и
+     требует, чтобы gsap собрал TRANSFORM_ORDER[0] РАНЬШЕ TRANSFORM_ORDER[1].
+     Перевернуть сам gsap нечем — переворачивается ОЖИДАНИЕ пробы, что эквивалентно:
+     kenburns@1.ts: indexOf(TRANSFORM_ORDER[0]) / [1] → indexOf(TRANSFORM_ORDER[1]) / [0]
+     Ожидание: гейт kenburns@1 даёт `error` с текстом самопроверки, а не сдвинутые пиксели.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'kenburns@1'
+  • seg-h06 — [ADR-0008 композиция] kenburns@1: реестр объявляет порядок сборки трансформаций translate → scale, а gsap собрал 'translate(1px, 1px) scale(2, 2)'. Порядок — часть кривой движения (ADR-0007 параграф 3): при обратном сдвиг масштабируется, и на Ken Burns это до 5.4 px на последнем кадре (FACT SP-3c параграф 6.2 п. 3). Это отказ, а не подстройка: версия gsap входит в engineFingerprint (R14), и сменившийся порядок обязан уронить сборку, а не сдвинуть пиксели молча [ADR-0008 композиция @ seg-h06]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates-gate.test.ts > `H-06` — живой гейт V13 на профиле `draftHalf`, N = 3 > `kenburns@1`: три прогона дают один `framemd5` и один `sha256`
+  • seg-h06 — [ADR-0008 композиция] kenburns@1: реестр объявляет порядок сборки трансформаций translate → scale, а gsap собрал 'translate(1px, 1px) scale(2, 2)'. Порядок — часть кривой движения (ADR-0007 параграф 3): при обратном сдвиг масштабируется, и на Ken Burns это до 5.4 px на последнем кадре (FACT SP-3c параграф 6.2 п. 3). Это отказ, а не подстройка: версия gsap входит в engineFingerprint (R14), и сменившийся порядок обязан уронить сборку, а не сдвинуть пиксели молча [ADR-0008 композиция @ seg-h06]: expected 'error' to be 'PASS' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 4 skipped (6)
+  РЕЗУЛЬТАТ Н3а — КРАСНОЕ, гейт `error`, текст самопроверки целиком:
+    kenburns@1: реестр объявляет порядок сборки трансформаций translate → scale, а gsap
+    собрал 'translate(1px, 1px) scale(2, 2)'.
+  ПОБОЧНОЕ ИЗМЕРЕНИЕ, КОТОРОГО ДО СИХ ПОР НЕ БЫЛО: строка, которую gsap 3.15.0 собирает
+  НА ЭТОМ браузере, названа целиком — 'translate(1px, 1px) scale(2, 2)'. FACT SP-3c §6.2
+  п. 3 («translate3d раньше scale») подтверждён ЖИВЬЁМ, а не чтением исходников gsap.
+
+Н3б. ВТОРАЯ ПОЛОВИНА ОХРАНЫ №173 — рука, собравшая transform строкой (самопроверка а1
+     этого не видит: она мерит, что собрал gsap, а не что присвоил автор):
+     kenburns@1.ts: `target.style.transform = 'scale(2) translate(1px, 1px)';`
+     Ожидание: КРАСНЫЙ юнит №173 в templates.test.ts.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts -t '173'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates.test.ts > **№173** — порядок трансформаций собирает gsap, а не рука > ни один `mountSource` не ПРИСВАИВАЕТ `style.transform`
+AssertionError: Сдвиг и масштаб передаются ОБЪЕКТНОЙ формой gsap (`{x, y, scale}`): порядок сборки — данные реестра (`TRANSFORM_ORDER`, ADR-0007 §3), а не то, что напишет автор. `FACT` (SP-3c §6.2 п. 3): при обратном порядке сдвиг масштабируется — до 5.4 px на последнем кадре Ken Burns.: expected [ 'kenburns@1' ] to deeply equal []
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed | 33 skipped (36)
+  РЕЗУЛЬТАТ Н3б — КРАСНОЕ: «ни один mountSource не ПРИСВАИВАЕТ style.transform» ⇒
+    expected [ 'kenburns@1' ] to deeply equal [].
+  ДВЕ ПОЛОВИНЫ №173 ИЗМЕРЕНЫ ПООТДЕЛЬНО и не перекрывают друг друга: самопроверка ловит
+  СМЕНИВШИЙСЯ gsap (Н3а), юнит — РУКУ автора (Н3б). Поодиночке ни одна долг не закрывает.
+
+  ОТКАТ Н3 (только cp, резерв удалён):
+$ git status --porcelain
+ M packages/templates-spec/src/templates/bed@1.ts
+ M packages/templates-spec/src/templates/captionEmphasis@1.ts
+ M packages/templates-spec/src/templates/flash@1.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+ M packages/templates-spec/src/templates/still@1.ts
+?? docs/impl/H-06/
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts   # контроль: ЗЕЛЁНЫЙ
+ Test Files  1 passed (1)
+      Tests  36 passed (36)
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t 'kenburns@1'  # контроль картинки
+ГЕЙТ: PASS · профиль `draftHalf` · N = 3
+  различных framemd5: 1; различных sha256: 1 (порядок проверки: framemd5 → sha256)
+    sha256:            add6d1f56c5bf2d3ed6a1f53ef81a3eff77d7450d931923df5afc325f7f8051d
+ Test Files  1 passed (1)
+      Tests  2 passed | 4 skipped (6)
+  ОТКАТ Н3 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — те же пять строк; templates.test.ts
+  36 passed (36); гейт kenburns@1 снова PASS, sha256 add6d1f56c5bf2d3…
+
+───────────────────────────────────────────────────────────────────────────────
+Н4 — РЕАЛИЗАЦИЯ БЕЗ СПЕКА. Охранник — сверка реестра реализаций с TEMPLATE_LIBRARY спеков
+     В ОБЕ СТОРОНЫ (templates.test.ts).
+     index.ts: в rendererTemplates добавлена шестая единица `grade@1`, спека у неё нет.
+     Ожидание: КРАСНЫЙ юнит Н4.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts -t 'Н4'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates.test.ts > `H-06` — реестр реализаций совпадает с библиотекой спеков > **Н4** сверка в ОБЕ стороны: реализация без спека и спек без реализации
+AssertionError: expected [ 'bed@1', 'captionEmphasis@1', …(4) ] to deeply equal [ 'bed@1', 'captionEmphasis@1', …(3) ]
+ Test Files  1 failed (1)
+      Tests  1 failed | 37 skipped (38)
+  РЕЗУЛЬТАТ Н4 — КРАСНОЕ: expected [ 'bed@1', 'captionEmphasis@1', …(4) ] to deeply equal
+  [ 'bed@1', 'captionEmphasis@1', …(3) ] — шестая реализация против пяти спеков.
+  Сверка ДВУСТОРОННЯЯ: обратный случай (спек без реализации) стережёт тот же ассерт, и он
+  же был красным ДО H-06 — реестр реализаций был пуст, а спеков пять.
+
+  ОТКАТ Н4 (только cp, резерв удалён):
+$ git status --porcelain
+ M packages/templates-spec/src/templates/bed@1.ts
+ M packages/templates-spec/src/templates/captionEmphasis@1.ts
+ M packages/templates-spec/src/templates/flash@1.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+ M packages/templates-spec/src/templates/still@1.ts
+?? docs/impl/H-06/
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts   # контроль: ЗЕЛЁНЫЙ
+ Test Files  1 passed (1)
+      Tests  36 passed (36)
+
+───────────────────────────────────────────────────────────────────────────────
+Н6 — ДВЕ СТРОКИ ВИДИМОСТИ R2 УДАЛЕНЫ. Охранник — captions-visibility.test.ts (scale: 1).
+     runtime.js: убраны capsTimeline.set(el, {opacity:1}, start) и {opacity:0}, end
+     (и el.style.opacity = '0' вместе с ними — иначе группы стали бы невидимыми вовсе,
+     то есть это было бы ДРУГОЕ нарушение).
+     Ожидание: КРАСНЫЕ кадры — кадр 3 и кадр 6 совпадут, потому что видны ВСЕ группы сразу.
+
+$ npx vitest run packages/renderer-hyperframes/test/captions-visibility.test.ts
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+  РЕЗУЛЬТАТ Н6 — ОХРАННИК НЕ ПОКРАСНЕЛ. `captions-visibility.test.ts` — 2 passed (2) С УДАЛЁННЫМИ
+  СТРОКАМИ. Это находка, а не успех, и она разобрана до причины ТРЕМЯ измерениями:
+
+  (1) правка ДОЕХАЛА до композиции, а не осталась в исходнике:
+      $ node out/probe-n6.mjs
+        capsTimeline.set в композиции: 0
+        data-start у групп: 6
+      (материализация читает `packageRoot()/src/composition/runtime.js` и встраивает его текстом,
+      поэтому и под vitest, и из `dist` рендерится ОДИН и тот же файл — тот, который правился);
+
+  (2) кадры БЕЗ двух строк — субтитры ВСЁ РАВНО переключаются:
+      $ node out/probe-n6-frames.mjs      # 12 кадров, 1080×1920, две группы [0,6) и [6,12)
+        кадры 0..5  → 5e9a142bf12a
+        кадры 6..11 → 8cc681a93915
+        различных кадров: 2 · кадр3 == кадр6: false
+
+  (3) кадры С двумя строками — ПОБАЙТОВО ТЕ ЖЕ САМЫЕ:
+      $ node out/probe-n6-frames.mjs      # после отката (cp)
+        кадры 0..5  → 5e9a142bf12a
+        кадры 6..11 → 8cc681a93915
+
+  ВЫВОД, ИЗМЕРЕННЫЙ, А НЕ ВЫВЕДЕННЫЙ: видимость групп субтитров держит САМ РЕНДЕРЕР по атрибутам
+  `data-start`/`data-duration`, которые `runtime.js` ставил и до правки R2. Отсюда три следствия,
+  и каждое названо вслух:
+    * НАХОДКА ПРЕЖНЕЙ СЕССИИ («`data-start`/`data-duration` не читал НИКТО», «все группы
+      показывались одновременно, друг на друге») на `hyperframes@0.8.5` НЕВЕРНА;
+    * ДВЕ СТРОКИ R2 — no-op ПО КАРТИНКЕ: они ставят ту же прозрачность в те же моменты, что и
+      рендерер, и удаление их не меняет ни одного байта из двенадцати кадров;
+    * ОХРАННИК Н6 СТЕРЕЖЁТ НЕ ТО, ЧТО ОБЪЯВЛЯЕТ: «кадр 3 ≠ кадр 6» производит рендерер, а не наш
+      код, поэтому тест зелен при удалённых строках и покраснеет только если сломается рендерер.
+  ЧТО ЭТА СЕССИЯ НЕ ДЕЛАЕТ: не удаляет строки R2 и не переписывает охранник. Решение R2 принято
+  владельцем, его пересмотр — переделка Ш1–Ш4, прямо запрещённая заданием. Долг заведён.
+
+  ОТКАТ Н6 (только cp, резерв удалён) — porcelain те же пять строк (см. выше), картинка
+  побайтово та же (измерение (3) снято ПОСЛЕ отката и есть его контроль).
+
+$ npx vitest run packages/renderer-hyperframes/test/captions-visibility.test.ts   # контроль: ЗЕЛЁНЫЙ
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+
+───────────────────────────────────────────────────────────────────────────────
+Н5 — ГЕЙТ-КОНТУР: ПРАВКА ШАБЛОНА БЕЗ ПЕРЕСЪЁМКИ ⇒ ЧУЖОЙ bundleHash НЕ ПУСКАЕТ.
+     Приём: снять запрос с ДЕЙСТВУЮЩИМ bundle.hash, затем изменить код шаблона и
+     предъявить ТОТ ЖЕ запрос. Код шаблона входит в перечень каталога композиции, значит
+     хэш обязан разъехаться, а адаптер — отказать ДО запуска браузера.
+
+$ node out/probe-n5.mjs snap        # на неизменённом still@1
+  запрос снят, bundle.hash = 32c29155d68a8f21fa0386463e6a6d318887d0e46cc4e75d1f8b1ba17c101647
+
+     still@1.ts: objectPosition '50% 50%' → '50% 10%' (одна строка, картинка сместилась бы)
+$ pnpm build && node out/probe-n5.mjs check
+предъявлен bundle.hash = 32c29155d68a8f21fa0386463e6a6d318887d0e46cc4e75d1f8b1ba17c101647
+ОТКАЗ, правило: R2
+R2: `bundle.hash` запроса — `32c29155d68a8f21fa0386463e6a6d318887d0e46cc4e75d1f8b1ba17c101647`, а каталог композиции, собранный из полей ЭТОГО ЖЕ запроса, имеет `12c182ea2cd0af1a87bd7aa097c7894417316e2762242b81d234b9ff6a75de98`
+  • bundle.hash — [R2] расхождение означает, что вызывающий и адаптер собрали РАЗНЫЕ каталоги из одного запроса, — то есть вход рендера не определяется запросом однозначно, и ключ сегмента (ADR-0006 §2) адресует не то, что отрендерилось
+
+  РЕЗУЛЬТАТ Н5а — ОТКАЗ ПРАВИЛОМ R2, ДО ЗАПУСКА БРАУЗЕРА, с обоими хэшами в тексте:
+    32c29155…1647 (запроса) против 12c182ea…de98 (фактического каталога).
+    Одна строка в шаблоне (objectPosition) сменила перечень композиции целиком.
+
+  Н5б — ВТОРАЯ ПОЛОВИНА КОНТУРА: та же величина в ЗАПИСИ ГЕЙТА (E-00, поправка П2).
+$ node out/probe-n5b.mjs
+  gateStaleness(запись на прежней композиции, фактическая новая):
+    запись снята на другой композиции: `bundleHash` записи `32c29155d68a8f21fa0386463e6a6d318887d0e46cc4e75d1f8b1ba17c101647`, фактический `12c182ea2cd0af1a87bd7aa097c7894417316e2762242b81d234b9ff6a75de98`. Код шаблона (или его `params`, или IR фикстуры) изменился после снятия гейта — пара та же, рисует другое
+  gateStaleness(та же запись, фактическая ПРЕЖНЯЯ):
+    null
+
+  ГРАНИЦА КОНТУРА НАЗВАНА ЧЕСТНО: `gateStaleness` сверяет `bundleHash` только когда
+  вызывающий его ЗНАЕТ. Знает сегодня один — команда `vpe template gate`
+  (cli/src/template-gate.ts:317). На пути СБОРКИ `assertBuildMayStart` его не подаёт и
+  не может: на старте композиции ещё нет (templates-spec/src/gate.ts:203, адрес — L-01).
+  Поэтому Н5 держится ДВУМЯ РАЗНЫМИ охранниками на двух разных этапах: R2 адаптера ловит
+  расхождение НА КАЖДОМ сегменте (это и сработало выше), а запись гейта — при пересъёмке.
+
+  ОТКАТ Н5 (только cp, резерв удалён; dist пересобран):
+$ git status --porcelain
+ M packages/templates-spec/src/templates/bed@1.ts
+ M packages/templates-spec/src/templates/captionEmphasis@1.ts
+ M packages/templates-spec/src/templates/flash@1.ts
+ M packages/templates-spec/src/templates/kenburns@1.ts
+ M packages/templates-spec/src/templates/still@1.ts
+?? docs/impl/H-06/
+$ npx vitest run packages/renderer-hyperframes/test/templates-gate.test.ts -t "still@1"   # контроль: ЗЕЛЁНЫЙ
+ГЕЙТ: PASS · профиль `draftHalf` · N = 3
+  различных framemd5: 1; различных sha256: 1 (порядок проверки: framemd5 → sha256)
+    sha256:            7bac50d3e125c7ea67b0146cfa6c509bbf649513860614769ee440b392cabc9c
+ Test Files  1 passed (1)
+      Tests  1 passed | 5 skipped (6)
+  ОТКАТ Н5 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — те же пять строк; гейт still@1 снова PASS, sha256
+  7bac50d3e125c7ea… — тот же, что в Ш0 и после откатов Н1/Н2.
+
+═══════════════════════════════════════════════════════════════════════════════
+ИТОГ ПРОТОКОЛА: одиннадцать проб, девять красных, ДВЕ НАХОДКИ
+
+  Н1а  кривая вне реестра в TS-константе          КРАСНОЕ — tsc, TS1360 (тип, TS-02)
+  Н1б  кривая реестра, не объявленная манифестом  КРАСНОЕ — юнит Н1 templates.test.ts
+  Н1в  кривая вне реестра ЛИТЕРАЛОМ в mountSource НАХОДКА — не ловит НИКТО, гейт даёт PASS
+  Н2а  `Date.now()` в лоб                         КРАСНОЕ — линт рендерера (--strict, №157)
+  Н2б  `Date.now` спрятан от грепа                КРАСНОЕ — guard D4 (freeze.js), с именем клипа
+  Н3а  порядок трансформаций перевёрнут           КРАСНОЕ — самопроверка а1 в mountSource
+  Н3б  transform собран рукой                     КРАСНОЕ — юнит №173 templates.test.ts
+  Н4   шестая реализация без спека                КРАСНОЕ — юнит Н4 (сверка в обе стороны)
+  Н5а  правка шаблона, прежний bundle.hash        КРАСНОЕ — правило R2 адаптера, до браузера
+  Н5б  запись гейта на прежней композиции         КРАСНОЕ — gateStaleness (E-00, П2)
+  Н6   две строки видимости R2 удалены            НАХОДКА — охранник ЗЕЛЁН, строки no-op
+
+ДВЕ НАХОДКИ — ЭТО РЕЗУЛЬТАТ ПРОТОКОЛА, А НЕ ЕГО ПРОВАЛ. Обе означают одно и то же: охранник,
+который никто не ломал руками, — обещание, а не правило. Н1в и Н6 попали в DEBTS со своими
+адресами; ни одна строка кода по ним в этой сессии не менялась, потому что обе трогают решения
+владельца (закрытый реестр D5 и вариант R2), а не их исполнение.
+
+СОСТОЯНИЕ ДЕРЕВА ПО ОКОНЧАНИИ ПРОТОКОЛА: porcelain — ровно пять файлов правки Ш5 и каталог
+docs/impl/H-06; ни одного `.h06bak`; `dist` пересобран; контрольные прогоны затронутых файлов
+зелёные, и картинка каждого шаблона побайтово совпала с доработочной.
+
+═══════════════════════════════════════════════════════════════════════════════
+ТЕКСТ ПРОБЫ Н6 (жила в packages/renderer-hyperframes/out/, каталог в .gitignore)
+Вторая проба, probe-n6.mjs, отличалась только концовкой: вместо рендера она читала
+готовый index.html композиции и считала в нём вхождения 'capsTimeline.set' и 'data-start'.
+───────────────────────────────────────────────────────────────────────────────
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { makeTemplateFixture, FIXTURE_PARAMS, readyRequest } from '../dist/test/fixture.js';
+import { renderSegment } from '../dist/src/run.js';
+import { rendererTemplates } from '../dist/src/templates/index.js';
+
+const fx = makeTemplateFixture(
+  [{ template: 'captionEmphasis@1', params: FIXTURE_PARAMS.captionEmphasis, z: 30, withFont: true, window: { start: 0, end: 3 } }],
+  { frames: 12, scale: 1, workers: 4, withCaptions: true, captionWindows: [[0, 6], [6, 12]] },
+);
+const request = await readyRequest(fx.request);
+const res = await renderSegment(request, {
+  clock: () => performance.now(),
+  gate: { mode: 'skip', why: 'проба Н6: кадры' },
+  registry: rendererTemplates,
+  parentEnv: process.env,
+});
+if (!res.ok) throw new Error(`${res.error.rule}: ${res.error.message}`);
+const files = readdirSync(res.frames.dir).filter((n) => n.endsWith('.png')).sort();
+const md5 = files.map((n) => createHash('md5').update(readFileSync(path.join(res.frames.dir, n))).digest('hex').slice(0, 12));
+md5.forEach((h, i) => console.log(`кадр ${String(i).padStart(2)}: ${h}`));
+console.log('различных кадров:', new Set(md5).size);
+console.log('кадр3 == кадр6:', md5[3] === md5[6]);
+console.log('кадр0 == кадр3:', md5[0] === md5[3]);
