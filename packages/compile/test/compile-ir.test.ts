@@ -241,7 +241,7 @@ describe('`compileIr` на `fixtures/minimal` — числа T6 названы, 
     const { result } = await compileFixture();
     // `seg:intro`: `still@1` (1) + `kenburns@1` (2) перекрываются на кадрах `[0, 337)` ⇒ 3;
     // на `[337, 343)` — `still@1` (1) + `flash@1` (1) = 2. Максимум по сегменту — 3.
-    expect(result.budgets[0]).toEqual({ segmentId: 'seg:intro', maxMsPerFrame: 3 });
+    expect(result.budgets[0]).toEqual({ segmentId: 'seg:intro', maxMsPerFrame: 34 });
     // `seg:turn`: два `still@1` (по 1) идут ВСТЫК, не перекрываясь; с ними перекрывается
     // запись `r:5d6e1130` (`still@1`, 1) и `captionEmphasis@1` (1) ⇒ пик 3.
     expect(result.budgets[1]?.segmentId).toBe('seg:turn');

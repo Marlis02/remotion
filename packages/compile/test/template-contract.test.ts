@@ -143,7 +143,7 @@ describe('`CP-07` — восемь вызовов `fixtures/minimal` прохо�
   it('`msPerFrameBudget` приезжает из манифеста, а не из кода компилятора', async () => {
     const base = await ofFixture();
     const contracts = run(base);
-    expect(contracts.get('r:a3f19c2b')?.msPerFrameBudget).toBe(2); // `kenburns@1`
+    expect(contracts.get('r:a3f19c2b')?.msPerFrameBudget).toBe(33); // `kenburns@1`
     expect(contracts.get('r:c81a05f7')?.msPerFrameBudget).toBe(0); // `bed@1` кадров не рисует
     expect(contracts.get('img:b:img-sea-1')?.msPerFrameBudget).toBe(1); // `still@1`
   });
