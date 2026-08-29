@@ -1,0 +1,45 @@
+ПРОТОКОЛ НАРУШЕНИЯ — GATE-PREP, 2026-08-29T14:20:23+00:00
+Н1: поле тройки K4 в файле запроса испорчено РУКАМИ (scale 0.5 → 0.25).
+Резерв: cp packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json /tmp/gateprep-still-draftHalf.bak.json
+--- правка ---
+"pixelProfile":{"browserGpu":false,"imageFormat":"png","scale":0.25}
+
+=== ОХРАННИК 1: побайтовая сверка с билдером (renderer-hyperframes) ===
+     × `still@1.draftHalf.json` совпадает с билдером байт в байт 12ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/gate-requests.test.ts > `GATE-PREP` — восемь файлов запросов равны порождению билдера > `still@1.draftHalf.json` совпадает с билдером байт в байт
+AssertionError: `still@1.draftHalf.json` разошёлся с билдером. Если расхождение ОСОЗНАННОЕ (правка билдера, шаблона или композиции) — перегенерировать: `VPE_GATE_REQUESTS_UPDATE=1 pnpm vitest run packages/renderer-hyperframes/test/gate-requests.test.ts` — и посмотреть дифф глазами: сдвиг `bundle.hash` означает, что ПРЕЖНИЕ записи гейта устарели.: expected '{"assets":[{"path":"assets/pattern-32…' to be '{"assets":[{"path":"assets/pattern-32…' // Object.is equality
+     85|         expect(readFileSync(file, 'utf8'), `\`${name}\` разошёлся с би…
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+
+=== ОХРАННИК 2: тройка K4 против yaml + приём командой (cli) ===
+     × `still@1.draftHalf.json` — три поля адаптера сходятся с `draftHalf` 12ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/cli/test/gate-requests-cli.test.ts > `GATE-PREP` — тройка **K4** каждого файла равна yaml-профилю > `still@1.draftHalf.json` — три поля адаптера сходятся с `draftHalf`
+AssertionError: expected { Object (browserGpu, scale, ...) } to deeply equal { browserGpu: false, scale: 0.5, …(1) }
+-   "scale": 0.5,
++   "scale": 0.25,
+    185|         scale: request.pixelProfile.scale,
+    189|         scale: profile.pixelProfile.scale,
+vpe: R12: запрос и профиль `/home/ct/Desktop/remotion/packages/renderer-hyperframes/gate-profiles/draftHalf.yaml` расходятся: scale: запрос `0.25`, профиль `0.5`. Гейт снимается на ПАРЕ (профиль, композиция) — запрос, собранный на другом профиле, дал бы запись про пару, которой не существует
+: expected 1 to be +0 // Object.is equality
+ Test Files  1 failed (1)
+      Tests  2 failed | 16 passed (18)
+
+--- откат: cp /tmp/gateprep-still-draftHalf.bak.json packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json ---
+git status --porcelain (обязано быть чисто по этому файлу):
+?? packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json
+[пусто ⇒ файл вернулся байт в байт]
+
+=== КОНТРОЛЬНЫЙ ЗЕЛЁНЫЙ ПРОГОН ОБОИХ ФАЙЛОВ ===
+ Test Files  2 passed (2)
+      Tests  36 passed (36)
+
+=== ПОПРАВКА К СТРОКЕ ОТКАТА (важно, чтобы протокол не врал) ===
+`git status --porcelain` напечатал `??`, а не пустоту, И ЭТО ВЕРНО: файл НОВЫЙ, он ещё
+не в индексе (каталог gate-requests/ коммитит владелец). Порожняк там был бы неправдой.
+Байтовое равенство после отката доказывается хэшем, а не статусом git:
+ecb9d95e238368704cada21a33882f51f649f2385170fa880f9457edff491a1b  packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json
+ecb9d95e238368704cada21a33882f51f649f2385170fa880f9457edff491a1b  /tmp/gateprep-still-draftHalf.bak.json
+плюс контрольный зелёный прогон выше — 36 из 36.

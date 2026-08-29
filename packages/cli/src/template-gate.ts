@@ -20,7 +20,11 @@
 //     нет в библиотеке, некуда записать.
 //   * `--request <файл>` — ФИКСТУРА ШАБЛОНА (ADR-0008 п. 1). Охранник: КАЖДЫЙ клип запроса
 //     обязан звать названный шаблон, иначе запись цитировала бы чужой гейт (решение владельца
-//     `E-00`, развилка 1).
+//     `E-00`, развилка 1). *(Смягчено `FIX-01`, №181: соседи законны как ОСНОВАНИЯ.)*
+//     ПУТИ ВНУТРИ ФАЙЛА МОГУТ БЫТЬ ОТНОСИТЕЛЬНЫМИ — они резолвятся от каталога файла запроса,
+//     а не от `cwd` (`resolveRequestPaths`, правка `GATE-PREP` по разрешению владельца):
+//     запросы гейта лежат файлами в репозитории, и абсолютный путь привязал бы их к одному
+//     чекауту.
 //   * `--render-profile <файл.yaml>` — НАСТОЯЩИЙ `render-profile/1` проекта. Он здесь не для
 //     удобства: `buildSegmentArtifact` кодирует кадры полным `pixelProfile` (кодек, crf,
 //     `encoder.*`), а запрос рендерера несёт лишь ТРИ поля, которые читает адаптер
@@ -106,6 +110,46 @@ function readText(file: string, what: string): string {
   }
 }
 
+/**
+ * **ОТНОСИТЕЛЬНЫЕ ПУТИ ФАЙЛА ЗАПРОСА РЕЗОЛВЯТСЯ ОТ КАТАЛОГА САМОГО ФАЙЛА** (правка `GATE-PREP`
+ * по явному разрешению владельца, отступление от «задача не меняет CLI» дано вслух).
+ *
+ * ЗАЧЕМ. Контракт ADR-0008 требует АБСОЛЮТНЫХ путей, и требует справедливо: смысл запроса не
+ * вправе зависеть от рабочего каталога подпроцесса. Но запросы гейта теперь лежат ФАЙЛАМИ в
+ * репозитории (`renderer-hyperframes/gate-requests/`), а абсолютный путь в коммиченном файле
+ * привязал бы их к ОДНОМУ чекауту: владелец снимает гейты с двух машин, и на второй побайтовая
+ * сверка файлов с билдером была бы красной, а runbook — неисполнимым.
+ *
+ * ПОЧЕМУ ОТ КАТАЛОГА ФАЙЛА, А НЕ ОТ `cwd`. `cwd` — ровно та зависимость, которую запрещает
+ * контракт: одна и та же команда из разных каталогов означала бы разные входы. Каталог файла
+ * запроса, наоборот, свойство самого запроса: ассет лежит рядом с ним и переезжает вместе с
+ * ним. В `validateRequest` уходят уже абсолютные пути — правило контракта не ослаблено ни на
+ * шаг, оно применяется ПОСЛЕ разрешения.
+ *
+ * ЧТО РЕЗОЛВИТСЯ. Ровно пять путевых полей запроса. Значения не-строки и абсолютные строки
+ * проходят НЕТРОНУТЫМИ: их разбирает и отвергает валидатор, а не эта функция — иначе отказ
+ * формы превратился бы в невнятный отказ резолва.
+ */
+function resolveRequestPaths(json: unknown, base: string): unknown {
+  const isObject = (v: unknown): v is Record<string, unknown> =>
+    typeof v === 'object' && v !== null && !Array.isArray(v);
+  const at = (v: unknown): unknown =>
+    typeof v === 'string' && !path.isAbsolute(v) ? path.resolve(base, v) : v;
+  const inList = (v: unknown): unknown =>
+    Array.isArray(v) ? v.map((item) => (isObject(item) ? { ...item, path: at(item['path']) } : item)) : v;
+
+  if (!isObject(json)) return json;
+  const bundle = json['bundle'];
+  return {
+    ...json,
+    tmpDir: at(json['tmpDir']),
+    outputPath: at(json['outputPath']),
+    ...(isObject(bundle) ? { bundle: { ...bundle, path: at(bundle['path']) } } : {}),
+    assets: inList(json['assets']),
+    fonts: inList(json['fonts']),
+  };
+}
+
 /** Запрос гейта из файла: JSON + настоящий `validateRequest` адаптера, а не свой разбор. */
 function readRequest(file: string): SegmentRenderRequest {
   const text = readText(file, 'файл запроса');
@@ -121,7 +165,7 @@ function readRequest(file: string): SegmentRenderRequest {
     );
   }
   try {
-    return validateRequest(json);
+    return validateRequest(resolveRequestPaths(json, path.dirname(path.resolve(file))));
   } catch (error) {
     throw new CliError(
       'ADR-0008 форма',

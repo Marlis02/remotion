@@ -10,6 +10,9 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { canonicalJson } from '@vpe/core-model';
 
 import type { SegmentRenderRequest } from '../src/contract.js';
 import { renderSegment } from '../src/run.js';
@@ -221,7 +224,7 @@ export function systemFontBytes(): Buffer {
 }
 
 /** Клип запроса — форма `RenderIrClip`, как её читает `runtime.js`. */
-interface TemplateClip {
+export interface TemplateClip {
   readonly template: string;
   readonly params: Record<string, unknown>;
   readonly z: number;
@@ -373,4 +376,154 @@ export async function readyRequest(
   const hash = /имеет `([0-9a-f]{64})`/u.exec(probe.error.message)?.[1];
   if (hash === undefined) throw new Error(probe.error.message);
   return validateRequest(withPatch(request, { bundle: { ...request.bundle, hash } }));
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// `GATE-PREP`: ВОСЕМЬ ЗАПРОСОВ ГЕЙТА — ФАЙЛАМИ РЕПОЗИТОРИЯ.
+//
+// **ЗАЧЕМ.** До этой задачи запросы гейта существовали только как КОД: `templates-gate.test.ts`
+// строил их в памяти и звал `runGate` мимо команды. Владелец снимает записи гейта командой
+// `vpe template gate --request <файл>` — значит файл обязан существовать, иначе каждый ручной
+// гейт начинается с сочинения запроса заново, и сочинённый разъедется с измеренным.
+//
+// **ЕДИНСТВЕННЫЙ ИСТОЧНИК — ЭТОТ ФАЙЛ** (долг №179: третьей копии фикстуры не заводится).
+// Файлы в `gate-requests/` — ПРОИЗВОДНЫЕ: их порождает `buildGateRequestFile`, сверяет
+// побайтово `test/gate-requests.test.ts`, а правка билдера без перегенерации красит его.
+//
+// **ПУТИ В ФАЙЛЕ ОТНОСИТЕЛЬНЫЕ, И ЭТО РЕШЕНИЕ ВЛАДЕЛЬЦА, А НЕ УДОБСТВО.** `validateRequest`
+// требует абсолютных путей — но абсолютный путь в коммиченном файле привязал бы запросы к
+// ОДНОМУ чекауту: владелец работает с двух машин, и на второй побайтовая сверка была бы
+// красной, а runbook — неисполнимым. Поэтому команда резолвит относительные пути от каталога
+// САМОГО ФАЙЛА ЗАПРОСА (`resolveRequestPaths` в `cli/src/template-gate.ts`, правка по
+// разрешению владельца `GATE-PREP`), и в `validateRequest` уходят уже абсолютные.
+// Исключение — шрифт: он системный и абсолютный по построению (долг №187).
+
+/** Один случай гейта: НАЗВАННЫЙ шаблон и клипы, которыми он снимается. */
+export interface GateRequestCase {
+  /** Имя вызова, по которому пишется запись гейта. */
+  readonly call: string;
+  readonly clips: readonly TemplateClip[];
+  readonly captions: boolean;
+}
+
+/**
+ * Четыре визуальных шаблона. `bed@1` СЮДА НЕ ВХОДИТ — гейт на нём неисполним по построению
+ * (долг №189): он аудио-домена, в `RenderIR.clips` не попадает, а его реализация есть отказ.
+ *
+ * `kenburns@1` — СМЕШАННЫЙ запрос (`still@1` основанием, поправка владельца П2 `H-06`):
+ * шаблон двигает слой НИЖЕ себя, и запрос из одних `kenburns@1` вырожден. Охранник команды
+ * такой запрос пропускает с `FIX-01` (долг №181 закрыт).
+ */
+export const GATE_REQUEST_CASES: readonly GateRequestCase[] = [
+  {
+    call: 'still@1',
+    clips: [{ template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true }],
+    captions: false,
+  },
+  {
+    call: 'kenburns@1',
+    clips: [
+      { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
+      { template: 'kenburns@1', params: FIXTURE_PARAMS.kenburns, z: 10 },
+    ],
+    captions: false,
+  },
+  {
+    call: 'flash@1',
+    clips: [{ template: 'flash@1', params: FIXTURE_PARAMS.flash, z: 20 }],
+    captions: false,
+  },
+  {
+    call: 'captionEmphasis@1',
+    clips: [
+      {
+        template: 'captionEmphasis@1',
+        params: FIXTURE_PARAMS.captionEmphasis,
+        z: 30,
+        withFont: true,
+      },
+    ],
+    captions: true,
+  },
+];
+
+/** Профиль пары: то, чем `draftHalf` отличается от `final` в ЗАПРОСЕ. */
+export interface GateRequestProfile {
+  readonly profileId: string;
+  /** `scale` — из yaml-профиля гейта, а не из тестовых чисел `H-06`: команда их СВЕРЯЕТ (**K4**). */
+  readonly scale: number;
+  readonly workers: number;
+  readonly frames: number;
+}
+
+/**
+ * Два профиля гейта. Числа — не выдумка:
+ *
+ * * `scale` и `workers` дословно из `gate-profiles/draftHalf.yaml` и
+ *   `fixtures/minimal/profiles/render.final.yaml`. `scale: 0.5` (а не 0.25 из
+ *   `templates-gate.test.ts`) — потому что команда сверяет тройку **K4** запроса с yaml, а
+ *   тест звал `runGate` напрямую и сверки не проходил.
+ * * кадры — как в живых тестах `H-06`: 12 у `draftHalf` (0.4 с при 30 fps) и 6 у `final`
+ *   (там в шестнадцать раз больше пикселей на кадр и N = 10 вместо 3).
+ */
+export const GATE_REQUEST_PROFILES: readonly GateRequestProfile[] = [
+  { profileId: 'draftHalf', scale: 0.5, workers: 4, frames: 12 },
+  { profileId: 'final', scale: 1, workers: 4, frames: 6 },
+];
+
+/**
+ * Пути ФАЙЛА запроса. Относительные — от каталога файла (см. шапку раздела).
+ *
+ * Настоящий здесь ровно один — `asset`. Остальные три ПЛЕЙСХОЛДЕРЫ: гейт перекрывает
+ * `tmpDir`, `outputPath` и `bundle.path` под своим `runRoot` (`requestForRun` в `src/gate.ts`),
+ * поэтому их значения в файле не читает никто, кроме валидатора формы. Имя `.gate-run`
+ * выбрано говорящим, а `outputPath` вынесен ИЗ `tmpDir` — **R2** этого требует.
+ */
+export const GATE_REQUEST_PATHS = {
+  asset: 'assets/pattern-32.png',
+  tmpDir: '.gate-run/tmp',
+  bundlePath: '.gate-run/tmp/composition',
+  outputPath: '.gate-run/segment.mts',
+} as const;
+
+/** Каталог файлов запросов — от исходника фикстуры, а не от `cwd`. */
+export function gateRequestsDir(): string {
+  return fileURLToPath(new URL('../gate-requests', import.meta.url));
+}
+
+/** Имя файла запроса: `<шаблон>.<профиль>.json`, например `still@1.draftHalf.json`. */
+export function gateRequestFileName(kase: GateRequestCase, profile: GateRequestProfile): string {
+  return `${kase.call}.${profile.profileId}.json`;
+}
+
+/**
+ * **ПОРОЖДЕНИЕ ФАЙЛА ЗАПРОСА** — билдер, `bundle.hash` измерением, `canonicalJson`.
+ *
+ * `bundle.hash` не выдумывается и не копируется: его считает МАТЕРИАЛИЗАЦИЯ (`readyRequest`),
+ * то есть тот же код, который построит каталог композиции при живом гейте. Браузера здесь нет
+ * — `spawnRenderer` подставной, отказ по `bundle.hash` наступает до запуска рендерера.
+ *
+ * Сериализация — `canonicalJson`, а не `JSON.stringify`: файл лежит в git, и две формы записи
+ * одного факта дали бы два диффа на одно измерение (ADR-0007 §3).
+ */
+export async function buildGateRequestFile(
+  kase: GateRequestCase,
+  profile: GateRequestProfile,
+): Promise<string> {
+  const fixture = makeTemplateFixture([...kase.clips], {
+    frames: profile.frames,
+    scale: profile.scale,
+    workers: profile.workers,
+    withCaptions: kase.captions,
+  });
+  const request = await readyRequest(fixture.request);
+  const file = {
+    ...request,
+    tmpDir: GATE_REQUEST_PATHS.tmpDir,
+    outputPath: GATE_REQUEST_PATHS.outputPath,
+    bundle: { ...request.bundle, path: GATE_REQUEST_PATHS.bundlePath },
+    assets: request.assets.map((asset) => ({ ...asset, path: GATE_REQUEST_PATHS.asset })),
+    fonts: request.fonts.map((font) => ({ ...font, path: SYSTEM_FONT_PATH })),
+  };
+  return `${canonicalJson(file)}\n`;
 }
