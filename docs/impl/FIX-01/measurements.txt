@@ -1,0 +1,113 @@
+ИЗМЕРЕНИЯ `FIX-01` — СЫРЫЕ ЛОГИ ЗОНДОВ
+======================================
+
+МАШИНА: node v25.6.1, Linux x64, TZ=UTC LC_ALL=C,
+        chrome-headless-shell 152.0.7928.2 (пришпиленный),
+        engineFingerprint 61db2ca89df0c42fb939ae1f58c52f753e98e2f14e521d785b906ae85e1363a0
+
+Зонды жили в `packages/renderer-hyperframes/out/` — каталог в .gitignore и в ignores
+eslint, поэтому в дифф задачи они не входят; здесь приведены целиком, чтобы измерения
+можно было повторить.
+
+═══ ЗОНД 1: probe-scale.mjs — доля нечёрных пикселей по квадрантам (§2 отчёта) ═══
+  // ЗОНД №182: где именно теряется кадр при `scale < 1`.
+  // Каталог `out/` — в `.gitignore` и в `ignores` eslint; в дифф не входит.
+  import { renderSegment } from '../dist/src/run.js';
+  import { decodeRgb, pngSize } from '../dist/src/where.js';
+  import { makeTemplateFixture, readyRequest } from '../dist/test/fixture.js';
+  import { TEST_REGISTRY } from '../dist/test/solid.js';
+  import path from 'node:path';
+  
+  const clock = () => { let t = 0; return () => (t += 10); };
+  
+  async function shot(scale) {
+    const fixture = makeTemplateFixture(
+      [{ template: 'solid@1', params: { color: '#204080' }, z: 0 }],
+      { frames: 2, scale },
+    );
+    const request = await readyRequest(fixture.request, TEST_REGISTRY);
+    const r = await renderSegment(request, {
+      clock: clock(), gate: { mode: 'skip', why: 'зонд №182' },
+      registry: TEST_REGISTRY, parentEnv: process.env,
+    });
+    if (!r.ok) throw new Error(`${r.error.rule}: ${r.error.message}`);
+    const file = path.join(r.frames.dir, 'frame_000001.png');
+    const size = pngSize(file);
+    const buf = await decodeRgb(file);
+    // Доля НЕЧЁРНЫХ пикселей по четырём квадрантам.
+    const q = [0, 0, 0, 0], n = [0, 0, 0, 0];
+    for (let y = 0; y < size.height; y++) {
+      for (let x = 0; x < size.width; x++) {
+        const i = (y * size.width + x) * 3;
+        const lit = buf[i] !== 0 || buf[i + 1] !== 0 || buf[i + 2] !== 0;
+        const k = (y < size.height / 2 ? 0 : 2) + (x < size.width / 2 ? 0 : 1);
+        n[k]++; if (lit) q[k]++;
+      }
+    }
+    const pct = q.map((v, k) => Math.round((v / n[k]) * 1000) / 10);
+    const px = (yy, xx) => { const i = (yy * size.width + xx) * 3; return `${buf[i]},${buf[i+1]},${buf[i+2]}`; };
+    console.log(`scale ${scale}: PNG ${size.width}x${size.height}`);
+    console.log(`  нечёрных по квадрантам, %: ЛВ ${pct[0]}  ПВ ${pct[1]}  ЛН ${pct[2]}  ПН ${pct[3]}`);
+    console.log(`  проба пикселей: центр ЛВ=${px(size.height >> 2, size.width >> 2)}  центр ПН=${px((size.height * 3) >> 2, (size.width * 3) >> 2)}`);
+    return { size, pct };
+  }
+  
+  for (const s of [1, 0.5]) await shot(s);
+
+  ── прогон НА ИТОГОВОМ состоянии дерева:
+  scale 1: PNG 1080x1920
+    нечёрных по квадрантам, %: ЛВ 100  ПВ 100  ЛН 100  ПН 100
+    проба пикселей: центр ЛВ=32,64,128  центр ПН=32,64,128
+  scale 0.5: PNG 540x960
+    нечёрных по квадрантам, %: ЛВ 100  ПВ 100  ЛН 100  ПН 100
+    проба пикселей: центр ЛВ=32,64,128  центр ПН=32,64,128
+
+═══ ЗОНД 2: probe-hash.mjs — пары bundle.hash (§3 отчёта) ═══
+  // Зонд пар `bundle.hash`: композиция `solid@1` на трёх масштабах. Рендера нет — только
+  // материализация (хэш добывается из текста отказа R2, тем же приёмом, что `readyRequest`).
+  import { makeTemplateFixture, readyRequest } from '../dist/test/fixture.js';
+  import { TEST_REGISTRY } from '../dist/test/solid.js';
+  for (const scale of [1, 0.5, 0.25]) {
+    const f = makeTemplateFixture([{ template: 'solid@1', params: { color: '#204080' }, z: 0 }],
+      { frames: 2, scale });
+    const r = await readyRequest(f.request, TEST_REGISTRY);
+    console.log(`  scale ${String(scale).padEnd(4)} → ${r.bundle.hash}`);
+  }
+
+  ── прогон НА ИТОГОВОМ состоянии дерева:
+    scale 1    → 851e5e49ce2ea87aa8b999f5b6f79b20e8c2ab8174b073dcb4d3e49e5363de0c
+    scale 0.5  → f114b20a762a2009ecf1a61c2711df2f4a3f2a5da7fbadf3bdb6f32013a59138
+    scale 0.25 → 24546a99cc9bf3884c5266bd8be86ef434af43ea69ddf031e5d6d00c489a85c8
+
+═══ ЗОНД 3: probe-easing-form.mjs — форма «похожести» кривой (§4 отчёта) ═══
+  // Замер формы «похожести» для №184: сколько литералов РАЗРЕШЁННОГО `mountSource` она ловит
+  // и сколько из них — ложные (не кривые).
+  import { rendererTemplates } from '../dist/src/templates/index.js';
+  import { SOLID_TEMPLATE } from '../dist/test/solid.js';
+  import { EASING_REGISTRY } from '@vpe/templates-spec';
+  
+  const LOOKS = /^[A-Za-z][A-Za-z0-9]*\.[A-Za-z][A-Za-z0-9]*(\([^)]*\))?$|^none$/u;
+  const literals = (src) => [...src.matchAll(/'([^'\\]*)'|"([^"\\]*)"/gu)].map((m) => m[1] ?? m[2] ?? '');
+  
+  let total = 0, hits = 0;
+  for (const impl of [...rendererTemplates.templates, SOLID_TEMPLATE]) {
+    const all = literals(impl.mountSource);
+    const matched = all.filter((s) => LOOKS.test(s));
+    total += all.length; hits += matched.length;
+    console.log(`${impl.templateId}@${impl.templateVersion}: литералов ${all.length}, похожих на кривую ${matched.length}` +
+      (matched.length ? ` → ${matched.map((s) => `'${s}'` + (EASING_REGISTRY.includes(s) ? ' [в реестре]' : ' [ВНЕ РЕЕСТРА]')).join(', ')}` : ''));
+  }
+  console.log(`ИТОГО: литералов ${total}, срабатываний ${hits}`);
+  console.log(`проба Н1в: 'elastic.out' → ловится=${LOOKS.test('elastic.out')}, в реестре=${EASING_REGISTRY.includes('elastic.out')}`);
+  console.log(`контроль форм: 'back.out(1.7)'→${LOOKS.test('back.out(1.7)')}, 'none'→${LOOKS.test('none')}, 'cover'→${LOOKS.test('cover')}, '#ffffff'→${LOOKS.test('#ffffff')}, '50%'→${LOOKS.test('50%')}, 'style.transform'→${LOOKS.test('style.transform')}`);
+
+  ── прогон НА ИТОГОВОМ состоянии дерева:
+  kenburns@1: литералов 19, похожих на кривую 0
+  flash@1: литералов 7, похожих на кривую 1 → 'power3.out' [в реестре]
+  bed@1: литералов 6, похожих на кривую 0
+  still@1: литералов 14, похожих на кривую 0
+  captionEmphasis@1: литералов 43, похожих на кривую 0
+  solid@1: литералов 13, похожих на кривую 0
+  ИТОГО: литералов 102, срабатываний 1
+  проба Н1в: 'elastic.out' → ловится=true, в реестре=false
+  контроль форм: 'back.out(1.7)'→true, 'none'→true, 'cover'→false, '#ffffff'→false, '50%'→false, 'style.transform'→true

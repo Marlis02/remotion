@@ -69,14 +69,19 @@ async function run(argv: readonly string[], gate?: () => Promise<GateOutcome>): 
 }
 
 /** Полная командная строка гейта на `still@1` в своём tmp. */
-function scene(options: { gatesDir?: string; second?: string; profileId?: string; scale?: number } = {}): {
+function scene(
+  options: { gatesDir?: string; second?: string; template?: string; profileId?: string; scale?: number } = {},
+): {
   argv: string[];
   gatesDir: string;
   root: string;
 } {
   const root = tempDir('gate');
   const gatesDir = options.gatesDir ?? tempDir('lib');
-  const request = writeRequest(root, options.second === undefined ? {} : { second: options.second });
+  const request = writeRequest(root, {
+    ...(options.second === undefined ? {} : { second: options.second }),
+    ...(options.template === undefined ? {} : { template: options.template }),
+  });
   const profile = writeRenderProfile(
     root,
     options.profileId === undefined && options.scale === undefined
@@ -120,14 +125,39 @@ describe('`vpe template gate` — отказы до единого прогон�
     expect(existsSync(path.join(gatesDir, 'solid@1.gates.json'))).toBe(false);
   });
 
-  it('**запрос зовёт ЧУЖОЙ шаблон — отказ** (охранник фикстуры, развилка 1)', async () => {
-    const { argv } = scene({ second: 'flash@1' });
+  // ── №181: «запрос вправе нести шаблоны-ОСНОВАНИЯ; запись пишется по НАЗВАННОМУ» ───────
+  // ~~Прежнее правило: каждый клип обязан звать названный шаблон.~~ *(изменено: `FIX-01`,
+  // 2026-08-29.)* Три теста вместо одного, потому что смягчённое правило состоит из трёх
+  // условий, и снятие любого из них возвращает подмену, ради которой охранник написан.
+
+  it('**СМЕШАННЫЙ запрос ПРОХОДИТ**: сосед из библиотеки — основание, а не подмена', async () => {
+    const { argv, gatesDir } = scene({ second: 'kenburns@1' });
+    const result = await run(argv, () => Promise.resolve(outcome()));
+    expect(result.code, result.err).toBe(EXIT.pass);
+    // Запись легла по НАЗВАННОМУ шаблону, а не по соседу, — это и есть вторая половина
+    // правила: сосед участвует в измерении, но не в имени записи.
+    expect(existsSync(path.join(gatesDir, 'still@1.gates.json'))).toBe(true);
+    expect(existsSync(path.join(gatesDir, 'kenburns@1.gates.json'))).toBe(false);
+  });
+
+  it('**запрос БЕЗ названного шаблона — отказ**: основание без того, ради чего оно положено', async () => {
+    const { argv } = scene({ template: 'kenburns@1' });
     const result = await run(argv, () => {
       throw new Error('гейт не должен был запуститься');
     });
     expect(result.code).toBe(EXIT.refusal);
-    expect(result.err).toMatch(/запрос зовёт 1 чужой\(-их\) шаблон\(ов\): flash@1/u);
-    expect(result.err).toMatch(/цитировала бы измерение чужой/u);
+    expect(result.err).toMatch(/не содержит НИ ОДНОГО клипа шаблона `still@1`/u);
+    expect(result.err).toMatch(/гейт другого шаблона под чужим именем/u);
+  });
+
+  it('**сосед ВНЕ библиотеки — отказ**: основанием может быть только шаблон со спеком', async () => {
+    const { argv } = scene({ second: 'solid@1' });
+    const result = await run(argv, () => {
+      throw new Error('гейт не должен был запуститься');
+    });
+    expect(result.code).toBe(EXIT.refusal);
+    expect(result.err).toMatch(/1 шаблон\(ов\) ВНЕ библиотеки: solid@1/u);
+    expect(result.err).toContain('kenburns@1');
   });
 
   it('`profileId` файла профиля разошёлся с `--profile` — отказ: пара названа дважды', async () => {

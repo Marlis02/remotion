@@ -148,14 +148,35 @@ function readRenderProfile(file: string): RenderProfile {
 }
 
 /**
- * **Охранник фикстуры: КАЖДЫЙ клип запроса зовёт названный шаблон** (решение владельца
- * `E-00`, развилка 1).
+ * **Охранник фикстуры.** ~~КАЖДЫЙ клип запроса зовёт названный шаблон~~ *(изменено: `FIX-01`,
+ * 2026-08-29 — правило смягчено формулировкой владельца, долг №181 закрыт.)*
  *
- * Без него команда сняла бы гейт на чужой композиции и записала бы его в манифест названного
- * шаблона: обе величины (`sha256`, `framemd5`) описывали бы файл, к этому шаблону отношения
- * не имеющий, — а **R12** пустила бы по такой записи сборку.
+ * **ЗАПРОС ГЕЙТА ВПРАВЕ НЕСТИ ШАБЛОНЫ-ОСНОВАНИЯ; ЗАПИСЬ ПИШЕТСЯ ПО НАЗВАННОМУ.** Названный
+ * обязан присутствовать хотя бы одним клипом; остальные клипы обязаны звать шаблоны ИЗ
+ * БИБЛИОТЕКИ; запроса без названного не бывает — это отказ.
+ *
+ * ПОЧЕМУ ПРЕЖНЕЕ ПРАВИЛО БЫЛО НЕИСПОЛНИМО, И ЭТО ИЗМЕРЕНИЕ, А НЕ УДОБСТВО. `kenburns@1` по
+ * решению владельца `TS-01` (вопрос 5) объявляет `declareAssets` пустым и двигает слой НИЖЕ
+ * себя. Запрос из ОДНИХ `kenburns@1` поэтому вырожден по построению: двигать нечего, и его
+ * реализация обязана дать `error` (поправка П1-б, `H-06`, проверено тестом). Значит гейт
+ * единственного шаблона, который двигает пиксели, снимается только на паре
+ * `[still@1, kenburns@1]` — и ровно такой запрос прежнее правило отвергало. Долг №181.
+ *
+ * ЧТО ОХРАННИК ПО-ПРЕЖНЕМУ ДЕРЖИТ, И ЭТО ГЛАВНОЕ. Прежняя защита была не от соседей, а от
+ * ПОДМЕНЫ: без неё команда сняла бы гейт на чужой композиции и записала его в манифест
+ * названного шаблона — обе величины (`sha256`, `framemd5`) описывали бы файл, к этому шаблону
+ * отношения не имеющий, а **R12** пустила бы по такой записи сборку. Подмена закрыта двумя
+ * условиями, а не одним: (1) названный шаблон обязан РИСОВАТЬ в этом файле — иначе запись
+ * цитировала бы измерение, в котором его нет; (2) соседи обязаны быть ИЗ БИБЛИОТЕКИ — то есть
+ * шаблонами, у которых есть спек и своя запись гейта, а не произвольным кодом, приехавшим в
+ * запрос. Что файл рисуют все клипы вместе — по-прежнему верно, и поэтому «основания» это
+ * основания, а не украшение: они входят в измерение названного шаблона осознанно.
  */
-function assertRequestCallsTemplate(request: SegmentRenderRequest, template: string): void {
+function assertRequestCarriesTemplate(
+  request: SegmentRenderRequest,
+  template: string,
+  libraryNames: readonly string[],
+): void {
   const calls = request.ir.clips.map((clip) => clip.template);
   if (calls.length === 0) {
     throw new CliError(
@@ -165,20 +186,40 @@ function assertRequestCallsTemplate(request: SegmentRenderRequest, template: str
         '§5.4: прибор, меряющий инициализацию вместо отрисовки, даёт зелёный гейт ни о чём)',
     );
   }
-  const foreign = [...new Set(calls)].filter((call) => {
+
+  /** Имя вызова в канонической форме; `null` — имя не разбирается грамматикой `TS-01`. */
+  const canonical = (call: string): string | null => {
     try {
-      return formatTemplateName(parseTemplateName(call)) !== template;
+      return formatTemplateName(parseTemplateName(call));
     } catch {
-      return true;
+      return null;
     }
-  });
-  if (foreign.length > 0) {
+  };
+  const unique = [...new Set(calls)];
+
+  if (!unique.some((call) => canonical(call) === template)) {
     throw new CliError(
       'R12',
-      `запрос зовёт ${String(foreign.length)} чужой(-их) шаблон(ов): ${foreign.join(', ')}, ` +
-        `а гейт снимается для \`${template}\`. Запись цитировала бы измерение чужой ` +
-        'композиции: обе величины (`sha256`, `framemd5`) описывают ФАЙЛ, а файл рисуют все ' +
-        'клипы запроса вместе',
+      `запрос не содержит НИ ОДНОГО клипа шаблона \`${template}\` — он зовёт ` +
+        `${unique.join(', ')}. Запись гейта пишется по НАЗВАННОМУ шаблону, и её обе величины ` +
+        '(`sha256`, `framemd5`) описывают файл; файл, в котором названный шаблон не рисует, ' +
+        'измеряет не его. Соседние шаблоны в запросе законны как ОСНОВАНИЯ (например, ' +
+        '`still@1` под `kenburns@1`), но основание без того, ради чего оно положено, — это ' +
+        'гейт другого шаблона под чужим именем',
+    );
+  }
+
+  const outside = unique.filter((call) => {
+    const name = canonical(call);
+    return name === null || (name !== template && !libraryNames.includes(name));
+  });
+  if (outside.length > 0) {
+    throw new CliError(
+      'R12',
+      `запрос зовёт ${String(outside.length)} шаблон(ов) ВНЕ библиотеки: ` +
+        `${outside.join(', ')}. Соседние клипы законны только как основания, то есть ` +
+        'шаблоны, у которых есть спек и собственная запись гейта. Библиотека: ' +
+        (libraryNames.length === 0 ? '— (пуста)' : libraryNames.join(', ')),
     );
   }
 }
@@ -260,7 +301,11 @@ export async function templateGate(args: TemplateGateArgs, deps: TemplateGateDep
   }
 
   const request = readRequest(args.requestPath);
-  assertRequestCallsTemplate(request, template);
+  assertRequestCarriesTemplate(
+    request,
+    template,
+    library.loaded.map((loaded) => loaded.name),
+  );
   assertRequestMatchesProfile(request, profile, args.renderProfilePath);
 
   const runRoot = args.runRoot ?? mkdtempSync(path.join(tmpdir(), 'vpe-gate-'));

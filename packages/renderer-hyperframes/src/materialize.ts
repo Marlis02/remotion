@@ -248,7 +248,12 @@ export function materializeComposition(
     // РАСКРЫТИЕ `scale` В ГЕОМЕТРИЮ — обязанность АДАПТЕРА (ADR-0008): `--resolution` у
     // HyperFrames умеет только целые множители ВВЕРХ, аналога `scale: 0.5` нет
     // (`FACT` SP-3c §6.2 п. 8), поэтому половинный профиль выражается геометрией композиции
-    // и CSS-трансформом. Тест раскрытия — `H-02`; здесь механизм.
+    // ~~и CSS-трансформом~~ *(изменено: `FIX-01`, 2026-08-29 — трансформы больше нет, долг
+    // №182: она была ВТОРОЙ простановкой поверх рендереровой, и вместе они давали `scale` в
+    // квадрате).* Число едет в `manifest.json` и в `width`/`height` выше; в `index.html`
+    // множителем оно НЕ раскрывается ни разу — разбор в комментарии у `indexHtml`.
+    // ~~Тест раскрытия — `H-02`~~ *(изменено там же: тест есть, и он браузерный —
+    // [`scale-render.test.ts`](../test/scale-render.test.ts)).*
     scale: request.pixelProfile.scale,
     width,
     height,
@@ -330,6 +335,16 @@ function embedJson(json: string): string {
  * не падает, а идёт неограниченно долго (наблюдалось 0–2 кадра из 30 за 13 минут). Отдельный
  * `<script src="./runtime.js">` он тоже не разворачивает, поэтому текст встраивается.
  *
+ * **`html`/`body` СТОЯТ В БАЗОВОЙ ГЕОМЕТРИИ, И ЭТО НЕ ПОЛОВИНА ЛЕЧЕНИЯ №182, А КОГЕРЕНТНОСТЬ.**
+ * Сказано отдельно, чтобы следующий читатель не принял одно за другое. Дефект «композиция в
+ * четверти кадра» чинится РОВНО снятием `transform: scale()` с `#root` — и это ИЗМЕРЕНО
+ * опытом «Б» (`FIX-01`): при оставленных МАСШТАБИРОВАННЫХ `html`/`body` и снятой трансформе
+ * кадр уже заполнен целиком (доля нечёрных по квадрантам `100 / 100 / 100 / 100`). Размер
+ * `html`/`body` приведён к `baseWidth`/`baseHeight` вторым, отдельным куском правки — просто
+ * потому, что `#root` внутри них имеет ровно эти размеры, и меньший `body` с `overflow:
+ * hidden` описывал бы обрезание, которого не происходит. При `scale === 1` эта правка не
+ * меняет НИ ОДНОГО БАЙТА композиции (`width === baseWidth`), то есть цены у неё нет.
+ *
  * ПОЧЕМУ IR ЛЕЖИТ И ФАЙЛОМ, И ВСТАВКОЙ. `ir.json` в каталоге — вход рендера, который входит в
  * `compositionHash` и который можно прочитать глазами при разборе; вставка в HTML — то, что
  * читает браузер. Байты у обоих ОДНИ И ТЕ ЖЕ (одна строка `irJson`, разойтись им негде), а
@@ -361,12 +376,22 @@ function indexHtml(
     .map(([call, source]) => `      ${canonicalJson(call)}: ${source},`)
     .join('\n');
 
-  // `transform: scale()` — раскрытие `scale` профиля; при `scale === 1` трансформа нет вовсе,
-  // чтобы у полного профиля не появлялось лишнего слоя композитинга.
-  const transform =
-    manifest.scale === 1
-      ? ''
-      : `\n      #root { transform: scale(${String(manifest.scale)}); transform-origin: 0 0; }`;
+  // ~~`transform: scale()` — раскрытие `scale` профиля; при `scale === 1` трансформа нет
+  // вовсе, чтобы у полного профиля не появлялось лишнего слоя композитинга.~~
+  // *(изменено: `FIX-01`, 2026-08-29 — трансформа СНЯТА, долг №182.)*
+  //
+  // **ЗДЕСЬ МАСШТАБА НЕТ И БЫТЬ НЕ ДОЛЖНО: ЕГО РАСКРЫВАЕТ САМ РЕНДЕРЕР.** Простановка была
+  // ВТОРОЙ, и обе вместе давали `scale` в квадрате: `FACT` (`FIX-01`, зонд по пикселям на
+  // `solid@1`) — при `scale: 0.5` кадр выходил 540×960, но содержимое занимало 270×480, то
+  // есть доля НЕЧЁРНЫХ пикселей по квадрантам кадра равнялась `100 / 0 / 0 / 0`. Со снятой
+  // трансформой те же четыре числа — `100 / 100 / 100 / 100`. Охранник — браузерный
+  // [`scale-render.test.ts`](../test/scale-render.test.ts).
+  //
+  // ЧЕМ РЕНДЕРЕР УЗНАЁТ РАЗМЕР ВЫХОДА: `data-width`/`data-height` корня (и `meta viewport`) —
+  // они остаются МАСШТАБИРОВАННЫМИ, и это не забытая половина, а вход. Композиция авторится
+  // в БАЗОВОЙ геометрии (`#root` = `baseWidth × baseHeight`), рендерер выдаёт кадр в
+  // объявленной. Аналога `scale: 0.5` у `--resolution` по-прежнему нет (`FACT` SP-3c §6.2
+  // п. 8) — но он и не нужен: канал раскрытия есть, просто он один, а не два.
 
   return `<!doctype html>
 <html lang="en">
@@ -388,9 +413,9 @@ ${freezeSource}
     </script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: ${String(manifest.width)}px; height: ${String(manifest.height)}px; overflow: hidden; background: #000; }
+      html, body { width: ${String(manifest.baseWidth)}px; height: ${String(manifest.baseHeight)}px; overflow: hidden; background: #000; }
       #root { position: relative; width: ${String(manifest.baseWidth)}px; height: ${String(manifest.baseHeight)}px; overflow: hidden; background: #000; }
-      .layer { position: absolute; inset: 0; width: ${String(manifest.baseWidth)}px; height: ${String(manifest.baseHeight)}px; }${transform}
+      .layer { position: absolute; inset: 0; width: ${String(manifest.baseWidth)}px; height: ${String(manifest.baseHeight)}px; }
 ${faces}
     </style>
   </head>

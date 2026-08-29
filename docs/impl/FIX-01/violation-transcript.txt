@@ -1,0 +1,168 @@
+ПРОТОКОЛ НАРУШЕНИЙ `FIX-01` — четыре охранника, сломанные РУКАМИ
+================================================================
+
+ЗАЧЕМ. Охранник, который никто не ломал, — обещание, а не правило. `H-06` показал это делом:
+два охранника из его протокола оказались зелёными на своём же нарушении (Н1в и Н6), и оба
+стали долгами №184 и №185 — теми самыми, что чинит эта задача.
+
+ПОРЯДОК, ОДИН И ТОТ ЖЕ ДЛЯ КАЖДОГО НАРУШЕНИЯ:
+  * резерв файла — ТОЛЬКО `cp` (`<файл>.fix01bak`), никаких `git stash`/`checkout`;
+  * правка руками, пересборка, прогон затронутого файла;
+  * откат — ТОЛЬКО `cp` обратно, резерв удаляется;
+  * после отката: `git status --porcelain` И КОНТРОЛЬНЫЙ ЗЕЛЁНЫЙ ПРОГОН затронутого файла.
+    «Откатил» проверяется поведением, а не словами (прецедент приёмки `H-06fix`).
+
+ОЖИДАЕМЫЙ porcelain НА ВСЁМ ПРОТОКОЛЕ — состояние пакета `FIX-01` и ничего сверх:
+   M packages/cli/src/template-gate.ts
+   M packages/cli/test/template-gate.test.ts
+   M packages/renderer-hyperframes/src/composition/runtime.js
+   M packages/renderer-hyperframes/src/materialize.ts
+   M packages/renderer-hyperframes/test/captions-visibility.test.ts
+   M packages/renderer-hyperframes/test/templates.test.ts
+  ?? docs/impl/FIX-01/
+  ?? packages/renderer-hyperframes/test/scale-render.test.ts
+
+───────────────────────────────────────────────────────────────────────────────
+Н1 — ДВОЙНОЙ МАСШТАБ ВЕРНУЛСЯ РУКАМИ. Охранник — scale-render.test.ts (№182).
+     materialize.ts: назад вписан `#root { transform: scale(<scale>); transform-origin: 0 0 }`
+     Ожидание: КРАСНОЕ на квадрантах — 100/0/0/0 вместо 100/100/100/100.
+
+$ npx vitest run packages/renderer-hyperframes/test/scale-render.test.ts
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: квадранты: 100 / 0 / 0 / 0: expected [ 100, +0, +0, +0 ] to deeply equal [ 100, 100, 100, 100 ]
+      114|       expect(shot.quadrants, `квадранты: ${shot.quadrants.join(' / ')}…
+   Test Files  1 failed (1)
+        Tests  1 failed | 2 passed (3)
+
+  РЕЗУЛЬТАТ Н1 — КРАСНОЕ, и прибор назвал ровно ту картинку, которой описан дефект:
+    квадранты 100 / 0 / 0 / 0 — содержимое в левой верхней четверти. Два соседних теста
+    файла (scale 1 и самопроверка прибора) остались зелёными: правка бьёт по scale < 1,
+    как и обязана, — полный профиль трансформа не касалась и до неё.
+
+  ОТКАТ Н1 (только cp, резерв удалён):
+$ cp materialize.ts.fix01bak materialize.ts && rm materialize.ts.fix01bak
+$ git status --porcelain
+   M packages/cli/src/template-gate.ts
+   M packages/cli/test/template-gate.test.ts
+   M packages/renderer-hyperframes/src/composition/runtime.js
+   M packages/renderer-hyperframes/src/materialize.ts
+   M packages/renderer-hyperframes/test/captions-visibility.test.ts
+   M packages/renderer-hyperframes/test/templates.test.ts
+  ?? docs/impl/FIX-01/
+  ?? packages/renderer-hyperframes/test/scale-render.test.ts
+$ npx vitest run packages/renderer-hyperframes/test/scale-render.test.ts   # контроль
+   Test Files  1 passed (1)
+        Tests  3 passed (3)
+  ОТКАТ Н1 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — те же восемь строк пакета, резерва нет.
+
+───────────────────────────────────────────────────────────────────────────────
+Н2 — ЗАПРОС БЕЗ НАЗВАННОГО ШАБЛОНА. Охранник — assertRequestCarriesTemplate (№181).
+     Ломается НЕ код, а ВХОД: команде подаётся тот же смешанный запрос, но гейт
+     называется по шаблону, которого в нём нет. Это и есть подмена, от которой охранник
+     написан, — в её единственной оставшейся после смягчения форме.
+     Ожидание: отказ, код выхода 1, ни одного прогона браузера.
+
+$ vpe template gate flash@1 --request <смешанный still+kenburns> …
+EXIT=1
+  vpe: R12: запрос не содержит НИ ОДНОГО клипа шаблона `flash@1` — он зовёт still@1, kenburns@1. Запись гейта пишется по НАЗВАННОМУ шаблону, и её обе величины (`sha256`, `framemd5`) описывают файл; файл, в котором названный шаблон не рисует, измеряет не его. Соседние шаблоны в запросе законны как ОСНОВАНИЯ (например, `still@1` под `kenburns@1`), но основание без того, ради чего оно положено, — это гейт другого шаблона под чужим именем
+  записей в каталоге: 0
+
+  РЕЗУЛЬТАТ Н2 — КРАСНОЕ (код 1), браузер не запускался, каталог записей ПУСТ.
+  ОТКАТЫВАТЬ НЕЧЕГО, И ЭТО СКАЗАНО ВСЛУХ: нарушение жило во ВХОДЕ, а не в файле
+  репозитория, — резерв не создавался, и  обратно не требовался.
+$ git status --porcelain
+   M packages/cli/src/template-gate.ts
+   M packages/cli/test/template-gate.test.ts
+   M packages/renderer-hyperframes/src/composition/runtime.js
+   M packages/renderer-hyperframes/src/materialize.ts
+   M packages/renderer-hyperframes/test/captions-visibility.test.ts
+   M packages/renderer-hyperframes/test/templates.test.ts
+  ?? docs/impl/FIX-01/
+  ?? packages/renderer-hyperframes/test/scale-render.test.ts
+
+───────────────────────────────────────────────────────────────────────────────
+Н3 — КРИВАЯ ВНЕ РЕЕСТРА D5 ЛИТЕРАЛОМ В ТЕКСТЕ mountSource. Охранник — юнит Н1 (№184).
+     flash@1.ts: ease: ${canonicalJson(FLASH_EASE)} → ease: 'elastic.out'
+     Это ДОСЛОВНО вставка Н1в протокола `H-06` — та, на которой прежний охранник
+     промолчал, а гейт V13 дал PASS на других кадрах (sha cd853a1f… против bb18d149…).
+     Ожидание: КРАСНОЕ на членстве в реестре, до всякого браузера.
+
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: flash@1: литерал `elastic.out` похож на имя кривой, но реестра D5 в нём нет. Текст `mountSource` — строка, и `satisfies EasingId` её не проверяет: кривая вне реестра доезжает до кадров и получает запись гейта (измерено `H-06`, Н1в): expected false to be true // Object.is equality
+   Test Files  1 failed (1)
+        Tests  1 failed | 35 passed (36)
+
+  РЕЗУЛЬТАТ Н3 — КРАСНОЕ, и текст отказа называет причину, которой прежде не было:
+    «литерал `elastic.out` похож на имя кривой, но реестра D5 в нём нет».
+    35 остальных утверждений файла зелены — фильтр бьёт по кривым, а не по тексту.
+    ПРОВЕРЕНО ОТДЕЛЬНО: дифф нарушения — РОВНО одна строка (git diff --numstat = 1 1).
+
+  ОТКАТ Н3 (только cp, резерв удалён):
+$ cmp <HEAD-версия> flash@1.ts.fix01bak   # резерв валиден, побайтово равен
+$ cp flash@1.ts.fix01bak flash@1.ts && rm flash@1.ts.fix01bak
+$ git status --porcelain
+   M packages/cli/src/template-gate.ts
+   M packages/cli/test/template-gate.test.ts
+   M packages/renderer-hyperframes/src/composition/runtime.js
+   M packages/renderer-hyperframes/src/materialize.ts
+   M packages/renderer-hyperframes/test/captions-visibility.test.ts
+   M packages/renderer-hyperframes/test/templates.test.ts
+  ?? docs/impl/FIX-01/
+  ?? packages/renderer-hyperframes/test/scale-render.test.ts
+$ npx vitest run packages/renderer-hyperframes/test/templates.test.ts   # контроль
+   Test Files  1 passed (1)
+        Tests  36 passed (36)
+  ОТКАТ Н3 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: flash@1.ts ушёл из porcelain (файл вернулся к HEAD).
+
+───────────────────────────────────────────────────────────────────────────────
+Н4 — ВЕНДОРНАЯ ВИДИМОСТЬ СЛОМАНА ИМИТАЦИЕЙ. Охранник — captions-visibility.test.ts (№185).
+     runtime.js: у групп субтитров снята простановка data-start (data-duration оставлена).
+     Это НЕ правка нашего кода-в-смысле-логики: это снятие ЕДИНСТВЕННОГО канала, которым
+     время группы доезжает до рендерера. Нарушение существует затем, чтобы доказать НОВЫЙ
+     смысл теста: он стережёт связку «атрибуты data-* → переключение групп в кадрах», а
+     не три снятые строки opacity, на которых был зелёным (находка Н6 протокола H-06).
+     Ожидание: КРАСНОЕ на кадрах — кадр 3 и кадр 6 совпадут.
+
+$ npx vitest run packages/renderer-hyperframes/test/captions-visibility.test.ts
+  ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+  AssertionError: кадр 3 и кадр 6 совпали: видимость групп не переключается. Причин ровно две, и обе проверяемы — либо `runtime.js` перестал ставить `data-start`/`data-duration` на `.caption-group`, либо обновившийся рендерер перестал их читать (пришпилено `hyperframes@0.8.5`; второе — сигнал о вендоре, а не поломка теста): expected true to be false // Object.is equality
+   Test Files  1 failed (1)
+        Tests  1 failed | 1 passed (2)
+
+  РЕЗУЛЬТАТ Н4 — КРАСНОЕ, и это ДОКАЗАТЕЛЬСТВО НОВОГО СМЫСЛА ОХРАННИКА. Тот же файл на
+  снятии трёх строк opacity (нарушение Н6 протокола `H-06`) оставался ЗЕЛЁНЫМ; на снятии
+  data-start он краснеет на кадрах. Значит он стережёт то, на чём видимость держится.
+  Текст отказа называет ОБЕ проверяемые причины и версию вендора числом.
+
+  ОТКАТ Н4 (только cp, резерв удалён):
+$ cp runtime.js.fix01bak runtime.js && rm runtime.js.fix01bak
+$ git status --porcelain
+   M packages/cli/src/template-gate.ts
+   M packages/cli/test/template-gate.test.ts
+   M packages/renderer-hyperframes/src/composition/runtime.js
+   M packages/renderer-hyperframes/src/materialize.ts
+   M packages/renderer-hyperframes/test/captions-visibility.test.ts
+   M packages/renderer-hyperframes/test/templates.test.ts
+  ?? docs/impl/FIX-01/
+  ?? packages/renderer-hyperframes/test/scale-render.test.ts
+$ npx vitest run packages/renderer-hyperframes/test/captions-visibility.test.ts   # контроль
+   Test Files  1 passed (1)
+        Tests  2 passed (2)
+  ОТКАТ Н4 ПОДТВЕРЖДЁН ПОВЕДЕНИЕМ: porcelain — те же восемь строк пакета, резерва нет.
+
+───────────────────────────────────────────────────────────────────────────────
+ИТОГ ПРОТОКОЛА: четыре пробы, ЧЕТЫРЕ КРАСНЫХ, находок нет.
+
+  Н1  двойной масштаб возвращён руками      КРАСНОЕ — scale-render, квадранты 100/0/0/0
+  Н2  гейт назван по шаблону вне запроса    КРАСНОЕ — отказ команды R12, код 1, записей 0
+  Н3  elastic.out литералом в mountSource   КРАСНОЕ — юнит Н1, членство в реестре D5
+  Н4  снят data-start у групп субтитров     КРАСНОЕ — captions-visibility, кадры 3 и 6
+
+ЧЕМ ЭТОТ ПРОТОКОЛ ОТЛИЧАЕТСЯ ОТ ПРОТОКОЛА `H-06`: там из шести проб две оказались
+ЗЕЛЁНЫМИ (Н1в и Н6) и стали долгами №184 и №185. Здесь красны все четыре — и две из них
+(Н3, Н4) суть ровно те прежние пробы, поставленные заново поверх правок этой задачи.
+То есть починка проверена ТЕМ ЖЕ ИНСТРУМЕНТОМ, которым была найдена поломка.
+
+СОСТОЯНИЕ ДЕРЕВА ПО ОКОНЧАНИИ: porcelain — восемь строк пакета `FIX-01` и ничего сверх;
+ни одного `.fix01bak`; dist пересобран; контрольные прогоны всех затронутых файлов зелены.
