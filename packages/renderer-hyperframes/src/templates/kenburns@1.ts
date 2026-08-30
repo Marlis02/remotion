@@ -96,10 +96,10 @@ const KENBURNS_MOUNT = `function (host, ctx) {
             x: to.x,
             y: to.y,
             scale: to.scale,
-            duration: ctx.toSeconds(ctx.frames.end - ctx.frames.start),
+            duration: ctx.toSeconds(ctx.frames.frameEnd - ctx.frames.frameStart),
             ease: p.easing
           },
-          ctx.toSeconds(ctx.frames.start)
+          ctx.toSeconds(ctx.frames.frameStart)
         );
       }`;
 

@@ -52,8 +52,8 @@ const FLASH_MOUNT = `function (host, ctx) {
         // Сила — доля, а не проценты: схема спека держит целые проценты (точность, которой
         // никто не решал), CSS держит долю.
         var peak = ctx.params.strengthPct / 100;
-        var at = ctx.toSeconds(ctx.frames.start);
-        var span = ctx.toSeconds(ctx.frames.end - ctx.frames.start);
+        var at = ctx.toSeconds(ctx.frames.frameStart);
+        var span = ctx.toSeconds(ctx.frames.frameEnd - ctx.frames.frameStart);
 
         ctx.timeline.fromTo(
           fill,
@@ -63,7 +63,7 @@ const FLASH_MOUNT = `function (host, ctx) {
         );
         // Полуоткрытый интервал T4: на кадре end вспышки уже нет. Твин к нулю приходит сам,
         // но явный set делает конец окна ВЫРАЖЕННЫМ, а не следствием арифметики кривой.
-        ctx.timeline.set(fill, {opacity: 0}, ctx.toSeconds(ctx.frames.end));
+        ctx.timeline.set(fill, {opacity: 0}, ctx.toSeconds(ctx.frames.frameEnd));
       }`;
 
 /** `flash@1` — реализация шаблона фикстуры; единственный, кто объявляет длительность. */

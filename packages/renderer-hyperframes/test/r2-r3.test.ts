@@ -175,6 +175,51 @@ describe('R2 — адаптер пишет ТОЛЬКО в `tmpDir` и `outputPa
   });
 });
 
+describe('R2 — `renderSegment` СВЕРЯЕТ `bundle.hash` и падает на подмене', () => {
+  // *(Добавлено: `L-01`, 2026-08-30 — обязательное условие разрешения владельца на
+  // `verifyHash`.)* Флаг `verifyHash: false` живёт в `materializeComposition` и подаётся
+  // РОВНО подготовкой запроса в сборке; путь рендера его не подаёт никогда. Здесь это
+  // проверено с той стороны, с которой оно важно: у `renderSegment` послабления нет и
+  // достать его неоткуда — подменённый хэш даёт отказ `R2` ДО запуска рендерера.
+  it('верный хэш проходит, а сдвинутый на один символ — отказ `R2` до запуска', async () => {
+    const fixture = makeFixture({ frames: 2 });
+    const good = await requestWithHash(fixture);
+
+    let spawned = 0;
+    const ok = await renderSegment(good, {
+      clock: fakeClock(),
+      gate: GATE_SKIP,
+      registry: TEST_REGISTRY,
+      spawnRenderer: fakeRenderer(2),
+      keepTmp: true,
+    });
+    expect(ok.ok).toBe(true);
+
+    // ПОДМЕНА: первый символ хэша заменён на другой — форма верна, значение чужое.
+    const head = good.bundle.hash.startsWith('0') ? '1' : '0';
+    const tampered = validateRequest(
+      withPatch(good, { bundle: { ...good.bundle, hash: `${head}${good.bundle.hash.slice(1)}` } }),
+    );
+    const bad = await renderSegment(tampered, {
+      clock: fakeClock(),
+      gate: GATE_SKIP,
+      registry: TEST_REGISTRY,
+      spawnRenderer: (renderArgs) => {
+        spawned += 1;
+        return fakeRenderer(2)(renderArgs);
+      },
+      keepTmp: true,
+    });
+
+    expect(bad.ok).toBe(false);
+    if (bad.ok) return;
+    expect(bad.error.rule).toBe('R2');
+    expect(bad.error.message).toContain(tampered.bundle.hash);
+    // Рендерер не запускался: отказ обязан случиться ДО того, как что-то стоит времени.
+    expect(spawned).toBe(0);
+  });
+});
+
 describe('R3 — адаптер открывает ТОЛЬКО файлы запроса и собственный код', () => {
   /**
    * Перехват чтения в процессе адаптера.

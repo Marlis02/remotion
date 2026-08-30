@@ -178,6 +178,44 @@ describe('`bundle.hash` СВЕРЯЕТСЯ, а не принимается на 
     const { result, hash } = materializeTwice(fixture);
     expect(result.compositionHash).toBe(hash);
   });
+
+  // ── `verifyHash: false` — вход `L-01`, и он НЕ ослабляет R2 ──────────────────
+  // Флаг добавлен по явному разрешению владельца: `bundle.hash` есть величина ВХОДА, и
+  // ПЕРВЫЙ её вычислитель обязан существовать честно — до этого сборке пришлось бы вынимать
+  // хэш регуляркой из текста отказа, как это делают фикстуры. Ниже проверено ровно то, что
+  // разрешение оговаривало: сверка остаётся УМОЛЧАНИЕМ, а обойти её можно только назвав это
+  // вслух в вызове.
+  it('`verifyHash: false` считает хэш и НЕ сверяет — это первый вычислитель, а не обход', () => {
+    const fixture = makeFixture();
+    const result = materializeComposition(fixture.request, {
+      registry: TEST_REGISTRY,
+      verifyHash: false,
+    });
+    // Хэш посчитан по ФАКТИЧЕСКОМУ каталогу, а не эхом поля запроса (там 64 нуля).
+    expect(result.compositionHash).toMatch(/^[0-9a-f]{64}$/u);
+    expect(result.compositionHash).not.toBe(fixture.request.bundle.hash);
+    // И он тот же самый, который назвал бы отказ R2, — иначе «первый вычислитель» считал бы
+    // не ту величину, что сверяется потом.
+    const { hash } = materializeTwice(makeFixture());
+    expect(result.compositionHash).toBe(hash);
+  });
+
+  it('умолчание — СВЕРЯТЬ: тот же запрос без флага по-прежнему падает `R2`', () => {
+    const fixture = makeFixture();
+    materializeComposition(fixture.request, { registry: TEST_REGISTRY, verifyHash: false });
+    // Второй вызов БЕЗ флага, на том же самом запросе с неверным полем, обязан отказать:
+    // послабление живёт в вызове, а не в состоянии каталога.
+    expect(() => materializeComposition(fixture.request, { registry: TEST_REGISTRY })).toThrow(
+      RenderAdapterError,
+    );
+  });
+
+  it('`verifyHash: true` явно — то же, что умолчание', () => {
+    const fixture = makeFixture();
+    expect(() =>
+      materializeComposition(fixture.request, { registry: TEST_REGISTRY, verifyHash: true }),
+    ).toThrow(RenderAdapterError);
+  });
 });
 
 describe('шаблон без реализации — отказ ДО того, как на диск лёг байт', () => {
@@ -257,7 +295,7 @@ describe('содержимое каталога — данные, а не дог
         ...fixture.request.ir,
         captions: [
           {
-            frames: { start: 0, end: 5 },
+            frames: { frameStart: 0, frameEnd: 5 },
             text: '</script><script>window.__pwned = 1;</script>',
             tokens: [],
           },

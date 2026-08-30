@@ -42,8 +42,8 @@ const SOLID_MOUNT = `function (host, ctx) {
           host.appendChild(img);
         }
         host.style.opacity = '0';
-        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.start));
-        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.end));
+        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.frameStart));
+        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.frameEnd));
       }`;
 
 export const SOLID_TEMPLATE: RendererTemplate = Object.freeze({

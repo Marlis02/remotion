@@ -101,16 +101,34 @@ describe('каталог шаблонов на диске', () => {
     expect(() => loadTemplateLibrary({ dir: root, specs: [still1] })).toThrow(orphan);
   });
 
-  it('ПРОД-каталог читается и сегодня честно пуст: реализаций нет до `H-06`', () => {
+  it('ПРОД-каталог читается и несёт снятые записи: четыре шаблона, оба профиля, PASS', () => {
     const library = loadTemplateLibrary();
     expect(library.dir).toBe(templateLibraryDir());
     expect([...library.registry.names].sort()).toEqual(
       TEMPLATE_LIBRARY.map((spec: AnyTemplateSpec) => `${spec.templateId}@${String(spec.templateVersion)}`).sort(),
     );
-    // Ни одной записи гейта на прод-паре: ни один шаблон гейта не проходил, и **R12** обязана
-    // не пустить сборку. Тест краснеет, когда появится первая запись, — и это верно: тогда
-    // строку надо переписать вместе с фактом.
-    expect(library.loaded.flatMap((item) => item.entries)).toEqual([]);
+    // ~~Ни одной записи гейта на прод-паре~~ *(изменено: `L-01`, 2026-08-30, по точечному
+    // разрешению владельца.)* Прежнее ожидание (`entries ⇒ []`) описывало каталог времён
+    // `E-00`, когда реализаций не было ни одной; записи четырёх шаблонов на обоих профилях
+    // снял владелец руками по [runbook](../../../docs/gate-runbook.md) и закоммитил. Ассерт
+    // держит ФАКТ, а не его отсутствие: `bed@1` записей не имеет и иметь не может (гейт на
+    // нём неисполним, долг №189 — он аудио-домена и в `RenderIR.clips` не попадает), у
+    // остальных четырёх — ровно по одной записи на профиль, и обе `PASS`.
+    const withEntries = library.loaded.filter((item) => item.entries.length > 0);
+    expect(withEntries.map((item) => item.name).sort()).toEqual([
+      'captionEmphasis@1',
+      'flash@1',
+      'kenburns@1',
+      'still@1',
+    ]);
+    for (const item of withEntries) {
+      expect(item.entries.map((entry) => entry.gate.profileId).sort()).toEqual(['draftHalf', 'final']);
+      expect(item.entries.every((entry) => entry.gate.class === 'PASS')).toBe(true);
+      // `bundleHash` есть у КАЖДОЙ: запись старой формы (без него) сборка считает устаревшей
+      // по построению (`gateStaleness`, поправка владельца П2).
+      expect(item.entries.every((entry) => typeof entry.bundleHash === 'string')).toBe(true);
+    }
+    expect(library.loaded.find((item) => item.name === 'bed@1')?.entries).toEqual([]);
   });
 
   it('каталог, куда записи ещё не клали, создаётся вызывающим, а не молча', () => {

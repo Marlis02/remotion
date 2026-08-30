@@ -95,7 +95,7 @@ async function render(withEmphasis: boolean): Promise<Buffer[]> {
           params: FIXTURE_PARAMS.captionEmphasis,
           z: 30,
           withFont: true,
-          window: { start: 0, end: 3 },
+          window: { frameStart: 0, frameEnd: 3 },
         },
       ]
     : [{ template: 'flash@1', params: { strengthPct: 1, durationSamples: 1 }, z: 20 }];

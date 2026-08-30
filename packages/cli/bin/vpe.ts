@@ -16,12 +16,19 @@
 // КОДЫ ВЫХОДА — `EXIT` из `src/errors.ts`: 0 PASS · 1 отказ · 2 вход не разобрался ·
 // 3 FLAKY · 4 FAIL · 5 `error` (гейта не было).
 
+import { randomBytes } from 'node:crypto';
+
 import { runCli } from '../src/index.js';
 
 process.exitCode = await runCli(process.argv.slice(2), {
   // ЕДИНСТВЕННОЕ чтение стенных часов во всём пакете — см. шапку.
   now: () => new Date().toISOString(),
   clock: () => Date.now(),
+  // ═══ ГРАНИЦА ПРОЦЕССА: ЗДЕСЬ БЕРЁТСЯ СЛУЧАЙНОСТЬ ═══
+  // Минт якорей `w:` обязан идти из CSPRNG (ADR-0004 §4), а **V8** запрещает недетерминизм в
+  // движке. Совмещаются они тем же приёмом, что часы: источник разрешён в ОДНОМ объявленном
+  // месте — здесь, — а всё остальное берёт его параметром (`RandomBytes`, `C-04`).
+  randomBytes: (byteLength) => new Uint8Array(randomBytes(byteLength)),
   out: (text) => process.stdout.write(text),
   err: (text) => process.stderr.write(text),
   env: process.env,

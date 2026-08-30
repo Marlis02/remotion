@@ -9,13 +9,16 @@
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 
 import { parseArgv } from './argv.js';
+import { build, type BuildDeps } from './build.js';
 import { CliError, EXIT } from './errors.js';
 import { templateGate, type TemplateGateDeps } from './template-gate.js';
 import { formatTemplateTable, templateRows } from './template-list.js';
 
-export interface CliDeps extends TemplateGateDeps {
+export interface CliDeps extends TemplateGateDeps, Omit<BuildDeps, 'env'> {
   /** Диагностика и отказы. Отделено от `out`: stdout — результат, stderr — почему. */
   readonly err: (text: string) => void;
+  /** Окружение процесса. Обязательно для `build`: им меряется отпечаток (**R14**). */
+  readonly env: NodeJS.ProcessEnv;
 }
 
 /**
@@ -25,6 +28,7 @@ export interface CliDeps extends TemplateGateDeps {
 export async function runCli(argv: readonly string[], deps: CliDeps): Promise<number> {
   try {
     const command = parseArgv(argv);
+    if (command.command === 'build') return await build(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
 
     // `template list` — чтение каталога тем же загрузчиком, что и гейт: «манифест собирается

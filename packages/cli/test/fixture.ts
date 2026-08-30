@@ -45,7 +45,7 @@ export function makeRequest(root: string, options: RequestOptions = {}): unknown
     clipId: id,
     track: 'visual',
     z: 10,
-    frames: { start, end: frames },
+    frames: { frameStart: start, frameEnd: frames },
     template: call,
     params: { color: '#204080' },
     assets: [],

@@ -58,8 +58,8 @@ const STILL_MOUNT = `function (host, ctx) {
         img.style.objectPosition = '50% 50%';
         host.appendChild(img);
         host.style.opacity = '0';
-        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.start));
-        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.end));
+        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.frameStart));
+        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.frameEnd));
       }`;
 
 /** `still@1` — реализация шаблона фикстуры; цель разворота `[img: alias]`. */

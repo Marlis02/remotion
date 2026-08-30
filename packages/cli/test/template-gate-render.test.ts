@@ -90,6 +90,8 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
         out: (text) => (out += text),
         err: (text) => (err += text),
         env: process.env,
+        // Вход команды `build` (`L-01`); гейт его не читает — см. `CliDeps`.
+        randomBytes: (byteLength: number) => new Uint8Array(byteLength),
         specs: [SOLID_SPEC],
         templates: TEST_TEMPLATES,
       };
@@ -158,6 +160,7 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
         out: (text) => (out += text),
         err: () => undefined,
         env: process.env,
+        randomBytes: (byteLength: number) => new Uint8Array(byteLength),
         specs: [SOLID_SPEC],
         templates: TEST_TEMPLATES,
       };

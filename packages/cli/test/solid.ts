@@ -21,8 +21,8 @@ const SOLID_MOUNT = `function (host, ctx) {
         fill.style.background = String(ctx.params.color);
         host.appendChild(fill);
         host.style.opacity = '0';
-        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.start));
-        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.end));
+        ctx.timeline.set(host, {opacity: 1}, ctx.toSeconds(ctx.frames.frameStart));
+        ctx.timeline.set(host, {opacity: 0}, ctx.toSeconds(ctx.frames.frameEnd));
       }`;
 
 /** Реестр реализаций для живого теста: один синтетический шаблон, продакшн-реестр не тронут. */

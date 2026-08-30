@@ -77,9 +77,9 @@ const IR = {
   segmentId: 'seg:w',
   segmentDurationInFrames: 12,
   clips: [
-    { clipId: 'r:bg', track: 'visual', z: 10, frames: { start: 0, end: 12 }, template: 'solid@1', params: {}, assets: [], fonts: [], seeds: {} },
-    { clipId: 'r:mid', track: 'visual', z: 20, frames: { start: 6, end: 10 }, template: 'kenburns@1', params: {}, assets: [], fonts: [], seeds: {} },
-    { clipId: 'r:tail', track: 'visual', z: 30, frames: { start: 10, end: 12 }, template: 'flash@1', params: {}, assets: [], fonts: [], seeds: {} },
+    { clipId: 'r:bg', track: 'visual', z: 10, frames: { frameStart: 0, frameEnd: 12 }, template: 'solid@1', params: {}, assets: [], fonts: [], seeds: {} },
+    { clipId: 'r:mid', track: 'visual', z: 20, frames: { frameStart: 6, frameEnd: 10 }, template: 'kenburns@1', params: {}, assets: [], fonts: [], seeds: {} },
+    { clipId: 'r:tail', track: 'visual', z: 30, frames: { frameStart: 10, frameEnd: 12 }, template: 'flash@1', params: {}, assets: [], fonts: [], seeds: {} },
   ],
   captions: [],
   assets: [],

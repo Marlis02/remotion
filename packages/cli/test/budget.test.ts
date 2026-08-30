@@ -12,7 +12,7 @@ import { BUDGET_THRESHOLD_MS, formatBudgetReport, overlappingBudget, type Budget
 const clip = (clipId: string, start: number, end: number, msPerFrameBudget: number): BudgetClip => ({
   clipId,
   template: `${clipId}@1`,
-  frames: { start, end },
+  frames: { frameStart: start, frameEnd: end },
   msPerFrameBudget,
 });
 

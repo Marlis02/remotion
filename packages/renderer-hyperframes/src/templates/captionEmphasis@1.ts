@@ -162,8 +162,8 @@ const CAPTION_EMPHASIS_MOUNT = `function (host, ctx) {
         var emph = {};
         emph[${canonicalJson(WEIGHT_VAR)}] = weight;
         document.documentElement.style.setProperty(${canonicalJson(WEIGHT_VAR)}, ${canonicalJson(WEIGHT.base)});
-        ctx.timeline.set(document.documentElement, emph, ctx.toSeconds(ctx.frames.start));
-        ctx.timeline.set(document.documentElement, base, ctx.toSeconds(ctx.frames.end));
+        ctx.timeline.set(document.documentElement, emph, ctx.toSeconds(ctx.frames.frameStart));
+        ctx.timeline.set(document.documentElement, base, ctx.toSeconds(ctx.frames.frameEnd));
       }`;
 
 /** `captionEmphasis@1` — реализация шаблона фикстуры; единственный, кто просит шрифт. */

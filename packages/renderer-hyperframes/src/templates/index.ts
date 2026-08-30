@@ -47,7 +47,8 @@ export interface RendererTemplate {
    * выражением-функцией вида `function (host, ctx) { … }`.
    *
    * `ctx` несёт: `params` клипа, `assets` (карта sha → относительный URL), `fonts`
-   * (карта sha → `{url, family}`), `frames` (`{start, end}` клипа), `fps`, `gsap`.
+   * (карта sha → `{url, family}`), `frames` (окно клипа ~~`{start, end}`~~
+   * **`{frameStart, frameEnd}`** — `FrameInterval` модели, `L-01`, долг №168), `fps`, `gsap`.
    */
   readonly mountSource: string;
 }

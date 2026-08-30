@@ -16,10 +16,13 @@
 // превышение. Отчёт печатает величину и её природу — иначе первый же читатель примет оценку
 // сверху за измерение.
 //
-// ФОРМА ОКНА — `{start, end}`, ПОЛУИНТЕРВАЛ. Вторая форма (`{frameStart, frameEnd}` у модели
-// и компилятора) — долг №168; нормализует её ВЫЗЫВАЮЩИЙ, потому что здесь неизвестно, чей IR
-// приехал. Конец исключается: клип `[0, 6)` и клип `[6, 12)` НЕ пересекаются, и это то же
-// правило, по которому `where` раскладывает кадры по окнам.
+// ФОРМА ОКНА — `{frameStart, frameEnd}`, ПОЛУИНТЕРВАЛ. ~~`{start, end}`; вторая форма у
+// модели и компилятора — долг №168, нормализует её ВЫЗЫВАЮЩИЙ~~ *(изменено: `L-01`,
+// 2026-08-30 — долг №168 закрыт стороной модели, решение владельца `H-04`.)* Нормализовать
+// больше нечего: форма ровно одна во всём репозитории — `FrameInterval` модели
+// (`core-model/src/time/interval.ts`), — и держать здесь третью значило бы завести тот же
+// долг заново, только в `cli`. Конец исключается: клип `[0, 6)` и клип `[6, 12)` НЕ
+// пересекаются, и это то же правило, по которому `where` раскладывает кадры по окнам.
 
 /** Порог отметки в отчёте: 250 мс/кадр = «≥ 4 кадра/с» (ADR-0008 «Бюджет AC2»). */
 export const BUDGET_THRESHOLD_MS = 250;
@@ -29,8 +32,8 @@ export interface BudgetClip {
   readonly clipId: string;
   /** Каноническое имя вызова — оно печатается в таблице. */
   readonly template: string;
-  /** Полуинтервал кадров `[start, end)`. */
-  readonly frames: { readonly start: number; readonly end: number };
+  /** Полуинтервал кадров `[frameStart, frameEnd)` — форма `FrameInterval` модели. */
+  readonly frames: { readonly frameStart: number; readonly frameEnd: number };
   readonly msPerFrameBudget: number;
 }
 
@@ -66,10 +69,12 @@ export interface BudgetReport {
  * — строка, не несущая ничего.
  */
 export function overlappingBudget(clips: readonly BudgetClip[]): BudgetReport {
-  const usable = clips.filter((clip) => clip.frames.end > clip.frames.start);
+  const usable = clips.filter((clip) => clip.frames.frameEnd > clip.frames.frameStart);
   if (usable.length === 0) return { spans: [], peak: null, hasOverlap: false };
 
-  const edges = [...new Set(usable.flatMap((clip) => [clip.frames.start, clip.frames.end]))].sort(
+  const edges = [
+    ...new Set(usable.flatMap((clip) => [clip.frames.frameStart, clip.frames.frameEnd])),
+  ].sort(
     (a, b) => a - b,
   );
 
@@ -77,7 +82,9 @@ export function overlappingBudget(clips: readonly BudgetClip[]): BudgetReport {
   for (let i = 0; i + 1 < edges.length; i += 1) {
     const start = edges[i] ?? 0;
     const end = edges[i + 1] ?? 0;
-    const active = usable.filter((clip) => clip.frames.start <= start && clip.frames.end >= end);
+    const active = usable.filter(
+      (clip) => clip.frames.frameStart <= start && clip.frames.frameEnd >= end,
+    );
     if (active.length === 0) continue;
     const total = active.reduce((sum, clip) => sum + clip.msPerFrameBudget, 0);
     const previous = spans[spans.length - 1];

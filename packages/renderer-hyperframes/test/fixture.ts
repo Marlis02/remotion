@@ -112,7 +112,7 @@ export function makeFixture(options: FixtureOptions = {}): Fixture {
           clipId: 'r:aaaa0001',
           track: 'visual',
           z: 10,
-          frames: { start: 0, end: frames },
+          frames: { frameStart: 0, frameEnd: frames },
           template: options.template ?? 'solid@1',
           params: { color: '#204080' },
           assets: clipAssets,
@@ -123,7 +123,7 @@ export function makeFixture(options: FixtureOptions = {}): Fixture {
           clipId: 'r:aaaa0002',
           track: 'visual',
           z: 20,
-          frames: { start: Math.floor(frames / 2), end: frames },
+          frames: { frameStart: Math.floor(frames / 2), frameEnd: frames },
           template: options.template ?? 'solid@1',
           params: { color: '#c0502a' },
           assets: [],
@@ -133,10 +133,10 @@ export function makeFixture(options: FixtureOptions = {}): Fixture {
       ],
       captions: [
         {
-          frames: { start: 0, end: Math.floor(frames / 2) },
+          frames: { frameStart: 0, frameEnd: Math.floor(frames / 2) },
           text: 'hello world',
           tokens: [
-            { text: 'hello', highlight: { start: 0, end: 6 } },
+            { text: 'hello', highlight: { frameStart: 0, frameEnd: 6 } },
             { text: 'world', highlight: null },
           ],
         },
@@ -223,15 +223,20 @@ export function systemFontBytes(): Buffer {
   }
 }
 
-/** Клип запроса — форма `RenderIrClip`, как её читает `runtime.js`. */
+/** Клип запроса — форма `IrClip` модели; её же читает `runtime.js` (долг №168, `L-01`). */
 export interface TemplateClip {
   readonly template: string;
   readonly params: Record<string, unknown>;
   readonly z: number;
   readonly withAsset?: boolean;
   readonly withFont?: boolean;
-  /** Окно клипа. По умолчанию — весь сегмент; нужен тем тестам, где окно и есть предмет. */
-  readonly window?: { readonly start: number; readonly end: number };
+  /**
+   * Окно клипа. По умолчанию — весь сегмент; нужен тем тестам, где окно и есть предмет.
+   *
+   * Форма — МОДЕЛЬНАЯ (`FrameInterval`), с `L-01`: до неё фикстура была написана по форме
+   * рантайма (`{start, end}`), и это была вторая половина долга №168.
+   */
+  readonly window?: { readonly frameStart: number; readonly frameEnd: number };
 }
 
 export interface TemplateFixtureOptions {
@@ -292,7 +297,7 @@ export function makeTemplateFixture(
         clipId: `r:h060${String(i + 1).padStart(3, '0')}`,
         track: 'visual',
         z: clip.z,
-        frames: clip.window ?? { start: 0, end: frames },
+        frames: clip.window ?? { frameStart: 0, frameEnd: frames },
         template: clip.template,
         params: clip.params,
         assets: clip.withAsset === true ? [assetRef] : [],
@@ -307,13 +312,13 @@ export function makeTemplateFixture(
                 [Math.floor(frames / 2), frames],
               ]
             ).map(([start, end], i) => ({
-              frames: { start, end },
+              frames: { frameStart: start, frameEnd: end },
               text: i === 0 ? 'the ledger' : 'and the sea',
               tokens:
                 i === 0
                   ? [
                       { text: 'the', highlight: null },
-                      { text: 'ledger', highlight: { start, end } },
+                      { text: 'ledger', highlight: { frameStart: start, frameEnd: end } },
                     ]
                   : [{ text: 'sea', highlight: null }],
             }))

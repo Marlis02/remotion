@@ -164,6 +164,25 @@ function gsapDistPath(): string {
 export interface MaterializeOptions {
   /** Реестр реализаций шаблонов. Вход, а не глобал: тест регистрирует свой (образец `CP-07`). */
   readonly registry: RendererTemplateRegistry;
+  /**
+   * Сверять ли посчитанный хэш каталога с `request.bundle.hash` (**R2**). Умолчание — `true`.
+   *
+   * *(Добавлено: `L-01`, 2026-08-30, по явному разрешению владельца.)*
+   *
+   * ЗАЧЕМ ПОНАДОБИЛОСЬ. `bundle.hash` — величина ВХОДА: вызывающий обязан знать её ДО рендера.
+   * Посчитать её может только материализация — то есть тот, кто СОБИРАЕТ ролик, обязан один
+   * раз построить каталог «вхолостую», взять хэш и положить его в запрос. До этой правки такой
+   * возможности не было вовсе, и оба существующих способа плохи: тесты (`readyRequest` в
+   * `test/fixture.ts`) вынимают хэш РЕГУЛЯРКОЙ ИЗ ТЕКСТА отказа `R2`, а сборка не может
+   * позволить себе разбор текста ошибки (это класс долга №164).
+   *
+   * **R2 НЕ ОСЛАБЛЕНА НИ НА ШАГ.** Умолчание — сверка; путь рендера (`renderSegment`) ничего
+   * не подаёт и потому сверяет как прежде. `false` подаёт РОВНО подготовка запроса, у которой
+   * сверять нечего по построению: хэша ещё не существует. Каталог при этом собирается тот же
+   * самый — `renderSegment` пересоберёт его из тех же полей и сверит; расхождение двух сборок
+   * одного запроса по-прежнему есть отказ **R2**.
+   */
+  readonly verifyHash?: boolean;
 }
 
 /**
@@ -173,7 +192,8 @@ export interface MaterializeOptions {
  * того, как на диск лёг хоть один байт), затем файлы, затем перечень.
  *
  * @throws {RenderAdapterError} `V3` — шаблон без реализации; `ADR-0008 форма` — неопознанный
- *   формат файла; `R2` — `bundle.hash` не совпал с посчитанным по каталогу.
+ *   формат файла; `R2` — `bundle.hash` не совпал с посчитанным по каталогу (кроме
+ *   `verifyHash: false`, см. поле).
  */
 export function materializeComposition(
   request: SegmentRenderRequest,
@@ -275,7 +295,7 @@ export function materializeComposition(
   const listing = listDirectory(dir);
   const hash = compositionHashOf(listing);
 
-  if (request.bundle.hash !== hash) {
+  if ((options.verifyHash ?? true) && request.bundle.hash !== hash) {
     throw new RenderAdapterError(
       'R2',
       `\`bundle.hash\` запроса — \`${request.bundle.hash}\`, а каталог композиции, собранный ` +

@@ -138,8 +138,8 @@
     host.setAttribute('data-z', String(clip.z));
     host.style.zIndex = String(clip.z);
     // `data-start`/`data-duration` слоя — та же формула `n/fps`, что у корня.
-    host.setAttribute('data-start', String(toSeconds(clip.frames.start)));
-    host.setAttribute('data-duration', String(toSeconds(clip.frames.end - clip.frames.start)));
+    host.setAttribute('data-start', String(toSeconds(clip.frames.frameStart)));
+    host.setAttribute('data-duration', String(toSeconds(clip.frames.frameEnd - clip.frames.frameStart)));
     root.appendChild(host);
 
     var mount = window.__VPE_TEMPLATES[clip.template];
@@ -152,6 +152,13 @@
     var address = clip.template + ' (клип ' + clip.clipId + ')';
     var ctx = {
       params: clip.params,
+      // ФОРМА ОКНА — МОДЕЛЬНАЯ, `{frameStart, frameEnd}` (`FrameInterval`,
+      // `core-model/src/time/interval.ts`), и она проезжает В ШАБЛОН НЕТРОНУТОЙ.
+      // *(Изменено: `L-01`, 2026-08-30, решение владельца `H-04` — сторона модели.)* До этой
+      // правки рантайм читал `clip.frames.start/.end`, то есть форму, которой компилятор
+      // никогда не кладёт: обе стороны были зелены лишь потому, что не встречались на одном
+      // значении, а первый настоящий IR через адаптер дал бы `NaN`-окно и невидимый клип
+      // (долг №168). Канон один — тот, что типизирован моделью; правился ПОТРЕБИТЕЛЬ.
       frames: clip.frames,
       seeds: clip.seeds,
       fps: MANIFEST.fps,
@@ -196,8 +203,10 @@
   // ЧТО ОСТАЛОСЬ НЕСУЩИМ: атрибуты `data-*` ниже. Они не украшение и не отладка — они
   // ЕДИНСТВЕННЫЙ канал, которым время группы попадает в картинку. Охранник —
   // [`captions-visibility.test.ts`](../../test/captions-visibility.test.ts): сними их руками,
-  // и кадры перестанут переключаться. ОКНА — те же `group.frames`, что посчитаны выше; формы
-  // `clip.frames` это не касается ни в какую сторону (долг №168 — адрес `L-01`).
+  // и кадры перестанут переключаться. ОКНА — те же `group.frames`, что посчитаны выше.
+  // ~~формы `clip.frames` это не касается ни в какую сторону (долг №168)~~ *(изменено: `L-01`,
+  // 2026-08-30.)* Касается: `IrCaptionGroup.frames` и `IrCaptionToken.highlight` — тот же
+  // `FrameInterval` модели, что и у клипа, и здесь они читаются той же парой имён.
   var caps = document.createElement('div');
   caps.className = 'layer';
   caps.id = 'captions';
@@ -208,10 +217,10 @@
     var group = IR.captions[g];
     var el = document.createElement('div');
     el.className = 'caption-group';
-    el.setAttribute('data-start', String(toSeconds(group.frames.start)));
-    el.setAttribute('data-duration', String(toSeconds(group.frames.end - group.frames.start)));
-    el.setAttribute('data-frame-start', String(group.frames.start));
-    el.setAttribute('data-frame-end', String(group.frames.end));
+    el.setAttribute('data-start', String(toSeconds(group.frames.frameStart)));
+    el.setAttribute('data-duration', String(toSeconds(group.frames.frameEnd - group.frames.frameStart)));
+    el.setAttribute('data-frame-start', String(group.frames.frameStart));
+    el.setAttribute('data-frame-end', String(group.frames.frameEnd));
     el.textContent = group.text;
     for (var t = 0; t < group.tokens.length; t++) {
       var token = group.tokens[t];
@@ -219,8 +228,8 @@
       var mark = document.createElement('span');
       mark.className = 'caption-token';
       mark.setAttribute('data-text', token.text);
-      mark.setAttribute('data-start', String(toSeconds(token.highlight.start)));
-      mark.setAttribute('data-duration', String(toSeconds(token.highlight.end - token.highlight.start)));
+      mark.setAttribute('data-start', String(toSeconds(token.highlight.frameStart)));
+      mark.setAttribute('data-duration', String(toSeconds(token.highlight.frameEnd - token.highlight.frameStart)));
       el.appendChild(mark);
     }
     caps.appendChild(el);

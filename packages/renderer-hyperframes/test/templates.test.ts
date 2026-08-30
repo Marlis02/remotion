@@ -269,12 +269,33 @@ describe('**П1-а** — форма DOM, на которую опираются 
     expect(captions).toContain("'#captions {'");
     expect(captions).toContain("'#captions .caption-group {'");
 
-    // **ДОЛГ №168 НЕ РАСШИРЯЕТСЯ**: окно КЛИПА берётся только из `ctx.frames`, и ни одна
-    // реализация не читает `clip.frames` напрямую. `L-01` обязан править одно место, а не пять.
+    // ~~**ДОЛГ №168 НЕ РАСШИРЯЕТСЯ**~~ *(изменено: `L-01`, 2026-08-30 — долг ЗАКРЫТ стороной
+    // модели.)* Читалось это так: «окно клипа берётся только из `ctx.frames`, ни одна
+    // реализация не читает `clip.frames` напрямую, и `L-01` правит одно место, а не пять».
+    // Первая половина осталась ровно той же и стережётся ниже; вторая исполнена: форм больше
+    // не две, канон — `FrameInterval` модели (`{frameStart, frameEnd}`), и теперь охранник
+    // держит ЕЁ, а не отсутствие её имён.
     for (const impl of impls) {
       expect(impl.mountSource, callOf(impl)).not.toContain('clip.frames');
-      expect(impl.mountSource, callOf(impl)).not.toContain('frameStart');
-      expect(impl.mountSource, callOf(impl)).not.toContain('frameEnd');
+      // Форма рантайма мертва: `ctx.frames.start`/`.end` на модельном IR дали бы `NaN`-окно
+      // и невидимый клип — ровно то, чем долг №168 и был опасен.
+      expect(impl.mountSource, callOf(impl)).not.toContain('ctx.frames.start');
+      expect(impl.mountSource, callOf(impl)).not.toContain('ctx.frames.end');
+    }
+
+    // ОКНО ЧИТАЮТ НЕ ВСЕ, И ЭТО НЕ ДЫРА В ОХРАННИКЕ: `still@1`, `flash@1`, `kenburns@1` и
+    // `captionEmphasis@1` окном пользуются, а `bed@1` — реализация-отказ (аудио-домен, долг
+    // №189), и кадров у него нет по построению. Поэтому проверяется не «каждый читает», а
+    // «кто читает — читает модельной парой имён»; пустой список читателей был бы зелёным
+    // охранником ни о чём, и от этого стережёт счёт.
+    const readers = impls.filter((impl) => impl.mountSource.includes('ctx.frames.'));
+    expect(readers).toHaveLength(4);
+    for (const impl of readers) {
+      expect(
+        impl.mountSource.includes('ctx.frames.frameStart') ||
+          impl.mountSource.includes('ctx.frames.frameEnd'),
+        callOf(impl),
+      ).toBe(true);
     }
   });
 });
@@ -293,8 +314,12 @@ describe('`captionEmphasis@1` — механизм эмфазы под охра�
   });
 
   it('переменная ставится ТАЙМЛАЙНОМ на корне документа, на обеих границах окна', () => {
-    expect(source).toContain('ctx.timeline.set(document.documentElement, emph, ctx.toSeconds(ctx.frames.start))');
-    expect(source).toContain('ctx.timeline.set(document.documentElement, base, ctx.toSeconds(ctx.frames.end))');
+    expect(source).toContain(
+      'ctx.timeline.set(document.documentElement, emph, ctx.toSeconds(ctx.frames.frameStart))',
+    );
+    expect(source).toContain(
+      'ctx.timeline.set(document.documentElement, base, ctx.toSeconds(ctx.frames.frameEnd))',
+    );
   });
 
   it('значения — КЛЮЧЕВЫЕ СЛОВА: числу gsap дописал бы единицу и правило стало бы невалидным', () => {

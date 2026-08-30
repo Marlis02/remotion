@@ -60,6 +60,10 @@ async function run(argv: readonly string[], gate?: () => Promise<GateOutcome>): 
   const deps: CliDeps = {
     now: () => '2026-08-29T00:00:00Z',
     clock: () => 0,
+    // `randomBytes`/`env` — входы КОМАНДЫ `build` (`L-01`), а не гейта: `CliDeps` один на
+    // все команды. Здесь они подставлены детерминированной пустышкой: гейт их не читает.
+    randomBytes: (byteLength: number) => new Uint8Array(byteLength),
+    env: {},
     out: (text) => (out += text),
     err: (text) => (err += text),
     ...(gate === undefined ? {} : { gate }),

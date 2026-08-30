@@ -47,16 +47,44 @@ export interface TemplateGateArgs {
   readonly runRoot: string | null;
 }
 
+/**
+ * `vpe build --project <dir> --profile final|draftHalf [--allow-tts] …` (`L-01`).
+ *
+ * ФЛАГОВ РАСКЛАДКИ ТРИ, И КАЖДЫЙ ОТВЕЧАЕТ НА СВОЙ ВОПРОС: `--build-dir` — куда класть
+ * производное, `--write-root` — куда писать артефакты авторства (дубли, `store.lock`, ledger),
+ * `--store-dir` — где CAS. Умолчания взяты из проекта, поэтому обычная сборка зовётся двумя
+ * флагами; врозь они разводятся ровно тогда, когда проект менять нельзя — например, прогон на
+ * `fixtures/minimal`, которую задача не трогает ни символом.
+ */
+export interface BuildArgs {
+  readonly command: 'build';
+  /** Корень дерева проекта: `project.yaml` лежит здесь. */
+  readonly projectDir: string;
+  /** Пара сборки. Умолчания нет — по той же причине, что у гейта: пара называется явно. */
+  readonly profileId: GateProfileId;
+  /** **K8**: разрешён ли промах `voice`. Без него промах — падение с инструкцией. */
+  readonly allowTts: boolean;
+  /** Момент сборки (**D9**). `null` — берётся `VPE_NOW`, затем часы процесса. */
+  readonly now: string | null;
+  readonly buildDir: string | null;
+  readonly writeRoot: string | null;
+  readonly storeDir: string | null;
+  /** Каталог записей гейта. `null` — каталог библиотеки рядом со спеками. */
+  readonly gatesDir: string | null;
+}
+
 /** `vpe template list` — таблица каталога. */
 export interface TemplateListArgs {
   readonly command: 'template list';
   readonly gatesDir: string | null;
 }
 
-export type CliCommand = TemplateGateArgs | TemplateListArgs;
+export type CliCommand = BuildArgs | TemplateGateArgs | TemplateListArgs;
 
 /** Строка помощи — единственное место, где перечислены обе команды. */
 export const USAGE = [
+  'vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>]',
+  '          [--build-dir <кат>] [--write-root <кат>] [--store-dir <кат>] [--gates-dir <кат>]',
   'vpe template gate <id>@<N> --profile final|draftHalf --request <файл> --render-profile <файл.yaml>',
   '                           [--gates-dir <кат>] [--run-root <кат>]',
   'vpe template list [--gates-dir <кат>]',
@@ -96,6 +124,7 @@ export function parseArgv(argv: readonly string[]): CliCommand {
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') {
     throw new CliError('argv', `команда не названа. Формы:\n${USAGE}`, EXIT.input);
   }
+  if (argv[0] === 'build') return parseBuild(argv.slice(1));
   if (argv[0] !== 'template') {
     throw new CliError('argv', `неизвестная команда \`${argv[0]}\`. Формы:\n${USAGE}`, EXIT.input);
   }
@@ -197,6 +226,89 @@ function parseGate(rest: readonly string[]): TemplateGateArgs {
     renderProfilePath,
     gatesDir,
     runRoot,
+  };
+}
+
+function parseBuild(rest: readonly string[]): BuildArgs {
+  let projectDir: string | null = null;
+  let profile: string | null = null;
+  let allowTts = false;
+  let now: string | null = null;
+  let buildDir: string | null = null;
+  let writeRoot: string | null = null;
+  let storeDir: string | null = null;
+  let gatesDir: string | null = null;
+
+  for (let i = 0; i < rest.length; i += 1) {
+    const arg = rest[i] ?? '';
+    switch (arg) {
+      case '--project':
+        projectDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--profile':
+        profile = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--allow-tts':
+        // ФЛАГ БЕЗ ЗНАЧЕНИЯ, и это не экономия: `--allow-tts=false` был бы вторым способом
+        // сказать «не разрешаю», а первый — не писать флаг вовсе.
+        allowTts = true;
+        break;
+      case '--now':
+        now = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--build-dir':
+        buildDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--write-root':
+        writeRoot = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--store-dir':
+        storeDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--gates-dir':
+        gatesDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      default:
+        throw new CliError(
+          'argv',
+          arg.startsWith('--')
+            ? `неизвестный флаг \`${arg}\`.\n${USAGE}`
+            : `лишний аргумент \`${arg}\`: проект называется флагом \`--project\`.\n${USAGE}`,
+          EXIT.input,
+        );
+    }
+  }
+
+  if (projectDir === null) {
+    throw new CliError('argv', `\`--project\` обязателен: собирать нечего.\n${USAGE}`, EXIT.input);
+  }
+  if (profile === null) {
+    throw new CliError(
+      'argv',
+      '`--profile` обязателен: пара сборки определяет и профиль рендера, и слот записи гейта ' +
+        '(**R12**). Умолчания здесь нет намеренно — сборка «не на том» профиле есть ролик, ' +
+        'снятый на непроверенной паре',
+      EXIT.input,
+    );
+  }
+
+  return {
+    command: 'build',
+    projectDir,
+    profileId: profileOf(profile),
+    allowTts,
+    now,
+    buildDir,
+    writeRoot,
+    storeDir,
+    gatesDir,
   };
 }
 
