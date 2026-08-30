@@ -23,6 +23,16 @@ export { assertRequestFiles, isInside, validateRequest, type RequestFile } from 
 
 export { extensionOf, KNOWN_MAGIC } from './magic.js';
 
+// Тело точки входа подпроцесса (`L-02`): одно на две оболочки — бинарь пакета и команда
+// `vpe render-segment`.
+export {
+  SEGMENT_ENTRY_EXIT,
+  gateFromArgv,
+  runSegmentEntry,
+  type SegmentEntryInput,
+  type SegmentEntryResult,
+} from './segment-entry.js';
+
 export {
   compositionHashOf,
   materializeComposition,

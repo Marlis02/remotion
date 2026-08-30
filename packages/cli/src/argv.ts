@@ -79,12 +79,77 @@ export interface TemplateListArgs {
   readonly gatesDir: string | null;
 }
 
-export type CliCommand = BuildArgs | TemplateGateArgs | TemplateListArgs;
+/**
+ * `vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]` (`L-02`).
+ *
+ * ЗАПРОСА В АРГУМЕНТАХ НЕТ, И ЭТО КОНТРАКТ, А НЕ ЭКОНОМИЯ: ADR-0008 говорит «JSON-запрос на
+ * stdin». Флага `--request <файл>` здесь нет намеренно — он есть у `vpe template gate`, где
+ * фикстура шаблона коммитится файлом (решение владельца `E-00`, развилка 1), а тут вызывающий
+ * — сборка, и запрос она порождает, а не хранит.
+ */
+export interface RenderSegmentArgs {
+  readonly command: 'render-segment';
+  /**
+   * Флаги гейта ДОСЛОВНО, как их написал вызывающий.
+   *
+   * Разбирает их `gateFromArgv` в теле точки входа — тот же код, что у бинаря пакета. Здесь
+   * проверяется ДРУГОЕ: что среди аргументов нет неизвестного флага. Два разбора отвечают на
+   * два разных вопроса, а решение о **R12** остаётся одно.
+   */
+  readonly gateArgv: readonly string[];
+}
+
+/**
+ * `vpe store verify|fetch|push --project <кат> …` (`L-02`).
+ *
+ * **`gc` НЕ СУЩЕСТВУЕТ** и в `USAGE` не упоминается: `.store` не подлежит LRU-GC никогда
+ * (**K10**, ADR-0005 §8 — в интерфейсе `Store` нет метода удаления).
+ */
+export interface StoreArgs {
+  readonly command: 'store';
+  readonly action: StoreAction;
+  /** Корень дерева проекта: `project.yaml` и `store.lock` лежат здесь. */
+  readonly projectDir: string;
+  /** CAS проекта. `null` — `store.path` из `project.yaml`, с раскрытием `~`. */
+  readonly storeDir: string | null;
+  /**
+   * Вторая сторона переноса: `--from` у `fetch`, `--to` у `push`. У `verify` — `null`.
+   *
+   * ПУТЬ, А НЕ URL: сетевых протоколов в v1 нет вовсе. Второй бэкенд (rclone) — `G-03`, и он
+   * появится тем же интерфейсом из пяти методов, а не вторым видом этого флага.
+   */
+  readonly peerDir: string | null;
+  /**
+   * `verify --write-verified`: проставить `lastVerifiedAt` в `store.lock` (решение владельца, В2).
+   *
+   * УМОЛЧАНИЕ — НЕ ПИСАТЬ. `verify` — команда чтения, и запись по умолчанию тронула бы
+   * коммитимый файл при первом же прогоне, включая прогон на фикстуре.
+   */
+  readonly writeVerified: boolean;
+  /** Момент для `lastVerifiedAt`. `null` — `VPE_NOW`, затем часы процесса. */
+  readonly now: string | null;
+}
+
+export type StoreAction = 'verify' | 'fetch' | 'push';
+
+/** Подкоманды `store` — закрытым списком; `gc` среди них нет и не будет (**K10**). */
+const STORE_ACTIONS: readonly StoreAction[] = ['verify', 'fetch', 'push'];
+
+export type CliCommand =
+  | BuildArgs
+  | RenderSegmentArgs
+  | StoreArgs
+  | TemplateGateArgs
+  | TemplateListArgs;
 
 /** Строка помощи — единственное место, где перечислены обе команды. */
 export const USAGE = [
   'vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>]',
   '          [--build-dir <кат>] [--write-root <кат>] [--store-dir <кат>] [--gates-dir <кат>]',
+  'vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]   (запрос — на stdin)',
+  'vpe store verify --project <кат> [--store-dir <кат>] [--write-verified] [--now <ISO>]',
+  'vpe store fetch  --project <кат> --from <кат> [--store-dir <кат>]',
+  'vpe store push   --project <кат> --to <кат>   [--store-dir <кат>]',
   'vpe template gate <id>@<N> --profile final|draftHalf --request <файл> --render-profile <файл.yaml>',
   '                           [--gates-dir <кат>] [--run-root <кат>]',
   'vpe template list [--gates-dir <кат>]',
@@ -125,6 +190,8 @@ export function parseArgv(argv: readonly string[]): CliCommand {
     throw new CliError('argv', `команда не названа. Формы:\n${USAGE}`, EXIT.input);
   }
   if (argv[0] === 'build') return parseBuild(argv.slice(1));
+  if (argv[0] === 'render-segment') return parseRenderSegment(argv.slice(1));
+  if (argv[0] === 'store') return parseStore(argv.slice(1));
   if (argv[0] !== 'template') {
     throw new CliError('argv', `неизвестная команда \`${argv[0]}\`. Формы:\n${USAGE}`, EXIT.input);
   }
@@ -324,4 +391,141 @@ function parseList(rest: readonly string[]): TemplateListArgs {
     throw new CliError('argv', `неизвестный аргумент \`${arg}\`.\n${USAGE}`, EXIT.input);
   }
   return { command: 'template list', gatesDir };
+}
+
+/**
+ * `vpe render-segment` — флаги гейта и ничего больше.
+ *
+ * ЗАЧЕМ РАЗБОР, ЕСЛИ ФЛАГИ ВСЁ РАВНО УЕЗЖАЮТ ДОСЛОВНО. Затем же, зачем он у остальных
+ * команд: `--gate-skipp` (опечатка) без этой проверки уехал бы в `gateFromArgv`, тот не нашёл
+ * бы `--gate-skip`, взял бы умолчание `require` — и вызывающий получил бы отказ **R12** вместо
+ * «неизвестный флаг», то есть узнал бы про гейт вместо того, чтобы узнать про свою опечатку.
+ */
+function parseRenderSegment(rest: readonly string[]): RenderSegmentArgs {
+  for (let i = 0; i < rest.length; i += 1) {
+    const arg = rest[i] ?? '';
+    if (arg === '--gate-skip' || arg === '--gate-profile') {
+      valueOf(rest, i, arg);
+      i += 1;
+      continue;
+    }
+    throw new CliError(
+      'argv',
+      arg.startsWith('--')
+        ? `неизвестный флаг \`${arg}\`.\n${USAGE}`
+        : `лишний аргумент \`${arg}\`: запрос приезжает НА STDIN (ADR-0008), а не путём.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+  return { command: 'render-segment', gateArgv: [...rest] };
+}
+
+/**
+ * `vpe store verify|fetch|push`.
+ *
+ * `--from` законен только у `fetch`, `--to` — только у `push`, и обязателен каждый у своей
+ * подкоманды: «перенести блобы» без второй стороны есть команда без адресата. У `verify`
+ * второй стороны нет вовсе — он спрашивает ОДИН стор про список `store.lock`.
+ */
+function parseStore(rest: readonly string[]): StoreArgs {
+  const given = rest[0] ?? '';
+  if (!(STORE_ACTIONS as readonly string[]).includes(given)) {
+    // `gc` называется отдельно — как `ac4` у профиля: это не опечатка, а неверное
+    // представление о том, что команда умеет.
+    const extra =
+      given === 'gc'
+        ? ' `vpe store gc` НЕ СУЩЕСТВУЕТ и написан не будет: `.store` не подлежит LRU-GC ' +
+          'никогда (**K10**, ADR-0005 §8 — в интерфейсе `Store` нет метода удаления). Потеря ' +
+          'оплаченного PCM не восстанавливается деньгами (`FACT` r1 §2.3).'
+        : '';
+    throw new CliError(
+      'argv',
+      `неизвестная подкоманда \`store ${given}\`. Их ровно три: ${STORE_ACTIONS.join(', ')}.${extra}\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+  const action = given as StoreAction;
+
+  let projectDir: string | null = null;
+  let storeDir: string | null = null;
+  let from: string | null = null;
+  let to: string | null = null;
+  let writeVerified = false;
+  let now: string | null = null;
+
+  for (let i = 1; i < rest.length; i += 1) {
+    const arg = rest[i] ?? '';
+    switch (arg) {
+      case '--project':
+        projectDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--store-dir':
+        storeDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--from':
+        from = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--to':
+        to = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--write-verified':
+        writeVerified = true;
+        break;
+      case '--now':
+        now = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      default:
+        throw new CliError(
+          'argv',
+          arg.startsWith('--')
+            ? `неизвестный флаг \`${arg}\`.\n${USAGE}`
+            : `лишний аргумент \`${arg}\`: проект называется флагом \`--project\`.\n${USAGE}`,
+          EXIT.input,
+        );
+    }
+  }
+
+  if (projectDir === null) {
+    throw new CliError(
+      'argv',
+      '`--project` обязателен: список того, что ОБЯЗАНО лежать в сторе, живёт в `store.lock` ' +
+        `проекта, а не в сторе.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+  if (action === 'fetch' && from === null) {
+    throw new CliError('argv', `\`store fetch\` требует \`--from <кат>\`.\n${USAGE}`, EXIT.input);
+  }
+  if (action === 'push' && to === null) {
+    throw new CliError('argv', `\`store push\` требует \`--to <кат>\`.\n${USAGE}`, EXIT.input);
+  }
+  if (action !== 'fetch' && from !== null) {
+    throw new CliError('argv', `\`--from\` есть только у \`store fetch\`.\n${USAGE}`, EXIT.input);
+  }
+  if (action !== 'push' && to !== null) {
+    throw new CliError('argv', `\`--to\` есть только у \`store push\`.\n${USAGE}`, EXIT.input);
+  }
+  if (action !== 'verify' && (writeVerified || now !== null)) {
+    throw new CliError(
+      'argv',
+      '`--write-verified` и `--now` есть только у `store verify`: `lastVerifiedAt` — момент ' +
+        `ПРОВЕРКИ, а перенос блобов ничего не проверяет.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+
+  return {
+    command: 'store',
+    action,
+    projectDir,
+    storeDir,
+    peerDir: action === 'fetch' ? from : action === 'push' ? to : null,
+    writeVerified,
+    now,
+  };
 }

@@ -17,6 +17,7 @@
 // 3 FLAKY · 4 FAIL · 5 `error` (гейта не было).
 
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 import { runCli } from '../src/index.js';
 
@@ -29,6 +30,16 @@ process.exitCode = await runCli(process.argv.slice(2), {
   // движке. Совмещаются они тем же приёмом, что часы: источник разрешён в ОДНОМ объявленном
   // месте — здесь, — а всё остальное берёт его параметром (`RandomBytes`, `C-04`).
   randomBytes: (byteLength) => new Uint8Array(randomBytes(byteLength)),
+  // ═══ ГРАНИЦА ПРОЦЕССА: ЗДЕСЬ ЧИТАЕТСЯ STDIN ═══
+  // Вход `vpe render-segment` — «JSON-запрос на stdin» (ADR-0008). Лениво: остальные команды
+  // stdin не читают, и безусловное чтение fd 0 подвесило бы их на терминале.
+  stdin: () => {
+    try {
+      return readFileSync(0, 'utf8');
+    } catch {
+      return '';
+    }
+  },
   out: (text) => process.stdout.write(text),
   err: (text) => process.stderr.write(text),
   env: process.env,

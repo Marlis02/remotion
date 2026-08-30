@@ -2,8 +2,9 @@
 // (карта ADR-0009). Доменной логики здесь нет: гейт снимает `renderer-hyperframes`, форму
 // записи держит `templates-spec`, кодирует `media`.
 //
-// ЧТО ЕСТЬ СЕГОДНЯ: `vpe build` (`L-01`), `vpe template gate` (Charter V13, R12, `E-00`) и
-// `vpe template list`. ЧЕГО НЕТ: `vpe render-segment` (`L-02`), `vpe fmt` (`L-03`).
+// ЧТО ЕСТЬ СЕГОДНЯ: `vpe build` (`L-01`), `vpe render-segment` и `vpe store verify|fetch|push`
+// (`L-02`), `vpe template gate` (Charter V13, R12, `E-00`) и `vpe template list`. ЧЕГО НЕТ:
+// `vpe fmt` (`L-03`). ЧЕГО НЕ БУДЕТ: `vpe store gc` — `.store` не подлежит LRU-GC никогда (K10).
 //
 // `vpe build` устроен так же, как гейт: разбор аргументов, оркестрация чужих стадий, вывод.
 // Обе половины лежат в `build/` — `pipeline.ts` считается без браузера, `render.ts` требует
@@ -14,6 +15,9 @@ export {
   USAGE,
   type BuildArgs,
   type CliCommand,
+  type RenderSegmentArgs,
+  type StoreAction,
+  type StoreArgs,
   type TemplateGateArgs,
   type TemplateListArgs,
 } from './argv.js';
@@ -50,6 +54,12 @@ export {
   type SegmentResult,
 } from './build-stages/render.js';
 export { CliError, EXIT, type CliRule } from './errors.js';
+export {
+  RENDER_SEGMENT_EXIT,
+  renderSegmentCommand,
+  type RenderSegmentDeps,
+} from './render-segment.js';
+export { store, type StoreDeps } from './store.js';
 export {
   BUDGET_THRESHOLD_MS,
   formatBudgetReport,

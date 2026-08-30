@@ -58,6 +58,8 @@ async function run(argv: readonly string[], gate?: () => Promise<GateOutcome>): 
   let out = '';
   let err = '';
   const deps: CliDeps = {
+  // `stdin` — вход ТОЛЬКО `vpe render-segment` (`L-02`); эта команда его не читает.
+  stdin: () => '',
     now: () => '2026-08-29T00:00:00Z',
     clock: () => 0,
     // `randomBytes`/`env` — входы КОМАНДЫ `build` (`L-01`), а не гейта: `CliDeps` один на

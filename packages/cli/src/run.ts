@@ -11,6 +11,8 @@ import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import { parseArgv } from './argv.js';
 import { build, type BuildDeps } from './build.js';
 import { CliError, EXIT } from './errors.js';
+import { renderSegmentCommand } from './render-segment.js';
+import { store } from './store.js';
 import { templateGate, type TemplateGateDeps } from './template-gate.js';
 import { formatTemplateTable, templateRows } from './template-list.js';
 
@@ -19,6 +21,14 @@ export interface CliDeps extends TemplateGateDeps, Omit<BuildDeps, 'env'> {
   readonly err: (text: string) => void;
   /** Окружение процесса. Обязательно для `build`: им меряется отпечаток (**R14**). */
   readonly env: NodeJS.ProcessEnv;
+  /**
+   * Тело stdin как текст — вход `vpe render-segment` (ADR-0008), и больше ничей.
+   *
+   * ФУНКЦИЯ, А НЕ СТРОКА: чтение fd 0 при каждом вызове `vpe` подвесило бы на терминале
+   * `vpe build`, который stdin не читает вовсе. Депа обязательная, а не опциональная, — иначе
+   * «команда без stdin» стала бы ошибкой прогона вместо ошибки типа. *(Добавлено: `L-02`.)*
+   */
+  readonly stdin: () => string;
 }
 
 /**
@@ -29,6 +39,8 @@ export async function runCli(argv: readonly string[], deps: CliDeps): Promise<nu
   try {
     const command = parseArgv(argv);
     if (command.command === 'build') return await build(command, deps);
+    if (command.command === 'render-segment') return await renderSegmentCommand(command, deps);
+    if (command.command === 'store') return await store(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
 
     // `template list` — чтение каталога тем же загрузчиком, что и гейт: «манифест собирается

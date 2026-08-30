@@ -83,6 +83,8 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
       let out = '';
       let err = '';
       const deps: CliDeps = {
+        // `stdin` — вход ТОЛЬКО `vpe render-segment` (`L-02`); гейт его не читает.
+        stdin: () => '',
         now: () => '2026-08-29T00:00:00Z',
         // Живой прогон — НАСТОЯЩИЕ часы: в таблице гейта стоит `wallMs`, и счётчик напечатал
         // бы там выдумку (`performance.now` в тестах законен, у них своя зона).
@@ -155,6 +157,8 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
 
       let out = '';
       const deps: CliDeps = {
+        // `stdin` — вход ТОЛЬКО `vpe render-segment` (`L-02`); гейт его не читает.
+        stdin: () => '',
         now: () => '2026-08-29T00:00:00Z',
         clock: () => performance.now(),
         out: (text) => (out += text),

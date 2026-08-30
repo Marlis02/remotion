@@ -134,7 +134,7 @@ export function gateStaleness(candidate: GateCandidate, actual: GateActual): str
       return (
         `запись снята на другой композиции: \`bundleHash\` записи \`${candidate.bundleHash}\`, ` +
         `фактический \`${actual.bundleHash}\`. Код шаблона (или его \`params\`, или IR ` +
-        'фикстуры) изменился после снятия гейта — пара та же, рисует другое'
+        'фикстуры) изменился после снятия гейта — пара та же, МОГ рисовать другое'
       );
     }
   }

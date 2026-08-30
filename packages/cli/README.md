@@ -12,13 +12,37 @@
 
 ---
 
-## Команды (`E-00`, 2026-08-29)
+## Команды (`E-00` 2026-08-29, `L-01` и `L-02` 2026-08-30)
 
 ```
+vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>]
+          [--build-dir <кат>] [--write-root <кат>] [--store-dir <кат>] [--gates-dir <кат>]
+vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]   (запрос — на stdin)
+vpe store verify --project <кат> [--store-dir <кат>] [--write-verified] [--now <ISO>]
+vpe store fetch  --project <кат> --from <кат> [--store-dir <кат>]
+vpe store push   --project <кат> --to <кат>   [--store-dir <кат>]
 vpe template gate <id>@<N> --profile final|draftHalf --request <файл> --render-profile <файл.yaml>
                            [--gates-dir <кат>] [--run-root <кат>]
 vpe template list [--gates-dir <кат>]
 ```
+
+**`vpe store gc` НЕ СУЩЕСТВУЕТ и написан не будет** (**K10**, ADR-0005 §8): `.store` не подлежит
+LRU-GC никогда — в интерфейсе `Store` нет метода удаления, а потеря оплаченного PCM не
+восстанавливается деньгами (`FACT` r1 §2.3). Команда отвечает на `store gc` отказом, называющим
+правило, — чтобы набравший её человек узнал причину, а не решил, что опечатался.
+
+**`render-segment`** — точка входа подпроцесса ADR-0008: JSON-запрос на stdin, JSON-ответ на
+stdout, коды `0` / `1` / `2` (ответ · договорный отказ · запрос не разобрался). Вторая точка
+входа того же контракта — бинарь `renderer-hyperframes/bin/render-segment.ts`; **тело у них
+одно** (`runSegmentEntry`), поэтому «через spawn то же, что командой» есть свойство кода, а не
+совпадение.
+
+**`store verify`** отвечает на два вопроса про один стор: чего НЕТ (точный список sha256 из
+`store.lock` — **P6**) и что ИСПОРЧЕНО (лежащие блобы перехэшируются — `Store.read` этого не
+делает намеренно, `M-01`). `--write-verified` проставляет `lastVerifiedAt` и только при чистой
+проверке; по умолчанию команда в дерево не пишет. **`fetch`/`push`** переносят блобы по списку
+`store.lock` между двумя каталогами файловой системы: сетевых протоколов в v1 нет, второй
+бэкенд — `G-03`.
 
 **`template gate`** — гейт детерминизма шаблона (Charter **V13**, ADR-0008 «Гейт → Процедура»):
 N прогонов одной конфигурации (10 на `final`, 3 на `draftHalf`), две величины (`sha256` файла и
