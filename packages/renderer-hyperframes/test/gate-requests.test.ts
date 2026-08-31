@@ -1,5 +1,6 @@
-// **~~ВОСЕМЬ~~ ДЕСЯТЬ ФАЙЛОВ ЗАПРОСОВ ГЕЙТА СВЕРЯЮТСЯ С БИЛДЕРОМ ПОБАЙТОВО.** Браузер здесь
-// не нужен. *(восемь — `GATE-PREP`; девятый и десятый — `grade@1`, `E-07`, 2026-08-31.)*
+// **~~ВОСЕМЬ~~ ~~десять~~ ДВЕНАДЦАТЬ ФАЙЛОВ ЗАПРОСОВ ГЕЙТА СВЕРЯЮТСЯ С БИЛДЕРОМ ПОБАЙТОВО.**
+// Браузер здесь не нужен. *(восемь — `GATE-PREP`; девятый и десятый — `grade@1`, `E-07`,
+// 2026-08-31; одиннадцатый и двенадцатый — `parallax25@1`, `E-02`, 2026-08-31.)*
 //
 // ЧТО ЭТО ЗА ФАЙЛЫ. `gate-requests/<шаблон>.<профиль>.json` — вход команды
 // `vpe template gate --request`, которой владелец снимает записи гейта V13 (решение владельца 5,
@@ -33,6 +34,7 @@ import {
   GATE_REQUEST_PROFILES,
   GATE_FONT_PATH,
   GATE_FONT_SHA256,
+  PARALLAX_LAYER_PNGS,
   PNG_PATTERN_32,
   buildGateRequestFile,
   gateRequestFileName,
@@ -40,7 +42,7 @@ import {
   sha256Hex,
 } from './fixture.js';
 
-/** Порождение десяти файлов дороже обычного юнита: десять материализаций каталога композиции. */
+/** Порождение двенадцати файлов дороже обычного юнита: двенадцать материализаций композиции. */
 const TIMEOUT = 120_000;
 
 const UPDATE = process.env['VPE_GATE_REQUESTS_UPDATE'] === '1';
@@ -48,7 +50,7 @@ const DIR = gateRequestsDir();
 const ASSET = path.join(DIR, GATE_REQUEST_PATHS.asset);
 const FONT = path.join(DIR, GATE_REQUEST_PATHS.font);
 
-/** Все ДЕСЯТЬ пар (случай, профиль) — то, что обязано лежать файлами. */
+/** Все ДВЕНАДЦАТЬ пар (случай, профиль) — то, что обязано лежать файлами. */
 const PAIRS = GATE_REQUEST_CASES.flatMap((kase) =>
   GATE_REQUEST_PROFILES.map((profile) => ({ kase, profile, name: gateRequestFileName(kase, profile) })),
 );
@@ -73,6 +75,35 @@ describe('`GATE-PREP` — ассет запросов лежит файлом и
   });
 });
 
+describe('`E-02` — два слоя параллакса лежат файлами и это те самые байты', () => {
+  // ТА ЖЕ ПРИРОДА, ЧТО У `pattern-32.png`, И ТОТ ЖЕ ПОРЯДОК: файлы ПРОИЗВОДНЫЕ от литералов
+  // фикстуры, `VPE_GATE_REQUESTS_UPDATE=1` их перезаписывает. Отличие одно и оно в предмете:
+  // у ближнего слоя есть АЛЬФА, и именно она делает запрос гейта параллаксом, а не стопкой
+  // непрозрачных прямоугольников. Байты сверяются, а альфа — нет: PNG здесь читать нечем
+  // (декодера в пакете нет), и «в файле есть прозрачность» проверяется там, где есть браузер
+  // (`parallax-cover.test.ts`).
+  for (const [index, bytes] of PARALLAX_LAYER_PNGS.entries()) {
+    const rel = GATE_REQUEST_PATHS.layers[index] ?? '';
+    it(`\`${rel}\` побайтово равен слою ${String(index)} фикстуры`, () => {
+      const file = path.join(DIR, rel);
+      if (UPDATE) {
+        mkdirSync(path.dirname(file), { recursive: true });
+        writeFileSync(file, bytes);
+      }
+      expect(existsSync(file), `нет файла слоя \`${file}\`. ${HOWTO}`).toBe(true);
+      expect(sha256Hex(readFileSync(file)), `байты \`${file}\` разошлись с фикстурой. ${HOWTO}`).toBe(
+        sha256Hex(bytes),
+      );
+    });
+  }
+
+  it('путей слоёв ровно столько же, сколько байтовых литералов', () => {
+    // Разъехались бы — билдер писал бы в файл запроса путь `undefined` либо ронял
+    // `relPathForRole`, и оба варианта заметны позже и хуже, чем эта строка.
+    expect(GATE_REQUEST_PATHS.layers).toHaveLength(PARALLAX_LAYER_PNGS.length);
+  });
+});
+
 describe('`ENV-01` — шрифт запросов лежит файлом и это те самые байты (долг №187)', () => {
   // ЧЕМ ЭТОТ ФАЙЛ ОТЛИЧАЕТСЯ ОТ СОСЕДА СВЕРХУ. `pattern-32.png` ПРОИЗВОДНЫЙ: его порождает
   // литерал фикстуры, и `VPE_GATE_REQUESTS_UPDATE=1` его перезаписывает. Шрифт — ИСХОДНЫЙ:
@@ -88,7 +119,7 @@ describe('`ENV-01` — шрифт запросов лежит файлом и э
     expect(
       sha256Hex(readFileSync(FONT)),
       `байты \`${FONT}\` разошлись с объявленными. Другой шрифт — другой \`bundle.hash\`, ` +
-        'то есть ДЕСЯТЬ записей гейта устарели',
+        'то есть ДВЕНАДЦАТЬ записей гейта устарели',
     ).toBe(GATE_FONT_SHA256);
   });
 
@@ -100,7 +131,7 @@ describe('`ENV-01` — шрифт запросов лежит файлом и э
   });
 });
 
-describe('`GATE-PREP`/`E-07` — десять файлов запросов равны порождению билдера', () => {
+describe('`GATE-PREP`/`E-07`/`E-02` — двенадцать файлов запросов равны порождению билдера', () => {
   for (const { kase, profile, name } of PAIRS) {
     it(
       `\`${name}\` совпадает с билдером байт в байт`,
@@ -118,7 +149,7 @@ describe('`GATE-PREP`/`E-07` — десять файлов запросов ра
     );
   }
 
-  it('в каталоге ровно десять файлов запросов — ни одного лишнего', () => {
+  it('в каталоге ровно двенадцать файлов запросов — ни одного лишнего', () => {
     const found = readdirSync(DIR)
       .filter((entry) => entry.endsWith('.json'))
       .sort();

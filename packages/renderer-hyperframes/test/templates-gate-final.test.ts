@@ -1,4 +1,12 @@
-// **ЖИВОЙ ГЕЙТ V13 НА ПРОФИЛЕ `final`, N = 10:** `kenburns@1` (`H-06`) и `grade@1` (`E-07`).
+// **ЖИВОЙ ГЕЙТ V13 НА ПРОФИЛЕ `final`, N = 10:** `kenburns@1` (`H-06`), `grade@1` (`E-07`) и
+// `parallax25@1` (`E-02`).
+//
+// **ПОЧЕМУ `parallax25@1` ТОЖЕ ЗДЕСЬ.** Основание то же, что у `kenburns@1` дословно: он
+// ДВИГАЕТ пиксели, а гейт мерит воспроизводимость — воспроизводить нечего там, где ничего не
+// меняется. Сверх того у него есть своё: слоёв ДВА, они едут с РАЗНОЙ скоростью и верхний
+// имеет альфу, то есть на каждом кадре происходит композитинг двух движущихся картинок. Это
+// более сильный вход, чем один движущийся слой, и именно на нём осмысленно спрашивать
+// «повторяется ли кадр в кадр».
 //
 // **ПОЧЕМУ `grade@1` ПРИЕХАЛ СЮДА, А НЕ ТРЕТЬИМ ФАЙЛОМ** (задание `E-07` оставило выбор по
 // цене): предмет у обоих один — дорогой прогон на полном разрешении, — и третий файл дал бы
@@ -6,9 +14,10 @@
 // ЦЕНЕ: `templates-gate.test.ts` — пять дешёвых `draftHalf`, здесь — дорогие `final`.
 //
 // ═══ ТРЕБУЕТ БРАУЗЕРА И ffmpeg. СКИПА ПО ПЕРЕМЕННОЙ ЗДЕСЬ НЕТ. ЭТО ДОЛГИЙ ТЕСТ ═══
-// Отдельным файлом от `templates-gate.test.ts` намеренно: там ~~четыре~~ ПЯТЬ дешёвых
-// прогонов на `draftHalf`, здесь ~~один~~ ДВА дорогих на полном разрешении, и смешивать их
-// значило бы платить цену `final` каждый раз, когда хочется проверить `draftHalf`.
+// Отдельным файлом от `templates-gate.test.ts` намеренно: там ~~четыре~~ ~~пять~~ ШЕСТЬ
+// дешёвых прогонов на `draftHalf`, здесь ~~один~~ ~~два~~ ТРИ дорогих на полном разрешении, и
+// смешивать их значило бы платить цену `final` каждый раз, когда хочется проверить
+// `draftHalf`.
 //
 // ПОЧЕМУ ИМЕННО `kenburns@1` (решение владельца, развилка «в», вариант в1). Он единственный из
 // ПЯТИ ШАБЛОНОВ `H-06`, кто ДВИГАЕТ пиксели. `FACT` (SP-3e §1.1, таблица ADR-0008 строка 8): моушн-композиция
@@ -76,7 +85,7 @@ const FINAL_PIXELS = {
   encoder: { threads: 4, preset: 'medium', tune: 'none', rcLookahead: 40, aqMode: 1, psy: 1, bitexact: true },
 } as unknown as Parameters<typeof buildSegmentArtifact>[0]['pixelProfile'];
 
-describe('`H-06`/`E-07` — живой гейт V13 на профиле `final`, N = 10', () => {
+describe('`H-06`/`E-07`/`E-02` — живой гейт V13 на профиле `final`, N = 10', () => {
   it(
     '`kenburns@1` на полном разрешении: десять прогонов дают один файл',
     async () => {
@@ -163,6 +172,52 @@ describe('`H-06`/`E-07` — живой гейт V13 на профиле `final`,
       // теста, а измерение: `feTurbulence` на этом браузере невоспроизводим, и по условию
       // `E-07` зерно выключается дефолтом 0 с долгом и числом — переснимать втихую запрещено
       // (ADR-0008, «Классы результата»).
+      expect(outcome.class, formatGateOutcome(outcome)).toBe('PASS');
+      if (outcome.class !== 'PASS') return;
+
+      expect(outcome.runs).toHaveLength(10);
+      expect(outcome.record.N).toBe(10);
+      expect(outcome.record.profileId).toBe('final');
+      expect(new Set(outcome.runs.map((r) => r.engineFingerprint)).size).toBe(1);
+      expect(new Set(outcome.runs.map((r) => r.frameCount))).toEqual(new Set([FRAMES]));
+      expect(new Set(outcome.runs.map((r) => r.framemd5Sha256)).size).toBe(1);
+      expect(new Set(outcome.runs.map((r) => r.sha256)).size).toBe(1);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    '`parallax25@1` на полном разрешении: десять прогонов дают один файл',
+    async () => {
+      const fixture = makeTemplateFixture(
+        // Запрос ОДИНОЧНЫЙ: у параллакса ассеты свои, основание ему не нужно (см. шапку
+        // `GATE_REQUEST_CASES`). Два слоя, `withLayers: 2`.
+        [{ template: 'parallax25@1', params: FIXTURE_PARAMS.parallax25, z: 10, withLayers: 2 }],
+        { frames: FRAMES, scale: 1, workers: 4 },
+      );
+      const request = await readyRequest(fixture.request);
+      expect(request.pixelProfile.scale).toBe(1);
+      // Оба слоя ОБЯЗАНЫ доехать до клипа: гейт на одном слое мерил бы вырожденный случай,
+      // а не 2.5D, и разница была бы невидима в классе записи.
+      expect(request.ir.clips[0]?.assets.map((ref) => ref.role)).toEqual(['layer0', 'layer1']);
+      expect(new Set(request.ir.clips[0]?.assets.map((ref) => ref.sha256)).size).toBe(2);
+
+      const outcome = await runGate({
+        request,
+        runRoot: mkdtempSync(path.join(tmpdir(), 'vpe-e02-final-')),
+        profileId: 'final',
+        media: createGateMedia({
+          buildSegmentArtifact,
+          framemd5Of,
+          pixelProfile: FINAL_PIXELS,
+          fps: request.compileProfile.fps as unknown as Parameters<typeof buildSegmentArtifact>[0]['fps'],
+        }),
+        now: () => '2026-08-31T00:00:00Z',
+        options: { clock: realClock(), registry: rendererTemplates, parentEnv: process.env },
+      });
+
+      console.log(`\n=== parallax25@1 · final · N=10 ===\n${formatGateOutcome(outcome)}`);
+
       expect(outcome.class, formatGateOutcome(outcome)).toBe('PASS');
       if (outcome.class !== 'PASS') return;
 

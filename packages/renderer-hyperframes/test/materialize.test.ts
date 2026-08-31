@@ -224,9 +224,10 @@ describe('шаблон без реализации — отказ ДО того,
   // утёк. Проверка «реестр пуст» заменена на «реестр совпадает с библиотекой спеков» —
   // состав сверяется поимённо в `templates.test.ts`, здесь стережётся только непопадание
   // тестового шаблона.
-  // *(дополнено: `E-07`, 2026-08-31 — шестым встал `grade@1`.)*
-  it('продакшн-реестр НАПОЛНЕН шестью, и `solid@1` в нём нет', () => {
-    expect(rendererTemplates.templates).toHaveLength(6);
+  // *(дополнено: `E-07`, 2026-08-31 — шестым встал `grade@1`; `E-02`, 2026-08-31 — седьмым
+  // `parallax25@1`.)*
+  it('продакшн-реестр НАПОЛНЕН семью, и `solid@1` в нём нет', () => {
+    expect(rendererTemplates.templates).toHaveLength(7);
     expect(rendererTemplates.templates.map((t) => t.templateId)).not.toContain('solid');
   });
 

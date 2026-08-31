@@ -3,12 +3,13 @@
 **Кому.** Владельцу (автору шаблона). Ночного CI в v1 нет — гейты снимает человек и коммитит
 записи глазами (решение владельца 5, RM1; Charter V13; [ADR-0008](adr/0008-renderer-boundary.md)).
 
-**Что получится.** ~~Четыре~~ **ПЯТЬ** файлов
+**Что получится.** ~~Четыре~~ ~~пять~~ **ШЕСТЬ** файлов
 `packages/templates-spec/src/templates/<id>@1.gates.json`, в каждом по ДВЕ записи —
 `draftHalf` и `final`. Без них **R12** не пустит шаблон в сборку.
-*(пятый — `grade@1`, добавлен `E-07`, 2026-08-31.)*
+*(пятый — `grade@1`, добавлен `E-07`, 2026-08-31; шестой — `parallax25@1`, добавлен `E-02`,
+2026-08-31.)*
 
-**Сколько это займёт.** ~~Восемь~~ **ДЕСЯТЬ** команд. `draftHalf` — **≈6 с** каждая (`FACT`, измерено
+**Сколько это займёт.** ~~Восемь~~ ~~десять~~ **ДВЕНАДЦАТЬ** команд. `draftHalf` — **≈6 с** каждая (`FACT`, измерено
 `GATE-PREP` 2026-08-29 на этой машине: три прогона по 1.5 с). `final` — **≈30–60 с** каждая
 (`INFERENCE` из `H-06`: `kenburns@1` на `final` дал 1462–1557 мс на прогон × N = 10; у трёх
 остальных шаблонов `final` живьём не снимался ни разу). Итого ориентировочно **5–10 минут**
@@ -50,6 +51,12 @@ TZ=UTC LC_ALL=C pnpm vitest run \
   packages/cli/test/gate-requests-cli.test.ts
 ```
 
+**`E-02` (2026-08-31): прежние ДЕСЯТЬ файлов запросов НЕ СДВИНУЛИСЬ.** Тот же опыт, что ниже
+у `E-07`, повторён на седьмом шаблоне и дал тот же ответ: `sha256` десяти старых файлов до и
+после перегенерации совпали строка в строку, `git status --porcelain` показал ровно ЧЕТЫРЕ
+новых пути — два запроса `parallax25@1` и два PNG слоёв в `gate-requests/assets/`. Значит
+записи `*.gates.json` пяти прежних шаблонов **остаются действующими**; новых команд — две.
+
 **`E-07` (2026-08-31): прежние ВОСЕМЬ файлов запросов НЕ СДВИНУЛИСЬ.** Шестой шаблон
 `grade@1` добавил ДВА новых файла и не тронул ни байта в восьми старых — проверено
 побайтовой сверкой `sha256` до и после перегенерации, `git status --porcelain` показал ровно
@@ -58,9 +65,11 @@ TZ=UTC LC_ALL=C pnpm vitest run \
 `*.gates.json` четырёх прежних шаблонов **остаются действующими**, и переснимать их не нужно
 — достаточно двух новых команд ниже.
 
-На эталонной машине это **42 из 42**. *(`ENV-01`: было 40 — шрифт добавил два утверждения о
-своих байтах. Прогон в mount-namespace без системного DejaVu даёт те же 42 — юнит больше не
-зависит от машины.)*
+На эталонной машине это **53 из 53**. *(`ENV-01`: было 40 — шрифт добавил два утверждения о
+своих байтах, стало 42. Прогон в mount-namespace без системного DejaVu даёт то же число — юнит
+больше не зависит от машины. `E-02`: 42 → 53, из них 31 в `gate-requests.test.ts` — два новых
+файла запросов дают четыре утверждения, два PNG слоёв — три, — и 22 в `gate-requests-cli.test.ts`,
+где пара `parallax25@1` добавила четыре.)*
 
 **Красный тест здесь означает СТОП.** Файлы запросов производны от билдеров
 `packages/renderer-hyperframes/test/fixture.ts`; расхождение значит, что композиция изменилась
@@ -118,6 +127,10 @@ node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile draf
 node packages/cli/dist/bin/vpe.js template gate grade@1 --profile draftHalf \
   --request packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
+
+node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile draftHalf \
+  --request packages/renderer-hyperframes/gate-requests/parallax25@1.draftHalf.json \
+  --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
 ### `final` (N = 10, ≈30–60 с каждая)
@@ -142,7 +155,23 @@ node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile fina
 node packages/cli/dist/bin/vpe.js template gate grade@1 --profile final \
   --request packages/renderer-hyperframes/gate-requests/grade@1.final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
+
+node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile final \
+  --request packages/renderer-hyperframes/gate-requests/parallax25@1.final.json \
+  --render-profile fixtures/minimal/profiles/render.final.yaml
 ```
+
+**ДВЕ КОМАНДЫ `parallax25@1` — ЗАПРОС ОДИНОЧНЫЙ, И ЭТО ОТЛИЧАЕТ ЕГО ОТ ДВУХ СМЕШАННЫХ ВЫШЕ.**
+В обоих файлах ОДИН клип: у параллакса ассеты СВОИ — два слоя, `layer0` (дальний, непрозрачный)
+и `layer1` (ближний, PNG с альфой), — и подкладывать под него `still@1` было бы лишним клипом в
+измеряемой композиции, а не основанием. Оба слоя — синтетические 32×32 из
+`gate-requests/assets/`; фотографий в каталоге запросов нет и не будет (решение владельца
+`E-02`).
+
+**ЦЕНА `parallax25@1` — 44 мс/кадр В МАНИФЕСТЕ, НО НЕ 44 В ЭТИХ ДВУХ ПРОГОНАХ.** Измерено `E-02`:
+на ДВУХ слоях шаблон стоит 10.69 мс/кадр, на ОДНОМ (вырожденный случай с размытием) — 43.39; в
+манифест по правилу «оценка сверху» уехало большее. Запрос гейта — двухслойный, то есть дешёвый.
+Числа — [`impl/E-02/report.md`](impl/E-02/report.md) §бюджет.
 
 **ДВЕ КОМАНДЫ `grade@1` — СМЕШАННЫЕ ЗАПРОСЫ, И ЭТО НЕ ОПЕЧАТКА.** В обоих файлах два клипа:
 `still@1` основанием и `grade@1` над ним. Грейд красит `backdrop` — то, что лежит НИЖЕ него,
@@ -190,13 +219,13 @@ node packages/cli/dist/bin/vpe.js template gate grade@1 --profile final \
 
 ## 3. Что коммитить
 
-После всех десяти команд:
+После всех двенадцати команд:
 
 ```bash
 git status --porcelain packages/templates-spec/src/templates/
 ```
 
-Ожидается **пять** файлов, по одному на шаблон, в каждом **две** записи (`draftHalf` и
+Ожидается **шесть** файлов, по одному на шаблон, в каждом **две** записи (`draftHalf` и
 `final`):
 
 ```
@@ -204,15 +233,20 @@ git status --porcelain packages/templates-spec/src/templates/
 ?? packages/templates-spec/src/templates/flash@1.gates.json
 ?? packages/templates-spec/src/templates/grade@1.gates.json
 ?? packages/templates-spec/src/templates/kenburns@1.gates.json
+?? packages/templates-spec/src/templates/parallax25@1.gates.json
 ?? packages/templates-spec/src/templates/still@1.gates.json
 ```
+
+*(`E-02`, 2026-08-31: пять прежних файлов уже лежат в репозитории и остаются действующими —
+`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `parallax25@1.gates.json`;
+остальные десять команд перезапишут прежние записи свежими, что законно.)*
 
 *(`E-07`, 2026-08-31: четыре прежних файла уже лежат в репозитории и остаются действующими —
 `bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `grade@1.gates.json`;
 остальные четыре команды перезапишут прежние записи свежими, что законно — команда скажет
 «прежняя запись была ДЕЙСТВУЮЩЕЙ и замещается свежей».)*
 
-Коммитятся **только они**. Ничего больше эти десять команд менять не должны: увидели в
+Коммитятся **только они**. Ничего больше эти двенадцать команд менять не должны: увидели в
 `git status` что-то ещё — разбираться ДО коммита.
 
 ---

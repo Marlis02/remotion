@@ -1,5 +1,6 @@
-// **ПРОД-БИБЛИОТЕКА ШАБЛОНОВ — ~~пять~~ ШЕСТЬ версионированных единиц каталога.**
-// *(изменено: `E-07`, 2026-08-31 — шестым встал `grade@1`.)*
+// **ПРОД-БИБЛИОТЕКА ШАБЛОНОВ — ~~пять~~ ~~шесть~~ СЕМЬ версионированных единиц каталога.**
+// *(изменено: `E-07`, 2026-08-31 — шестым встал `grade@1`; `E-02`, 2026-08-31 — седьмым
+// `parallax25@1`.)*
 //
 // ИМЯ СМЕНИЛОСЬ, ЗНАЧЕНИЕ — НЕТ (`E-00`, решение владельца, развилка 6). Прежнее
 // `FIXTURE_TEMPLATES` врало: эти пять спеков — не «спеки фикстуры», а САМА библиотека, из
@@ -30,6 +31,11 @@
 // вызывает. Охранники сверки от этого НЕ ослаблены до односторонних: разница между реестром
 // и фикстурой НАЗВАНА списком (`registry \ fixture == ['grade@1']`, решение владельца
 // `E-07`), то есть седьмой молча добавленный шаблон краснеет ровно как раньше.
+//
+// **`parallax25@1` СТОИТ СЕДЬМЫМ, И ЭТО ВТОРОЕ ТАКОЕ ИМЯ** (`E-02`, 2026-08-31). Список
+// названной разницы вырос до ДВУХ имён (`['grade@1', 'parallax25@1']`) — и вырос он в двух
+// файлах сразу, потому что пакеты разные и слить их нечем (долг №222). Разница остаётся
+// НАЗВАННОЙ: восьмой молча добавленный шаблон краснеет ровно как раньше.
 
 export { kenburns1, type KenburnsParams } from './kenburns@1.js';
 export { flash1, type FlashParams } from './flash@1.js';
@@ -37,17 +43,25 @@ export { bed1, type BedParams } from './bed@1.js';
 export { still1, type StillParams } from './still@1.js';
 export { captionEmphasis1, type CaptionEmphasisParams } from './captionEmphasis@1.js';
 export { grade1, type GradeParams } from './grade@1.js';
+export {
+  parallax251,
+  layerRole,
+  LAYER_ROLE_PREFIX,
+  MAX_PARALLAX_LAYERS,
+  type Parallax25Params,
+} from './parallax25@1.js';
 
 import { bed1 } from './bed@1.js';
 import { captionEmphasis1 } from './captionEmphasis@1.js';
 import { flash1 } from './flash@1.js';
 import { grade1 } from './grade@1.js';
 import { kenburns1 } from './kenburns@1.js';
+import { parallax251 } from './parallax25@1.js';
 import { still1 } from './still@1.js';
 import type { AnyTemplateSpec } from '../spec.js';
 
 /**
- * Библиотека шаблонов: ~~пять~~ **шесть** версионированных единиц. Вход `createRegistry` и
+ * Библиотека шаблонов: ~~пять~~ ~~шесть~~ **семь** версионированных единиц. Вход `createRegistry` и
  * `attachGates` — прод-реестр собирается ИЗ НЕЁ (`E-00`), а `bin/render-segment` и
  * `vpe template gate` берут его отсюда, а не из своих списков.
  *
@@ -56,6 +70,9 @@ import type { AnyTemplateSpec } from '../spec.js';
  * зовущая шаблон, которого нет в реестре, — две разные ошибки, и обе видны только сверкой.
  * *(уточнено: `E-07`, 2026-08-31.)* Сверка осталась двусторонней; разница ровно в одном
  * НАЗВАННОМ имени — `grade@1`, шаблон среза `mvp`, которого фикстура Week-1 не зовёт.
+ * *(дополнено: `E-02`, 2026-08-31.)* Названных имён стало ДВА: к нему прибавился
+ * `parallax25@1` — шаблон среза `r`, который фикстура тоже не зовёт (её режиссура правке не
+ * подлежит), а зовёт настоящая — `examples/vertical-v1/direction/01-archive.yaml`.
  */
 export const TEMPLATE_LIBRARY: readonly AnyTemplateSpec[] = [
   kenburns1,
@@ -64,4 +81,5 @@ export const TEMPLATE_LIBRARY: readonly AnyTemplateSpec[] = [
   still1,
   captionEmphasis1,
   grade1,
+  parallax251,
 ];

@@ -93,7 +93,8 @@ const runRoot = (): string => mkdtempSync(path.join(tmpdir(), 'vpe-h06-'));
  * **ЭТО ВТОРАЯ КОПИЯ СПИСКА, И ОНА ИЗВЕСТНА — ДОЛГ №193.** Первая — `GATE_REQUEST_CASES` в
  * [`fixture.ts`](./fixture.ts), источник файлов `gate-requests/*.json`. Обе описывают одни и
  * те же композиции и обязаны совпадать дословно; `E-07` расширил ОБЕ, потому что слить их
- * задача не бралась.
+ * задача не бралась. *(`E-02`, 2026-08-31 — расширил ОБЕ снова, случаем `parallax25@1`; и
+ * нашёл ТРЕТЬЮ копию, неполную, — `CALLS` в `cli/test/gate-requests-cli.test.ts`, долг №228.)*
  */
 const CASES = [
   {
@@ -127,6 +128,11 @@ const CASES = [
       { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
       { template: 'grade@1', params: FIXTURE_PARAMS.grade, z: 25 },
     ],
+    captions: false,
+  },
+  {
+    call: 'parallax25@1',
+    clips: [{ template: 'parallax25@1', params: FIXTURE_PARAMS.parallax25, z: 10, withLayers: 2 }],
     captions: false,
   },
 ] as const;

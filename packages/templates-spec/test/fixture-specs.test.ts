@@ -32,15 +32,20 @@ const templateRecords = records.flatMap((record) =>
  * запрещает. Односторонняя проверка («фикстура ⊆ реестр») стоила бы дешевле и пропустила бы
  * седьмой молча добавленный шаблон — поэтому проверяются оба направления, а разница
  * перечислена здесь поимённо.
+ *
+ * *(дополнено: `E-02`, 2026-08-31.)* Имён стало ДВА: `parallax25@1` — шаблон среза `r`,
+ * который фикстуру тоже не зовёт и звать не может (её режиссура правке не подлежит), а зовёт
+ * настоящая — `examples/vertical-v1/direction/01-archive.yaml`. Список растёт по одному имени
+ * на шаблон и живёт в ДВУХ файлах (долг №222); слить их нечем — пакеты разные (**M6**).
  */
-const NOT_IN_FIXTURE = ['grade@1'];
+const NOT_IN_FIXTURE = ['grade@1', 'parallax25@1'];
 
 describe('`TS-01` — схемы `params` против фикстуры', () => {
   it('фикстура несёт ровно пять вызовов шаблонов', () => {
     expect(templateRecords).toHaveLength(5);
   });
 
-  it('фикстура ⊆ реестр, а разница — ровно `grade@1` и ничего сверх', () => {
+  it('фикстура ⊆ реестр, а разница — ровно `grade@1` и `parallax25@1` и ничего сверх', () => {
     const used = [...new Set(templateRecords.map((r) => r.template))].sort();
     const known = [...registry.names].sort();
     expect(known).toEqual(expect.arrayContaining(used));
@@ -146,7 +151,7 @@ describe('`TS-01` — `flash@1.durationSamples`: положительное це
   });
 });
 
-describe('`CP-07` — `declareDuration`: объявляет ОДИН шаблон из шести', () => {
+describe('`CP-07` — `declareDuration`: объявляет ОДИН шаблон из семи', () => {
   it('`flash@1` отдаёт свой `durationSamples`, и `declaredDurationOf` его читает', () => {
     const flash = registry.resolve('flash@1');
     expect(declaredDurationOf(flash, { strengthPct: 35, durationSamples: 4800 })).toBe(4800);
@@ -155,16 +160,18 @@ describe('`CP-07` — `declareDuration`: объявляет ОДИН шабло�
   });
 
   // ~~Остальные четыре.~~ *(изменено: `E-07`, 2026-08-31 — пять; шестым в библиотеке встал
-  // `grade@1`, и метода он тоже не имеет.)* Причина у него та же, что у `still@1`: длину
-  // грейда задаёт АВТОР окном клипа, а не шаблон. Длительность есть свойство эффекта только
-  // у вспышки — у неё она и объявлена.
-  it('остальные ПЯТЬ метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
+  // `grade@1`, и метода он тоже не имеет.)* *(дополнено: `E-02`, 2026-08-31 — ШЕСТЬ:
+  // `parallax25@1` метода тоже не имеет.)* Причина у обоих та же, что у `still@1`: длину
+  // грейда и длину параллакса задаёт АВТОР окном клипа, а не шаблон. Длительность есть
+  // свойство эффекта только у вспышки — у неё она и объявлена.
+  it('остальные ШЕСТЬ метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
     const without = TEMPLATE_LIBRARY.filter((spec) => spec.declareDuration === undefined);
     expect(without.map((spec) => spec.templateId).sort()).toEqual([
       'bed',
       'captionEmphasis',
       'grade',
       'kenburns',
+      'parallax25',
       'still',
     ]);
     // И `declaredDurationOf` на них отвечает `null`, не бросая `TypeError`: ветка `undefined`

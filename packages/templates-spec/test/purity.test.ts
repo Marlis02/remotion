@@ -143,12 +143,17 @@ describe('`TS-01` — состояние пяти шаблонов фиксту�
   // `power3.out` там, где спек её и обещал — «Список наполнится там, где пишется код шаблона
   // (`E-*`), — вместе с кривой». Правило осталось прежним и проверяется ниже дословно:
   // объявляет кривую только тот, кто её использует, и только из закрытого реестра **D5**.
-  it('кривые объявляют ровно два шаблона — `kenburns@1` и `flash@1`, обе из реестра D5', () => {
+  // *(дополнено: `E-02`, 2026-08-31 — ТРИ.)* `parallax25@1` объявляет ДВЕ кривые, и это
+  // первый шаблон с непустым выбором у автора: `power2.inOut` — ход с плавными концами,
+  // `none` — линейный проход. Правило не изменилось ни на букву: объявляет кривую только
+  // тот, кто её использует, и только из закрытого реестра **D5**.
+  it('кривые объявляют ровно три шаблона — `kenburns@1`, `flash@1`, `parallax25@1`', () => {
     const withEasing = registry.specs.filter((s) => s.manifest.easingIds.length > 0);
-    expect(withEasing.map((s) => s.templateId).sort()).toEqual(['flash', 'kenburns']);
+    expect(withEasing.map((s) => s.templateId).sort()).toEqual(['flash', 'kenburns', 'parallax25']);
     const byId = new Map(withEasing.map((s) => [s.templateId, s.manifest.easingIds]));
     expect(byId.get('kenburns')).toEqual(['power2.inOut']);
     expect(byId.get('flash')).toEqual(['power3.out']);
+    expect(byId.get('parallax25')).toEqual(['power2.inOut', 'none']);
     // Членство в реестре — не пересказ, а проверка: список D5 закрыт, седьмой кривой нет.
     for (const [id, ids] of byId) {
       for (const easing of ids) expect(isEasingId(easing), `${id}: ${easing}`).toBe(true);

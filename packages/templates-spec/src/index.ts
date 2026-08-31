@@ -114,17 +114,29 @@ export {
   type LoadedTemplate,
 } from './gates-file.js';
 
-// Прод-библиотека: пять версионированных единиц каталога (`E-00`; прежнее имя `FIXTURE_TEMPLATES`).
+// Прод-библиотека: ~~пять~~ СЕМЬ версионированных единиц каталога (`E-00`; прежнее имя
+// `FIXTURE_TEMPLATES`). *(дополнено: `E-02`, 2026-08-31.)*
+//
+// **ТРИ ИМЕНИ `parallax25@1` ВЫВЕДЕНЫ НАРУЖУ, И КАЖДОЕ — ПО АДРЕСУ.** `LAYER_ROLE_PREFIX` и
+// `layerRole` читает реализация рендерера (она собирает имя роли внутри текста `mountSource`)
+// и билдер запросов гейта; `MAX_PARALLAX_LAYERS` — тест протокола нарушений Н1, которому
+// нужен ПЯТЫЙ слой, а не литерал `5`. Спеки остальных шести наружу ничего, кроме себя и
+// своего типа `params`, не выводят — им нечего.
 export {
   TEMPLATE_LIBRARY,
   bed1,
   captionEmphasis1,
   flash1,
   kenburns1,
+  parallax251,
   still1,
+  layerRole,
+  LAYER_ROLE_PREFIX,
+  MAX_PARALLAX_LAYERS,
   type BedParams,
   type CaptionEmphasisParams,
   type FlashParams,
   type KenburnsParams,
+  type Parallax25Params,
   type StillParams,
 } from './templates/index.js';

@@ -13,6 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { canonicalJson } from '@vpe/core-model';
+import { layerRole } from '@vpe/templates-spec';
 
 import type { SegmentRenderRequest } from '../src/contract.js';
 import { renderSegment } from '../src/run.js';
@@ -214,6 +215,43 @@ export const PNG_PATTERN_32 = Buffer.from(
 );
 
 /**
+ * **ДВА СЛОЯ ПАРАЛЛАКСА — СИНТЕТИЧЕСКИЕ PNG 32×32 С АЛЬФОЙ** (`E-02`).
+ *
+ * Собраны тем же способом, что `PNG_PATTERN_32`: настоящие байты, `zlib.deflateSync` уровня 9,
+ * вписаны литералом. Фотографий в `gate-requests/` нет и не будет (решение владельца `E-02`):
+ * гейт мерит ВОСПРОИЗВОДИМОСТЬ шаблона, а не красоту снимка, и мегабайтный PD-файл в
+ * репозитории платил бы за это клоном.
+ *
+ * **РАЗНИЦА МЕЖДУ ДВУМЯ КАРТИНКАМИ — НЕСУЩАЯ, А НЕ ДЕКОРАТИВНАЯ.**
+ *   * ДАЛЬНИЙ (`PARALLAX_FAR_32`) непрозрачен ЦЕЛИКОМ (альфа 255 во всех 1024 пикселях). Он и
+ *     есть слой, который обязан закрывать кадр с запасом под `drift`; будь у него прозрачные
+ *     края, пиксельный охранник углов (`parallax-cover.test.ts`) краснел бы от самой картинки,
+ *     а не от пропавшего запаса, и измерял бы не то;
+ *   * БЛИЖНИЙ (`PARALLAX_NEAR_32`) — ВЫРЕЗКА: ромб в центре непрозрачен, вокруг альфа 0. Это
+ *     форма, в которой приезжает настоящий слой автора (`rembg`, PNG с альфой), и без неё
+ *     гейт мерил бы стопку непрозрачных прямоугольников — то есть композитинг, которого у
+ *     параллакса нет.
+ */
+export const PARALLAX_FAR_32 = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABzklEQVR42sXUbUvTARTG4fMhen7QNM01dU2dU9fUOXVNnVPX1Dl1Tl1Tl6VYiqZoipZYipVYipaERERERIhIRERESERE9HV+8f8AQW/kvD4vLjjnPreYkg5hTj5MVsoRLKlHsaYdIzf9OLaME9hNJyk0n8KReRpndhIllmRc1jO4c1KoyEvFYzuL155GdUE6vqJz+B0Z1DtNBIrPEyw10+TKJOTOIlyeTVulhYjnAlGvla6qHGI1ucR9eYgm3uu3IZp4oi4f0cT7G+yIJn49UIBo4oPBQkQTH2osQjTxm80O5F+DkdBFRsNObrUWM9FewmSklNtRFzOdZcx2u7kTK2c+XsFCTyX3+zwsJS6x3O/l4bUqVgaqWR2s4cmQj/UbtWwM+3k6UsfWaD3PxxrYHg/wYuIyLyeDiCb+aqoR0cRfTzchmvibmWZEE387G0I08XdzLYgm/v5uGNHEd+ZbkYMsmf/ZrmjixnZFEzdOK5q4kSvRxI1QiyZufJRo4sY7iyZudIkcZMnsLrSxd6+dD4sRPi518Gk5yucHnXx51MXXlW6+rcYQTXz/8RVEE/++Fkc08R/rPYgm/nOjF9HEf232IZr472cJRBP/s3WVv2a7cnnxqiTyAAAAAElFTkSuQmCC',
+  'base64',
+);
+
+export const PARALLAX_NEAR_32 = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAjUlEQVR42mNgGAWjgALwbELG/wG1/Nm0lP8D4gi45XMS6O8IFMsXxdDXERiWr4ignyOwWr4uhD6OwGn5lgDaOwKv5bt8aOsIgpYf8KCdI4iy/JgLbRxBtOVnHKjvCJIsv2QzCBwx4NEw4AlxwLPigBdGA14cD3iFNOBV8oA3Sga8WTbQDdPRvsEoGPIAACGn/dpvFsfcAAAAAElFTkSuQmCC',
+  'base64',
+);
+
+/**
+ * Слои по порядку ГЛУБИНЫ: индекс списка = индекс роли (`layer0` — самый дальний).
+ *
+ * Список, а не пара именованных констант: роль строится ИНДЕКСОМ (`layerRole`), и пара имён
+ * заставила бы билдер выбирать между ними условием — то есть завела бы второе место, где
+ * живёт соответствие «место в глубине → байты».
+ */
+export const PARALLAX_LAYER_PNGS: readonly Buffer[] = [PARALLAX_FAR_32, PARALLAX_NEAR_32];
+
+/**
  * Шрифт гейта В КАТАЛОГЕ ЗАПРОСОВ — путём ОТ НЕГО, как ассет (`ENV-01`).
  *
  * Одно значение на две роли, и потому оно одно: этой строкой файл запроса адресует шрифт
@@ -281,6 +319,15 @@ export interface TemplateClip {
   readonly withAsset?: boolean;
   readonly withFont?: boolean;
   /**
+   * Сколько СЛОЁВ параллакса объявляет клип: роли `layer0`…`layer<n-1>` (`E-02`).
+   *
+   * Число, а не `boolean`, потому что число здесь и есть предмет: у `parallax25@1` ассетов от
+   * одного до четырёх, и «сколько» — часть запроса, а не деталь фикстуры. Роли строит
+   * `layerRole` СПЕКА, а не литерал: разойдись они, спек объявлял бы `layer0`, а запрос нёс
+   * бы `layer_0`, и обе стороны были бы зелены поодиночке.
+   */
+  readonly withLayers?: number;
+  /**
    * Окно клипа. По умолчанию — весь сегмент; нужен тем тестам, где окно и есть предмет.
    *
    * Форма — МОДЕЛЬНАЯ (`FrameInterval`), с `L-01`: до неё фикстура была написана по форме
@@ -333,6 +380,29 @@ export const FIXTURE_PARAMS = {
     vignette: 0.35,
     grain: 0.15,
   },
+  /**
+   * **`parallax25@1` — ВТОРОЙ, ЧЬИ `params` ВЗЯТЫ НЕ ИЗ ФИКСТУРЫ, И ПРИЧИНА ТА ЖЕ** (`E-02`).
+   * `fixtures/minimal` его не зовёт (шаблон среза `r`, а её режиссура правке не подлежит),
+   * поэтому числа взяты у ЕДИНСТВЕННОЙ настоящей режиссуры, которая шаблон зовёт, —
+   * `examples/vertical-v1/direction/01-archive.yaml`, сцена «улица 1900». Правило то же, что
+   * действовало для шести прежних: гейт снимается на той паре (шаблон, `params`), которую
+   * зовёт настоящая режиссура (ADR-0008 п. 1).
+   *
+   * `layers` здесь — ДВА alias'а демо, и это не украшение: длина списка есть число слоёв, то
+   * есть главный вход цены шаблона. Сами alias'ы в рендерере не читаются (ассеты приезжают в
+   * IR уже разрешёнными, по ролям), но написать вместо них `['a', 'b']` значило бы снять гейт
+   * на паре, которой никто не зовёт.
+   *
+   * `scale: 1.04` — «дыхание» есть намеренно: это второй вход в расчёт запаса покрытия кадра
+   * (`worstScale` реализации), и гейт, снятый без него, отвечал бы не на тот вопрос.
+   */
+  parallax25: {
+    layers: ['street', 'street-figure'],
+    drift: 0.05,
+    depthSpread: 2.4,
+    easing: 'power2.inOut',
+    scale: 1.04,
+  },
 } as const;
 
 /**
@@ -351,12 +421,36 @@ export function makeTemplateFixture(
   const ws = makeWorkspace();
   const asset = putBlob(ws, PNG_PATTERN_32, 'pattern.blob');
   const font = putBlob(ws, gateFontBytes(), 'font.blob');
+  // Слои параллакса кладутся ВСЕГДА, но в запрос попадают только по требованию клипа: два
+  // лишних файла во временном каталоге ничего не стоят, а ветвление на `putBlob` стоило бы
+  // второго места, где живёт список байтов.
+  const layerBlobs = PARALLAX_LAYER_PNGS.map((bytes, index) =>
+    putBlob(ws, bytes, `parallax-${String(index)}.blob`),
+  );
 
   const assetRef = { sha256: asset.sha256, role: 'asset' };
   const fontRef = { sha256: font.sha256, family: GATE_FONT_FAMILY, role: 'caption' };
+  /** Ссылки слоёв клипа: роль строит `layerRole` СПЕКА (см. `TemplateClip.withLayers`). */
+  const layerRefsOf = (count: number): { sha256: string; role: string }[] =>
+    Array.from({ length: count }, (_, index) => {
+      const blob = layerBlobs[index];
+      if (blob === undefined) {
+        throw new Error(
+          `фикстура несёт ${String(layerBlobs.length)} байтовых слоя, а клип просит ` +
+            `${String(count)}. Больше слоёв — больше литералов в этом файле, а не «повторим ` +
+            'первый»: два одинаковых слоя дали бы гейт, на котором глубину нечем отличить от ' +
+            'её отсутствия',
+        );
+      }
+      return { sha256: blob.sha256, role: layerRole(index) };
+    });
 
   const usesAsset = clips.some((c) => c.withAsset === true);
   const usesFont = clips.some((c) => c.withFont === true);
+  /** Все роли слоёв, встреченные в клипах, — по одной ссылке на роль, порядок ролей. */
+  const layerRefs = layerRefsOf(
+    clips.reduce((most, clip) => (clip.withLayers !== undefined && clip.withLayers > most ? clip.withLayers : most), 0),
+  );
 
   const raw = {
     requestVersion: 1,
@@ -370,7 +464,12 @@ export function makeTemplateFixture(
         frames: clip.window ?? { frameStart: 0, frameEnd: frames },
         template: clip.template,
         params: clip.params,
-        assets: clip.withAsset === true ? [assetRef] : [],
+        assets:
+          clip.withLayers === undefined
+            ? clip.withAsset === true
+              ? [assetRef]
+              : []
+            : layerRefsOf(clip.withLayers),
         fonts: clip.withFont === true ? [fontRef] : [],
         seeds: {},
       })),
@@ -402,7 +501,7 @@ export function makeTemplateFixture(
                     ],
             }))
           : [],
-      assets: usesAsset ? [assetRef] : [],
+      assets: [...(usesAsset ? [assetRef] : []), ...layerRefs],
       fonts: usesFont ? [fontRef] : [],
     },
     compileProfile: {
@@ -421,7 +520,14 @@ export function makeTemplateFixture(
       hash: UNSET_HASH,
       compositionId: 'seg-h06',
     },
-    assets: usesAsset ? [{ sha256: asset.sha256, path: asset.path, role: 'asset' }] : [],
+    assets: [
+      ...(usesAsset ? [{ sha256: asset.sha256, path: asset.path, role: 'asset' }] : []),
+      ...layerRefs.map((ref, index) => ({
+        sha256: ref.sha256,
+        path: layerBlobs[index]?.path ?? '',
+        role: ref.role,
+      })),
+    ],
     fonts: usesFont ? [{ sha256: font.sha256, path: font.path, family: GATE_FONT_FAMILY }] : [],
     outputPath: path.join(ws.outDir, 'segment.mts'),
     tmpDir: ws.tmpDir,
@@ -491,7 +597,8 @@ export interface GateRequestCase {
 }
 
 /**
- * ~~Четыре~~ **ПЯТЬ** визуальных шаблонов *(дополнено: `E-07` — `grade@1`)*. `bed@1` СЮДА НЕ
+ * ~~Четыре~~ ~~пять~~ **ШЕСТЬ** визуальных шаблонов *(дополнено: `E-07` — `grade@1`; `E-02` —
+ * `parallax25@1`)*. `bed@1` СЮДА НЕ
  * ВХОДИТ — гейт на нём неисполним по построению (долг №189): он аудио-домена, в
  * `RenderIR.clips` не попадает, а его реализация есть отказ.
  *
@@ -503,6 +610,12 @@ export interface GateRequestCase {
  * лежит НИЖЕ него; над пустотой backdrop пуст, и гейт мерил бы воспроизводимость ничего —
  * ровно ложно-зелёный долга №164 в третий раз. Основанием стоит тот же `still@1` с той же
  * картинкой 32×32, что и у `kenburns@1`: у грейда обязано быть, что грейдить.
+ *
+ * **`parallax25@1` — НЕ СМЕШАННЫЙ, И ЭТО РАЗНИЦА ПО СУЩЕСТВУ, А НЕ ПО ВКУСУ** (`E-02`). Двум
+ * шаблонам выше основание нужно потому, что своих ассетов у них нет: один двигает соседа
+ * снизу, другой красит backdrop. У параллакса ассеты СВОИ — два слоя, объявленные
+ * `declareAssets`, — и `still@1` под ним не дал бы гейту ничего, кроме лишнего клипа в
+ * измеряемой композиции. Клип одиночный, `withLayers: 2`. Шаблонов стало ШЕСТЬ.
  */
 export const GATE_REQUEST_CASES: readonly GateRequestCase[] = [
   {
@@ -540,6 +653,13 @@ export const GATE_REQUEST_CASES: readonly GateRequestCase[] = [
     clips: [
       { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
       { template: 'grade@1', params: FIXTURE_PARAMS.grade, z: 25 },
+    ],
+    captions: false,
+  },
+  {
+    call: 'parallax25@1',
+    clips: [
+      { template: 'parallax25@1', params: FIXTURE_PARAMS.parallax25, z: 10, withLayers: 2 },
     ],
     captions: false,
   },
@@ -582,14 +702,40 @@ export const GATE_REQUEST_PROFILES: readonly GateRequestProfile[] = [
  * Долг №192 (три плейсхолдера видны только по имени каталога) правкой НЕ закрыт и не сужен:
  * он про `tmpDir`/`outputPath`/`bundle.path`, а изменилось четвёртое поле. Его вторая половина
  * — «плюс абсолютный системный шрифт» — с этой правки неверна, и строка долга это говорит.
+ *
+ * *(дополнено: `E-02`, 2026-08-31.)* **Настоящих файлов стало ЧЕТЫРЕ** — картинка, шрифт и два
+ * слоя параллакса. Путь слоя выбирается ПО РОЛИ, а не по порядку списка `assets` в запросе
+ * (`relPathForRole` ниже). Порядок в запросе задаёт билдер, и сегодня он совпадает с порядком
+ * глубины, — но опереться на это значило бы связать имя файла с местом в массиве и молча
+ * перепутать дальний слой с ближним на первой же перестановке.
  */
 export const GATE_REQUEST_PATHS = {
   asset: 'assets/pattern-32.png',
+  /** Слои параллакса — по одному пути на РОЛЬ, порядок глубины (`E-02`). */
+  layers: ['assets/parallax-far-32.png', 'assets/parallax-near-32.png'],
   font: GATE_FONT_REL,
   tmpDir: '.gate-run/tmp',
   bundlePath: '.gate-run/tmp/composition',
   outputPath: '.gate-run/segment.mts',
 } as const;
+
+/**
+ * Относительный путь файла ассета ПО ЕГО РОЛИ — единственное место, где роль становится именем.
+ *
+ * Отказ на незнакомой роли, а не «положим рядом с картинкой»: путь, выбранный умолчанием, дал
+ * бы файл запроса, который резолвится и указывает не на те байты, — то есть `bundle.hash`,
+ * посчитанный по одной картинке, и гейт, снятый по другой.
+ */
+export function relPathForRole(role: string): string {
+  if (role === 'asset') return GATE_REQUEST_PATHS.asset;
+  const found = GATE_REQUEST_PATHS.layers.find((_, index) => layerRole(index) === role);
+  if (found !== undefined) return found;
+  throw new Error(
+    `роль ассета \`${role}\` не имеет файла в \`gate-requests/\`. Роли объявляют СПЕКИ ` +
+      '(`declaredAssets`), а файлы кладёт этот билдер — новая роль означает новый файл, а не ' +
+      'путь по умолчанию: умолчание дало бы запрос, который резолвится и указывает не на те байты',
+  );
+}
 
 /** Каталог файлов запросов — от исходника фикстуры, а не от `cwd`. */
 export function gateRequestsDir(): string {
@@ -627,7 +773,7 @@ export async function buildGateRequestFile(
     tmpDir: GATE_REQUEST_PATHS.tmpDir,
     outputPath: GATE_REQUEST_PATHS.outputPath,
     bundle: { ...request.bundle, path: GATE_REQUEST_PATHS.bundlePath },
-    assets: request.assets.map((asset) => ({ ...asset, path: GATE_REQUEST_PATHS.asset })),
+    assets: request.assets.map((asset) => ({ ...asset, path: relPathForRole(asset.role) })),
     fonts: request.fonts.map((font) => ({ ...font, path: GATE_REQUEST_PATHS.font })),
   };
   return `${canonicalJson(file)}\n`;

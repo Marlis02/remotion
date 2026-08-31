@@ -253,8 +253,11 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
     const listed = await run(['template', 'list', '--gates-dir', gatesDir]);
     expect(listed.code).toBe(EXIT.pass);
     expect(listed.out).toMatch(/still@1\s+\|\s+1\s+\|\s+draftHalf:PASS/u);
-    // ~~1 из 5~~ *(изменено: `E-07`, 2026-08-31 — библиотека стала шестью: `grade@1`.)*
-    expect(listed.out).toMatch(/записей гейта: 1 из 6 шаблонов/u);
+    // ~~1 из 5~~ ~~1 из 6~~ *(изменено: `E-07`, 2026-08-31 — библиотека стала шестью:
+    // `grade@1`; `E-02`, 2026-08-31 — семью: `parallax25@1`.)* Знаменатель здесь и есть
+    // «сколько шаблонов знает каталог», то есть тот самый счёт, который владелец видит
+    // командой `vpe template list` при приёмке.
+    expect(listed.out).toMatch(/записей гейта: 1 из 7 шаблонов/u);
   });
 
   it('**FAIL записи НЕ создаёт**, код 4, и «не создана» напечатано словами', async () => {
