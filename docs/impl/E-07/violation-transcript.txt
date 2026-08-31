@@ -1,0 +1,173 @@
+ПРОТОКОЛ НАРУШЕНИЙ E-07 — снят 2026-08-31T17:54:43+06:00
+
+Резерв — вне репозитория (scratchpad), поэтому `.e07bak` в дереве не появляется вовсе.
+Резерв и откат — только cp; после каждого отката: git status --porcelain И зелёный прогон.
+
+=== Н1: Math.pow в реализации ⇒ линт D5 ===============================
+37:// спецификацией SVG, а не наш код: `Math.pow/sin/exp` в этом файле не появляется (линт D5).
+107:        var vignette = Math.pow(num(ctx.params.vignette, ${String(DEFAULTS.vignette)}), 1);
+--- pnpm vitest run tests/lints/d5-easing-render-path.test.ts ---
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/lints/d5-easing-render-path.test.ts > **D5** — в рендер-пути нет `Math.pow`/`Math.sin`/`Math.exp` > ни одной запрещённой формы ни в одном файле рендер-пути
+AssertionError: В рендер-пути появилось вычисление кривой нашим кодом (ADR-0007 §3, **D5**). `Math.pow`/`sin`/`exp` объявлены ECMA-262 implementation-approximated: посчитанная ими кривая даёт разные пиксели на одном IR, то есть ломает V13 ровно в том месте, которое меряет гейт. Кривая берётся ИМЕНЕМ из закрытого реестра (`templates-spec/src/easing.ts`), а считает её пришпиленный `gsap`, чья версия входит в `engineFingerprint`.: expected [ Array(1) ] to deeply equal []
++   "packages/renderer-hyperframes/src/templates/grade@1.ts:107 → Math.pow",
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+--- ОТКАТ: porcelain ---
+ M docs/gate-runbook.md
+ M examples/vertical-v1/direction/01-archive.yaml
+ M packages/cli/test/template-gate.test.ts
+ M packages/renderer-hyperframes/src/templates/index.ts
+ M packages/renderer-hyperframes/test/fixture.ts
+ M packages/renderer-hyperframes/test/gate-requests.test.ts
+ M packages/renderer-hyperframes/test/templates-gate-final.test.ts
+ M packages/renderer-hyperframes/test/templates-gate.test.ts
+ M packages/renderer-hyperframes/test/templates.test.ts
+ M packages/templates-spec/src/templates/index.ts
+ M packages/templates-spec/test/fixture-specs.test.ts
+ M packages/templates-spec/test/gate.test.ts
+ M packages/templates-spec/test/registry.test.ts
+?? docs/impl/E-07/
+?? packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json
+?? packages/renderer-hyperframes/gate-requests/grade@1.final.json
+?? packages/renderer-hyperframes/src/templates/grade@1.ts
+?? packages/renderer-hyperframes/test/grade-captions.test.ts
+?? packages/templates-spec/src/templates/grade@1.ts
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+
+=== Н2: грейд поднят НАД #captions (z 25 → 2000) ⇒ пиксельный тест ===
+74:const Z_UNDER_CAPTIONS = 2000;
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: z=2000: текст R−B 18.31 на 2857 пикселях, фон R−B 0.00; z=2000: текст R−B 18.31 на 2857 пикселях, фон R−B 0.00: expected 18.30731536576829 to be less than 1
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+--- ОТКАТ: porcelain ---
+ M docs/gate-runbook.md
+ M examples/vertical-v1/direction/01-archive.yaml
+ M packages/cli/test/template-gate.test.ts
+ M packages/renderer-hyperframes/src/templates/index.ts
+ M packages/renderer-hyperframes/test/fixture.ts
+ M packages/renderer-hyperframes/test/gate-requests.test.ts
+ M packages/renderer-hyperframes/test/templates-gate-final.test.ts
+ M packages/renderer-hyperframes/test/templates-gate.test.ts
+ M packages/renderer-hyperframes/test/templates.test.ts
+ M packages/templates-spec/src/templates/index.ts
+ M packages/templates-spec/test/fixture-specs.test.ts
+ M packages/templates-spec/test/gate.test.ts
+ M packages/templates-spec/test/registry.test.ts
+?? docs/impl/E-07/
+?? packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json
+?? packages/renderer-hyperframes/gate-requests/grade@1.final.json
+?? packages/renderer-hyperframes/src/templates/grade@1.ts
+?? packages/renderer-hyperframes/test/grade-captions.test.ts
+?? packages/templates-spec/src/templates/grade@1.ts
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+
+=== Н3: параметр ВНЕ схемы () ⇒ отказ спека ==========
+59:      filmBurn: 0.5
+проект `vertical-v1` → профиль `final`; build: /home/ct/Desktop/remotion/examples/vertical-v1/build
+vpe: ADR-0008 «Декларация ресурсов шаблона»: вызовы шаблонов не проходят свой контракт, проблем — 1:
+  direction/01-archive.yaml · r:7e21c40a: `grade@1` · поле `params` → `<корень>`: Unrecognized key: "filmBurn"
+код выхода: 1
+--- ОТКАТ: porcelain ---
+ M docs/gate-runbook.md
+ M examples/vertical-v1/direction/01-archive.yaml
+ M packages/cli/test/template-gate.test.ts
+ M packages/renderer-hyperframes/src/templates/index.ts
+ M packages/renderer-hyperframes/test/fixture.ts
+ M packages/renderer-hyperframes/test/gate-requests.test.ts
+ M packages/renderer-hyperframes/test/templates-gate-final.test.ts
+ M packages/renderer-hyperframes/test/templates-gate.test.ts
+ M packages/renderer-hyperframes/test/templates.test.ts
+ M packages/templates-spec/src/templates/index.ts
+ M packages/templates-spec/test/fixture-specs.test.ts
+ M packages/templates-spec/test/gate.test.ts
+ M packages/templates-spec/test/registry.test.ts
+?? docs/impl/E-07/
+?? packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json
+?? packages/renderer-hyperframes/gate-requests/grade@1.final.json
+?? packages/renderer-hyperframes/src/templates/grade@1.ts
+?? packages/renderer-hyperframes/test/grade-captions.test.ts
+?? packages/templates-spec/src/templates/grade@1.ts
+
+=== Н4а: зерно АНИМИРОВАНО — seed из Math.random() (в лоб) ===========
+35:// ни `Math.random()`, ни `ctx.seeds` — источника случайности на кадр здесь нет вовсе, и
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+--- ОТКАТ: porcelain (грейд-файлы на месте, лишнего нет) ---
+19
+158:          turbulence.setAttribute('seed', String(Math.random() * 1000));
+ГЕЙТ НЕ СНЯТ (error) · профиль `draftHalf`
+  ✗ non_deterministic_code: Script contains `Math.random()` which produces non-deterministic output. Renders may differ between frames or runs.
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: ГЕЙТ НЕ СНЯТ (error) · профиль `draftHalf`
+  ✗ non_deterministic_code: Script contains `Math.random()` which produces non-deterministic output. Renders may differ between frames or runs.
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+
+=== Н4б: то же обращение к случайности, СПРЯТАННОЕ от грепа ===========
+160:          turbulence.setAttribute('seed', String(m.random() * 1000));
+stdout | packages/renderer-hyperframes/test/templates-gate.test.ts > `H-06`/`E-07` — живой гейт V13 на профиле `draftHalf`, N = 3 > `grade@1`: три прогона дают один `framemd5` и один `sha256`
+=== grade@1 ===
+ГЕЙТ НЕ СНЯТ (error) · профиль `draftHalf`
+  • seg-h06 — [ADR-0008 композиция] D4 (ADR-0007 §4): `Math.random` в композиции запрещён — grade@1 (клип r:h060002). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`. [ADR-0008 композиция @ seg-h06]
+     × `grade@1`: три прогона дают один `framemd5` и один `sha256` 47058ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/templates-gate.test.ts > `H-06`/`E-07` — живой гейт V13 на профиле `draftHalf`, N = 3 > `grade@1`: три прогона дают один `framemd5` и один `sha256`
+AssertionError: ГЕЙТ НЕ СНЯТ (error) · профиль `draftHalf`
+  • seg-h06 — [ADR-0008 композиция] D4 (ADR-0007 §4): `Math.random` в композиции запрещён — grade@1 (клип r:h060002). Недетерминизм в рендер-путь не приходит: случайность обязана приехать входом (`seed` из IR, ADR-0007 §2), время — номером кадра (`n/fps`, ADR-0003 T2). Если значение нужно шаблону — его считает компилятор и кладёт в `params`. [ADR-0008 композиция @ seg-h06]: expected 'error' to be 'PASS' // Object.is equality
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+--- ОТКАТ: porcelain ---
+ M docs/gate-runbook.md
+ M examples/vertical-v1/direction/01-archive.yaml
+ M packages/cli/test/template-gate.test.ts
+ M packages/renderer-hyperframes/src/templates/index.ts
+ M packages/renderer-hyperframes/test/fixture.ts
+ M packages/renderer-hyperframes/test/gate-requests.test.ts
+ M packages/renderer-hyperframes/test/templates-gate-final.test.ts
+ M packages/renderer-hyperframes/test/templates-gate.test.ts
+ M packages/renderer-hyperframes/test/templates.test.ts
+ M packages/templates-spec/src/templates/index.ts
+ M packages/templates-spec/test/fixture-specs.test.ts
+ M packages/templates-spec/test/gate.test.ts
+ M packages/templates-spec/test/registry.test.ts
+?? docs/impl/E-07/
+?? packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json
+?? packages/renderer-hyperframes/gate-requests/grade@1.final.json
+?? packages/renderer-hyperframes/src/templates/grade@1.ts
+?? packages/renderer-hyperframes/test/grade-captions.test.ts
+?? packages/templates-spec/src/templates/grade@1.ts
+ Test Files  1 passed (1)
+      Tests  1 passed | 6 skipped (7)
+
+=======================================================================
+ИТОГ ПРОТОКОЛА: ЧЕТЫРЕ ПРОБЫ (Н4 в двух формах), ВСЕ ПЯТЬ КРАСНЫЕ.
+
+ Н1  Math.pow в реализации               КРАСНОЕ — линт D5 `tests/lints/d5-easing-render-path.test.ts`
+                                          назвал файл и строку: `grade@1.ts:107 → Math.pow`
+ Н2  грейд поднят НАД #captions (z 2000) КРАСНОЕ — пиксельный тест `grade-captions.test.ts`:
+                                          «текст R−B 18.31: expected to be less than 1»
+ Н3  параметр вне схемы (`filmBurn`)     КРАСНОЕ — отказ ДО рендера, exit 1:
+                                          «r:7e21c40a: `grade@1` · поле `params` → `<корень>`:
+                                           Unrecognized key: "filmBurn"»
+ Н4а Math.random() в лоб                 КРАСНОЕ — ДВА эшелона: `tsc` (осиротевшая константа)
+                                          и статический линт рендерера `non_deterministic_code`;
+                                          гейт дал класс `error`, а не PASS
+ Н4б то же, спрятанное от грепа          КРАСНОЕ — guard D4 `composition/freeze.js`, с именем
+     (`var m = Math; m.random()`)         ШАБЛОНА и КЛИПА: «`Math.random` в композиции запрещён
+                                          — grade@1 (клип r:h060002)»
+
+ОТКАТ ПОСЛЕ КАЖДОЙ ПРОБЫ — только `cp` из резерва, затем `git status --porcelain`
+И контрольный ЗЕЛЁНЫЙ прогон затронутого файла. Ни одного файла `.e07bak` в дереве не
+осталось: резерв лежал в scratchpad вне репозитория. Итоговый porcelain — 19 строк, все
+принадлежат правке E-07.
+
+=== R12 ПРЕДЪЯВЛЕН ДЕЛОМ: сборка демо БЕЗ записи гейта grade@1 =========
+проект `vertical-v1` → профиль `final`; build: /home/ct/Desktop/remotion/examples/vertical-v1/build
+vpe: R12: сборка не стартует: 1 шаблон(ов) без пройденной записи гейта для пары (профиль `final`, отпечаток `61db2ca89df0c42fb939ae1f58c52f753e98e2f14e521d785b906ae85e1363a0`).
+  • grade@1 — записи гейта для профиля `final` нет (записей нет ни одной). Снимите гейт: `vpe template gate grade@1 --profile final`
+Правило — Charter V13: «шаблон, не прошедший гейт, не версионируется и не используется; сборка ролика с таким шаблоном не стартует». Запись ставит АВТОР командой `vpe template gate` (решение владельца 5, RM1) — ночного CI в v1 нет
+код выхода: 1

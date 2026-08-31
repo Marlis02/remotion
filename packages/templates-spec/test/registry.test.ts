@@ -24,10 +24,22 @@ function withManifest(base: AnyTemplateSpec, over: Partial<TemplateManifest>): A
 }
 
 describe('`TS-01` — реестр отказывает, а не предупреждает', () => {
-  it('пять спеков фикстуры регистрируются', () => {
+  // ~~Пять спеков фикстуры.~~ *(изменено: `E-07`, 2026-08-31 — шесть, и шестой фикстурой не
+  // зовётся.)* Порядок здесь ЗНАЧИМ: он повторяет `TEMPLATE_LIBRARY`, то есть порядок записей
+  // `fixtures/minimal/direction/01-intro.yaml` плюс `grade@1` в хвосте. Реестр адресует по
+  // имени, и на поведение порядок не влияет; тест держит его, чтобы перестановка была видна
+  // диффом, а не обнаруживалась чтением.
+  it('шесть спеков библиотеки регистрируются, порядок — `TEMPLATE_LIBRARY`', () => {
     const registry = createRegistry(TEMPLATE_LIBRARY);
-    expect(registry.names).toEqual(['kenburns@1', 'flash@1', 'bed@1', 'still@1', 'captionEmphasis@1']);
-    expect(registry.specs).toHaveLength(5);
+    expect(registry.names).toEqual([
+      'kenburns@1',
+      'flash@1',
+      'bed@1',
+      'still@1',
+      'captionEmphasis@1',
+      'grade@1',
+    ]);
+    expect(registry.specs).toHaveLength(6);
   });
 
   it('спек БЕЗ манифеста — отказ (критерий готовности `TS-01`)', () => {

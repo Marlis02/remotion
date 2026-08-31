@@ -23,14 +23,28 @@ const templateRecords = records.flatMap((record) =>
   record.track === 'voice' ? [] : [record],
 );
 
-describe('`TS-01` — пять схем `params` против фикстуры', () => {
+/**
+ * **ЧТО ЕСТЬ В РЕЕСТРЕ СВЕРХ ФИКСТУРЫ — НАЗВАНО СПИСКОМ** (решение владельца `E-07`).
+ *
+ * ~~Прежде тест требовал РАВЕНСТВА множеств.~~ Равенство держалось само собой, пока каждый
+ * шаблон библиотеки приезжал из `fixtures/minimal`; `grade@1` — первый шаблон среза `mvp`
+ * (roadmap §3), которого фикстура Week-1 не зовёт, а править фикстуру задание `E-07`
+ * запрещает. Односторонняя проверка («фикстура ⊆ реестр») стоила бы дешевле и пропустила бы
+ * седьмой молча добавленный шаблон — поэтому проверяются оба направления, а разница
+ * перечислена здесь поимённо.
+ */
+const NOT_IN_FIXTURE = ['grade@1'];
+
+describe('`TS-01` — схемы `params` против фикстуры', () => {
   it('фикстура несёт ровно пять вызовов шаблонов', () => {
     expect(templateRecords).toHaveLength(5);
   });
 
-  it('множество имён фикстуры и множество имён реестра совпадают В ОБЕ СТОРОНЫ', () => {
+  it('фикстура ⊆ реестр, а разница — ровно `grade@1` и ничего сверх', () => {
     const used = [...new Set(templateRecords.map((r) => r.template))].sort();
-    expect(used).toEqual([...registry.names].sort());
+    const known = [...registry.names].sort();
+    expect(known).toEqual(expect.arrayContaining(used));
+    expect(known.filter((name) => !used.includes(name))).toEqual(NOT_IN_FIXTURE);
   });
 
   for (const record of templateRecords) {
@@ -132,7 +146,7 @@ describe('`TS-01` — `flash@1.durationSamples`: положительное це
   });
 });
 
-describe('`CP-07` — `declareDuration`: объявляет ОДИН шаблон из пяти', () => {
+describe('`CP-07` — `declareDuration`: объявляет ОДИН шаблон из шести', () => {
   it('`flash@1` отдаёт свой `durationSamples`, и `declaredDurationOf` его читает', () => {
     const flash = registry.resolve('flash@1');
     expect(declaredDurationOf(flash, { strengthPct: 35, durationSamples: 4800 })).toBe(4800);
@@ -140,11 +154,16 @@ describe('`CP-07` — `declareDuration`: объявляет ОДИН шабло�
     expect(declaredDurationOf(flash, { strengthPct: 35, durationSamples: 96000 })).toBe(96000);
   });
 
-  it('остальные четыре метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
+  // ~~Остальные четыре.~~ *(изменено: `E-07`, 2026-08-31 — пять; шестым в библиотеке встал
+  // `grade@1`, и метода он тоже не имеет.)* Причина у него та же, что у `still@1`: длину
+  // грейда задаёт АВТОР окном клипа, а не шаблон. Длительность есть свойство эффекта только
+  // у вспышки — у неё она и объявлена.
+  it('остальные ПЯТЬ метода НЕ ИМЕЮТ — это различимо, а не выражено `null`', () => {
     const without = TEMPLATE_LIBRARY.filter((spec) => spec.declareDuration === undefined);
     expect(without.map((spec) => spec.templateId).sort()).toEqual([
       'bed',
       'captionEmphasis',
+      'grade',
       'kenburns',
       'still',
     ]);

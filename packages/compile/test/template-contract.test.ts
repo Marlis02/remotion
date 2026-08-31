@@ -154,9 +154,9 @@ describe('`CP-07` — восемь вызовов `fixtures/minimal` прохо�
 describe('`CP-07` — компилятор НЕ ВЫДУМЫВАЕТ: семь отказов со списком и адресом', () => {
   it('шаблона нет в реестре ⇒ ошибка, а не молчаливый пропуск клипа', async () => {
     const base = await ofFixture();
-    const error = caught(() => run(base, { records: only(base.records, 'a3f19c2b', { template: 'grade@1' }), generated: [] }));
+    const error = caught(() => run(base, { records: only(base.records, 'a3f19c2b', { template: 'noSuchTemplate@1' }), generated: [] }));
     expect(error.rule).toBe('ADR-0008 «Декларация ресурсов шаблона»');
-    expect(error.problems[0]?.message).toContain('grade@1');
+    expect(error.problems[0]?.message).toContain('noSuchTemplate@1');
     expect(error.problems[0]?.message).toContain('Зарегистрированы');
     expect(error.problems[0]?.address).toContain('r:a3f19c2b');
   });
@@ -316,7 +316,7 @@ describe('`CP-07` — порядок проверок зафиксирован: 
   it('ошибки собираются ВСЕ, а не первая: три негодные записи — три адреса', async () => {
     const base = await ofFixture();
     const broken = ['a3f19c2b', '5d6e1130', 'e40b7a92'].flatMap((recordId) =>
-      only(base.records, recordId, { template: 'grade@1' }),
+      only(base.records, recordId, { template: 'noSuchTemplate@1' }),
     );
     const error = caught(() => run(base, { records: broken, generated: [] }));
     expect(error.problems).toHaveLength(3);
@@ -330,7 +330,7 @@ describe('`CP-07` — порядок проверок зафиксирован: 
 describe('`CP-07` — `compose` зовёт контракт ПЕРВЫМ шагом', () => {
   it('негодный вызов роняет `compose` — до всякой укладки и сегментации', async () => {
     const project = await buildProject();
-    const broken = only(project.records, 'a3f19c2b', { template: 'grade@1' });
+    const broken = only(project.records, 'a3f19c2b', { template: 'noSuchTemplate@1' });
     const error = caught(() => compose({ ...project.input, records: broken }));
     expect(error.rule).toBe('ADR-0008 «Декларация ресурсов шаблона»');
   });

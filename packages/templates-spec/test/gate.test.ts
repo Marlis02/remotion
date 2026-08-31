@@ -46,11 +46,14 @@ describe('`TS-01` — вход R12 на ФИКСТУРЕ: сборка не ст
   const registry = createRegistry(TEMPLATE_LIBRARY);
   const used = [...registry.names];
 
-  it('пять шаблонов фикстуры — падение, и это критерий, а не сбой', () => {
+  it('шесть шаблонов библиотеки — падение, и это критерий, а не сбой', () => {
     expect(() => assertBuildMayStart(registry, used, PAIR)).toThrow(TemplateSpecError);
   });
 
-  it('в отказе перечислены ВСЕ пять, а не первый', () => {
+  // ~~ВСЕ пять.~~ *(изменено: `E-07`, 2026-08-31 — шесть.)* Число берётся у РЕЕСТРА, а не
+  // литералом: тест стережёт «перечислены все», а не «их именно столько», и литерал пришлось
+  // бы править каждым новым шаблоном, ничего при этом не проверяя.
+  it('в отказе перечислены ВСЕ, а не первый', () => {
     let message = '';
     try {
       assertBuildMayStart(registry, used, PAIR);
@@ -58,7 +61,7 @@ describe('`TS-01` — вход R12 на ФИКСТУРЕ: сборка не ст
       message = error instanceof Error ? error.message : String(error);
     }
     for (const name of used) expect(message).toContain(name);
-    expect(message).toContain('5 шаблон(ов)');
+    expect(message).toContain(`${String(used.length)} шаблон(ов)`);
     expect(message).toContain('записей нет ни одной');
   });
 

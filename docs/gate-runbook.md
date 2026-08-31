@@ -3,10 +3,12 @@
 **Кому.** Владельцу (автору шаблона). Ночного CI в v1 нет — гейты снимает человек и коммитит
 записи глазами (решение владельца 5, RM1; Charter V13; [ADR-0008](adr/0008-renderer-boundary.md)).
 
-**Что получится.** Четыре файла `packages/templates-spec/src/templates/<id>@1.gates.json`, в
-каждом по ДВЕ записи — `draftHalf` и `final`. Без них **R12** не пустит шаблон в сборку.
+**Что получится.** ~~Четыре~~ **ПЯТЬ** файлов
+`packages/templates-spec/src/templates/<id>@1.gates.json`, в каждом по ДВЕ записи —
+`draftHalf` и `final`. Без них **R12** не пустит шаблон в сборку.
+*(пятый — `grade@1`, добавлен `E-07`, 2026-08-31.)*
 
-**Сколько это займёт.** Восемь команд. `draftHalf` — **≈6 с** каждая (`FACT`, измерено
+**Сколько это займёт.** ~~Восемь~~ **ДЕСЯТЬ** команд. `draftHalf` — **≈6 с** каждая (`FACT`, измерено
 `GATE-PREP` 2026-08-29 на этой машине: три прогона по 1.5 с). `final` — **≈30–60 с** каждая
 (`INFERENCE` из `H-06`: `kenburns@1` на `final` дал 1462–1557 мс на прогон × N = 10; у трёх
 остальных шаблонов `final` живьём не снимался ни разу). Итого ориентировочно **5–10 минут**
@@ -34,6 +36,14 @@ TZ=UTC LC_ALL=C pnpm vitest run \
   packages/renderer-hyperframes/test/gate-requests.test.ts \
   packages/cli/test/gate-requests-cli.test.ts
 ```
+
+**`E-07` (2026-08-31): прежние ВОСЕМЬ файлов запросов НЕ СДВИНУЛИСЬ.** Шестой шаблон
+`grade@1` добавил ДВА новых файла и не тронул ни байта в восьми старых — проверено
+побайтовой сверкой `sha256` до и после перегенерации, `git status --porcelain` показал ровно
+две новые строки. Причина: `runtime.js` эта задача не трогала, версия реестра реализаций не
+менялась, а композиция несёт только ИСПОЛЬЗОВАННЫЕ шаблоны (`materialize.ts`). Значит записи
+`*.gates.json` четырёх прежних шаблонов **остаются действующими**, и переснимать их не нужно
+— достаточно двух новых команд ниже.
 
 **Красный тест здесь означает СТОП.** Файлы запросов производны от билдеров
 `packages/renderer-hyperframes/test/fixture.ts`; расхождение значит, что композиция изменилась
@@ -63,7 +73,7 @@ git diff packages/renderer-hyperframes/gate-requests/
 
 ---
 
-## 1. Восемь команд
+## 1. Десять команд
 
 `--gates-dir` НЕ указывается намеренно: без него запись ложится рядом со спеком, в дерево
 исходников, — туда, откуда её и надо коммитить. Порядок — сначала все дешёвые `draftHalf`:
@@ -87,6 +97,10 @@ node packages/cli/dist/bin/vpe.js template gate flash@1 --profile draftHalf \
 node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile draftHalf \
   --request packages/renderer-hyperframes/gate-requests/captionEmphasis@1.draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
+
+node packages/cli/dist/bin/vpe.js template gate grade@1 --profile draftHalf \
+  --request packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json \
+  --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
 ### `final` (N = 10, ≈30–60 с каждая)
@@ -107,7 +121,21 @@ node packages/cli/dist/bin/vpe.js template gate flash@1 --profile final \
 node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile final \
   --request packages/renderer-hyperframes/gate-requests/captionEmphasis@1.final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
+
+node packages/cli/dist/bin/vpe.js template gate grade@1 --profile final \
+  --request packages/renderer-hyperframes/gate-requests/grade@1.final.json \
+  --render-profile fixtures/minimal/profiles/render.final.yaml
 ```
+
+**ДВЕ КОМАНДЫ `grade@1` — СМЕШАННЫЕ ЗАПРОСЫ, И ЭТО НЕ ОПЕЧАТКА.** В обоих файлах два клипа:
+`still@1` основанием и `grade@1` над ним. Грейд красит `backdrop` — то, что лежит НИЖЕ него,
+— и над пустотой красить нечего: гейт на одиночном `grade@1` мерил бы воспроизводимость
+ничего. То же основание, что у `kenburns@1` (поправка владельца П2, `H-06`); охранник команды
+такие запросы пропускает с `FIX-01` (долг №181 закрыт).
+
+**У `grade@1` ЗЕРНО ВКЛЮЧЕНО (`grain: 0.15`), И ПОТОМУ ЕГО `final` ДОРОЖЕ ОСТАЛЬНЫХ.**
+Измерено `E-07`: зерно раздувает PNG-кадр с 31 КБ до ~1.7 МБ, то есть платит диск и энкодер.
+Числа — [`impl/E-07/report.md`](impl/E-07/report.md) §5.
 
 **`bed@1` В ЭТОМ СПИСКЕ НЕТ, И ЭТО РЕЗУЛЬТАТ, А НЕ ПРОПУСК** (долг **№189**). Он аудио-домена:
 в `RenderIR.clips` не попадает никогда, его реализация есть ОТКАЗ, и гейт на нём даёт `error`
@@ -145,23 +173,29 @@ node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile fina
 
 ## 3. Что коммитить
 
-После всех восьми команд:
+После всех десяти команд:
 
 ```bash
 git status --porcelain packages/templates-spec/src/templates/
 ```
 
-Ожидается **четыре** новых файла, по одному на шаблон, в каждом **две** записи (`draftHalf` и
+Ожидается **пять** файлов, по одному на шаблон, в каждом **две** записи (`draftHalf` и
 `final`):
 
 ```
 ?? packages/templates-spec/src/templates/captionEmphasis@1.gates.json
 ?? packages/templates-spec/src/templates/flash@1.gates.json
+?? packages/templates-spec/src/templates/grade@1.gates.json
 ?? packages/templates-spec/src/templates/kenburns@1.gates.json
 ?? packages/templates-spec/src/templates/still@1.gates.json
 ```
 
-Коммитятся **только они**. Ничего больше эти восемь команд менять не должны: увидели в
+*(`E-07`, 2026-08-31: четыре прежних файла уже лежат в репозитории и остаются действующими —
+`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `grade@1.gates.json`;
+остальные четыре команды перезапишут прежние записи свежими, что законно — команда скажет
+«прежняя запись была ДЕЙСТВУЮЩЕЙ и замещается свежей».)*
+
+Коммитятся **только они**. Ничего больше эти десять команд менять не должны: увидели в
 `git status` что-то ещё — разбираться ДО коммита.
 
 ---

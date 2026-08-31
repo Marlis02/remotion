@@ -1,12 +1,17 @@
-// **ЖИВОЙ ГЕЙТ V13 НА ПРОФИЛЕ `final`: `kenburns@1`, N = 10.** Один на всю задачу.
+// **ЖИВОЙ ГЕЙТ V13 НА ПРОФИЛЕ `final`, N = 10:** `kenburns@1` (`H-06`) и `grade@1` (`E-07`).
+//
+// **ПОЧЕМУ `grade@1` ПРИЕХАЛ СЮДА, А НЕ ТРЕТЬИМ ФАЙЛОМ** (задание `E-07` оставило выбор по
+// цене): предмет у обоих один — дорогой прогон на полном разрешении, — и третий файл дал бы
+// третий вход в ту же цену, ничего не разделив. Разделение, которое уже есть, проходит по
+// ЦЕНЕ: `templates-gate.test.ts` — пять дешёвых `draftHalf`, здесь — дорогие `final`.
 //
 // ═══ ТРЕБУЕТ БРАУЗЕРА И ffmpeg. СКИПА ПО ПЕРЕМЕННОЙ ЗДЕСЬ НЕТ. ЭТО ДОЛГИЙ ТЕСТ ═══
-// Отдельным файлом от `templates-gate.test.ts` намеренно: там четыре дешёвых прогона на
-// `draftHalf`, здесь один дорогой на полном разрешении, и смешивать их значило бы платить
-// цену `final` каждый раз, когда хочется проверить `draftHalf`.
+// Отдельным файлом от `templates-gate.test.ts` намеренно: там ~~четыре~~ ПЯТЬ дешёвых
+// прогонов на `draftHalf`, здесь ~~один~~ ДВА дорогих на полном разрешении, и смешивать их
+// значило бы платить цену `final` каждый раз, когда хочется проверить `draftHalf`.
 //
 // ПОЧЕМУ ИМЕННО `kenburns@1` (решение владельца, развилка «в», вариант в1). Он единственный из
-// пяти, кто ДВИГАЕТ пиксели. `FACT` (SP-3e §1.1, таблица ADR-0008 строка 8): моушн-композиция
+// ПЯТИ ШАБЛОНОВ `H-06`, кто ДВИГАЕТ пиксели. `FACT` (SP-3e §1.1, таблица ADR-0008 строка 8): моушн-композиция
 // на софтверном пути — та самая пара, которая гейт ПРОВАЛИЛА: 4 варианта из 10 при `w=4` и
 // 3 из 3 при `w=1`. Статичная картинка на этом месте почти ничего не проверяла бы: гейт мерит
 // воспроизводимость, а воспроизводить нечего там, где ничего не меняется.
@@ -15,6 +20,14 @@
 // нёс `imageFormat: jpeg`, который адаптер отказывает, то есть на нём не рендерилось НИЧЕГО.
 // Правка сделана `H-03` (коммит `2e10ecd`), но живого прогона на `final` с тех пор не было ни
 // одного: `H-03` мерил окружение, а не кадры. Здесь он есть.
+//
+// **ЗАЧЕМ `grade@1` НА `final` С ЗЕРНОМ — ЭТО И ЕСТЬ ВОПРОС ЗАДАЧИ.** Детерминизм
+// `feTurbulence` в headless Chrome был `INFERENCE`: спецификация SVG нормирует алгоритм шума
+// целиком (включая ГПСЧ), но реализация всё равно считает его во float, а софтверный путь
+// Chrome — не то же, что аппаратный. Условие задания `E-07` названо числом: PASS на `final`
+// N = 10 — зерно остаётся; `FLAKY`/`FAIL` — зерно выключается (параметр остаётся, дефолт 0),
+// причина в отчёт измерением. Гейт без зерна отвечал бы не на тот вопрос, поэтому `params`
+// здесь — `FIXTURE_PARAMS.grade` с `grain: 0.15`, а не ноль.
 //
 // ЧИСЛА ЭНКОДЕРА — ИЗ `fixtures/minimal/profiles/render.final.yaml` ДОСЛОВНО. Выдумывать их
 // нельзя: `FACT` (SP-3 блок D) двойной энкод даёт побайтово равный mp4 при `threads=1` и при
@@ -63,7 +76,7 @@ const FINAL_PIXELS = {
   encoder: { threads: 4, preset: 'medium', tune: 'none', rcLookahead: 40, aqMode: 1, psy: 1, bitexact: true },
 } as unknown as Parameters<typeof buildSegmentArtifact>[0]['pixelProfile'];
 
-describe('`H-06` — живой гейт V13 на профиле `final`, N = 10', () => {
+describe('`H-06`/`E-07` — живой гейт V13 на профиле `final`, N = 10', () => {
   it(
     '`kenburns@1` на полном разрешении: десять прогонов дают один файл',
     async () => {
@@ -108,6 +121,56 @@ describe('`H-06` — живой гейт V13 на профиле `final`, N = 10
       expect(new Set(outcome.runs.map((r) => r.engineFingerprint)).size).toBe(1);
       expect(new Set(outcome.runs.map((r) => r.frameCount))).toEqual(new Set([FRAMES]));
       // Обе величины ADR-0008 — по одной на десять прогонов.
+      expect(new Set(outcome.runs.map((r) => r.framemd5Sha256)).size).toBe(1);
+      expect(new Set(outcome.runs.map((r) => r.sha256)).size).toBe(1);
+    },
+    TIMEOUT,
+  );
+
+  it(
+    '`grade@1` С ЗЕРНОМ на полном разрешении: десять прогонов дают один файл',
+    async () => {
+      const fixture = makeTemplateFixture(
+        [
+          // Смешанный запрос: грейд красит `backdrop`, и над пустотой красить нечего.
+          { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
+          { template: 'grade@1', params: FIXTURE_PARAMS.grade, z: 25 },
+        ],
+        { frames: FRAMES, scale: 1, workers: 4 },
+      );
+      const request = await readyRequest(fixture.request);
+      expect(request.pixelProfile.scale).toBe(1);
+      // Зерно ОБЯЗАНО быть в запросе: гейт без него — гейт другого шаблона.
+      expect(request.ir.clips[1]?.params).toMatchObject({ grain: 0.15 });
+
+      const outcome = await runGate({
+        request,
+        runRoot: mkdtempSync(path.join(tmpdir(), 'vpe-e07-final-')),
+        profileId: 'final',
+        media: createGateMedia({
+          buildSegmentArtifact,
+          framemd5Of,
+          pixelProfile: FINAL_PIXELS,
+          fps: request.compileProfile.fps as unknown as Parameters<typeof buildSegmentArtifact>[0]['fps'],
+        }),
+        now: () => '2026-08-31T00:00:00Z',
+        options: { clock: realClock(), registry: rendererTemplates, parentEnv: process.env },
+      });
+
+      console.log(`\n=== grade@1 (зерно 0.15) · final · N=10 ===\n${formatGateOutcome(outcome)}`);
+
+      // **ЭТОТ АССЕРТ И ЕСТЬ ОТВЕТ ЗАДАЧИ ПРО ЗЕРНО.** Красный здесь означает не поломку
+      // теста, а измерение: `feTurbulence` на этом браузере невоспроизводим, и по условию
+      // `E-07` зерно выключается дефолтом 0 с долгом и числом — переснимать втихую запрещено
+      // (ADR-0008, «Классы результата»).
+      expect(outcome.class, formatGateOutcome(outcome)).toBe('PASS');
+      if (outcome.class !== 'PASS') return;
+
+      expect(outcome.runs).toHaveLength(10);
+      expect(outcome.record.N).toBe(10);
+      expect(outcome.record.profileId).toBe('final');
+      expect(new Set(outcome.runs.map((r) => r.engineFingerprint)).size).toBe(1);
+      expect(new Set(outcome.runs.map((r) => r.frameCount))).toEqual(new Set([FRAMES]));
       expect(new Set(outcome.runs.map((r) => r.framemd5Sha256)).size).toBe(1);
       expect(new Set(outcome.runs.map((r) => r.sha256)).size).toBe(1);
     },

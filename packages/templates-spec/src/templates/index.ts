@@ -1,4 +1,5 @@
-// **ПРОД-БИБЛИОТЕКА ШАБЛОНОВ — пять версионированных единиц каталога.**
+// **ПРОД-БИБЛИОТЕКА ШАБЛОНОВ — ~~пять~~ ШЕСТЬ версионированных единиц каталога.**
+// *(изменено: `E-07`, 2026-08-31 — шестым встал `grade@1`.)*
 //
 // ИМЯ СМЕНИЛОСЬ, ЗНАЧЕНИЕ — НЕТ (`E-00`, решение владельца, развилка 6). Прежнее
 // `FIXTURE_TEMPLATES` врало: эти пять спеков — не «спеки фикстуры», а САМА библиотека, из
@@ -22,28 +23,39 @@
 // ПОРЯДОК — ПОРЯДОК ЗАПИСЕЙ В `fixtures/minimal/direction/01-intro.yaml`. Он ни на что не
 // влияет (реестр адресует по имени), и именно поэтому взят порядок файла: любой другой
 // пришлось бы объяснять.
+//
+// **`grade@1` СТОИТ ШЕСТЫМ, И ФИКСТУРА ЕГО НЕ ЗОВЁТ — ЭТО ПЕРВЫЙ ТАКОЙ ШАБЛОН** (`E-07`).
+// Пять предыдущих приехали из фикстуры, поэтому «библиотека = вызовы фикстуры» держалось
+// само собой; `grade@1` — шаблон среза `mvp` (roadmap §3), и `fixtures/minimal` его не
+// вызывает. Охранники сверки от этого НЕ ослаблены до односторонних: разница между реестром
+// и фикстурой НАЗВАНА списком (`registry \ fixture == ['grade@1']`, решение владельца
+// `E-07`), то есть седьмой молча добавленный шаблон краснеет ровно как раньше.
 
 export { kenburns1, type KenburnsParams } from './kenburns@1.js';
 export { flash1, type FlashParams } from './flash@1.js';
 export { bed1, type BedParams } from './bed@1.js';
 export { still1, type StillParams } from './still@1.js';
 export { captionEmphasis1, type CaptionEmphasisParams } from './captionEmphasis@1.js';
+export { grade1, type GradeParams } from './grade@1.js';
 
 import { bed1 } from './bed@1.js';
 import { captionEmphasis1 } from './captionEmphasis@1.js';
 import { flash1 } from './flash@1.js';
+import { grade1 } from './grade@1.js';
 import { kenburns1 } from './kenburns@1.js';
 import { still1 } from './still@1.js';
 import type { AnyTemplateSpec } from '../spec.js';
 
 /**
- * Библиотека шаблонов: пять версионированных единиц. Вход `createRegistry` и
+ * Библиотека шаблонов: ~~пять~~ **шесть** версионированных единиц. Вход `createRegistry` и
  * `attachGates` — прод-реестр собирается ИЗ НЕЁ (`E-00`), а `bin/render-segment` и
  * `vpe template gate` берут его отсюда, а не из своих списков.
  *
  * Список — ЕДИНСТВЕННЫЙ: тест сверяет его с множеством имён, встреченных в режиссуре
  * фикстуры, в обе стороны. Реестр, знающий шаблон, которого никто не зовёт, и режиссура,
  * зовущая шаблон, которого нет в реестре, — две разные ошибки, и обе видны только сверкой.
+ * *(уточнено: `E-07`, 2026-08-31.)* Сверка осталась двусторонней; разница ровно в одном
+ * НАЗВАННОМ имени — `grade@1`, шаблон среза `mvp`, которого фикстура Week-1 не зовёт.
  */
 export const TEMPLATE_LIBRARY: readonly AnyTemplateSpec[] = [
   kenburns1,
@@ -51,4 +63,5 @@ export const TEMPLATE_LIBRARY: readonly AnyTemplateSpec[] = [
   bed1,
   still1,
   captionEmphasis1,
+  grade1,
 ];

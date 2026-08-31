@@ -253,7 +253,8 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
     const listed = await run(['template', 'list', '--gates-dir', gatesDir]);
     expect(listed.code).toBe(EXIT.pass);
     expect(listed.out).toMatch(/still@1\s+\|\s+1\s+\|\s+draftHalf:PASS/u);
-    expect(listed.out).toMatch(/записей гейта: 1 из 5 шаблонов/u);
+    // ~~1 из 5~~ *(изменено: `E-07`, 2026-08-31 — библиотека стала шестью: `grade@1`.)*
+    expect(listed.out).toMatch(/записей гейта: 1 из 6 шаблонов/u);
   });
 
   it('**FAIL записи НЕ создаёт**, код 4, и «не создана» напечатано словами', async () => {
@@ -342,7 +343,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
 });
 
 describe('`vpe template list` — таблица каталога', () => {
-  it('шесть колонок, пять шаблонов, `UNGATED` названо словами', async () => {
+  it('шесть колонок, шесть шаблонов, `UNGATED` названо словами', async () => {
     const result = await run(['template', 'list', '--gates-dir', tempDir('empty')]);
     expect(result.code).toBe(EXIT.pass);
     expect(result.out).toMatch(/шаблон\s+\|\s+версия\s+\|\s+гейт\s+\|\s+бюджет мс\/кадр\s+\|\s+класс детерминизма\s+\|\s+easing/u);
