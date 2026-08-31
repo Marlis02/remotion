@@ -189,9 +189,20 @@ export function withPatch<T>(request: SegmentRenderRequest, patch: T): SegmentRe
 // ПОЧЕМУ ШРИФТ — НАСТОЯЩИЙ, А НЕ `TTF_STUB`. `@font-face` с 12-байтовой подделкой не
 // загрузится, а `font-display: block` держит текст невидимым ~3 с и лишь потом берёт запасной
 // — то есть в кадры въезжает ТАЙМЕР, и гейт мерил бы гонку загрузки шрифта. `H-02` (**R13**)
-// на таком входе не измерил бы ничего. Берётся системный DejaVu Sans Bold — тот же временный
-// шрифт, что назван решением владельца 4 (RM2). Долг заведён: когда шрифт канала выбран
-// (№13, `M-02`), он обязан приезжать записью проекта, а не из `/usr/share/fonts`.
+// на таком входе не измерил бы ничего. Берётся DejaVu Sans Bold — тот же временный шрифт, что
+// назван решением владельца 4 (RM2).
+//
+// ~~Берётся СИСТЕМНЫЙ DejaVu Sans Bold~~ *(изменено: `ENV-01`, 2026-08-31 — долг №187 закрыт.)*
+// **ШРИФТ ГЕЙТА ПРИЕЗЖАЕТ ФАЙЛОМ РЕПОЗИТОРИЯ, А НЕ ИЗ МАШИНЫ.** Долг №187 назвал цену
+// бездействия предсказанием; переезд канала на ноут превратил её в ИЗМЕРЕНИЕ (`ENV-01`, три
+// системных DejaVu на трёх машинах владельца и приёмки). Контрольный опыт в mount-namespace,
+// оба теста, 40 утверждений: системного шрифта нет вовсе — **10 красных** (падает вот этот
+// билдер); по системному пути лежит ДРУГОЙ валидный DejaVu — **2 красных**, и `bundle.hash`
+// обоих запросов `captionEmphasis@1` уезжает (`58e06db5…` → `07eadae8…`). Второе и есть
+// условие приёмной машины. Теперь байты лежат в `gate-requests/assets/` рядом с картинкой, а
+// путь шрифта в файле запроса — ОТНОСИТЕЛЬНЫЙ, как у ассета: его резолвит `resolveRequestPaths`
+// команды от каталога файла запроса. Долг №13 (шрифт КАНАЛА) этим не закрыт и не затронут: это
+// шрифт ГЕЙТА, вход прибора, а канал с `V-06` печатает Montserrat.
 
 /**
  * 32×32 PNG, шахматка 4×4 с диагональным градиентом. Настоящие байты, собранные
@@ -202,25 +213,64 @@ export const PNG_PATTERN_32 = Buffer.from(
   'base64',
 );
 
-/** Системный DejaVu Sans Bold — временный шрифт проекта (решение владельца 4, RM2). */
-export const SYSTEM_FONT_PATH = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
-export const SYSTEM_FONT_FAMILY = 'DejaVu Sans';
+/**
+ * Шрифт гейта В КАТАЛОГЕ ЗАПРОСОВ — путём ОТ НЕГО, как ассет (`ENV-01`).
+ *
+ * Одно значение на две роли, и потому оно одно: этой строкой файл запроса адресует шрифт
+ * (`GATE_REQUEST_PATHS.font`), и по ней же билдер находит байты (`GATE_FONT_PATH`). Две копии
+ * строки разошлись бы молча — запрос указывал бы на один файл, а хэш считался бы по другому.
+ */
+const GATE_FONT_REL = 'assets/DejaVuSans-Bold.ttf';
+
+/** DejaVu Sans Bold ИЗ РЕПОЗИТОРИЯ — временный шрифт гейта (решение владельца 4, RM2). */
+export const GATE_FONT_PATH = fileURLToPath(
+  new URL(`../gate-requests/${GATE_FONT_REL}`, import.meta.url),
+);
+export const GATE_FONT_FAMILY = 'DejaVu Sans';
 
 /**
- * Читает системный шрифт. **Отсутствие — красный тест, а не пропуск**: тот же порядок, что у
- * браузерных файлов (решение владельца `H-01`, §4 п. 2) — «зелёный, потому что не гонялось»
- * отличается от «зелёный, потому что проверено», только если это написано.
+ * sha256 байтов, на которых сняты ДЕСЯТЬ записей гейта.
+ *
+ * Величина выписана ЛИТЕРАЛОМ, а не считается с файла: посчитанная с файла, она совпала бы с
+ * любыми байтами, которые в нём окажутся, — то есть не проверяла бы ничего. Здесь она
+ * УТВЕРЖДЕНИЕ: «в композиции лежит тот самый шрифт, под который посчитаны `bundle.hash`».
  */
-export function systemFontBytes(): Buffer {
+export const GATE_FONT_SHA256 =
+  'd1c3ff99f1e1ce1827a33efd4dad81f40babda06bff9e43bd7591c86662a287b';
+
+/**
+ * Читает шрифт гейта из репозитория и СВЕРЯЕТ ЕГО БАЙТЫ.
+ *
+ * **Отсутствие или подмена — красный тест, а не пропуск**: тот же порядок, что у браузерных
+ * файлов (решение владельца `H-01`, §4 п. 2) — «зелёный, потому что не гонялось» отличается от
+ * «зелёного, потому что проверено», только если это написано.
+ *
+ * ЗАЧЕМ СВЕРКА ЗДЕСЬ, А НЕ ТОЛЬКО В ТЕСТЕ. Испорченный байт шрифта сдвигает `bundle.hash`, и
+ * без сверки это выглядело бы как расхождение ДЕСЯТИ файлов запросов с билдером — сообщение
+ * про запросы там, где виноват шрифт. Отказ называет ФАЙЛ и обе величины (протокол нарушений
+ * `ENV-01`, Н1).
+ */
+export function gateFontBytes(): Buffer {
+  let bytes: Buffer;
   try {
-    return readFileSync(SYSTEM_FONT_PATH);
+    bytes = readFileSync(GATE_FONT_PATH);
   } catch {
     throw new Error(
-      `шрифт \`${SYSTEM_FONT_PATH}\` не найден. Гейт \`captionEmphasis@1\` требует НАСТОЯЩИЙ ` +
+      `шрифт \`${GATE_FONT_PATH}\` не найден. Гейт \`captionEmphasis@1\` требует НАСТОЯЩИЙ ` +
         'шрифт: с подделкой `font-display: block` держит текст невидимым ~3 с, и в кадры ' +
-        'въезжает таймер вместо типографики',
+        'въезжает таймер вместо типографики. Байты лежат в репозитории (`ENV-01`, долг №187) ' +
+        '— значит, файл пропал из рабочего дерева, а не из системы',
     );
   }
+  const actual = sha256Hex(bytes);
+  if (actual !== GATE_FONT_SHA256) {
+    throw new Error(
+      `байты шрифта \`${GATE_FONT_PATH}\` разошлись с объявленными: посчитано ` +
+        `\`${actual}\`, объявлено \`${GATE_FONT_SHA256}\`. Под объявленными байтами сняты ` +
+        'ДЕСЯТЬ записей гейта — другой шрифт означает другой `bundle.hash` и устаревшие записи',
+    );
+  }
+  return bytes;
 }
 
 /** Клип запроса — форма `IrClip` модели; её же читает `runtime.js` (долг №168, `L-01`). */
@@ -300,10 +350,10 @@ export function makeTemplateFixture(
   const frames = options.frames ?? 12;
   const ws = makeWorkspace();
   const asset = putBlob(ws, PNG_PATTERN_32, 'pattern.blob');
-  const font = putBlob(ws, systemFontBytes(), 'font.blob');
+  const font = putBlob(ws, gateFontBytes(), 'font.blob');
 
   const assetRef = { sha256: asset.sha256, role: 'asset' };
-  const fontRef = { sha256: font.sha256, family: SYSTEM_FONT_FAMILY, role: 'caption' };
+  const fontRef = { sha256: font.sha256, family: GATE_FONT_FAMILY, role: 'caption' };
 
   const usesAsset = clips.some((c) => c.withAsset === true);
   const usesFont = clips.some((c) => c.withFont === true);
@@ -372,7 +422,7 @@ export function makeTemplateFixture(
       compositionId: 'seg-h06',
     },
     assets: usesAsset ? [{ sha256: asset.sha256, path: asset.path, role: 'asset' }] : [],
-    fonts: usesFont ? [{ sha256: font.sha256, path: font.path, family: SYSTEM_FONT_FAMILY }] : [],
+    fonts: usesFont ? [{ sha256: font.sha256, path: font.path, family: GATE_FONT_FAMILY }] : [],
     outputPath: path.join(ws.outDir, 'segment.mts'),
     tmpDir: ws.tmpDir,
   };
@@ -522,13 +572,20 @@ export const GATE_REQUEST_PROFILES: readonly GateRequestProfile[] = [
 /**
  * Пути ФАЙЛА запроса. Относительные — от каталога файла (см. шапку раздела).
  *
- * Настоящий здесь ровно один — `asset`. Остальные три ПЛЕЙСХОЛДЕРЫ: гейт перекрывает
- * `tmpDir`, `outputPath` и `bundle.path` под своим `runRoot` (`requestForRun` в `src/gate.ts`),
- * поэтому их значения в файле не читает никто, кроме валидатора формы. Имя `.gate-run`
- * выбрано говорящим, а `outputPath` вынесен ИЗ `tmpDir` — **R2** этого требует.
+ * ~~Настоящий здесь ровно один — `asset`~~ *(изменено: `ENV-01`, 2026-08-31.)* **Настоящих
+ * теперь ДВА — `asset` и `font`**, и оба относительные: шрифт переехал в репозиторий и
+ * адресуется точно так же, как картинка (долг №187 закрыт). Остальные три ПЛЕЙСХОЛДЕРЫ: гейт
+ * перекрывает `tmpDir`, `outputPath` и `bundle.path` под своим `runRoot` (`requestForRun` в
+ * `src/gate.ts`), поэтому их значения в файле не читает никто, кроме валидатора формы. Имя
+ * `.gate-run` выбрано говорящим, а `outputPath` вынесен ИЗ `tmpDir` — **R2** этого требует.
+ *
+ * Долг №192 (три плейсхолдера видны только по имени каталога) правкой НЕ закрыт и не сужен:
+ * он про `tmpDir`/`outputPath`/`bundle.path`, а изменилось четвёртое поле. Его вторая половина
+ * — «плюс абсолютный системный шрифт» — с этой правки неверна, и строка долга это говорит.
  */
 export const GATE_REQUEST_PATHS = {
   asset: 'assets/pattern-32.png',
+  font: GATE_FONT_REL,
   tmpDir: '.gate-run/tmp',
   bundlePath: '.gate-run/tmp/composition',
   outputPath: '.gate-run/segment.mts',
@@ -571,7 +628,7 @@ export async function buildGateRequestFile(
     outputPath: GATE_REQUEST_PATHS.outputPath,
     bundle: { ...request.bundle, path: GATE_REQUEST_PATHS.bundlePath },
     assets: request.assets.map((asset) => ({ ...asset, path: GATE_REQUEST_PATHS.asset })),
-    fonts: request.fonts.map((font) => ({ ...font, path: SYSTEM_FONT_PATH })),
+    fonts: request.fonts.map((font) => ({ ...font, path: GATE_REQUEST_PATHS.font })),
   };
   return `${canonicalJson(file)}\n`;
 }

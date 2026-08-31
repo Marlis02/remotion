@@ -31,8 +31,9 @@ import {
   GATE_REQUEST_CASES,
   GATE_REQUEST_PATHS,
   GATE_REQUEST_PROFILES,
+  GATE_FONT_PATH,
+  GATE_FONT_SHA256,
   PNG_PATTERN_32,
-  SYSTEM_FONT_PATH,
   buildGateRequestFile,
   gateRequestFileName,
   gateRequestsDir,
@@ -45,6 +46,7 @@ const TIMEOUT = 120_000;
 const UPDATE = process.env['VPE_GATE_REQUESTS_UPDATE'] === '1';
 const DIR = gateRequestsDir();
 const ASSET = path.join(DIR, GATE_REQUEST_PATHS.asset);
+const FONT = path.join(DIR, GATE_REQUEST_PATHS.font);
 
 /** Все ДЕСЯТЬ пар (случай, профиль) — то, что обязано лежать файлами. */
 const PAIRS = GATE_REQUEST_CASES.flatMap((kase) =>
@@ -68,6 +70,33 @@ describe('`GATE-PREP` — ассет запросов лежит файлом и
     expect(sha256Hex(readFileSync(ASSET)), `байты \`${ASSET}\` разошлись с фикстурой. ${HOWTO}`).toBe(
       sha256Hex(PNG_PATTERN_32),
     );
+  });
+});
+
+describe('`ENV-01` — шрифт запросов лежит файлом и это те самые байты (долг №187)', () => {
+  // ЧЕМ ЭТОТ ФАЙЛ ОТЛИЧАЕТСЯ ОТ СОСЕДА СВЕРХУ. `pattern-32.png` ПРОИЗВОДНЫЙ: его порождает
+  // литерал фикстуры, и `VPE_GATE_REQUESTS_UPDATE=1` его перезаписывает. Шрифт — ИСХОДНЫЙ:
+  // 705684 байта пришли из системного пакета `fonts-dejavu-core` один раз, породить их нечем,
+  // и флаг обновления его НЕ трогает. Значит, здесь не сверка с источником, а утверждение о
+  // самих байтах: под ними сняты десять записей гейта.
+  it('`assets/DejaVuSans-Bold.ttf` есть, и его sha равен объявленному `d1c3ff99…`', () => {
+    expect(
+      existsSync(FONT),
+      `нет файла шрифта \`${FONT}\`. Он лежит в репозитории с \`ENV-01\` и ничем не ` +
+        'порождается — восстанавливать из git, а не перегенерировать',
+    ).toBe(true);
+    expect(
+      sha256Hex(readFileSync(FONT)),
+      `байты \`${FONT}\` разошлись с объявленными. Другой шрифт — другой \`bundle.hash\`, ` +
+        'то есть ДЕСЯТЬ записей гейта устарели',
+    ).toBe(GATE_FONT_SHA256);
+  });
+
+  // Контроль того, что путь фикстуры и путь этого теста — один файл. Без него константа
+  // `GATE_FONT_PATH` могла бы указывать куда угодно: билдер читал бы один файл, тест сверял
+  // другой, и оба были бы зелены.
+  it('`GATE_FONT_PATH` фикстуры — тот же файл, что адресует `GATE_REQUEST_PATHS.font`', () => {
+    expect(path.resolve(GATE_FONT_PATH)).toBe(path.resolve(FONT));
   });
 });
 
@@ -101,9 +130,9 @@ describe('`GATE-PREP`/`E-07` — десять файлов запросов ра
   });
 });
 
-describe('`GATE-PREP` — пути внутри файлов: относительные разрешимы, шрифт системный', () => {
+describe('`GATE-PREP`/`ENV-01` — пути внутри файлов: относительные разрешимы, R2 соблюдён', () => {
   for (const { name } of PAIRS) {
-    it(`\`${name}\`: ассет резолвится от каталога файла, шрифт абсолютен, R2 соблюдён`, () => {
+    it(`\`${name}\`: ассет и шрифт резолвятся от каталога файла, R2 соблюдён`, () => {
       const parsed = JSON.parse(readFileSync(path.join(DIR, name), 'utf8')) as {
         tmpDir: string;
         outputPath: string;
@@ -121,9 +150,22 @@ describe('`GATE-PREP` — пути внутри файлов: относител
         expect(existsSync(path.resolve(DIR, asset.path)), `\`${name}\`: ассет \`${asset.path}\` не резолвится`).toBe(true);
       }
 
-      // ── шрифт: системный абсолютный (долг №187 — он приезжает из машины, а не из проекта) ──
+      // ── шрифт: ~~системный абсолютный~~ ИЗ КАТАЛОГА ЗАПРОСОВ ─────────────────────────
+      // *(перевёрнуто: `ENV-01`, 2026-08-31 — долг №187 закрыт.)* Прежнее утверждение стерегло
+      // РОВНО ТО, из-за чего юнит был непроходим на чужой машине: «путь обязан быть
+      // `/usr/share/fonts/…`» зелено ровно там, где этот файл лежит и совпадает побайтово.
+      // Теперь шрифт — такой же ассет, как картинка, и проверяется тем же тройным способом:
+      // путь ОТНОСИТЕЛЕН, файл по нему СУЩЕСТВУЕТ, и его БАЙТЫ те самые. Третьего мало кому
+      // хватает и здесь оно главное: под этими байтами посчитаны `bundle.hash` десяти
+      // запросов и сняты десять записей гейта.
       for (const font of parsed.fonts) {
-        expect(font.path, `\`${name}\`: шрифт обязан быть системным абсолютным`).toBe(SYSTEM_FONT_PATH);
+        expect(path.isAbsolute(font.path), `\`${name}\`: шрифт обязан быть ОТНОСИТЕЛЬНЫМ`).toBe(false);
+        const resolved = path.resolve(DIR, font.path);
+        expect(existsSync(resolved), `\`${name}\`: шрифт \`${font.path}\` не резолвится`).toBe(true);
+        expect(
+          sha256Hex(readFileSync(resolved)),
+          `\`${name}\`: шрифт \`${font.path}\` — не те байты, под которыми сняты записи гейта`,
+        ).toBe(GATE_FONT_SHA256);
       }
 
       // ── три плейсхолдера: их перекрывает `requestForRun`, но форму держит валидатор ──────
