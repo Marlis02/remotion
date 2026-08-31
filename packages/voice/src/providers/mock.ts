@@ -445,6 +445,9 @@ export function makeTake(fields: MakeTakeFields): Take {
       requestId: null,
       billedUnits: 0,
       planTierAtGeneration: 'none',
+      // Ставки нет, потому что нет и отправки: `null` — «ставка не объявлена», и это не то же
+      // самое, что `0` («дубль бесплатен»). Второе было бы утверждением о деньгах (`V-06`).
+      planRateAtGeneration: null,
       generatedAt: null,
       conditionedOn: [],
     },

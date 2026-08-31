@@ -73,6 +73,15 @@ export interface RecordProvenance {
   readonly voiceCategory: TakeProvenance['voiceCategory'];
   /** `FACT` (r3 §3.2): тариф на дату генерации ретроспективно не восстановить. */
   readonly planTierAtGeneration: string;
+  /**
+   * Ставка тарифа на дату генерации — сколько списывается за отправленный code point
+   * (`V-06`, ADR-0010 §2: «рядом с `planTierAtGeneration`, не константой в коде»).
+   *
+   * НЕОБЯЗАТЕЛЬНА, и умолчание — `null`, а не число: `null` означает «ставка не объявлена», и
+   * это честное состояние дубля, снятого без снимка аккаунта. Ноль означал бы «дубль
+   * бесплатен» — утверждение о деньгах, которого никто не делал.
+   */
+  readonly planRateAtGeneration?: number | null;
   readonly requestId?: string | null;
   /** Момент UTC. **Вход, а не часы**: часы запрещены линтом во всех `src` пакетов (**V8**, D4). */
   readonly generatedAt?: string | null;
@@ -355,12 +364,52 @@ async function fromCache(
 }
 
 /**
+ * Контекст сшивки чанка — ТЕКСТ соседей, названных его же `conditionedOn` (ADR-0010 §4).
+ *
+ * ПОЧЕМУ ИЗ `conditionedOn`, А НЕ ПЕРЕСЧЁТОМ СОСЕДЕЙ ЗАНОВО. Радиус контекста — сцена
+ * (решение `V-03`, долг №88), и он уже вычислен планом. Второй расчёт того же был бы вторым
+ * правилом: разойдясь с первым, он отправил бы провайдеру контекст, которого нет в дубле, и
+ * `conditionedOn` перестал бы описывать то, что действительно ушло в запрос.
+ *
+ * КАКОЙ ИЗ СОСЕДЕЙ ПРЕДЫДУЩИЙ, А КАКОЙ СЛЕДУЮЩИЙ, спрашивается у ПОРЯДКА ПЛАНА, а не у порядка
+ * списка: `conditionedOn` на краю сцены содержит одного соседа, и по одному лишь списку
+ * «предыдущий» от «следующего» неотличим.
+ *
+ * `FACT` (SP-2 U5): текстовый контекст **не тарифицируется** — 264 символа не попали в
+ * списание, — то есть у сшивки нет денежной цены; `FACT` (SP-2): она возвращает половину
+ * расхождения на шве.
+ */
+function stitchingContext(
+  plan: SpeechPlan,
+): (chunk: PlannedChunk) => { previousText?: string; nextText?: string } {
+  const indexOf = new Map<string, number>();
+  plan.chunks.forEach((chunk, index) => indexOf.set(chunk.chunkKey, index));
+
+  return (chunk) => {
+    const self = indexOf.get(chunk.chunkKey);
+    if (self === undefined) return {};
+    let previousText: string | undefined;
+    let nextText: string | undefined;
+    for (const neighbour of chunk.conditionedOn) {
+      const index = indexOf.get(neighbour);
+      if (index === self - 1) previousText = plan.chunks[index]?.spokenChunkText;
+      if (index === self + 1) nextText = plan.chunks[index]?.spokenChunkText;
+    }
+    return {
+      ...(previousText === undefined ? {} : { previousText }),
+      ...(nextText === undefined ? {} : { nextText }),
+    };
+  };
+}
+
+/**
  * Укладывает весь план: для каждого чанка — дубль, блоб, take-файл и запись в `store.lock`.
  *
  * @throws {VoiceError} `ADR-0010 §1 (M12)` — лестница приёмки исчерпана на каком-то чанке.
  *   Деления чанка при этом не происходит ни при каком исходе.
  */
 export async function recordSpeechPlan(input: RecordSpeechInput): Promise<RecordSpeechResult> {
+  const stitch = stitchingContext(input.plan);
   const byVoiceKey = new Map<string, Recorded>();
   const takes: RecordedTake[] = [];
   // Серия для оценки дрейфа: по одному входу на РАЗЛИЧНЫЙ дубль. Рефрен, уложенный дважды,
@@ -401,6 +450,11 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
         chunkKey: chunk.chunkKey,
         spokenText: chunk.spokenChunkText,
         acceptance: input.acceptance,
+        // «Чем сказано» и контекст сшивки уходят ИСТОЧНИКУ, а не остаются знанием укладки
+        // (`V-06`): провенанс пишет `chunk.voice`, и синтезировать дубль обязано то же
+        // значение — иначе take-файл утверждал бы одно, а звучало бы другое.
+        voice: chunk.voice,
+        ...stitch(chunk),
         source: async (request) => {
           sourceCalls += 1;
           const synthesis = await input.source(request);
@@ -482,6 +536,7 @@ export async function recordSpeechPlan(input: RecordSpeechInput): Promise<Record
         requestId: input.provenance.requestId ?? null,
         billedUnits: billedUnits(chunk.spokenChunkText),
         planTierAtGeneration: input.provenance.planTierAtGeneration,
+        planRateAtGeneration: input.provenance.planRateAtGeneration ?? null,
         generatedAt: input.provenance.generatedAt ?? null,
         conditionedOn: chunk.conditionedOn,
       },

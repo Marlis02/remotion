@@ -95,6 +95,51 @@ export {
   type MockSynthesizeOptions,
 } from './providers/mock.js';
 
+// --- живой провайдер (`V-06`) ------------------------------------------------
+// Сеть у пакета приезжает ВХОДОМ (`HttpTransport`), а не глобалью: `packages/voice/src/**`
+// по-прежнему исполним в тестовом контуре без сети и без ключа (**V9**). Реализацию транспорта
+// подаёт граница процесса — `packages/cli/bin/http.ts`, — и только при `ELEVENLABS_LIVE=1`.
+
+export { redactSecrets, type HttpRequest, type HttpResponse, type HttpTransport } from './providers/http.js';
+
+export {
+  ELEVENLABS_API_BASE,
+  ELEVENLABS_MODEL,
+  capabilities as elevenLabsCapabilities,
+  elevenLabsBody,
+  elevenLabsProvider,
+  elevenLabsUrl,
+  parseElevenLabsResponse,
+  type ElevenLabsBody,
+  type ElevenLabsOptions,
+} from './providers/elevenlabs.js';
+
+export {
+  accountSnapshot,
+  assertBilledRate,
+  billedInWindow,
+  checkBilledRate,
+  expectedBilled,
+  planTier,
+  voiceCategory,
+  type AccountOptions,
+  type AccountSnapshot,
+  type BilledRateCheck,
+  type BilledRateReport,
+  type BilledRateVerdict,
+  type UsageWindow,
+} from './providers/usage.js';
+
+export {
+  knownProviderIds,
+  providerCapabilities,
+  providerFor,
+  type ProviderEntry,
+  type ProviderRuntime,
+} from './providers/registry.js';
+
+export { providerSpeechSource, type ProviderSpeechSourceInput } from './providers/source.js';
+
 // --- акустическая обрезка T7 (`V-04`, перенос `sp2/t7-prod.mjs` + `acoustic-prod.mjs`) ------
 
 export * from './edges/index.js';

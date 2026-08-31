@@ -27,10 +27,11 @@ import { canonicalJson, dumpAst } from '@vpe/core-model';
 import { LocalStore, readStoreLock, renderStoreLock } from '@vpe/media';
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import { assertBuildMayStart } from '@vpe/templates-spec';
+import { accountSnapshot, type AccountSnapshot, type HttpTransport } from '@vpe/voice';
 
 import type { BuildArgs } from './argv.js';
 import { formatBudgetReport, overlappingBudget, type BudgetClip } from './budget.js';
-import { EXIT } from './errors.js';
+import { CliError, EXIT } from './errors.js';
 import { readProject, readRenderProfile, type InputFile } from './build-stages/inputs.js';
 import { runPipeline } from './build-stages/pipeline.js';
 import {
@@ -54,8 +55,51 @@ export interface BuildDeps extends RenderDeps {
   readonly out: (text: string) => void;
   /** Источник байтов минта якорей `w:` — **D4** и `C-04`: случайность приезжает параметром. */
   readonly randomBytes: Parameters<typeof runPipeline>[0]['randomBytes'];
-  /** Источник дубля. Умолчание — `tts:mock@1` (**V9**); подменяется тестом. */
+  /** Источник дубля. Умолчание — провайдер, названный проектом (`V-06`); подменяется тестом. */
   readonly speech?: Parameters<typeof runPipeline>[0]['speech'];
+  /**
+   * СЕТЬ (`V-06`). ВХОД, и приходит он ровно из одного места — `bin/vpe.ts`, — и ровно при
+   * `ELEVENLABS_LIVE=1`, взятом из НАСТОЯЩЕГО окружения процесса, а не из файла `.env`
+   * (решение владельца 2026-08-31: секреты файл давать может, денежный флаг — нет).
+   *
+   * `undefined` — сети нет. Тогда живой провайдер не создаётся вовсе, а не создаётся молчащим:
+   * «живой вызов без флага» — невыразимое состояние, а не забытая проверка (**Н4**).
+   */
+  readonly httpTransport?: HttpTransport;
+}
+
+/**
+ * Имена переменных окружения, из которых собирается снимок аккаунта живого провайдера.
+ *
+ * ЭТО НЕ ТАБЛИЦА «ИМЯ ПРОВАЙДЕРА → ПОВЕДЕНИЕ» (ADR-0010 §8): по `providerId` здесь не
+ * ветвится ничего, и `runtime` собирается ОДИН и тот же для любой реализации — герметичная
+ * его просто не спрашивает. Значения не печатаются ни одной строкой (CLAUDE.md §2).
+ */
+const ENV_API_KEY = 'ELEVENLABS_API_KEY';
+const ENV_RATE = 'ELEVENLABS_RATE_PER_CODEPOINT';
+
+/**
+ * Ставка тарифа из окружения — число либо `null` («не объявлена»).
+ *
+ * КОНСТАНТЫ В КОДЕ НЕТ (ADR-0010 §2 дословно): `UNKNOWN` (SP-2b.7) — откуда берётся 0.55, в
+ * ответах API нет, и стабильность множителя не измерялась. Мусор в переменной — ОТКАЗ, а не
+ * молчаливый `null`: «ставку не объявили» и «ставку объявили неразборчиво» — разные события.
+ */
+function rateOf(env: NodeJS.ProcessEnv): number | null {
+  const raw = env[ENV_RATE];
+  if (raw === undefined || raw === '') return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new CliError(
+      'build вход',
+      `\`${ENV_RATE}\` = \`${raw}\`: ожидалось положительное число — сколько единиц ` +
+        'списывается за один отправленный code point. `FACT` (SP-2b.7): на Creator это ' +
+        '0.55, на Free было 1.00; откуда берётся множитель, в ответах API нет, поэтому он ' +
+        'живёт снимком аккаунта, а не константой в коде',
+      EXIT.input,
+    );
+  }
+  return value;
 }
 
 /** Момент сборки: флаг → переменная окружения → часы процесса. Порядок объявлен. */
@@ -99,6 +143,19 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
 
   // ── 3. стадии до рендера ────────────────────────────────────────────────────
   const lock = readStoreLock(path.join(project.layout.projectRoot, 'store.lock'));
+  // ═══ ЧТО ПОЛУЧАЕТ ПРОВАЙДЕР ОТ ПРОЦЕССА (`V-06`) ═══
+  // Ключ и сеть — ВХОДЫ команды, а не находки движка. Снимок аккаунта подаётся ФУНКЦИЕЙ: он
+  // стоит двух (бесплатных) сетевых вызовов и нужен ровно тогда, когда что-то действительно
+  // синтезируется, — сборка на готовых дублях обязана идти без сети вовсе.
+  const transport = deps.httpTransport;
+  const apiKey = deps.env[ENV_API_KEY];
+  const runtime = {
+    ...(transport === undefined ? {} : { transport }),
+    ...(apiKey === undefined ? {} : { apiKey }),
+  };
+  const rate = rateOf(deps.env);
+  const secrets = (envName: string): string | undefined => deps.env[envName];
+
   const result = await runPipeline({
     project,
     registry: library.registry,
@@ -106,8 +163,35 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     now,
     randomBytes: deps.randomBytes,
     allowTts: args.allowTts,
+    runtime,
+    secrets,
+    ...(transport === undefined || apiKey === undefined
+      ? {}
+      : {
+          account: (): Promise<AccountSnapshot> =>
+            accountSnapshot(
+              { apiKey, transport },
+              // Класс голоса снимается для голоса ПРОЕКТА: `voice.voiceId` — имя переменной
+              // окружения (решение владельца `S-02`), и разрешает его та же функция, что и
+              // источник дубля. Голос РОЛИ (ADR-0010 §3a-bis) здесь пока не различается —
+              // долг с адресом.
+              secrets(project.project.voice.voiceId) ?? '',
+              rate,
+            ),
+        }),
     ...(deps.speech === undefined ? {} : { speech: deps.speech }),
   });
+
+  // Дубль с чужим `voiceKey` — самый дорогой промах: он выглядит как попадание. Пусть автор
+  // видит его строкой, а не по счёту в конце (`V-06`, вторая половина долга №197).
+  if (result.staleTakes.length > 0) {
+    deps.out(
+      `дублей с чужим \`voiceKey\`: ${String(result.staleTakes.length)} — ` +
+        `${result.staleTakes.slice(0, 5).join(', ')}` +
+        `${result.staleTakes.length > 5 ? ', …' : ''}; они пересняты (содержимое изменилось: ` +
+        'провайдер, голос, модель, seed, настройки роли или текст)\n',
+    );
+  }
 
   // ── 4. персист стадий: то, что обязано быть равно у двух сборок ─────────────
   const stages = new StageWriter(project.layout.buildDir);

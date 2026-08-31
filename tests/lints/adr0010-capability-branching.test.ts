@@ -12,9 +12,17 @@
 //   (б) греп по коду — ЛИТЕРАЛ имени провайдера. Он ловит то, чего селектор не видит:
 //       `providerOf('tts:mock@1')`, таблицу «имя → поведение», строку в конфиге.
 //
-// РЕЕСТР ФАЙЛОВ, КОТОРЫМ ЛИТЕРАЛ РАЗРЕШЁН, — ровно один: тот, что ОБЪЯВЛЯЕТ свой id.
-// Пополняется задачей `V-06` (живой провайдер ElevenLabs). У половины (а) исключений нет и
-// не нужно: объявление id — это свойство объекта, а не условие.
+// РЕЕСТР ФАЙЛОВ, КОТОРЫМ ЛИТЕРАЛ РАЗРЕШЁН, — те, что ОБЪЯВЛЯЮТ свой id, и только они.
+// Пополнен задачей `V-06`: реализаций стало две, и каждая называет себя сама. У половины (а)
+// исключений нет и не нужно: объявление id — это свойство объекта, а не условие.
+//
+// ЧЕГО В РЕЕСТРЕ НЕТ И ПОЧЕМУ ЭТО ГЛАВНОЕ В ПОПОЛНЕНИИ (`V-06`, долг №197). В нём нет
+// `providers/registry.ts` — файла, который выбирает реализацию по `project.yaml →
+// voice.providerId`. Выбор написан так, что литерал имени ему не нужен вовсе: карта строится
+// ИЗ САМИХ РЕАЛИЗАЦИЙ, по их собственному `capabilities.providerId`, а поиск — `Map.get`, а не
+// `if`. То есть «реестр реализаций» и «таблица имя → поведение», которую запрещает §8, — это
+// разные вещи, и разница здесь наблюдаема: закрытие долга №197 не потребовало ни одного нового
+// исключения из правила.
 import { describe, expect, it } from 'vitest';
 
 import { PACKAGES, codeLines, errorsFor, lintTemporary, readSource, sourceFiles } from '../boundaries/repo';
@@ -22,8 +30,12 @@ import { PACKAGES, codeLines, errorsFor, lintTemporary, readSource, sourceFiles 
 const RULE = 'no-restricted-syntax';
 const EXPECT = 'ADR-0010 §8';
 
-/** Единственный файл, которому разрешено писать имя провайдера литералом. */
-const REGISTRY = ['packages/voice/src/providers/mock.ts'];
+/** Файлы, которым разрешено писать имя провайдера литералом: каждый объявляет СВОЙ id. */
+const REGISTRY = [
+  'packages/voice/src/providers/mock.ts',
+  // `V-06`: живой провайдер. Литерал у него ровно один — в собственных `capabilities`.
+  'packages/voice/src/providers/elevenlabs.ts',
+];
 
 /** Сосед по каталогу: он обязан остаться ПОД правилом, иначе реестр не узкий. */
 const NEIGHBOUR = 'packages/voice/src/providers/types.ts';
@@ -119,6 +131,15 @@ describe('(а) ESLint — сравнение по имени провайдер�
 });
 
 describe('(б) греп — литерал имени провайдера только в реестре', () => {
+  it('выбор реализации по имени проекта НЕ потребовал исключения (долг №197, `V-06`)', () => {
+    // Утверждение сильное и потому проверяется в лоб: файл, который разрешает
+    // `providerId` в реализацию, живёт ПОД правилом, а не рядом с ним.
+    const chooser = 'packages/voice/src/providers/registry.ts';
+    expect(sourceFiles('voice')).toContain(chooser);
+    expect(REGISTRY).not.toContain(chooser);
+    expect(codeLines(readSource(chooser)).some((line) => PROVIDER_LITERAL.test(line))).toBe(false);
+  });
+
   it('охранник стережёт непустое множество файлов, и реестр в него входит', () => {
     const files = PACKAGES.flatMap((pkg) => sourceFiles(pkg));
     expect(files.length).toBeGreaterThan(0);

@@ -30,7 +30,6 @@ export {
   type ProjectInputs,
 } from './build-stages/inputs.js';
 export {
-  mockSpeechSource,
   runPipeline,
   type PipelineInput,
   type PipelineResult,

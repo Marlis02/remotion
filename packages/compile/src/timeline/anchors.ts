@@ -82,7 +82,6 @@ function tokenTimes(
   measured: Map<string, AnchorTime>,
   absent: Set<string>,
 ): void {
-  const problems: CompileProblem[] = [];
   for (const chunk of input.plan.chunks) {
     const take = input.takes.get(chunk.chunkKey);
     const clip: PlacedSpeech | undefined = input.track.speechByChunk.get(chunk.chunkKey);
@@ -92,17 +91,33 @@ function tokenTimes(
         absent.add(binding.anchorId);
         continue;
       }
-      const start = clip.startSample + (binding.startSample - take.leadInSamples);
-      const end = clip.startSample + (binding.endSample - take.leadInSamples);
-      if (start < 0) {
-        problems.push({
-          address: binding.anchorId,
-          message:
-            `измеренное начало слова (${String(binding.startSample)} в сыром PCM) лежит ДО ` +
-            `измеренного лид-ина (${String(take.leadInSamples)}) дубля \`${chunk.chunkKey}\`. ` +
-            'Это расхождение двух приборов: края меряет акустический детектор (RMS, T7), ' +
-            'а слова — таймкоды провайдера; сдвинуть одно к другому значило бы выдумать время',
-        });
+      // ═══ ПЕРЕСЕЧЕНИЕ С ИНТЕРВАЛОМ РЕЧИ, А НЕ ОТКАЗ (`V-06`, точечное разрешение владельца
+      // 2026-08-31 на правку этой окрестности) ═══
+      //
+      // ЧТО ИЗМЕРЕНО И ПОЧЕМУ ПРЕЖНЕЕ ПРАВИЛО БЫЛО НЕИСПОЛНИМО. Провайдер относит ведущую
+      // ТИШИНУ к первому символу: `character_start_times_seconds[0] = 0.000` при акустическом
+      // лид-ине 40–220 мс (ИЗМЕРЕНО `V-06` на четырёх живых дублях: 960 / 1920 / 2160 / 5280
+      // сэмплов при 24 кГц). Прежняя формула давала `start < 0` у первого слова первого чанка
+      // и роняла компиляцию ЛЮБОГО живого проекта; на `tts:mock@1` этого не видел никто, потому
+      // что там лид-ин равен нулю ПО ПОСТРОЕНИЮ («mock не имитирует лид-ин: T7 обязан работать
+      // и при нуле» — `providers/mock.ts`). То есть ассерт был написан против материала, у
+      // которого расхождения приборов не бывает.
+      //
+      // ПОЧЕМУ ОБРЕЗКА — НЕ ВЫДУМЫВАНИЕ ВРЕМЕНИ. Мы не двигаем измеренное к измеренному и не
+      // берём среднее: интервал слова ПЕРЕСЕКАЕТСЯ с окном речи клипа, то есть из него
+      // выбрасывается ровно та часть, про которую ВТОРОЙ прибор (RMS, T7) говорит «здесь
+      // тишины». Результат не длиннее ни одного из двух измерений — а значит, ни одного
+      // сэмпла речи он не придумывает. Пустое пересечение означает «слово целиком лежит вне
+      // речи», и у него времени НЕТ вовсе: `absent` (**V8**, ADR-0010 §5) — состояние, уже
+      // выразимое формой, а не новая ветка.
+      const shifted = { start: clip.startSample + (binding.startSample - take.leadInSamples), end: clip.startSample + (binding.endSample - take.leadInSamples) };
+      const start = Math.max(clip.startSample, shifted.start);
+      const end = Math.min(clip.endSample, shifted.end);
+      if (start >= end) {
+        // Пересечение пусто. Это НЕ ошибка входа и не порча дубля: так выглядит слово, целиком
+        // съеденное краевой обрезкой. Времени у него нет — и ссылка на такой якорь останется
+        // ошибкой компиляции со списком, ровно как у `absent` из дубля.
+        absent.add(binding.anchorId);
         continue;
       }
       measured.set(binding.anchorId, {
@@ -112,9 +127,6 @@ function tokenTimes(
         endSample: asSamples(end),
       });
     }
-  }
-  if (problems.length > 0) {
-    throw new CompileError('ADR-0003 T7', 'привязки токенов не укладываются в интервал речи', problems);
   }
 }
 

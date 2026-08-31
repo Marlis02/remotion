@@ -6,16 +6,17 @@ schema: voice-roles/1
 # modelId опционален — роль без него наследует project.yaml.voice.modelId.
 #
 # voice_id держит ИМЯ ПЕРЕМЕННОЙ ОКРУЖЕНИЯ, а не значение (CLAUDE.md §2, Charter §6).
-# Здесь оно совпадает с project.yaml.voice.voiceId: фикстура ходит только в tts:mock@1.
+# Здесь оно совпадает с project.yaml.voice.voiceId: демо ходит к живому провайдеру (`V-06`).
 #
 # Ссылки из режиссуры на эту роль в фикстуре НЕТ ни одной: запись direction/*.yaml с
 # track: voice и полем voiceRole ставит задача A-02 (roadmap §3). До неё применимость роли —
 # вход стадии plan (V-03), а не резолв записи.
 #
-# voice_settings пуст, и это не заглушка: у tts:mock@1 нет настроек провайдера вовсе
-# (capabilities.requestStitching: none, seedSupport: exact). Правка ЛЮБОГО поля внутри
-# voice_settings обязана менять voiceKey затронутых чанков — инвариант V15, ADR-0006 §2.
+# voice_settings пуст, и это не заглушка: настройки голоса демо не переопределяет, и пустой
+# объект означает ровно это — «взято умолчание провайдера». Правка ЛЮБОГО поля внутри
+# voice_settings обязана менять voiceKey затронутых чанков — инвариант V15, ADR-0006 §2,
+# то есть непустое значение здесь стоит ПЕРЕСЪЁМКИ всех дублей роли.
 roles:
   - roleId: "narrator"
-    voice_id: "VPE_MOCK_VOICE_ID"
+    voice_id: "ELEVENLABS_VOICE_ID"
     voice_settings: {}

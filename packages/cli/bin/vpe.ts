@@ -18,8 +18,20 @@
 
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import { runCli } from '../src/index.js';
+
+import { envWithFile } from './env-file.js';
+import { liveTransport } from './http.js';
+
+// ═══ ГРАНИЦА ПРОЦЕССА: ЗДЕСЬ ЧИТАЕТСЯ `.env` ═══
+// Секреты берутся ТОЛЬКО из окружения (CLAUDE.md §2), а `.env` — способ его наполнить, и
+// потому он читается здесь же, где часы и случайность. Переменные процесса ИМЕЮТ ПРИОРИТЕТ
+// над файлом, а денежный флаг `ELEVENLABS_LIVE` файл не даёт вовсе (решение владельца
+// 2026-08-31): разрешение потратить деньги пишется рукой в командной строке.
+const env = envWithFile(path.join(process.cwd(), '.env'), process.env);
+const transport = liveTransport(process.env);
 
 process.exitCode = await runCli(process.argv.slice(2), {
   // ЕДИНСТВЕННОЕ чтение стенных часов во всём пакете — см. шапку.
@@ -42,5 +54,10 @@ process.exitCode = await runCli(process.argv.slice(2), {
   },
   out: (text) => process.stdout.write(text),
   err: (text) => process.stderr.write(text),
-  env: process.env,
+  env,
+  // ═══ ГРАНИЦА ПРОЦЕССА: ЗДЕСЬ ОТКРЫВАЕТСЯ СЕТЬ ═══
+  // Единственный `fetch` движка (`bin/http.ts`), и он создаётся только при `ELEVENLABS_LIVE=1`.
+  // Поля НЕТ вовсе, если флага нет: при `exactOptionalPropertyTypes: true` «поля нет» и «поле
+  // есть со значением `undefined`» — разные типы, и первое читается однозначно («сети нет»).
+  ...(transport === undefined ? {} : { httpTransport: transport }),
 });

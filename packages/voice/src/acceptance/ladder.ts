@@ -26,6 +26,10 @@
 // тестовом контуре без сети и без ключа (**V9**).
 
 import { VoiceError } from '../errors.js';
+// ТИПОВЫЙ импорт, и потому стираемый: `EffectiveVoice` живёт в каталоге стадии, которая её
+// вычисляет (`plan/`), а лестница только ПЕРЕДАЁТ её источнику неизменной. Тот же приём и по
+// той же причине, что у `providers/types.ts` с `TakeBind` (`V-05`).
+import type { EffectiveVoice } from '../plan/speech-plan.js';
 import type { ProviderAlignment, TakeHealth } from '../providers/types.js';
 
 import { assessTake, explainRejection, type TakeAcceptance } from './health.js';
@@ -37,6 +41,29 @@ export interface TakeAttemptRequest {
   readonly spokenText: string;
   /** `0` — первая попытка, дальше ретраи. Существует для журнала, а не для ветвления запроса. */
   readonly attemptIndex: number;
+  /**
+   * Чем сказано (`V-06`): модель, голос, seed и `voice_settings` ЭТОГО чанка.
+   *
+   * ПОЛЕ ЗАВЕДЕНО НЕ ДЛЯ УДОБСТВА, А ПРОТИВ ЛЖИ В АРТЕФАКТЕ. Провенанс дубля пишет
+   * `chunk.voice` (укладка, ADR-0010 §2), а источник до этой задачи получал только текст —
+   * то есть живой провайдер обязан был бы взять голос откуда-то ещё. При роли, перекрывающей
+   * голос проекта (ADR-0010 §3a-bis), take-файл утверждал бы одно, а звучало бы другое, и
+   * различить это было бы нечем. Теперь «чем сказано» приезжает вместе с текстом.
+   *
+   * `undefined` законен и означает «источник голоса не спрашивает» (так живут все подделки
+   * тестов и `tts:mock@1`).
+   */
+  readonly voice?: EffectiveVoice;
+  /**
+   * Сшивка ТОЛЬКО ТЕКСТОМ (ADR-0010 §4, **V5**): текст соседних чанков той же сцены.
+   *
+   * `FACT` (SP-2 U5): контекст **не тарифицируется** — 264 символа не попали в списание, — и
+   * `FACT` (SP-2): он возвращает половину расхождения на шве. В ключи стадии `voice` контекст
+   * НЕ входит (`speech-plan.ts`), иначе ключи образовали бы транзитивную цепочку — ровно то,
+   * из-за чего отвергнуты `previous_request_ids`.
+   */
+  readonly previousText?: string;
+  readonly nextText?: string;
 }
 
 /** Что источник дубля возвращает: ответ провайдера плюс фактическая дорожка. */
@@ -54,6 +81,10 @@ export interface AcceptTakeInput {
   readonly spokenText: string;
   readonly acceptance: TakeAcceptance;
   readonly source: TakeSource;
+  /** Уходит в КАЖДУЮ попытку неизменным — ровно как `chunkKey` (`V-06`). */
+  readonly voice?: EffectiveVoice;
+  readonly previousText?: string;
+  readonly nextText?: string;
 }
 
 /** Принятый дубль: тот же `chunkKey`, метрики принятой попытки и её номер. */
@@ -77,6 +108,14 @@ export interface AcceptedTake {
  */
 export async function acceptTakeWithRetries(input: AcceptTakeInput): Promise<AcceptedTake> {
   const { chunkKey, spokenText, acceptance, source } = input;
+  // Всё, что описывает ЗАДАНИЕ (голос и контекст сшивки), собирается ОДИН раз и уходит в
+  // каждую попытку тем же значением: лестница чинит ОТВЕТ, а не задание (см. шапку). Изменить
+  // задание между попытками значило бы получить другой `voiceKey` и другой дубль.
+  const task = {
+    ...(input.voice === undefined ? {} : { voice: input.voice }),
+    ...(input.previousText === undefined ? {} : { previousText: input.previousText }),
+    ...(input.nextText === undefined ? {} : { nextText: input.nextText }),
+  };
 
   let lastHealth: TakeHealth | null = null;
   let lastAttempt: TakeAttempt | null = null;
@@ -84,7 +123,7 @@ export async function acceptTakeWithRetries(input: AcceptTakeInput): Promise<Acc
   const total = acceptance.maxRetries + 1;
   for (let attemptIndex = 0; attemptIndex < total; attemptIndex += 1) {
     // `chunkKey` уходит В КАЖДУЮ попытку тем же значением, каким пришёл.
-    const attempt = await source({ chunkKey, spokenText, attemptIndex });
+    const attempt = await source({ chunkKey, spokenText, attemptIndex, ...task });
     const health = assessTake({
       spokenText,
       alignment: attempt.alignment,

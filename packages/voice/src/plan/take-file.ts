@@ -144,6 +144,15 @@ function str(source: Record<string, unknown>, filePath: string, path: string, ke
   return value;
 }
 
+function numOrNull(source: Record<string, unknown>, filePath: string, path: string, key: string): number | null {
+  const value = source[key];
+  if (value === null) return null;
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw bad(filePath, `${path}.${key}`, `ожидалось конечное число или \`null\`, пришло ${describe(value)}`);
+  }
+  return value;
+}
+
 function strOrNull(source: Record<string, unknown>, filePath: string, path: string, key: string): string | null {
   const value = source[key];
   if (value === null) return null;
@@ -236,6 +245,31 @@ function readHealth(value: unknown, filePath: string, path: string): TakeHealth 
   };
 }
 
+/**
+ * Ставка тарифа с ОТДЕЛЬНЫМ отказом на «поля нет вовсе» (`V-06`, долг №216).
+ *
+ * Отсутствие поля — не порча файла, а СМЕНА ФОРМАТА: дубль снят движком до `V-06`, когда
+ * ставки в провенансе не существовало. Отказ поэтому обязан говорить не «ожидалось число», а
+ * что с этим делать, — иначе автор читает сообщение про типы там, где случилась миграция.
+ * Умолчания по-прежнему нет: `null` за старый файл подставить нельзя, это приняло бы на веру,
+ * что дубль ничего не стоил.
+ */
+function planRate(raw: Record<string, unknown>, filePath: string, path: string): number | null {
+  if (!Object.prototype.hasOwnProperty.call(raw, 'planRateAtGeneration')) {
+    throw bad(
+      filePath,
+      `${path}.planRateAtGeneration`,
+      'поля НЕТ вовсе. Так выглядит дубль, снятый движком ДО `V-06`: ставки тарифа в ' +
+        'провенансе тогда не существовало, и восстановить её задним числом нечем (`FACT` ' +
+        'r3 §3.2 — тариф на дату генерации ретроспективно не восстановить). Что делать: ' +
+        'дописать поле руками, если ставка на дату генерации известна, либо УДАЛИТЬ ' +
+        'take-файл — тогда дубль будет переснят, а это ДЕНЬГИ. Миграции каталога дублей в v1 ' +
+        'нет (долг №216, адрес `G-02`)',
+    );
+  }
+  return numOrNull(raw, filePath, path, 'planRateAtGeneration');
+}
+
 function readProvenance(value: unknown, filePath: string, path: string): TakeProvenance {
   const raw = obj(value, filePath, path);
   const category = str(raw, filePath, path, 'voiceCategory');
@@ -256,6 +290,11 @@ function readProvenance(value: unknown, filePath: string, path: string): TakePro
     requestId: strOrNull(raw, filePath, path, 'requestId'),
     billedUnits: num(raw, filePath, path, 'billedUnits'),
     planTierAtGeneration: str(raw, filePath, path, 'planTierAtGeneration'),
+    // `V-06`. Поле ОБЯЗАТЕЛЬНО, хотя его значение может быть `null`, и это разные вещи:
+    // `null` — «ставка не объявлена» (так пишет провайдер, который ничего не отправляет), а
+    // отсутствие поля — файл другого движка, у которого ставки не было в форме вовсе.
+    // Подставить `null` за него значило бы принять на веру, что дубль ничего не стоил.
+    planRateAtGeneration: planRate(raw, filePath, path),
     generatedAt: strOrNull(raw, filePath, path, 'generatedAt'),
     conditionedOn: strings(raw, filePath, path, 'conditionedOn'),
   };

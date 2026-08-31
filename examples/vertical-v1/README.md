@@ -17,9 +17,18 @@ node packages/cli/dist/bin/vpe.js build \
   --project examples/vertical-v1 --profile final --allow-tts
 ```
 
-`--allow-tts` обязателен: голоса в проекте нет, дубли даёт `tts:mock@1` (**V9**). Тайминг у
-мока СИНТЕТИЧЕСКИЙ — для суда о типографике и движении это норма, для суда о том, куда
-попадают слова живого голоса, — нет. Живой голос — задача `V-06`.
+Пока дубли лежат в `voice/takes/`, сборка идёт БЕЗ СЕТИ вовсе: `--allow-tts` нужен только на
+промахе. Пересъёмка голоса стоит денег и потому требует ДВУХ разрешений сразу
+(`V-06`): `--allow-tts` и `ELEVENLABS_LIVE=1` в командной строке —
+
+```bash
+ELEVENLABS_LIVE=1 node packages/cli/dist/bin/vpe.js build \
+  --project examples/vertical-v1 --profile final --allow-tts
+```
+
+Ключ и id голоса берутся ТОЛЬКО из окружения (`ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID`;
+`.env` в корне репозитория подхватывается, но денежный флаг из него не читается). В
+`project.yaml` лежит ИМЯ переменной, а не значение (CLAUDE.md §2).
 
 Выход — `build/final.mp4` (каталог в `.gitignore`): 3 сегмента, 497 кадров, 16.567 с, 1080×1920.
 
@@ -35,7 +44,7 @@ node packages/cli/dist/bin/vpe.js build \
 | `street` | Mulberry Street, New York City, ок. 1900, Detroit Publishing Co. (LoC LC-USZC4-4637) | public domain (опубликовано до 1929) | `846e37e1…` |
 | `mechanic` | Lewis W. Hine, «Power house mechanic working on steam pump», 1920 | public domain (опубликовано до 1929) | `8e6317a2…` |
 | `mother` | Dorothea Lange, «Migrant Mother», 1936, FSA/OWI (LoC) | public domain (служебное произведение правительства США) | `4e5fbcf1…` |
-| — | Inter 4.001, вариативный (`opsz` 14…32, `wght` 100…900) | SIL Open Font License 1.1 | `29160a80…` |
+| — | Montserrat 9.000, вариативный (`wght` 100…900, умолчание оси 100) | SIL Open Font License 1.1 | `0f7b311b…` |
 
 ## Что в нём стоит посмотреть
 

@@ -258,6 +258,9 @@ describe('ADR-0010 §2 — take-файл самоописателен и леж�
         'conditionedOn',
         'generatedAt',
         'modelId',
+        // `V-06`: ставка тарифа хранится РЯДОМ с тарифом, а не внутри `billedUnits`
+        // (ADR-0010 §2). `null` у провайдера, который ничего не отправляет.
+        'planRateAtGeneration',
         'planTierAtGeneration',
         'providerId',
         'requestId',
