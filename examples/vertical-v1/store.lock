@@ -44,6 +44,12 @@ entries:
   origin: "commons.wikimedia.org"
   replicas: []
 -
+  sha256: "98defdd0109639cd19392b60ed7bcdd18443086390dd140826012f91a89fd49a"
+  size: 2772305
+  kind: "asset"
+  origin: "rembg@2.0.69"
+  replicas: []
+-
   sha256: "c10bd94b9865148458c2f92ca4a146a3c6dbd5d78a091d7922e73dfa60b94988"
   size: 285326
   kind: "voice"

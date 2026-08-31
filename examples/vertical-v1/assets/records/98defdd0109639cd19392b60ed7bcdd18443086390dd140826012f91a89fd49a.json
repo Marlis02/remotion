@@ -1,0 +1,36 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "98defdd0109639cd19392b60ed7bcdd18443086390dd140826012f91a89fd49a",
+  "kind": "image",
+  "intrinsic": { "width": 2155, "height": 3000 },
+  "derivedFrom": {
+    "sha256": "8e6317a20918ba603c4a5e4fd25ee6db60f8e5207a105f5f7031d74d135118d6",
+    "transform": {
+      "op": "alpha-cutout",
+      "params": {
+        "tool": "rembg",
+        "model": "u2net",
+        "note": "ближний слой параллакса `parallax25@1` сцены `work`: механик и паровой насос отделены от помещения. Геометрия НЕ менялась — 2155×3000, тот же кадр, что у источника: слой обязан совпасть с ним пиксель в пиксель под `object-fit: cover`, иначе планы разъедутся. Изменён только альфа-канал"
+      },
+      "toolVersion": "rembg@2.0.69"
+    }
+  },
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "ПРОИЗВОДНЫЙ ФАЙЛ: права читаются НЕ отсюда, а по `derivedFrom` от записи `8e6317a2…` (`resolveEffectiveLicense`, P11 / ADR-0005 §9a). Статус продублирован здесь по букве схемы, а не как утверждение: единственный законный источник прав этого файла — оригинал Хайна, PD-US-expired. Долг №230: машина не проверяет, что производный файл объявил `derivedFrom` честно"
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false,
+      "attributionText": "Lewis W. Hine, Power house mechanic working on steam pump, 1920. U.S. National Archives. Public domain."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": null,
+      "retrievedAt": "2026-08-31T23:37:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

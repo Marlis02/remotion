@@ -115,6 +115,42 @@ export interface BuildRequestInput {
 }
 
 /**
+ * Первое вхождение каждого `sha256` — **список ФАЙЛОВ, а не список ссылок**.
+ *
+ * **ЗАЧЕМ ЭТО ЕСТЬ** (`E-02`, 2026-08-31, решение владельца — вариант «а»). Две стороны
+ * границы говорили противоположное, и до `parallax25@1` противоречие спало, потому что ни один
+ * шаблон не просил ОДИН файл в ДВУХ ролях:
+ *
+ *   * `compile` кладёт в `RenderIrSegment.assets` пару `(sha, role)` НАМЕРЕННО — `unionOfRefs`
+ *     дословно: «ДЕДУПЛИКАЦИЯ ПО ПАРЕ, А НЕ ПО SHA: один файл в двух ролях — две строки, потому
+ *     что роль есть часть того, что просит шаблон»;
+ *   * адаптер отвергает повтор `sha256` в `assets`/`fonts` запроса — `validate.ts` дословно:
+ *     «два имени у одного блоба означали бы два файла в каталоге композиции с одинаковым
+ *     содержимым — и второй вход в `compositionHash`».
+ *
+ * Оба правы, и оба остаются в силе: расходятся они не в существе, а в ЕДИНИЦЕ. IR перечисляет
+ * ССЫЛКИ (что просит какой шаблон), запрос перечисляет ФАЙЛЫ (что лечь в каталог композиции).
+ * Перевод одного в другое и есть склейка по `sha256`, и её место — здесь, в сборке запроса, а
+ * не в правиле по ту или эту сторону.
+ *
+ * **РОЛЬ НА УРОВНЕ СЕГМЕНТА НЕ ЧИТАЕТ НИКТО, И ЭТО ИЗМЕРЕНО, А НЕ ПРЕДПОЛОЖЕНО.**
+ * `materializeComposition` берёт из `request.assets` только `path` и `sha256` (файл ложится как
+ * `assets/<sha>.<ext>`, карта композиции — `sha → url`), а роль шаблон читает у СВОЕГО клипа
+ * (`ctx.assets[i].role`, `IrClip.assets`), и там пара «sha + роль» сохраняется целиком. То есть
+ * склейка не теряет ни одного факта: `parallax25@1` по-прежнему видит `layer0` и `layer1`, даже
+ * если оба указывают на один блоб.
+ *
+ * **ЧТО ОСТАЁТСЯ ОТ ПОТЕРЯННОЙ РОЛИ.** Выживает ПЕРВОЕ вхождение, а порядок `IR.assets` —
+ * сортировка по `(sha256, role)` (`unionOfRefs`), то есть выживает лексикографически меньшая
+ * роль. Величина детерминирована и ни на что не влияет; названо здесь, чтобы «какая именно
+ * роль осталась» не пришлось выяснять чтением двух пакетов.
+ */
+function byFirstSha<T extends { readonly sha256: string }>(refs: readonly T[]): readonly T[] {
+  const seen = new Set<string>();
+  return refs.filter((ref) => (seen.has(ref.sha256) ? false : (seen.add(ref.sha256), true)));
+}
+
+/**
  * IR сегмента → `SegmentRenderRequest` с ВЕРНЫМ `bundle.hash`.
  *
  * Пути ассетов и шрифтов берутся у CAS: `store.path(sha)` падает перечнем недостающих sha256
@@ -126,15 +162,20 @@ export async function buildRequest(input: BuildRequestInput): Promise<SegmentRen
   mkdirSync(tmpDir, { recursive: true });
   mkdirSync(input.layout.segmentsDir, { recursive: true });
 
+  // Склейка по `sha256` — ПЕРЕД `store.path`, а не после: иначе CAS спрашивали бы про один и
+  // тот же блоб дважды, и перечень недостающих sha в `MissingBlobsError` называл бы его дважды.
+  // Шрифты склеиваются тем же способом и по той же причине: сегодня ни один шаблон не
+  // объявляет один файл в двух ролях шрифта, но правило по ту сторону границы (`unionOfRefs`)
+  // одно на оба списка — оставить здесь только ассеты значило бы оставить ту же мину взведённой.
   const assets = await Promise.all(
-    input.ir.assets.map(async (ref) => ({
+    byFirstSha(input.ir.assets).map(async (ref) => ({
       sha256: ref.sha256,
       path: await input.store.path(ref.sha256),
       role: ref.role,
     })),
   );
   const fonts = await Promise.all(
-    input.ir.fonts.map(async (ref) => ({
+    byFirstSha(input.ir.fonts).map(async (ref) => ({
       sha256: ref.sha256,
       path: await input.store.path(ref.sha256),
       family: ref.family,
