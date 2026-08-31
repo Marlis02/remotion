@@ -1,0 +1,48 @@
+schema: render-profile/1
+profileId: final          # имя файла ↔ profileId связаны ADR-0005 §1 (таблица «файл → profileId»)
+# КОПИЯ `fixtures/minimal/profiles/render.final.yaml` (`H-07`, 2026-08-31): демо обязано
+# рендериться ТЕМ ЖЕ профилем, каким снимаются гейты и собирается фикстура, иначе картинка
+# на телефоне не свидетельствует о конвейере.
+#
+# ТОЛЬКО НАМЕРЕНИЕ (M9). Версии рендерера/Chrome/ffmpeg, compositionHash, checksum шрифтов
+# и hostClass здесь отсутствуют: они вычисляются на каждой сборке и входят в ключ
+# ровно один раз, как engineFingerprint (ADR-0006 §3). Поля версий в профиле запрещены
+# инвариантом K6 — поэтому версия chrome-headless-shell пришпиливается в lockfile/vendor
+# и охраняется R14, а не пишется сюда.
+#
+# Приведено к ADR-0008 (RM2, 2026-08-22, дрейф roadmap §9 п. 1): поля Remotion
+# gl: swangle, concurrency, offthreadVideoCacheSizeInBytes, mediaCacheSizeInBytes,
+# offthreadVideoThreads, disallowParallelEncoding удалены вместе с кандидатом.
+pixelProfile:
+  browserGpu: false               # --no-browser-gpu: софтверный путь, независимый от GPU и драйвера
+                                  # (ADR-0008; FACT SP-3c §2: цена отказа от GPU — 27 %, зато
+                                  # растеризация не зависит от видеокарты и не перемеряется при её смене)
+  imageFormat: png                # jpeg рендерером не выражается, №154 (решение владельца 2026-08-28)
+  # jpegQuality: 90               # не используется при png; схема render-profile/1 его при png
+                                  # ЗАПРЕЩАЕТ, поэтому строка закомментирована, а не оставлена.
+                                  # Сужение схемы — DOC-06
+  scale: 1
+  colorSpace: bt709
+  pixelFormat: yuv420p
+  codec: h264
+  crf: 18
+  gopSize: 30
+
+  # Полная строка энкодера (находка C5): framemd5 не защищает от недетерминизма энкодера,
+  # потому что кодек lossy — разный битстрим даёт разные декодированные кадры.
+  encoder:
+    threads: 4                    # число, никогда auto
+    preset: medium
+    tune: none
+    rcLookahead: 40
+    aqMode: 1
+    psy: 1
+    bitexact: true                # -fflags +bitexact -flags:v +bitexact
+
+executionProfile:
+  workers: 4                      # = логических ядер / 3 (ADR-0008); на машине замеров 12 ⇒ 4.
+                                  # Число, а не формула: профиль — намерение человека (M9),
+                                  # вычисляемых полей в нём нет (P10). Снижение workers —
+                                  # откат №2 лестницы ADR-0008, а не свободная настройка.
+  chapterParallelism: 1           # в v1 константа, а не настройка
+  segmentTimeoutMs: 900000

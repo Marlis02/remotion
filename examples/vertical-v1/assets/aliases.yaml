@@ -1,0 +1,8 @@
+schema: aliases/1
+
+# alias → sha256. Замена фото не трогает прозу (класс правок 5, ADR-0004).
+# Три настоящих снимка public domain; лицензия каждого названа поимённо в его записи
+# `assets/records/<sha256>.json` (долг №48 — про лицензии КОДА, здесь речь про ассеты).
+street:   "846e37e15b6e5162a9035ab7a35842710f75ace93478de5ad349c39cec8b0314"
+mechanic: "8e6317a20918ba603c4a5e4fd25ee6db60f8e5207a105f5f7031d74d135118d6"
+mother:   "4e5fbcf1388c9fc925482c1ed8299f069bf0264ac7291851e42c98eb65de33eb"

@@ -1,0 +1,42 @@
+schema: project/1
+
+id: vertical-v1
+channelId: demo-channel
+
+# ДЕМО-ПРОЕКТ `H-07`, А НЕ ФИКСТУРА. Разница названа вслух: `fixtures/minimal` — вход
+# охранников (её нельзя трогать ни символом), а этот каталог — то, на что владелец СМОТРИТ
+# глазами. Отсюда и содержимое: три настоящих фотографии public domain и настоящий
+# вариативный шрифт вместо синтетических sha фикстуры.
+#
+# Геометрия времени и кадра — те же числа, что у фикстуры, и по тем же причинам:
+# 30 fps — решение владельца 3 (RM2, 2026-08-22), 1080×1920 — вертикаль Shorts.
+fps: { num: 30, den: 1 }
+width: 1080
+height: 1920
+
+projectSampleRate: 24000
+
+seedRoot: 305419896
+
+profiles:
+  compile: profiles/compile.yaml
+  render: profiles/render.final.yaml
+  draft: profiles/render.draft.yaml
+  renderAc4: profiles/render.ac4.yaml
+  audio: profiles/audio.yaml
+
+# ЖИВОГО TTS ЗДЕСЬ НЕТ (V9, задача `H-07` дословно): дубли даёт `tts:mock@1`, тайминг у него
+# СИНТЕТИЧЕСКИЙ. Для визуального суда это норма и названо в отчёте: судится типографика,
+# раскладка полосы и движение картинки, а не то, куда попадают слова живого голоса.
+# Живой голос — `V-06`.
+voice:
+  providerId: "tts:mock@1"
+  modelId: "mock-1"
+  voiceId: "VPE_MOCK_VOICE_ID"   # ИМЯ переменной окружения, не значение (CLAUDE.md §2)
+  seed: 7
+  binderId: "provider-timestamps@1"
+
+# .store живёт ВНЕ дерева проекта (ADR-0005 §8a, M8) — тот же адрес, что у фикстуры.
+store:
+  path: "~/.vpe/store"
+  remotes: ["local-dir"]

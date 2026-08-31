@@ -1,0 +1,30 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+  "kind": "font",
+  "intrinsic": {
+    "family": "Inter",
+    "subfamily": "Regular",
+    "format": "ttf",
+    "fsType": 0
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "ofl-1.1",
+      "note": "Inter, версия 4.001 (git-66647c0bb), ОДНИМ вариативным файлом: оси opsz 14…32 (умолчание 14) и wght 100…900 (умолчание 400). Один файл ⇒ правило v1 «ровно один font-record проекта» (compile/src/timeline/contract.ts) выполняется без всякого его смягчения: начертания живут осью, а не вторым файлом. `family`/`subfamily` сняты с name-таблицы файла (nameID 1 и 2), `fsType` — с таблицы OS/2: 0 = встраивание разрешено без ограничений. КАНДИДАТ ПО УМОЛЧАНИЮ долга №13; решение владельца — по кадрам демо (второй кандидат, Montserrat Variable, показан в отчёте `H-07` кадрами и роликом, в коммит не идёт)"
+    },
+    "reproduction": {
+      "status": "ofl-1.1",
+      "attributionRequired": false,
+      "attributionText": "Inter is licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). Copyright (c) 2016 The Inter Project Authors."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz,wght%5D.ttf",
+      "retrievedAt": "2026-08-31T05:42:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

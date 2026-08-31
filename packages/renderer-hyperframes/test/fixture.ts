@@ -320,7 +320,16 @@ export function makeTemplateFixture(
                       { text: 'the', highlight: null },
                       { text: 'ledger', highlight: { frameStart: start, frameEnd: end } },
                     ]
-                  : [{ text: 'sea', highlight: null }],
+                  : [
+                      // Слова группы ОБЯЗАНЫ складываться в её `text` через пробел: это
+                      // гарантия входа (`compile/src/timeline/captions.ts`, `textOf`), и с
+                      // `H-07` `runtime.js` её ПРОВЕРЯЕТ — без пословной разметки эмфаза
+                      // активного слова невыразима. До `H-07` здесь стоял один токен `sea`
+                      // на текст «and the sea»: прибор врал о форме входа, а не измерял её.
+                      { text: 'and', highlight: null },
+                      { text: 'the', highlight: null },
+                      { text: 'sea', highlight: null },
+                    ],
             }))
           : [],
       assets: usesAsset ? [assetRef] : [],

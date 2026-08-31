@@ -1,0 +1,51 @@
+schema: store-lock/1
+lastVerifiedAt: null
+entries:
+-
+  sha256: "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+  size: 876576
+  kind: "font"
+  origin: "github.com/google/fonts"
+  replicas: []
+-
+  sha256: "4e5fbcf1388c9fc925482c1ed8299f069bf0264ac7291851e42c98eb65de33eb"
+  size: 4195173
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "60eeba64527e68878721cac4b7d61083655ba66461870f6fb06b5a91f36f65d9"
+  size: 307200
+  kind: "voice"
+  origin: "tts:mock@1"
+  replicas: []
+-
+  sha256: "6bc7217d70512752d161462d1f09c74599f8ef1a778b5ef731780819474fb812"
+  size: 136320
+  kind: "voice"
+  origin: "tts:mock@1"
+  replicas: []
+-
+  sha256: "846e37e15b6e5162a9035ab7a35842710f75ace93478de5ad349c39cec8b0314"
+  size: 2586457
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "8e6317a20918ba603c4a5e4fd25ee6db60f8e5207a105f5f7031d74d135118d6"
+  size: 446642
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "ee60b61764107bd826ce2f96182011e046d8d96d56c127cb4ea8e0d469513eef"
+  size: 241200
+  kind: "voice"
+  origin: "tts:mock@1"
+  replicas: []
+-
+  sha256: "fc5e6a12b6d863b4a3ce95506f2e6560294ce8a5e766ff6bc3a633f05b95ca0e"
+  size: 127920
+  kind: "voice"
+  origin: "tts:mock@1"
+  replicas: []

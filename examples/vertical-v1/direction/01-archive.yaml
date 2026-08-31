@@ -1,0 +1,93 @@
+schema: direction/1
+
+# Вся параметрика живёт здесь; проза остаётся прозой (ADR-0002).
+# at/until — ТОЛЬКО якоря b:/sc:/ch:/r: (правило ADR-0004 §2, охраняется тестом A1).
+#
+# Записи для [img: …] здесь НЕ перечислены: их порождает компилятор (`expandImg`) как
+# still@1 на z: 0 — от неявного бита b:img-<alias>-1 до следующего [img:] той же сцены
+# либо до конца сцены. Именно поэтому окна kenburns@1 ниже написаны ТОЙ ЖЕ парой якорей:
+# эффект двигает СОСЕДНИЙ СНИЗУ слой (`previousElementSibling`), и разъехавшиеся окна
+# оставили бы его без цели.
+#
+# recordId — 4 случайных байта, как в фикстуре; вход seed'а (ADR-0007 §1).
+
+records:
+  # ── сцена 1: улица 1900 ─────────────────────────────────────────────────────
+  - recordId: "1a7c0e33"
+    at: { kind: anchor, anchor: "b:img-street-1" }
+    until: { kind: anchor, anchor: "sc:street" }     # until на scope-якоре = его конец
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    params:
+      # ВЕРТИКАЛЬ БЕРЁТСЯ КАДРИРОВАНИЕМ, А НЕ РАСТЯЖЕНИЕМ (решение владельца `H-07`):
+      # снимок горизонтальный 3840×2835, кадр 1080×1920. `still@1` кладёт его `cover`,
+      # то есть по высоте, а Ken Burns ведёт по горизонтали — так виден сюжет, а не
+      # растянутые лица.
+      from: { scale: 1.06, x: -0.05, y: 0.0 }
+      to: { scale: 1.14, x: 0.05, y: 0.0 }
+      easing: "power2.inOut"
+
+  - recordId: "9f31b204"
+    at: { kind: anchor, anchor: "sc:street" }
+    until: { kind: anchor, anchor: "sc:street" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    params:
+      style: "bold"
+
+  # ── сцена 2: механик 1920 ───────────────────────────────────────────────────
+  - recordId: "4d8ea15b"
+    at: { kind: anchor, anchor: "b:img-mechanic-1" }
+    until: { kind: anchor, anchor: "sc:work" }
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    params:
+      # Снимок вертикальный (2155×3000): ход вниз-вверх по фигуре, наезд мягкий.
+      from: { scale: 1.00, x: 0.0, y: 0.04 }
+      to: { scale: 1.10, x: 0.0, y: -0.03 }
+      easing: "power2.inOut"
+
+  - recordId: "c2b70f89"
+    at: { kind: anchor, anchor: "sc:work" }
+    until: { kind: anchor, anchor: "sc:work" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    params:
+      style: "bold"
+
+  # ── сцена 3: дорога 1936 ────────────────────────────────────────────────────
+  - recordId: "6e05a7d1"
+    at: { kind: anchor, anchor: "b:img-mother-1" }
+    until: { kind: anchor, anchor: "sc:road" }
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    params:
+      from: { scale: 1.02, x: 0.02, y: -0.02 }
+      to: { scale: 1.12, x: -0.02, y: 0.02 }
+      easing: "power2.inOut"
+
+  # Вспышка на бите `close` — единственное место, где ролик прибавляет голос. Слабая:
+  # 22 % против 35 % у фикстуры. Демо показывает ТИПОГРАФИКУ и движение, и вспышка здесь
+  # не эффект ради эффекта, а метка того самого слова, на котором стоит [emph].
+  - recordId: "b8340c6a"
+    at: { kind: anchor, anchor: "b:close" }
+    track: effect
+    z: 20
+    template: "flash@1"
+    params:
+      strengthPct: 22
+      durationSamples: 3600       # 150 мс при 24000
+
+  - recordId: "0c9d64e2"
+    at: { kind: anchor, anchor: "sc:road" }
+    until: { kind: anchor, anchor: "sc:road" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    params:
+      style: "bold"

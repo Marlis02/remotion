@@ -1,0 +1,25 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "8e6317a20918ba603c4a5e4fd25ee6db60f8e5207a105f5f7031d74d135118d6",
+  "kind": "image",
+  "intrinsic": { "width": 2155, "height": 3000 },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "Lewis W. Hine, «Power house mechanic working on steam pump», 1920. Опубликовано в США до 1929 года ⇒ срок охраны истёк, PD-US-expired; копия — National Archives (Records of the Work Projects Administration). Скачан мастер-файл Викисклада целиком"
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false,
+      "attributionText": "Lewis W. Hine, Power house mechanic working on steam pump, 1920. U.S. National Archives. Public domain."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/6/60/Lewis_Hine_Power_house_mechanic_working_on_steam_pump.jpg",
+      "retrievedAt": "2026-08-31T05:43:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

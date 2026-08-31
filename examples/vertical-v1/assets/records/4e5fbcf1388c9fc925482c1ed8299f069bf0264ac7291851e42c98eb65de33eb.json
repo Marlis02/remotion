@@ -1,0 +1,25 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "4e5fbcf1388c9fc925482c1ed8299f069bf0264ac7291851e42c98eb65de33eb",
+  "kind": "image",
+  "intrinsic": { "width": 3840, "height": 4992 },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "Dorothea Lange, «Migrant Mother» (Florence Owens Thompson, Nipomo, California), 6 марта 1936. Снято по заданию Farm Security Administration — служебное произведение сотрудника федерального правительства США ⇒ PD-USGov; Library of Congress, FSA/OWI Collection. Скачанный битстрим — рендер Викисклада шириной 3840 px, мастер 6205×8066 не брался: 50 Мпикс на кадр Ken Burns стоят растеризатору дороже, чем даёт глазу"
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false,
+      "attributionText": "Dorothea Lange, Migrant Mother, 1936. Farm Security Administration / Library of Congress, FSA/OWI Collection. Public domain (work of the U.S. federal government)."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Lange-MigrantMother02.jpg/3840px-Lange-MigrantMother02.jpg",
+      "retrievedAt": "2026-08-31T05:43:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

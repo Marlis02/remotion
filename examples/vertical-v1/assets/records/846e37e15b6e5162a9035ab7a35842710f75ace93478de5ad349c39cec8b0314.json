@@ -1,0 +1,25 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "846e37e15b6e5162a9035ab7a35842710f75ace93478de5ad349c39cec8b0314",
+  "kind": "image",
+  "intrinsic": { "width": 3840, "height": 2835 },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "«Mulberry Street, New York City», фотохром Detroit Publishing Co., ок. 1900. Library of Congress, репродукционный номер LC-USZC4-4637 (файл 3g04637u). Опубликовано в США до 1929 года ⇒ срок охраны истёк, PD-US-expired. Скачанный битстрим — рендер Викисклада шириной 3840 px, а не мастер-файл: адрес рендера назван в origin.sourceUrl буквально, поэтому байты и адрес сходятся"
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false,
+      "attributionText": "Mulberry Street, New York City, c. 1900. Detroit Publishing Company. Library of Congress, LC-USZC4-4637. Public domain."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mulberry_Street_NYC_c1900_LOC_3g04637u.jpg/3840px-Mulberry_Street_NYC_c1900_LOC_3g04637u.jpg",
+      "retrievedAt": "2026-08-31T05:43:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

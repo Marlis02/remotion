@@ -1,0 +1,42 @@
+schema: render-profile/1
+profileId: ac4            # имя файла ↔ profileId связаны ADR-0005 §1
+# КОПИЯ `fixtures/minimal/profiles/render.ac4.yaml` (`H-07`, 2026-08-31). Профиль обязателен
+# формой `project/1`; демо на нём не собиралось.
+#
+# Выделенный профиль для проверки детерминизма (находки C5 и M10).
+# Он разводит два конфликтующих требования: final может быть быстрым,
+# AC4 — строгим с нулевым порогом. Формулировка честна:
+# «пара (рендерер+бэкенд, композиция) проходит гейт на выделенном профиле»,
+# а не «наши ролики побитово воспроизводимы».
+#
+# Charter AC4 rev5: этот профиль — ПОЛНЫЙ ПРОГОН ФИКСТУРНОГО ПРОЕКТА (компиляция →
+# сегменты → конкат → мукс → аудио), а не проверка шаблона. Гейта шаблона V13 на нём НЕТ:
+# N назван только для final (10) и draftHalf (3) — решение владельца 12 (RM2, 2026-08-22),
+# охранник — строка R12 в docs/invariants.md.
+#
+# Приведено к ADR-0008 (RM2, дрейф roadmap §9 п. 1): поля Remotion удалены.
+pixelProfile:
+  browserGpu: false
+  imageFormat: png                # изолирует Chrome от энкодера: хэшируется кадр ДО энкода
+  scale: 0.25                     # 270x480
+  colorSpace: bt709
+  pixelFormat: yuv420p
+  codec: h264
+  crf: 18
+  gopSize: 30
+  encoder:
+    threads: 1                    # однопоточный энкод — максимальная воспроизводимость
+    preset: medium
+    tune: none
+    rcLookahead: 40
+    aqMode: 1
+    psy: 1
+    bitexact: true
+
+executionProfile:
+  workers: 1
+  chapterParallelism: 1
+  segmentTimeoutMs: 600000
+
+# Ограничение прогона: ≤ 3 с видео, иначе AC4 не помещается в цикл коммита (ADR-0007 §10).
+maxProbeDurationFrames: 90

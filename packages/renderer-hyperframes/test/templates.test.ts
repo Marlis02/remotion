@@ -241,21 +241,76 @@ describe('**П1-а** — форма DOM, на которую опираются 
     expect(RUNTIME_JS).toContain('for (var i = 0; i < IR.clips.length; i++)');
   });
 
-  it('слой субтитров — `#captions`, и стилей runtime ему не ставит', () => {
-    // `captionEmphasis@1` находит его через `document.getElementById('captions')`.
+  it('слой субтитров — `#captions`, и оформление ему ставит ПРАВИЛО, а не узлу стиль', () => {
+    // `captionEmphasis@1` находит его через селектор `#captions` (своей инъекцией).
     expect(RUNTIME_JS).toContain("caps.id = 'captions'");
     expect(RUNTIME_JS).toContain("caps.className = 'layer'");
     expect(RUNTIME_JS).toContain("caps.style.zIndex = '1000'");
-    // Ни одного стиля оформления: они принадлежат шаблону (то самое место `runtime.js`,
-    // где это сказано словами). Появится здесь `fontSize` — оформление станет двойным.
+    // ~~Ни одного стиля оформления: они принадлежат шаблону.~~ *(изменено: `H-07`,
+    // 2026-08-31, решение владельца — раскладка полосы есть свойство ТРЕКА.)* Форма осталась
+    // прежней и стережётся дальше: оформление едет ПРАВИЛОМ CSS, а не простановкой стилей
+    // узлам. Два способа оформлять одну полосу — два места, где живёт её вид.
     expect(RUNTIME_JS).not.toContain('caps.style.fontSize');
     expect(RUNTIME_JS).not.toContain('caps.style.fontFamily');
+    expect(RUNTIME_JS).toContain("bandStyle.id = 'vpe-caption-track'");
+    expect(RUNTIME_JS).toContain('document.head.appendChild(bandStyle)');
   });
 
-  it('группа субтитров несёт класс и окно В СЕКУНДАХ — их читает `captionEmphasis@1`', () => {
+  it('группа субтитров несёт класс и окно В СЕКУНДАХ — их читает РЕНДЕРЕР', () => {
     expect(RUNTIME_JS).toContain("el.className = 'caption-group'");
     expect(RUNTIME_JS).toContain("el.setAttribute('data-start'");
     expect(RUNTIME_JS).toContain("el.setAttribute('data-duration'");
+  });
+
+  it('**H-07** — раскладка полосы живёт в `runtime.js`, и это ПРАВИЛА, а не два места', () => {
+    // Что обязано быть в правиле трека: позиция, ширина, кегль, межстрочный, цвет, тень и
+    // НЕПРОЗРАЧНАЯ плашка (решение владельца `H-07`, вариант «б»: условие применимости
+    // **R13** остаётся в силе, мягкость края даётся скруглением и растушёвкой тенью).
+    for (const rule of [
+      "'#captions .caption-group {'",
+      "'#captions .caption-plate {'",
+      "'#captions .caption-word {'",
+      "'  position: absolute;'",
+      "'  text-align: center;'",
+    ]) {
+      expect(RUNTIME_JS).toContain(rule);
+    }
+    expect(RUNTIME_JS).toContain('BAND.fontSizePx');
+    expect(RUNTIME_JS).toContain('BAND.plateColor');
+    // Плашка НЕПРОЗРАЧНА: ни `rgba(`, ни `opacity` в её цвете. Прозрачность пустила бы под
+    // текст движущееся фото, и прибор **R13** (`H-02`) мерил бы фон вместо смены строки.
+    expect(RUNTIME_JS).toMatch(/plateColor: '#[0-9a-f]{6}'/u);
+    // И ни одного числа раскладки не осталось у шаблона: иначе их стало бы два комплекта.
+    const captions = resolveTemplate(rendererTemplates, 'captionEmphasis@1', 'тест').mountSource;
+    for (const gone of ['bottom:', 'font-size:', 'line-height:', 'background:', 'text-align:']) {
+      expect(captions, `у шаблона осталась раскладка: ${gone}`).not.toContain(gone);
+    }
+  });
+
+  it('**H-07** — слово-`span` НЕ несёт `data-start`: вендор спрятал бы его, а не выделил', () => {
+    // ИЗМЕРЕНО по коду вендора (`hyperframes@0.8.5`): клипы он собирает из `[data-start]` и
+    // ставит такому элементу `style.visibility = 'hidden'` вне окна. Слово с собственным
+    // окном ИСЧЕЗАЛО БЫ из строки. Поэтому время слова едет таймлайном, а `data-frame-*`
+    // остаются справочными. Утверждение явное — поправка владельца `H-07`.
+    expect(RUNTIME_JS).toContain("word.className = token.highlight ? 'caption-word caption-token' : 'caption-word'");
+    expect(RUNTIME_JS).toContain("word.setAttribute('data-frame-start'");
+    expect(RUNTIME_JS).not.toContain("word.setAttribute('data-start'");
+    expect(RUNTIME_JS).not.toContain("word.setAttribute('data-duration'");
+    // Пословная разметка вообще существует — иначе красить в строке нечего.
+    expect(RUNTIME_JS).toContain('word.textContent = token.text');
+    // И вход ПРОВЕРЯЕТСЯ, а не предполагается: `text` группы есть `tokens.join(' ')`.
+    expect(RUNTIME_JS).toContain("words.join(' ') !== group.text");
+  });
+
+  it('**H-07** — окно слова открывает наследование, а не красит: значение — `inherit`', () => {
+    // Сцепка двух окон: трек говорит КОГДА и КОМУ, шаблон — ЧЕМ. Общего у них только пара
+    // имён переменных; чисел эмфазы в треке нет, чисел раскладки в шаблоне нет.
+    expect(RUNTIME_JS).toContain("on[WEIGHT_VAR] = 'inherit'");
+    expect(RUNTIME_JS).toContain("on[COLOR_VAR] = 'inherit'");
+    expect(RUNTIME_JS).toContain('tl.set(word, on, toSeconds(token.highlight.frameStart))');
+    expect(RUNTIME_JS).toContain('tl.set(word, off, toSeconds(token.highlight.frameEnd))');
+    expect(RUNTIME_JS).toContain("var WEIGHT_VAR = '--vpe-caption-weight'");
+    expect(RUNTIME_JS).toContain("var COLOR_VAR = '--vpe-caption-color'");
   });
 
   it('реализации читают ровно эти имена — и ни одного лишнего окна из `clip.frames`', () => {
@@ -266,8 +321,10 @@ describe('**П1-а** — форма DOM, на которую опираются 
     // `captionEmphasis@1` больше не трогает узлы руками: он целится СЕЛЕКТОРАМИ, потому что
     // слоя на монтировании ещё нет (решение владельца R2). Значит зависимость от формы DOM
     // осталась той же, но выражена в CSS — и стеречь надо именно селекторы.
+    // ~~`captionEmphasis@1` целится в полосу целиком.~~ *(изменено: `H-07` — раскладка
+    // уехала в трек, у шаблона остался ОДИН селектор: семейство шрифта.)*
     expect(captions).toContain("'#captions {'");
-    expect(captions).toContain("'#captions .caption-group {'");
+    expect(captions).not.toContain("'#captions .caption-group {'");
 
     // ~~**ДОЛГ №168 НЕ РАСШИРЯЕТСЯ**~~ *(изменено: `L-01`, 2026-08-30 — долг ЗАКРЫТ стороной
     // модели.)* Читалось это так: «окно клипа берётся только из `ctx.frames`, ни одна
@@ -301,19 +358,28 @@ describe('**П1-а** — форма DOM, на которую опираются 
 });
 
 describe('`captionEmphasis@1` — механизм эмфазы под охраной, раз пиксели его не ловят', () => {
-  // Пиксельного охранника у эмфазы быть не может: `FACT` (`H-06`) на единственном
-  // font-record проекта (`DejaVuSans-Bold.ttf`) `bold` и `normal` дают побайтово равные
-  // кадры — синтетическое утолщение Chrome поверх жирных глифов не накладывает. Значит
-  // механизм обязан стеречься здесь, иначе он мог бы умереть молча — ровно как умер
-  // `{attr: …}`, которого нет в завендоренном ядре gsap.
+  // ~~Пиксельного охранника у эмфазы быть не может.~~ *(изменено: `H-07`, 2026-08-31.)*
+  // Он появился: с вариативным шрифтом проекта `bold` и базовое начертание дают РАЗНЫЕ кадры
+  // ([`captions-visibility.test.ts`](./captions-visibility.test.ts), утверждение перевёрнуто).
+  // Причина, по которой охранник ЗДЕСЬ всё равно остаётся: пиксель ловит «эмфаза видна», а
+  // здесь стережётся, каким именно механизмом она сделана, — а умереть молча могут оба
+  // отвергнутых (`{attr: …}` и твин по селектору), и тогда пиксельный тест покраснеет, не
+  // сказав почему.
   const source = resolveTemplate(rendererTemplates, 'captionEmphasis@1', 'тест').mountSource;
 
-  it('правило полосы читает переменную, а не фиксированное начертание', () => {
-    expect(source).toContain('font-weight: var(');
+  it('шаблон объявляет ПАЛИТРУ (вес + тёплый цвет), а правило полосы — у трека', () => {
+    // Правило `font-weight: var(…)` переехало в `runtime.js` вместе со всей раскладкой; у
+    // шаблона остались только ЗНАЧЕНИЯ и пара имён, по которой они попадают в слово.
     expect(source).toContain('--vpe-caption-weight');
+    expect(source).toContain('--vpe-caption-color');
+    expect(source).not.toContain('font-weight: var(');
+    expect(RUNTIME_JS).toContain('font-weight: var(');
+    // Тёплый акцент — вторая половина решения владельца `H-07`: жирность одна на телефоне
+    // не читается. Цвет обязан быть НАЗВАН, иначе эмфаза снова станет только весом.
+    expect(source).toMatch(/#[0-9a-f]{6}/u);
   });
 
-  it('переменная ставится ТАЙМЛАЙНОМ на корне документа, на обеих границах окна', () => {
+  it('переменные ставятся ТАЙМЛАЙНОМ на корне документа, на обеих границах окна', () => {
     expect(source).toContain(
       'ctx.timeline.set(document.documentElement, emph, ctx.toSeconds(ctx.frames.frameStart))',
     );
@@ -324,8 +390,11 @@ describe('`captionEmphasis@1` — механизм эмфазы под охра�
 
   it('значения — КЛЮЧЕВЫЕ СЛОВА: числу gsap дописал бы единицу и правило стало бы невалидным', () => {
     expect(source).toContain('"bold"');
-    expect(source).toContain('"normal"');
+    // Снятие палитры — `initial` (guaranteed-invalid), а не «база»: база живёт у трека одним
+    // комплектом чисел, и второй здесь разъехался бы с ним при первой правке.
+    expect(source).toContain('"initial"');
     expect(source).not.toMatch(/--vpe-caption-weight"\]\s*=\s*"\d/u);
+    expect(source).not.toMatch(/--vpe-caption-color"\]\s*=\s*"\d/u);
   });
 
   it('ни `attr`, ни твина по СЕЛЕКТОРУ: обоих механизмов в КОДЕ нет', () => {
@@ -343,7 +412,7 @@ describe('`captionEmphasis@1` — механизм эмфазы под охра�
   });
 
   it('инъекция идемпотентна: второй клип эмфазы правил не удваивает (поправка П4)', () => {
-    expect(source).toContain("document.getElementById(\"vpe-caption-band\") === null");
+    expect(source).toContain("document.getElementById(\"vpe-caption-emphasis\") === null");
   });
 });
 
