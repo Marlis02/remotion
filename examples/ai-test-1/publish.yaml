@@ -1,0 +1,26 @@
+schema: publish/1
+
+# Вход BLOCK-правил Policy Guard. Для демо заполнен по-настоящему: три источника названы
+# поимённо, лицензии — в записях ассетов (`assets/records/*.json`), а `{{attributions}}`
+# компилятор соберёт из их provenance.
+title: "Three Photographs and One Word"
+
+descriptionTemplate: |
+  Three public-domain photographs, 1900 to 1936, and what an archive keeps.
+
+  Sources and licences:
+  {{attributions}}
+
+topic: history
+voiceRole: narrator
+madeForKids: false
+
+disclosure:
+  syntheticVoice: true            # `tts:mock@1` — синтетический дубль (V9)
+  aiImagery: false                # все три снимка — архивные, не сгенерированы
+  aiMusic: false
+
+sources:
+  - { url: "https://commons.wikimedia.org/wiki/File:Mulberry_Street_NYC_c1900_LOC_3g04637u.jpg", appliesTo: "sc:street" }
+  - { url: "https://commons.wikimedia.org/wiki/File:Lewis_Hine_Power_house_mechanic_working_on_steam_pump.jpg", appliesTo: "sc:work" }
+  - { url: "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg", appliesTo: "sc:road" }

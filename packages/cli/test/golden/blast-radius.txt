@@ -1,0 +1,11 @@
+BLAST RADIUS: правка `params` ОДНОЙ записи режиссуры (`kenburns@1`, `to.scale`
+1.12 → 1.14; запись `5d6e1130` в сцене `one`). Проза и голос не тронуты ни символом.
+
+ЧТО ЗДЕСЬ ЗАПИСАНО: множество ПРОМАХОВ, а не значения ключей (K9, см. шапку теста).
+
+segmentKey seg:one      ПРОМАХ
+segmentKey seg:three    равен
+segmentKey seg:two      равен
+voiceKey   2z4mpn6ki6d2i7qw равен
+voiceKey   otyzfh5edxdp5vb6 равен
+voiceKey   s4dtobjnyphlkpmt равен

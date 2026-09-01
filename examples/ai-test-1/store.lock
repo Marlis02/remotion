@@ -1,0 +1,81 @@
+schema: store-lock/1
+lastVerifiedAt: null
+entries:
+-
+  sha256: "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
+  size: 744936
+  kind: "font"
+  origin: "github.com/google/fonts"
+  replicas: []
+-
+  sha256: "3c2f8cc632c221d376dd4ddb7f481ddc56245770ac890454f217c3c5c87a69a7"
+  size: 124830
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "41cbc2dc1ce44ff49ad9287a4ccb2e0891f348522f46c4d0b4cd8bd3252d434b"
+  size: 773504
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "4e5fbcf1388c9fc925482c1ed8299f069bf0264ac7291851e42c98eb65de33eb"
+  size: 4195173
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "71f3c4abbaa33236b43c089ec9e9848c169ed375efc686761834a54904e9d637"
+  size: 151580
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "73d1c20d0c7139be427ab9b4d8e2d013d9cef752bc694d4bc4b810365e42fa40"
+  size: 249660
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "846e37e15b6e5162a9035ab7a35842710f75ace93478de5ad349c39cec8b0314"
+  size: 2586457
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "89c58b932b23e7a77e1573e02a2244f060eabdb31765fbd5f6572af36299daae"
+  size: 267494
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "8e6317a20918ba603c4a5e4fd25ee6db60f8e5207a105f5f7031d74d135118d6"
+  size: 446642
+  kind: "asset"
+  origin: "commons.wikimedia.org"
+  replicas: []
+-
+  sha256: "98defdd0109639cd19392b60ed7bcdd18443086390dd140826012f91a89fd49a"
+  size: 2772305
+  kind: "asset"
+  origin: "rembg@2.0.69"
+  replicas: []
+-
+  sha256: "aca52ed2b61965641597d01b2669a29d7ab5bf37ee9562a46f2b79cb2f7fce23"
+  size: 383408
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "c10bd94b9865148458c2f92ca4a146a3c6dbd5d78a091d7922e73dfa60b94988"
+  size: 285326
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "e917597601134136e86face0d58b65f35e12d7fbb127ffcfebde6f49d516bc6a"
+  size: 425762
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []

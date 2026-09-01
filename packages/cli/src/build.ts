@@ -29,9 +29,11 @@ import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import { assertBuildMayStart } from '@vpe/templates-spec';
 import { accountSnapshot, type AccountSnapshot, type HttpTransport } from '@vpe/voice';
 
+import { AC4_GATE_SKIP_WHY, isGateProfile } from './ac4.js';
 import type { BuildArgs } from './argv.js';
 import { formatBudgetReport, overlappingBudget, type BudgetClip } from './budget.js';
 import { CliError, EXIT } from './errors.js';
+import { formatVoiceReport } from './voice-report.js';
 import { readProject, readRenderProfile, type InputFile } from './build-stages/inputs.js';
 import { runPipeline } from './build-stages/pipeline.js';
 import {
@@ -131,6 +133,7 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     project.project,
     args.profileId,
     inputs,
+    args.profilePath,
   );
 
   // ── 2. каталог шаблонов: спеки из кода + записи гейта с диска ───────────────
@@ -239,10 +242,17 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
   // ── 6. R12: вход сборки, ДО первого кадра ──────────────────────────────────
   const fingerprint = (deps.fingerprint ?? (() => measureFingerprint(deps.env)))();
   const used = result.ir.segments.flatMap((segment) => segment.clips.map((clip) => clip.template));
-  assertBuildMayStart(library.registry, used, {
-    profileId: args.profileId,
-    engineFingerprint: fingerprint,
-  });
+  if (isGateProfile(args.profileId)) {
+    assertBuildMayStart(library.registry, used, {
+      profileId: args.profileId,
+      engineFingerprint: fingerprint,
+    });
+  } else {
+    // ПРОХОД МИМО ГЕЙТА ПЕЧАТАЕТСЯ, А НЕ МОЛЧИТ (`F-01`). Единственный профиль, на котором
+    // сборка идёт без **R12**, обязан объявлять это строкой в выводе: иначе «AC4 зелёный»
+    // читалось бы как «пара проверена гейтом», а проверено на нём ДРУГОЕ — вся цепочка.
+    deps.out(`гейт V13 не спрашивается: ${AC4_GATE_SKIP_WHY}\n`);
+  }
 
   // ── 7. рендер сегментов и финал ────────────────────────────────────────────
   const layout = {
@@ -336,14 +346,27 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
       'не бывают. Всё, что обязано быть равным, лежит в `build/` вне `reports/`.',
     ].join('\n'),
   );
+  // РАСХОД ГОЛОСА — ОТДЕЛЬНЫМ ОТЧЁТОМ (`F-01`, дыра владельца): числа берутся из ДУБЛЕЙ,
+  // прочитанных с диска, а не из ответов провайдера. Форма — `voice-report.ts`.
+  const reused = new Set(result.reusedTakes);
   writeReport(
     project.layout.buildDir,
     'voice.txt',
-    [
-      `чанков ${String(result.plan.chunks.length)}, обращений к источнику ` +
-        `${String(result.recorded.sourceCalls)}, попаданий кэша ${String(result.recorded.cacheHits)}`,
-      `дрейф краёв: ${result.recorded.edgeDrift.warning ?? 'нет'}`,
-    ].join('\n'),
+    formatVoiceReport({
+      chunks: result.plan.chunks.map((chunk) => {
+        const take = result.takes.get(chunk.chunkKey);
+        return {
+          chunkKey: chunk.chunkKey,
+          billedUnits: take?.provenance.billedUnits ?? null,
+          rate: take?.provenance.planRateAtGeneration ?? null,
+          reused: reused.has(chunk.chunkKey),
+        };
+      }),
+      sourceCalls: result.recorded.sourceCalls,
+      cacheHits: result.recorded.cacheHits,
+      staleTakes: result.staleTakes,
+      edgeDrift: result.recorded.edgeDrift.warning,
+    }),
   );
 
   deps.out(`финал: ${assembled.finalPath}\n`);

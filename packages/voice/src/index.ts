@@ -100,7 +100,16 @@ export {
 // по-прежнему исполним в тестовом контуре без сети и без ключа (**V9**). Реализацию транспорта
 // подаёт граница процесса — `packages/cli/bin/http.ts`, — и только при `ELEVENLABS_LIVE=1`.
 
-export { redactSecrets, type HttpRequest, type HttpResponse, type HttpTransport } from './providers/http.js';
+export {
+  NETWORK_HINT,
+  callTransport,
+  causeChain,
+  hostOf,
+  redactSecrets,
+  type HttpRequest,
+  type HttpResponse,
+  type HttpTransport,
+} from './providers/http.js';
 
 export {
   ELEVENLABS_API_BASE,

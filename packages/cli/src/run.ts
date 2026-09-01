@@ -19,6 +19,7 @@ import { formatSpecExport, specExport, specExportJson } from './spec-export.js';
 import { store } from './store.js';
 import { templateGate, type TemplateGateDeps } from './template-gate.js';
 import { formatTemplateTable, templateRows } from './template-list.js';
+import { verifyAc4 } from './verify-ac4.js';
 
 export interface CliDeps extends TemplateGateDeps, Omit<BuildDeps, 'env'> {
   /** Диагностика и отказы. Отделено от `out`: stdout — результат, stderr — почему. */
@@ -46,6 +47,7 @@ export async function runCli(argv: readonly string[], deps: CliDeps): Promise<nu
     if (command.command === 'render-segment') return await renderSegmentCommand(command, deps);
     if (command.command === 'store') return await store(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
+    if (command.command === 'verify ac4') return await verifyAc4(command, deps);
 
     if (command.command === 'spec export') {
       // ═══ ЧТЕНИЕ КАТАЛОГА — ТЕМ ЖЕ ЗАГРУЗЧИКОМ, ЧТО У `template list` ═══

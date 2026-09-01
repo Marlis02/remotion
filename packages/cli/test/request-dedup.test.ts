@@ -61,9 +61,12 @@ function storeOf(root: string): Parameters<typeof buildRequest>[0]['store'] {
   const dir = path.join(root, 'store');
   mkdirSync(dir, { recursive: true });
   for (const sha of [FAR, NEAR]) writeFileSync(path.join(dir, sha), PNG_1X1);
-  return {
-    path: (sha: Sha256) => Promise.resolve(path.join(dir, sha)),
-  } as unknown as Parameters<typeof buildRequest>[0]['store'];
+  // Функция объявлена ОТДЕЛЬНО от каста: селектор `TSAsExpression TSTypeReference` из
+  // `eslint.config.js` смотрит на всё поддерево утверждения, и аннотация `sha: Sha256`
+  // внутри объектного литерала считалась бы снятым брендом (`S-01` долг №3), хотя это
+  // объявление типа, а не каст. Вне утверждения аннотация сохраняется как есть.
+  const pathOf = (sha: Sha256): Promise<string> => Promise.resolve(path.join(dir, sha));
+  return { path: pathOf } as unknown as Parameters<typeof buildRequest>[0]['store'];
 }
 
 /**

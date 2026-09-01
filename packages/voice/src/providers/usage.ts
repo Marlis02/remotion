@@ -24,7 +24,7 @@
 
 import { VoiceError } from '../errors.js';
 
-import { redactSecrets, type HttpTransport } from './http.js';
+import { callTransport, redactSecrets, type HttpTransport } from './http.js';
 import { ELEVENLABS_API_BASE } from './elevenlabs.js';
 import type { VoiceCategory } from './types.js';
 
@@ -48,13 +48,33 @@ const VOICE_CATEGORY: Readonly<Record<string, VoiceCategory>> = Object.freeze({
   cloned: 'cloned',
 });
 
-async function getJson(options: AccountOptions, path: string): Promise<Record<string, unknown>> {
-  const response = await options.transport({
-    url: `${options.baseUrl ?? ELEVENLABS_API_BASE}${path}`,
-    method: 'GET',
-    headers: { 'xi-api-key': options.apiKey },
-  });
-  const body = redactSecrets(response.body, [options.apiKey]);
+/**
+ * Справочный вызов провайдера.
+ *
+ * `secrets` — ЧТО ЗАТЕРЕТЬ СВЕРХ КЛЮЧА. Пусто у большинства вызовов и НЕ пусто у одного:
+ * `/v1/voices/<id>` несёт id голоса в ПУТИ, то есть он попадает в текст отказа сам собой
+ * (CLAUDE.md §2 — тот же довод, что у `redactSecrets`). Параметр обязателен по форме, а не
+ * по умолчанию: «затирать нечего» здесь обязано быть решением вызывающего.
+ */
+async function getJson(
+  options: AccountOptions,
+  path: string,
+  secrets: readonly string[],
+): Promise<Record<string, unknown>> {
+  // ЧЕРЕЗ `callTransport` (`F-01`): справочный вызов ходит в ту же сеть, что и синтез, и
+  // отклонённый транспорт обязан объясняться так же — хостом, причиной и подсказкой. Он же
+  // зовётся ПЕРВЫМ на живом прогоне (снимок аккаунта), то есть это первое место, где автор
+  // узнаёт про недоступную сеть.
+  const response = await callTransport(
+    options.transport,
+    {
+      url: `${options.baseUrl ?? ELEVENLABS_API_BASE}${path}`,
+      method: 'GET',
+      headers: { 'xi-api-key': options.apiKey },
+    },
+    [options.apiKey, ...secrets],
+  );
+  const body = redactSecrets(response.body, [options.apiKey, ...secrets]);
   if (response.status !== 200) {
     throw new VoiceError(
       'ADR-0010 §2',
@@ -81,7 +101,7 @@ async function getJson(options: AccountOptions, path: string): Promise<Record<st
  * «creator» и «creator_business» одинаковыми, а коммерческие права у них разные.
  */
 export async function planTier(options: AccountOptions): Promise<string> {
-  const raw = await getJson(options, '/v1/user/subscription');
+  const raw = await getJson(options, '/v1/user/subscription', []);
   const tier = raw['tier'];
   if (typeof tier !== 'string' || tier.length === 0) {
     throw new VoiceError(
@@ -102,7 +122,7 @@ export async function planTier(options: AccountOptions): Promise<string> {
  * делал. `FACT` (SP-2): класс определяет доступность голоса на тарифе, а не только вкус.
  */
 export async function voiceCategory(options: AccountOptions, voiceId: string): Promise<VoiceCategory> {
-  const raw = await getJson(options, `/v1/voices/${encodeURIComponent(voiceId)}`);
+  const raw = await getJson(options, `/v1/voices/${encodeURIComponent(voiceId)}`, [voiceId]);
   const category = raw['category'];
   const mapped = typeof category === 'string' ? VOICE_CATEGORY[category] : undefined;
   if (mapped === undefined) {
@@ -130,6 +150,7 @@ export async function billedInWindow(options: AccountOptions, window: UsageWindo
   const raw = await getJson(
     options,
     `/v1/usage/character-stats?start_unix=${String(startUnix)}&end_unix=${String(endUnix)}`,
+    [],
   );
   const usage = raw['usage'];
   if (usage === null || typeof usage !== 'object') {

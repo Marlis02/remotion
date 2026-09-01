@@ -35,7 +35,7 @@ import { canonicalJson } from '@vpe/core-model';
 
 import { VoiceError } from '../errors.js';
 
-import { redactSecrets, type HttpResponse, type HttpTransport } from './http.js';
+import { callTransport, redactSecrets, type HttpResponse, type HttpTransport } from './http.js';
 import type { PcmFormat, TtsCapabilities, TtsProvider, TtsRequest, TtsResponse } from './types.js';
 
 /**
@@ -243,17 +243,24 @@ export function elevenLabsProvider(options: ElevenLabsOptions): TtsProvider {
         );
       }
       const secrets = [options.apiKey, request.voiceId];
-      const response = await options.transport({
-        url: elevenLabsUrl(baseUrl, request.voiceId, request.outputFormat),
-        method: 'POST',
-        headers: { 'xi-api-key': options.apiKey, 'content-type': 'application/json' },
-        // КАНОНИЧЕСКАЯ ФОРМА, А НЕ `JSON.stringify`, и это не формальность линта (ADR-0007 §3):
-        // тело запроса — то, что уходит наружу за деньги, и «тот же запрос» обязано означать
-        // те же байты. `canonicalJson` сортирует ключи, отказывает на `NaN`/`Infinity` и не
-        // зовёт `toJSON`; провайдеру порядок ключей безразличен, а нам — нет: на нём стоит
-        // повторяемость ретрая лестницы (**V2**: лестница чинит ответ, а не задание).
-        body: canonicalJson(elevenLabsBody(request)),
-      });
+      // ЧЕРЕЗ `callTransport`, А НЕ НАПРЯМУЮ (`F-01`): отклонённый транспорт обязан назвать
+      // хост, исходную причину (`cause`) и подсказку про VPN/DNS — по образцу прочих отказов
+      // этого файла. Прямой вызов отдавал бы автору голое `TypeError: fetch failed`.
+      const response = await callTransport(
+        options.transport,
+        {
+          url: elevenLabsUrl(baseUrl, request.voiceId, request.outputFormat),
+          method: 'POST',
+          headers: { 'xi-api-key': options.apiKey, 'content-type': 'application/json' },
+          // КАНОНИЧЕСКАЯ ФОРМА, А НЕ `JSON.stringify`, и это не формальность линта (ADR-0007 §3):
+          // тело запроса — то, что уходит наружу за деньги, и «тот же запрос» обязано означать
+          // те же байты. `canonicalJson` сортирует ключи, отказывает на `NaN`/`Infinity` и не
+          // зовёт `toJSON`; провайдеру порядок ключей безразличен, а нам — нет: на нём стоит
+          // повторяемость ретрая лестницы (**V2**: лестница чинит ответ, а не задание).
+          body: canonicalJson(elevenLabsBody(request)),
+        },
+        secrets,
+      );
       if (response.status !== 200) refuse(response, secrets);
       // Разбор ответа СЕКРЕТОВ НЕ ЦИТИРУЕТ ни одной веткой: его отказы говорят о форме
       // («нет трёх массивов», «нет `audio_base64`»), а не о теле. Затирать здесь нечего —

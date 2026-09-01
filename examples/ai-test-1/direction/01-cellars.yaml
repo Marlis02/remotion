@@ -1,0 +1,122 @@
+schema: direction/1
+records:
+# Сцена street: горизонтальный снимок толпы — ведём по горизонтали (H-07),
+# окно = окно порождённой записи [img: street].
+-
+  recordId: "a3f19c42"
+  at:
+    kind: anchor
+    anchor: "b:img-street-1"
+  until:
+    kind: anchor
+    anchor: "sc:street"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  params:
+    easing: power2.inOut
+    from:
+      scale: 1.06
+      x: -0.05
+      y: 0
+    to:
+      scale: 1.14
+      x: 0.05
+      y: 0
+-
+  recordId: "5b7e0d18"
+  at:
+    kind: anchor
+    anchor: "sc:street"
+  until:
+    kind: anchor
+    anchor: "sc:street"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  params:
+    style: bold
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+-
+  recordId: "c92a4e61"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-1"
+  until:
+    kind: anchor
+    anchor: "sc:work"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  params:
+    depthSpread: 2.6
+    drift: 0.045
+    easing: power2.inOut
+    layers:
+    - mechanic
+    - mechanic-figure
+    scale: 1.06
+-
+  recordId: "0e6d3b7f"
+  at:
+    kind: anchor
+    anchor: "sc:work"
+  until:
+    kind: anchor
+    anchor: "sc:work"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  params:
+    style: bold
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+-
+  recordId: "7d41a9c3"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-1"
+  until:
+    kind: anchor
+    anchor: "sc:road"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  params:
+    easing: power2.inOut
+    from:
+      scale: 1.04
+      x: 0
+      y: 0.02
+    to:
+      scale: 1.12
+      x: 0
+      y: -0.02
+-
+  recordId: "e18f52b0"
+  at:
+    kind: anchor
+    anchor: "sc:road"
+  until:
+    kind: anchor
+    anchor: "sc:road"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  params:
+    style: bold
+-
+  recordId: "48c0e9a7"
+  at:
+    kind: anchor
+    anchor: "b:evict"
+  track: effect
+  z: 20
+  template: "flash@1"
+  params:
+    durationSamples: 3600
+    strengthPct: 22
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).

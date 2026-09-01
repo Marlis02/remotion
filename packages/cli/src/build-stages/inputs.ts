@@ -32,8 +32,7 @@ import {
   type Project,
   type RenderProfile,
 } from '@vpe/schema';
-import type { GateProfileId } from '@vpe/templates-spec';
-
+import { AC4_PROFILE_ID, type BuildProfileId } from '../ac4.js';
 import { CliError, EXIT } from '../errors.js';
 
 /**
@@ -268,20 +267,38 @@ export function readProject(input: LayoutInput): ProjectInputs {
 export function readRenderProfile(
   projectRoot: string,
   project: Project,
-  profileId: GateProfileId,
+  profileId: BuildProfileId,
   inputs: InputFile[],
+  /**
+   * Явный файл профиля вместо названного проектом (`vpe verify ac4 --profile <файл.yaml>`).
+   * `null` — раскладка проекта. Путь берётся КАК ДАН: он приезжает из командной строки, а не
+   * из дерева проекта, и склейка с `projectRoot` увела бы его в чужое место.
+   */
+  profilePath: string | null = null,
 ): RenderProfile {
-  // `final` живёт в `profiles.render`, `draftHalf` — в `profiles.draft` (ADR-0005 §1,
-  // «файл → profileId»). Соответствие берётся из проекта, а не из имени файла: имя — свойство
-  // раскладки, а `profileId` — свойство профиля, и сверяются они ниже.
-  const relative = profileId === 'final' ? project.profiles.render : project.profiles.draft;
-  const file = path.join(projectRoot, relative);
+  // `final` живёт в `profiles.render`, `draftHalf` — в `profiles.draft`, `ac4` — в
+  // `profiles.renderAc4` (ADR-0005 §1, «файл → profileId»). Соответствие берётся из проекта, а
+  // не из имени файла: имя — свойство раскладки, а `profileId` — свойство профиля, и
+  // сверяются они ниже.
+  //
+  // ТРЕТЬЯ ВЕТКА ЗАВЕДЕНА `F-01`. До неё ключ `renderAc4` был объявлен схемой семейства
+  // (`project/1`, «требуется Charter AC4 rev5»), стоял во всех трёх проектах репозитория и НЕ
+  // ЧИТАЛСЯ НИКЕМ: профиль, названный Charter'ом как предмет AC4, был недостижим из сборки.
+  const relative =
+    profileId === 'final'
+      ? project.profiles.render
+      : profileId === AC4_PROFILE_ID
+        ? project.profiles.renderAc4
+        : project.profiles.draft;
+  const file = profilePath === null ? path.join(projectRoot, relative) : path.resolve(profilePath);
   let text: string;
   try {
     text = readFileSync(file, 'utf8');
   } catch (error) {
     fail('профиль рендера', file, error);
   }
+  // Путь входа — относительный от корня проекта; у явно поданного файла он вправе выйти за
+  // корень (`../…`), и это ЧЕСТНЕЕ подстановки: `BuildRecord` отвечает «из чего собрано».
   inputs.push({ path: path.relative(projectRoot, file), sha256: sha256Of(text) });
 
   let profile: RenderProfile;

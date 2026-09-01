@@ -40,8 +40,9 @@ import {
   type SegmentRenderRequest,
 } from '@vpe/renderer-hyperframes';
 import type { AudioProfile, RenderProfile, Sha256 } from '@vpe/schema';
-import type { GateProfileId, TemplateRegistry } from '@vpe/templates-spec';
+import type { TemplateRegistry } from '@vpe/templates-spec';
 
+import { AC4_GATE_SKIP_WHY, isGateProfile, type BuildProfileId } from '../ac4.js';
 import { CliError, EXIT } from '../errors.js';
 
 /** Подмена рендера — ТОЛЬКО тесты: браузера у них нет. Форма — сигнатура адаптера. */
@@ -227,10 +228,21 @@ export interface RenderSegmentsInput {
   readonly renderProfile: RenderProfile;
   readonly store: Store;
   readonly specs: TemplateRegistry;
-  readonly profileId: GateProfileId;
+  readonly profileId: BuildProfileId;
   readonly deps: RenderDeps;
   /** Печать хода: сегмент за сегментом. Рендер идёт минутами — молчать нельзя. */
   readonly out: (text: string) => void;
+}
+
+/**
+ * Как спрашивается **R12** на этом прогоне: `require` на паре гейта, `skip` с причиной на
+ * `ac4`. Функция существует затем, чтобы решение было ОДНИМ выражением, а не условием,
+ * растащенным по вызову рендера.
+ */
+function gateOf(input: RenderSegmentsInput): NonNullable<Parameters<typeof renderSegment>[1]['gate']> {
+  return isGateProfile(input.profileId)
+    ? { mode: 'require', specs: input.specs, profileId: input.profileId }
+    : { mode: 'skip', why: AC4_GATE_SKIP_WHY };
 }
 
 /** Рендер всех сегментов по порядку ролика. Параллелизм — внутри рендерера (`workers`). */
@@ -262,7 +274,12 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       // **R12 НА КАЖДОМ СЕГМЕНТЕ**, а не только на входе сборки: пара проверяется по
       // ИЗМЕРЕННОМУ этим прогоном отпечатку, а вход `assertBuildMayStart` — по отпечатку,
       // измеренному до рендера. Два разных вопроса, и оба обязаны иметь ответ.
-      gate: { mode: 'require', specs: input.specs, profileId: input.profileId },
+      //
+      // НА ПРОФИЛЕ `ac4` ОТВЕТ ДРУГОЙ, И ОН НАЗВАН ПРИЧИНОЙ (`F-01`, решение владельца 12):
+      // записи гейта на этом профиле не существует по построению, поэтому проход именуется
+      // (`mode: 'skip'`), а не выводится из умолчания. Ветка ОДНА на всю сборку — вторая
+      // (`assertBuildMayStart` в `build.ts`) спрашивает тот же вопрос до первого кадра.
+      gate: gateOf(input),
     });
 
     if (!response.ok) {

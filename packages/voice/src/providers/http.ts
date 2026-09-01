@@ -19,6 +19,8 @@
 // исключение транспорта. Разбор JSON поэтому тоже здесь не делается: он часть контракта
 // провайдера, а не транспорта.
 
+import { VoiceError } from '../errors.js';
+
 /** Запрос к чужому HTTP-API. Заголовки — пары как есть; тело — уже сериализованная строка. */
 export interface HttpRequest {
   readonly url: string;
@@ -42,6 +44,60 @@ export interface HttpResponse {
 export type HttpTransport = (request: HttpRequest) => Promise<HttpResponse>;
 
 /**
+ * Хост запроса — для текста отказа. Секрета в нём нет: id голоса стоит в ПУТИ, а не в хосте.
+ *
+ * Неразобранный URL отдаётся как есть и затирается вызывающим: «адрес не разобрался» — тоже
+ * диагноз, и молча заменять его на пустую строку значит прятать опечатку в `baseUrl`.
+ */
+export function hostOf(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * Подсказка окружения — ОДНА строка на все сетевые отказы (`F-01`, дыра, найденная владельцем).
+ *
+ * ПОЧЕМУ ОНА ВООБЩЕ ЕСТЬ. `fetch` отклоняется `TypeError: fetch failed` — сообщением, которое
+ * не называет ни хоста, ни причины: настоящая причина лежит в `cause` (`ENOTFOUND`,
+ * `ECONNREFUSED`, `ETIMEDOUT`, отказ TLS), и без её разворачивания автор получает три слова
+ * вместо диагноза. Прочие отказы этого файла и провайдера называют, ЧТО делать (проверьте
+ * тариф, проверьте ключ); сетевой обязан называть то же.
+ */
+export const NETWORK_HINT =
+  'так выглядит недоступная сеть, а не отказ провайдера: проверьте VPN и DNS ' +
+  '(из некоторых сетей `api.elevenlabs.io` не резолвится вовсе), затем повторите. Деньги за ' +
+  'недошедший вызов не списываются — до провайдера запрос не добрался';
+
+/**
+ * Цепочка `cause` одним текстом: `TypeError: fetch failed → Error: getaddrinfo ENOTFOUND …`.
+ *
+ * ГЛУБИНА ОГРАНИЧЕНА, и это не перестраховка: `cause` — поле произвольного значения, и цикл
+ * (`a.cause === a`) сделал бы диагностику зацикливанием. Коды `errno` берутся у самой ошибки
+ * (`code`), потому что в `message` они попадают не всегда.
+ */
+export function causeChain(error: unknown, depth = 4): string {
+  const parts: string[] = [];
+  let current: unknown = error;
+  const seen = new Set<unknown>();
+  for (let i = 0; i < depth && current !== undefined && current !== null; i += 1) {
+    if (seen.has(current)) break;
+    seen.add(current);
+    if (current instanceof Error) {
+      const code = (current as { code?: unknown }).code;
+      parts.push(`${current.name}: ${current.message}${typeof code === 'string' ? ` (${code})` : ''}`);
+      current = current.cause;
+      continue;
+    }
+    parts.push(String(current));
+    break;
+  }
+  return parts.join(' → ');
+}
+
+/**
  * Затирание секретов в ЛЮБОЙ строке, уходящей в сообщение, отчёт или журнал.
  *
  * Приём перенесён из SP-2 (`lib/api.mjs`, `redact`) дословно и по той же причине: id голоса
@@ -58,4 +114,34 @@ export function redactSecrets(text: string, secrets: readonly string[]): string 
     out = out.split(secret).join('<REDACTED>');
   }
   return out;
+}
+
+/**
+ * ЕДИНСТВЕННЫЙ способ позвать транспорт (`F-01`).
+ *
+ * ЗДЕСЬ ПО-ПРЕЖНЕМУ НЕТ СЕТЕВОГО ВЫЗОВА: функция зовёт то, что ей ПОДАЛИ, и существует ради
+ * одной ветки — той, в которой транспорт ОТКЛОНЁН. `fetch` отклоняется `TypeError: fetch
+ * failed`, и это всё, что видел автор до правки: ни хоста, ни причины, ни того, списались ли
+ * деньги. Отказы провайдера в этом же файле и в `elevenlabs.ts` называют, что делать; отказ
+ * сети обязан называть то же — иначе он единственный в контуре остаётся без диагноза.
+ *
+ * СЕКРЕТЫ ЗАТИРАЮТСЯ И ЗДЕСЬ: id голоса стоит в ПУТИ запроса, а путь попадает в текст сам
+ * собой (CLAUDE.md §2, тот же довод, что у `redactSecrets`). Хост секретом не является.
+ *
+ * @throws {VoiceError} `V-06 сеть недоступна` — транспорт отклонён.
+ */
+export async function callTransport(
+  transport: HttpTransport,
+  request: HttpRequest,
+  secrets: readonly string[],
+): Promise<HttpResponse> {
+  try {
+    return await transport(request);
+  } catch (error) {
+    throw new VoiceError(
+      'V-06 сеть недоступна',
+      `${request.method} ${hostOf(request.url)} не ответил: ` +
+        `${redactSecrets(causeChain(error), secrets)}. ${NETWORK_HINT}`,
+    );
+  }
 }

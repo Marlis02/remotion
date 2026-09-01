@@ -22,7 +22,16 @@ export {
   type StoreArgs,
   type TemplateGateArgs,
   type TemplateListArgs,
+  type VerifyAc4Args,
 } from './argv.js';
+export {
+  AC4_GATE_SKIP_WHY,
+  AC4_PROFILE_ID,
+  firstDifference,
+  frameHashes,
+  isGateProfile,
+  type BuildProfileId,
+} from './ac4.js';
 export { build, type BuildDeps } from './build.js';
 export {
   readProject,
@@ -76,6 +85,20 @@ export {
   type SpecTable,
 } from './spec-export.js';
 export { store, type StoreDeps } from './store.js';
+export {
+  formatVoiceReport,
+  voiceSpend,
+  type VoiceReportChunk,
+  type VoiceReportInput,
+  type VoiceSpend,
+} from './voice-report.js';
+export {
+  compareRuns,
+  formatRuns,
+  seamMismatch,
+  verifyAc4,
+  type VerifyAc4Deps,
+} from './verify-ac4.js';
 export {
   BUDGET_THRESHOLD_MS,
   formatBudgetReport,

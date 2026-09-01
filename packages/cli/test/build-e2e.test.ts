@@ -53,6 +53,8 @@ describe('`vpe build` — живая сборка `fixtures/minimal` на `final
         command: 'build',
         projectDir: project.projectDir,
         profileId: 'final',
+        // Профиль называет проект: явного файла у сборки нет (`F-01`).
+        profilePath: null,
         allowTts: true,
         now: '2026-08-30T12:00:00.000Z',
         buildDir: project.buildDir,

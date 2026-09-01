@@ -87,6 +87,8 @@ async function runBuild(project: TestProject, options: RunOptions = {}): Promise
     command: 'build',
     projectDir: project.projectDir,
     profileId: 'final',
+    // Профиль называет проект: явного файла у сборки нет (`F-01`).
+    profilePath: null,
     allowTts: options.allowTts ?? true,
     now: options.now ?? '2026-08-30T00:00:00.000Z',
     buildDir: options.buildDir ?? project.buildDir,

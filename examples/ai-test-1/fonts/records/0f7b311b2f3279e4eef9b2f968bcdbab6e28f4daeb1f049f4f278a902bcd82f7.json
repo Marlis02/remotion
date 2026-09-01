@@ -1,0 +1,30 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+  "kind": "font",
+  "intrinsic": {
+    "family": "Montserrat Thin",
+    "subfamily": "Regular",
+    "format": "ttf",
+    "fsType": 0
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "ofl-1.1",
+      "note": "Montserrat, версия 9.000, ОДНИМ вариативным файлом: ось wght 100…900 (умолчание 100). Один файл ⇒ правило v1 «ровно один font-record проекта» (compile/src/timeline/contract.ts) выполняется без всякого его смягчения: начертания живут осью, а не вторым файлом. ВЫБОР ВЛАДЕЛЬЦА по кадрам H-07 (решение 2026-08-31, шаг 0 задачи V-06): долг №13 закрыт «пока» — смена шрифта канала стоит ОДНОЙ записи. `family`/`subfamily` сняты с name-таблицы файла (nameID 1 и 2) и потому читаются как «Montserrat Thin»/«Regular»: у вариативного файла nameID 1 называет дефолтный инстанс оси, а типографическое семейство лежит в nameID 16 и равно «Montserrat». В `family` записано ИЗМЕРЕННОЕ (nameID 1), как и у предыдущей записи (Inter): в запрос рендерера едет семейство ФАЙЛА (ADR-0008 «Контракт»), а не то, что о нём думает человек. `fsType` — с таблицы OS/2: 0 = встраивание разрешено без ограничений. ИЗМЕРЕНО V-06 на байтах из стора: sha256 совпал, size 744936, оси fvar wght min=100 default=100 max=900, name[5] = «Version 9.000»."
+    },
+    "reproduction": {
+      "status": "ofl-1.1",
+      "attributionRequired": false,
+      "attributionText": "Montserrat is licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org). Copyright (c) 2011 The Montserrat Project Authors (https://github.com/JulietaUla/Montserrat)."
+    },
+    "recording": { "status": "n/a" },
+    "origin": {
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf",
+      "retrievedAt": "2026-08-31T05:50:58Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

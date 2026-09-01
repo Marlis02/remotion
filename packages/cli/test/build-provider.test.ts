@@ -129,6 +129,8 @@ async function runBuild(
     command: 'build',
     projectDir: project.projectDir,
     profileId: 'final',
+    // Профиль называет проект: явного файла у сборки нет (`F-01`).
+    profilePath: null,
     allowTts: options.allowTts ?? true,
     now: '2026-08-31T00:00:00.000Z',
     buildDir: project.buildDir,

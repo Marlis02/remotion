@@ -12,6 +12,7 @@
 
 import { GATE_PROFILES, type GateProfileId } from '@vpe/templates-spec';
 
+import { AC4_PROFILE_ID, type BuildProfileId } from './ac4.js';
 import { CliError, EXIT } from './errors.js';
 
 /** `vpe template gate <id>@<N> --profile final|draftHalf --request <файл>`. */
@@ -60,8 +61,26 @@ export interface BuildArgs {
   readonly command: 'build';
   /** Корень дерева проекта: `project.yaml` лежит здесь. */
   readonly projectDir: string;
-  /** Пара сборки. Умолчания нет — по той же причине, что у гейта: пара называется явно. */
-  readonly profileId: GateProfileId;
+  /**
+   * Пара сборки. Умолчания нет — по той же причине, что у гейта: пара называется явно.
+   *
+   * ТИП ШИРЕ, ЧЕМ РАЗБОР (`F-01`). `BuildProfileId` включает третий профиль `ac4`, но
+   * `parseBuild` его НЕ ПРОИЗВОДИТ: `profileOf` отвергает такое значение отдельным текстом.
+   * Значение `ac4` попадает сюда ровно из одного места — `vpe verify ac4`, конструирующей
+   * аргументы сама, — то есть выпускной путь не может обойти **R12** флагом командной строки.
+   */
+  readonly profileId: BuildProfileId;
+  /**
+   * ЯВНЫЙ файл профиля рендера вместо названного проектом. `null` — как называет проект
+   * (`profiles.render` / `profiles.draft` / `profiles.renderAc4`).
+   *
+   * ФЛАГА У `vpe build` У НЕГО НЕТ (`F-01`): подменять профиль выпускной сборки командной
+   * строкой значило бы собирать «не на той паре» молча — ровно то, от чего `--profile`
+   * умолчания не имеет. Поле наполняет `vpe verify ac4 --profile <файл.yaml>`, где подмена
+   * законна: профиль AC4 парой гейта не является, и сверка `profileId` файла с профилем
+   * сборки остаётся на месте.
+   */
+  readonly profilePath: string | null;
   /** **K8**: разрешён ли промах `voice`. Без него промах — падение с инструкцией. */
   readonly allowTts: boolean;
   /** Момент сборки (**D9**). `null` — берётся `VPE_NOW`, затем часы процесса. */
@@ -71,6 +90,38 @@ export interface BuildArgs {
   readonly storeDir: string | null;
   /** Каталог записей гейта. `null` — каталог библиотеки рядом со спеками. */
   readonly gatesDir: string | null;
+}
+
+/**
+ * `vpe verify ac4 --project <кат> [--profile <файл.yaml>] …` — **AC4 на настоящем проекте**
+ * (`F-01`; Charter AC4 rev5, ADR-0007 §10 «полный прогон — ночной или по метке»).
+ *
+ * ПОЧЕМУ ОТДЕЛЬНАЯ КОМАНДА, А НЕ ФЛАГ У `build`. Предмет здесь не ролик, а РАВЕНСТВО ДВУХ
+ * РОЛИКОВ: команда собирает проект дважды и сравнивает кадры, байты финала и звук. Флагом это
+ * было бы «собери и заодно собери ещё раз» — вторая сборка в команде, которая по контракту
+ * собирает одну. Сверх того у команды свой код выхода: расхождение — не отказ входа и не сбой
+ * сборки, а FAIL критерия приёмки.
+ *
+ * `--profile` — ПУТЬ К ФАЙЛУ, а не имя пары: третий профиль пары гейта не образует
+ * (решение владельца 12). `null` — `profiles.renderAc4` из `project.yaml`.
+ */
+export interface VerifyAc4Args {
+  readonly command: 'verify ac4';
+  readonly projectDir: string;
+  /** Файл `render-profile/1`. `null` — профиль, названный проектом в `profiles.renderAc4`. */
+  readonly profilePath: string | null;
+  /**
+   * Корень для двух каталогов сборки. `null` — свежий каталог в `tmpdir()`.
+   *
+   * ДВА КАТАЛОГА, А НЕ ОДИН: прогоны обязаны быть независимы по выходу, иначе второй писал бы
+   * поверх первого и сравнивать было бы нечего.
+   */
+  readonly runRoot: string | null;
+  readonly storeDir: string | null;
+  /** **K8** для обоих прогонов. Умолчание — не разрешать: AC4 гоняется на готовых дублях. */
+  readonly allowTts: boolean;
+  /** Момент ОБОИХ прогонов (**D9**). `null` — `VPE_NOW`, затем часы процесса. */
+  readonly now: string | null;
 }
 
 /** `vpe template list` — таблица каталога. */
@@ -159,7 +210,8 @@ export type CliCommand =
   | SpecExportArgs
   | StoreArgs
   | TemplateGateArgs
-  | TemplateListArgs;
+  | TemplateListArgs
+  | VerifyAc4Args;
 
 /** Строка помощи — единственное место, где перечислены обе команды. */
 export const USAGE = [
@@ -173,6 +225,8 @@ export const USAGE = [
   '                           [--gates-dir <кат>] [--run-root <кат>]',
   'vpe template list [--gates-dir <кат>]',
   'vpe spec export [--json] [--out <файл>]',
+  'vpe verify ac4 --project <кат> [--profile <файл.yaml>] [--run-root <кат>] [--store-dir <кат>]',
+  '               [--allow-tts] [--now <ISO>]',
 ].join('\n');
 
 /** Значение флага: следующий аргумент. Пропущенное значение — отказ, а не пустая строка. */
@@ -188,10 +242,13 @@ function valueOf(argv: readonly string[], index: number, flag: string): string {
 function profileOf(given: string): GateProfileId {
   if ((GATE_PROFILES as readonly string[]).includes(given)) return given as GateProfileId;
   const extra =
-    given === 'ac4' || given === 'render.ac4' || given === 'render.ac4.yaml'
+    given === AC4_PROFILE_ID || given === 'render.ac4' || given === 'render.ac4.yaml'
       ? ' `render.ac4.yaml` формально тоже пара, но гейта ШАБЛОНА на нём нет: он остаётся ' +
         'ПОЛНЫМ ПРОГОНОМ ФИКСТУРНОГО ПРОЕКТА (Charter AC4 rev5, решение владельца 12, RM1), ' +
-        'то есть проверкой всей цепочки, а не проверкой шаблона.'
+        'то есть проверкой всей цепочки, а не проверкой шаблона. Прогон на нём зовётся ' +
+        'своей командой: `vpe verify ac4 --project <кат>` — она собирает проект ДВАЖДЫ и ' +
+        'сверяет кадры, байты финала и звук. Сборка на этом профиле одиночным `vpe build` ' +
+        'невыразима намеренно: она прошла бы мимо **R12**, а выпуск идёт только через гейт.'
       : '';
   throw new CliError(
     'argv',
@@ -213,6 +270,7 @@ export function parseArgv(argv: readonly string[]): CliCommand {
   if (argv[0] === 'render-segment') return parseRenderSegment(argv.slice(1));
   if (argv[0] === 'store') return parseStore(argv.slice(1));
   if (argv[0] === 'spec') return parseSpec(argv.slice(1));
+  if (argv[0] === 'verify') return parseVerify(argv.slice(1));
   if (argv[0] !== 'template') {
     throw new CliError('argv', `неизвестная команда \`${argv[0]}\`. Формы:\n${USAGE}`, EXIT.input);
   }
@@ -391,6 +449,8 @@ function parseBuild(rest: readonly string[]): BuildArgs {
     command: 'build',
     projectDir,
     profileId: profileOf(profile),
+    // Флага нет — см. поле: профиль выпускной сборки называет проект, а не командная строка.
+    profilePath: null,
     allowTts,
     now,
     buildDir,
@@ -593,4 +653,74 @@ function parseStore(rest: readonly string[]): StoreArgs {
     writeVerified,
     now,
   };
+}
+
+/**
+ * `vpe verify ac4` — подкоманда названа явно, как у `template`, `store` и `spec`.
+ *
+ * ПОЧЕМУ `verify ac4`, А НЕ `verify`. Критериев приёмки шесть, и проверяемых прогоном из них
+ * не один: AC2 (бюджет кадра) и AC3 (draft) — тоже прогоны, и они придут задачей `G-04`.
+ * Команда без подкоманды заняла бы имя всего семейства первым же случаем — тот же довод, по
+ * которому `template` имеет `gate` и `list`.
+ */
+function parseVerify(rest: readonly string[]): VerifyAc4Args {
+  const sub = rest[0];
+  if (sub !== 'ac4') {
+    throw new CliError(
+      'argv',
+      `неизвестная подкоманда \`verify ${sub ?? ''}\`. Есть одна — \`ac4\`.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+
+  let projectDir: string | null = null;
+  let profilePath: string | null = null;
+  let runRoot: string | null = null;
+  let storeDir: string | null = null;
+  let allowTts = false;
+  let now: string | null = null;
+
+  const tail = rest.slice(1);
+  for (let i = 0; i < tail.length; i += 1) {
+    const arg = tail[i] ?? '';
+    switch (arg) {
+      case '--project':
+        projectDir = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--profile':
+        profilePath = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--run-root':
+        runRoot = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--store-dir':
+        storeDir = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--allow-tts':
+        allowTts = true;
+        break;
+      case '--now':
+        now = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      default:
+        throw new CliError(
+          'argv',
+          arg.startsWith('--')
+            ? `неизвестный флаг \`${arg}\`.\n${USAGE}`
+            : `лишний аргумент \`${arg}\`: проект называется флагом \`--project\`.\n${USAGE}`,
+          EXIT.input,
+        );
+    }
+  }
+
+  if (projectDir === null) {
+    throw new CliError('argv', `\`--project\` обязателен: проверять нечего.\n${USAGE}`, EXIT.input);
+  }
+
+  return { command: 'verify ac4', projectDir, profilePath, runRoot, storeDir, allowTts, now };
 }

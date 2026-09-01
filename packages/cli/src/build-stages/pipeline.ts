@@ -154,6 +154,19 @@ export interface PipelineResult {
    * самый дорогой из ответов.
    */
   readonly staleTakes: readonly string[];
+  /**
+   * Чанки, дубль которых УЖЕ ЛЕЖАЛ на диске к началу стадии `voice`, — то есть за что эта
+   * сборка не платила (`F-01`).
+   *
+   * ЗАЧЕМ ОТДЕЛЬНОЕ ПОЛЕ, ЕСЛИ ЕСТЬ `recorded.cacheHits`. Это РАЗНЫЕ числа, и разница
+   * найдена владельцем на первой живой сборке `examples/ai-test-1`: `cacheHits` считает
+   * попадания МЕЖСБОРОЧНОГО кэша (`M-05`), которого сборка пока не подключает вовсе, а
+   * `sourceCalls` — обращения к провайдеру. Сборка, взявшая все четыре дубля из
+   * `voice/takes/`, печатала поэтому «обращений 0, попаданий кэша 0» — то есть отчёт, из
+   * которого нельзя понять, случилось ли хоть что-нибудь. Попадание в take-файлы — третий
+   * случай, и до этого поля его не считал никто.
+   */
+  readonly reusedTakes: readonly string[];
 }
 
 /**
@@ -440,6 +453,7 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
     track,
     manifest: withAudioTrack(ir.manifest, audioTrackRef(track)),
     staleTakes: [...stale].sort(),
+    reusedTakes: [...existing.keys()].sort(),
   };
 }
 
