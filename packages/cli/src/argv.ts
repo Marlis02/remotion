@@ -80,6 +80,24 @@ export interface TemplateListArgs {
 }
 
 /**
+ * `vpe spec export [--json] [--out <файл>]` — правила движка одной выгрузкой (`SPEC-01`).
+ *
+ * **ФЛАГОВ РОВНО ДВА, И `--gates-dir` СРЕДИ НИХ НЕТ.** Каталог записей у выгрузки один —
+ * тот, что рядом со спеками: она отвечает на вопрос «что умеет ДВИЖОК», а не «что снято на
+ * этой машине». Подмена каталога записей сделала бы выгрузку зависящей от аргумента, которого
+ * читатель выгрузки не видит.
+ *
+ * УМОЛЧАНИЕ — MARKDOWN В STDOUT: выгрузку вставляют в чат, а не скармливают программе.
+ * `--json` — та же структура машинно, для того, кто её разбирает.
+ */
+export interface SpecExportArgs {
+  readonly command: 'spec export';
+  readonly json: boolean;
+  /** Куда положить выгрузку. `null` — в stdout. */
+  readonly out: string | null;
+}
+
+/**
  * `vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]` (`L-02`).
  *
  * ЗАПРОСА В АРГУМЕНТАХ НЕТ, И ЭТО КОНТРАКТ, А НЕ ЭКОНОМИЯ: ADR-0008 говорит «JSON-запрос на
@@ -138,6 +156,7 @@ const STORE_ACTIONS: readonly StoreAction[] = ['verify', 'fetch', 'push'];
 export type CliCommand =
   | BuildArgs
   | RenderSegmentArgs
+  | SpecExportArgs
   | StoreArgs
   | TemplateGateArgs
   | TemplateListArgs;
@@ -153,6 +172,7 @@ export const USAGE = [
   'vpe template gate <id>@<N> --profile final|draftHalf --request <файл> --render-profile <файл.yaml>',
   '                           [--gates-dir <кат>] [--run-root <кат>]',
   'vpe template list [--gates-dir <кат>]',
+  'vpe spec export [--json] [--out <файл>]',
 ].join('\n');
 
 /** Значение флага: следующий аргумент. Пропущенное значение — отказ, а не пустая строка. */
@@ -192,6 +212,7 @@ export function parseArgv(argv: readonly string[]): CliCommand {
   if (argv[0] === 'build') return parseBuild(argv.slice(1));
   if (argv[0] === 'render-segment') return parseRenderSegment(argv.slice(1));
   if (argv[0] === 'store') return parseStore(argv.slice(1));
+  if (argv[0] === 'spec') return parseSpec(argv.slice(1));
   if (argv[0] !== 'template') {
     throw new CliError('argv', `неизвестная команда \`${argv[0]}\`. Формы:\n${USAGE}`, EXIT.input);
   }
@@ -377,6 +398,50 @@ function parseBuild(rest: readonly string[]): BuildArgs {
     storeDir,
     gatesDir,
   };
+}
+
+/**
+ * `vpe spec export` — подкоманда названа явно, как у `template` и `store`.
+ *
+ * ПОЧЕМУ НЕ `vpe spec` БЕЗ СЛОВА `export`. Выгрузка — не единственное, что можно спросить у
+ * спецификации (проверка сценария файлом, диф выгрузок), и команда без подкоманды заняла бы
+ * имя всего семейства первым же случаем. Тот же довод, по которому `template` имеет `gate` и
+ * `list`, а не одну безымянную форму.
+ */
+function parseSpec(rest: readonly string[]): SpecExportArgs {
+  const sub = rest[0];
+  if (sub !== 'export') {
+    throw new CliError(
+      'argv',
+      `неизвестная подкоманда \`spec ${sub ?? ''}\`. Есть одна — \`export\`.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+
+  let json = false;
+  let out: string | null = null;
+  for (let i = 1; i < rest.length; i += 1) {
+    const arg = rest[i] ?? '';
+    if (arg === '--json') {
+      // ФЛАГ БЕЗ ЗНАЧЕНИЯ — тем же правилом, что `--allow-tts`: `--json=false` был бы вторым
+      // способом сказать «markdown», а первый — не писать флаг вовсе.
+      json = true;
+      continue;
+    }
+    if (arg === '--out') {
+      out = valueOf(rest, i, arg);
+      i += 1;
+      continue;
+    }
+    throw new CliError(
+      'argv',
+      arg.startsWith('--')
+        ? `неизвестный флаг \`${arg}\`.\n${USAGE}`
+        : `лишний аргумент \`${arg}\`: файл называется флагом \`--out\`.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+  return { command: 'spec export', json, out };
 }
 
 function parseList(rest: readonly string[]): TemplateListArgs {

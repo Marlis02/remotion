@@ -84,6 +84,13 @@ export const still1: TemplateSpec<StillParams> = {
   templateId: 'still',
   templateVersion: 1,
   paramsSchema: ParamsSchema,
+  guidance:
+    'Статичная картинка — то, во что компилятор разворачивает маркер `[img: alias]` прозы. ' +
+    'ЭТУ ЗАПИСЬ АВТОР ОБЫЧНО НЕ ПИШЕТ: она порождается сама — `track: visual`, `z: 0`, от ' +
+    'неявного бита `b:img-<alias>-<n>` до следующего `[img:]` той же сцены либо до её конца. ' +
+    'Писать её руками стоит только там, где нужен другой `z` или окно, не совпадающее с ' +
+    'порождённым. `fit` необязателен и имеет ровно одно значение — `cover`; вертикаль ' +
+    'берётся кадрированием, а не растяжением.',
   declareAssets: (params): readonly AssetRef[] => [{ alias: params.asset, role: 'asset' }],
   declareFonts: () => [],
   manifest,

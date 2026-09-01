@@ -92,6 +92,13 @@ export const bed1: TemplateSpec<BedParams> = {
   templateId: 'bed',
   templateVersion: 1,
   paramsSchema: ParamsSchema,
+  guidance:
+    'Музыкальная подложка — ЕДИНСТВЕННЫЙ шаблон аудио-домена: кадров он не рисует вовсе, и ' +
+    'его бюджет мс/кадр равен нулю по построению, а не по недосмотру. `inPoint` — точка ' +
+    'ВНУТРИ той же подложки, и его alias обязан совпасть с `asset`: разные означали бы ' +
+    'второй ассет, которого шаблон не объявляет, и схема такую пару отвергает. В v1 музыка ' +
+    'НЕ микшируется — клип лежит в `AudioPlan.music[]` как есть, а `gainDb` и ' +
+    '`duckUnderSpeechDb` объявлены и типизированы, но звука пока не меняют (долг №141).',
   declareAssets: (params): readonly AssetRef[] => [{ alias: params.asset, role: 'asset' }],
   declareFonts: () => [],
   manifest,

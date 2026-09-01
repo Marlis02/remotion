@@ -3,7 +3,8 @@
 // записи держит `templates-spec`, кодирует `media`.
 //
 // ЧТО ЕСТЬ СЕГОДНЯ: `vpe build` (`L-01`), `vpe render-segment` и `vpe store verify|fetch|push`
-// (`L-02`), `vpe template gate` (Charter V13, R12, `E-00`) и `vpe template list`. ЧЕГО НЕТ:
+// (`L-02`), `vpe template gate` (Charter V13, R12, `E-00`), `vpe template list` и
+// `vpe spec export` (`SPEC-01` — правила движка одной выгрузкой для ИИ-сценариста). ЧЕГО НЕТ:
 // `vpe fmt` (`L-03`). ЧЕГО НЕ БУДЕТ: `vpe store gc` — `.store` не подлежит LRU-GC никогда (K10).
 //
 // `vpe build` устроен так же, как гейт: разбор аргументов, оркестрация чужих стадий, вывод.
@@ -16,6 +17,7 @@ export {
   type BuildArgs,
   type CliCommand,
   type RenderSegmentArgs,
+  type SpecExportArgs,
   type StoreAction,
   type StoreArgs,
   type TemplateGateArgs,
@@ -58,6 +60,21 @@ export {
   renderSegmentCommand,
   type RenderSegmentDeps,
 } from './render-segment.js';
+export {
+  exampleDirectionYaml,
+  formatSpecExport,
+  specExport,
+  specExportJson,
+  SPEC_EXPORT_SCHEMA,
+  type ChannelFact,
+  type GateStatus,
+  type SpecCode,
+  type SpecExport,
+  type SpecExportExample,
+  type SpecExportTemplate,
+  type SpecSection,
+  type SpecTable,
+} from './spec-export.js';
 export { store, type StoreDeps } from './store.js';
 export {
   BUDGET_THRESHOLD_MS,

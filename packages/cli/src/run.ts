@@ -6,12 +6,16 @@
 // ради которого приём и взят: юнит-тест команды не подменяет глобалей и не читает stdout
 // процесса, а просто смотрит на строки, которые команда напечатала.
 
+import { mkdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 
 import { parseArgv } from './argv.js';
 import { build, type BuildDeps } from './build.js';
 import { CliError, EXIT } from './errors.js';
 import { renderSegmentCommand } from './render-segment.js';
+import { formatSpecExport, specExport, specExportJson } from './spec-export.js';
 import { store } from './store.js';
 import { templateGate, type TemplateGateDeps } from './template-gate.js';
 import { formatTemplateTable, templateRows } from './template-list.js';
@@ -42,6 +46,24 @@ export async function runCli(argv: readonly string[], deps: CliDeps): Promise<nu
     if (command.command === 'render-segment') return await renderSegmentCommand(command, deps);
     if (command.command === 'store') return await store(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
+
+    if (command.command === 'spec export') {
+      // ═══ ЧТЕНИЕ КАТАЛОГА — ТЕМ ЖЕ ЗАГРУЗЧИКОМ, ЧТО У `template list` ═══
+      // «Манифест собирается из двух мест» обязано означать ОДНО чтение: выгрузка, собравшая
+      // записи гейта своим способом, показала бы статус, отличный от таблицы каталога.
+      const doc = specExport(loadTemplateLibrary().loaded);
+      const text = command.json ? specExportJson(doc) : `${formatSpecExport(doc)}`;
+      if (command.out === null) {
+        deps.out(text);
+        return EXIT.pass;
+      }
+      // Каталог создаётся: выгрузку кладут рядом с отчётом задачи, и падение на
+      // несуществующем каталоге здесь было бы отказом про `mkdir`, а не про выгрузку.
+      mkdirSync(path.dirname(path.resolve(command.out)), { recursive: true });
+      writeFileSync(command.out, text, 'utf8');
+      deps.err(`vpe: выгрузка записана в ${command.out}\n`);
+      return EXIT.pass;
+    }
 
     // `template list` — чтение каталога тем же загрузчиком, что и гейт: «манифест собирается
     // из двух мест» обязано означать ОДНО чтение, а не два похожих.

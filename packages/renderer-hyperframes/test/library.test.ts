@@ -127,6 +127,7 @@ describe('каталог шаблонов на диске', () => {
       'flash@1',
       'grade@1',
       'kenburns@1',
+      'parallax25@1',
       'still@1',
     ]);
     for (const item of withEntries) {

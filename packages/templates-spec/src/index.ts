@@ -68,6 +68,15 @@ export {
   type TemplateManifest,
 } from './manifest.js';
 
+// Интроспекция `paramsSchema` — форма параметров ЧТЕНИЕМ СХЕМЫ (`SPEC-01`). Вызывающий —
+// `vpe spec export`: выгрузка правил движка для ИИ-сценариста. Литералов про параметры в ней
+// нет ни одного, и это условие её существования — второй источник истины запрещён (№179).
+export {
+  introspectParams,
+  type ParamRefinement,
+  type ParamsIntrospection,
+} from './params-schema.js';
+
 // Контракт одного шаблона и вход **R3**.
 export {
   declaredDurationOf,

@@ -74,8 +74,8 @@ records:
       # заметно и не карикатурно; `depthSpread: 2.6` — фон идёт в 2.6 раза медленнее, и
       # разделение планов читается. `scale: 1.06` — то же мягкое дыхание, что давал прежний
       # Ken Burns наездом с 1.00 до 1.10.
-      drift: 0.045
-      depthSpread: 2.6
+      drift: 0.09
+      depthSpread: 3.2  
       easing: "power2.inOut"
       scale: 1.06
 
