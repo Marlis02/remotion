@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# ОБЁРТКА «ОДНОЙ КОМАНДОЙ» НАД ОБРАЗОМ СРЕДЫ КАНАЛА (`ENV-02`, долг №224).
+#
+#   ./scripts/vpe-docker build-image                     # собрать образ
+#   ./scripts/vpe-docker prepare                         # install + build (нужна СЕТЬ, ОДИН раз)
+#   ./scripts/vpe-docker probe                           # проба движка и отпечаток
+#   ./scripts/vpe-docker test [пути…]                    # `pnpm test` в образе
+#   ./scripts/vpe-docker shell                           # интерактивная оболочка
+#
+# Всё остальное — команда `vpe` КАК ЕСТЬ, без переизобретения её флагов (иначе обёртка стала бы
+# вторым разбором аргументов и разошлась бы с `USAGE`):
+#   ./scripts/vpe-docker build --project examples/ai-test-1 --profile final
+#   ./scripts/vpe-docker template gate still@1 --profile draftHalf --request … --render-profile …
+#   ./scripts/vpe-docker verify ac4 --project examples/ai-test-1
+#   ELEVENLABS_LIVE=1 ./scripts/vpe-docker --live build --project … --profile final --allow-tts
+#
+# ЧТО ЗДЕСЬ РЕШЕНО И ПОЧЕМУ (решения владельца, заход 1 `ENV-02`):
+#
+# 1. СЕТЬ ОТКЛЮЧЕНА ПО УМОЛЧАНИЮ (`--network none`). Сборка ролика на оплаченных дублях в
+#    сеть не ходит, и отсутствие сети — это охранник, а не удобство. Включает её только
+#    `prepare` (ставит зависимости) и явный `--live`.
+#
+# 2. `seccomp=unconfined`. Рендер заворачивается в сетевой namespace
+#    (`unshare -rn --map-root-user`, `isolation.ts`, правило **R1**), а штатный seccomp-профиль
+#    Docker запрещает `CLONE_NEWUSER` — с ним preflight рендера ОТКАЗЫВАЕТ. Ослабление
+#    компенсируется тем, что сеть контейнера отрезана снаружи (`--network none`), то есть
+#    изоляция стоит двумя слоями, как на хосте. `SYS_ADMIN` шире и потому не берётся;
+#    `isolation: 'none'` сняло бы охранника **R1** и потому не берётся тем более.
+#    Точечный профиль вместо `unconfined` — долг №242.
+#
+# 3. `ELEVENLABS_LIVE` НЕ ПРОБРАСЫВАЕТСЯ НИКОГДА, кроме явного флага `--live` (решение `V-06`,
+#    вариант В2). `.env` монтируется только для чтения; загрузчик `bin/env-file.ts` этот флаг
+#    из файла и так не берёт (`IGNORED_FROM_FILE`), здесь — второй слой того же запрета.
+#
+# 4. `node_modules` ЖИВУТ В ПРИМОНТИРОВАННОМ ДЕРЕВЕ, pnpm-стор — в именованном томе
+#    (решение владельца, вопрос В3). Цена названа вслух: `node_modules`/`dist` общие с хостом,
+#    поэтому перед КАЖДОЙ командой делается `pnpm -r build` (1.7 с инкрементально) — стейл-dist
+#    ловили дважды, и это дешевле, чем ловить его третий раз.
+#
+# 5. НЕ ПОД root. Причина — не песочница Chrome (`--no-sandbox` у `hyperframes` стоит всегда),
+#    а владение файлами примонтированного дерева и отказ `git` читать репозиторий чужого uid.
+
+set -euo pipefail
+
+IMAGE="${VPE_DOCKER_IMAGE:-vpe-env:env-02}"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STORE_VOLUME="${VPE_PNPM_STORE_VOLUME:-vpe-pnpm-store}"
+HOST_STORE="${VPE_HOST_STORE:-$HOME/.vpe/store}"
+
+die() { printf 'vpe-docker: %s\n' "$*" >&2; exit 2; }
+
+# ── флаги обёртки ─────────────────────────────────────────────────────────────
+LIVE=0
+NETWORK="none"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --live)
+      # Денежное разрешение. Написано РУКОЙ в командной строке — ровно так, как требует
+      # `V-06`: строка, забытая в файле, платила бы на каждом прогоне.
+      LIVE=1; NETWORK="bridge"; shift ;;
+    --network) NETWORK="$2"; shift 2 ;;
+    --) shift; break ;;
+    *) break ;;
+  esac
+done
+[ $# -gt 0 ] || die "команда не названа. См. шапку файла или \`00-PROCESS.md\`."
+
+SUBCOMMAND="$1"
+
+# ── монтирования, общие у всех прогонов ───────────────────────────────────────
+mkdir -p "$HOST_STORE"
+MOUNTS=(
+  --mount "type=bind,source=$REPO,target=/home/vpe/repo"
+  --mount "type=bind,source=$HOST_STORE,target=/home/vpe/.vpe/store"
+  --mount "type=volume,source=$STORE_VOLUME,target=/home/vpe/.pnpm-store"
+)
+# `.env` — только чтение и только если он есть. Значений обёртка не читает и не печатает
+# (CLAUDE.md §2): она передаёт ФАЙЛ, а разбирает его точка входа `bin/vpe.ts`.
+if [ -f "$REPO/.env" ]; then
+  MOUNTS+=( --mount "type=bind,source=$REPO/.env,target=/home/vpe/repo/.env,readonly" )
+fi
+
+ENVS=( --env "TZ=UTC" --env "LC_ALL=C" )
+if [ "$LIVE" = "1" ]; then
+  [ "${ELEVENLABS_LIVE:-}" = "1" ] || die "--live требует \`ELEVENLABS_LIVE=1\` в ЭТОЙ командной строке (решение \`V-06\` В2)"
+  ENVS+=( --env "ELEVENLABS_LIVE=1" )
+  printf 'vpe-docker: ЖИВОЙ РЕЖИМ — ELEVENLABS_LIVE=1, сеть включена. Это стоит денег.\n' >&2
+fi
+
+run_in_image() {
+  docker run --rm -i \
+    --security-opt seccomp=unconfined \
+    --network "$NETWORK" \
+    --user "$(id -u):$(id -g)" \
+    "${MOUNTS[@]}" "${ENVS[@]}" \
+    -w /home/vpe/repo "$IMAGE" bash -lc "$1"
+}
+
+# СБОРКА ПЕРЕД КАЖДОЙ КОМАНДОЙ — решение владельца (вопрос В3): дерево общее с хостом, и
+# стейл-`dist` иначе рано или поздно уедет в измерение.
+#
+# ЗОВЁТСЯ `tsc`, А НЕ `pnpm -r build`, И ЭТО НЕ СОКРАЩЕНИЕ ПУТИ. ИЗМЕРЕНО (`ENV-02`): pnpm 11
+# перед КАЖДЫМ запуском скрипта сам зовёт `install` (`runDepsStatusCheck`), а тот видит в
+# `node_modules/.modules.yaml` чужой `storeDir` — у хоста он внутри snap-домашки VS Code — и
+# требует снести каталог: без TTY это `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`, с TTY —
+# удаление 1.3 ГБ хоста и повторная закачка, а следующий `pnpm install` на хосте потребовал бы
+# снести обратно. Ни `--config.verifyDepsBeforeRun=false`, ни одноимённая переменная окружения
+# проверку не снимают (проверено обеими формами).
+#
+# Подмены при этом НЕТ: корневой скрипт `build` — это буквально `cross-env TZ=UTC LC_ALL=C tsc
+# --build`, `TZ`/`LC_ALL` стоят переменными образа, а `tsc` берётся из того же дерева, что и у
+# `pnpm`. Компилятор один и тот же, лок один и тот же.
+BUILD_FIRST='node_modules/.bin/tsc --build'
+
+case "$SUBCOMMAND" in
+  build-image)
+    shift
+    # КОНТЕКСТ СБОРКИ СОБИРАЕТСЯ МИНИМАЛЬНЫМ, А НЕ ФИЛЬТРУЕТСЯ `.dockerignore`.
+    # Причина измеренная: дерево репозитория вместе с `build/` примеров весит 9+ ГБ, а в образ
+    # COPY-ится РОВНО ОДИН файл (манифест рендерера — источник версии `hyperframes`). Легаси-
+    # билдер (buildx в этой системе не установлен) читает только `.dockerignore` из корня
+    # контекста, и класть его в корень репозитория ради одного файла — заводить в дереве
+    # правило, которое никто, кроме этой команды, не исполняет. Временный контекст честнее:
+    # в образ по построению не может попасть ничего, кроме перечисленного здесь.
+    CONTEXT="$(mktemp -d)"
+    trap 'rm -rf "$CONTEXT"' EXIT
+    mkdir -p "$CONTEXT/packages/renderer-hyperframes"
+    cp "$REPO/packages/renderer-hyperframes/package.json" "$CONTEXT/packages/renderer-hyperframes/package.json"
+    docker build -f "$REPO/docker/Dockerfile" \
+      --build-arg "UID=$(id -u)" --build-arg "GID=$(id -g)" \
+      -t "$IMAGE" "$@" "$CONTEXT"
+    ;;
+
+  prepare)
+    # ЕДИНСТВЕННЫЙ шаг, которому нужна сеть, и то ОДИН раз: дальше всё офлайн.
+    #
+    # УСТАНОВКА — ПО УСЛОВИЮ, И ЭТО НЕ ОПТИМИЗАЦИЯ. ИЗМЕРЕНО (`ENV-02`): на машине, где дерево
+    # уже установлено хостом, `pnpm install` в контейнере отказывается работать —
+    # `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`: в `node_modules/.modules.yaml` записан
+    # `storeDir` ХОСТА, контейнерный другой, и pnpm считает каталог чужим и хочет его снести.
+    # Снести — значит удалить 1.3 ГБ хоста и скачать их заново, а следующий `pnpm install` на
+    # хосте захотел бы снести обратно: пинг-понг, а не воспроизводимость.
+    #
+    # Условие законно, потому что состав дерева задаёт ЛОК, а не тот, кто его разложил:
+    # `--frozen-lockfile` на хосте уже дал «Already up to date», и версии, которые читает
+    # отпечаток (`installedVersion` по `node_modules/<имя>/package.json`), от машины-установщика
+    # не зависят. На чистом клоне `node_modules` нет — и установка идёт как обычно, в
+    # примонтированное дерево, со стором в именованном томе.
+    NETWORK="bridge"
+    run_in_image 'set -eu
+      if [ -d node_modules ]; then
+        echo "node_modules на месте — установку не трогаю (состав задан pnpm-lock.yaml)"
+      else
+        pnpm install --frozen-lockfile
+      fi
+      node_modules/.bin/tsc --build
+      node --version && pnpm --version && ffmpeg -version | head -1'
+    ;;
+
+  probe)
+    # Проба движка поле за полем и отпечаток — тем же кодом, которым её считает сборка.
+    run_in_image "set -eu
+      $BUILD_FIRST
+      node docker/probe.mjs"
+    ;;
+
+  test)
+    shift
+    run_in_image "set -eu
+      $BUILD_FIRST
+      node_modules/.bin/vitest run $(printf '%q ' "$@")"
+    ;;
+
+  shell)
+    shift
+    exec docker run --rm -it \
+      --security-opt seccomp=unconfined \
+      --network "$NETWORK" \
+      --user "$(id -u):$(id -g)" \
+      "${MOUNTS[@]}" "${ENVS[@]}" \
+      -w /home/vpe/repo "$IMAGE" bash
+    ;;
+
+  *)
+    # Всё остальное — команда `vpe` как есть: `build`, `template gate`, `verify ac4`, `store`…
+    run_in_image "set -eu
+      $BUILD_FIRST
+      node packages/cli/dist/bin/vpe.js $(printf '%q ' "$@")"
+    ;;
+esac
