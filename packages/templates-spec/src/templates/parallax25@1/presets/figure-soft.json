@@ -1,0 +1,13 @@
+{
+  "note": "Сдержанный параллакс: ход ближнего плана 4.5 % ширины кадра, фон в 2.6 раза медленнее. Взято дословно из examples/ai-test-1/direction/01-cellars.yaml r:c92a4e61 (сцена work). ALIAS'Ы ЗДЕСЬ — КОНКРЕТНОГО ПРОЕКТА (mechanic, mechanic-figure): своими двумя слоями их перекрывает `params` записи поверх пресета, порядок списка — от ДАЛЬНЕГО к ближнему.",
+  "params": {
+    "layers": [
+      "mechanic",
+      "mechanic-figure"
+    ],
+    "drift": 0.045,
+    "depthSpread": 2.6,
+    "easing": "power2.inOut",
+    "scale": 1.06
+  }
+}

@@ -7,15 +7,24 @@
 // заводится (решение владельца 12, RM1; строка R12 в docs/invariants.md).
 
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { canonicalJson } from '@vpe/core-model';
-import { gateRequestFileName as gateRequestNameOf, layerRole } from '@vpe/templates-spec';
+import {
+  gateRequestFileName as gateRequestNameOf,
+  layerRole,
+  parseTemplateDirName,
+} from '@vpe/templates-spec';
 
 import type { SegmentRenderRequest } from '../src/contract.js';
-import { templateGateRequestsDir } from '../src/library.js';
+import {
+  templateDirs,
+  templateGateCaseFile,
+  templateGateRequestsDir,
+  templateLibraryDir,
+} from '../src/library.js';
 import { renderSegment } from '../src/run.js';
 import { rendererTemplates } from '../src/templates/index.js';
 import { validateRequest } from '../src/validate.js';
@@ -358,59 +367,85 @@ export interface TemplateFixtureOptions {
 }
 
 /** `params` пяти шаблонов — ДОСЛОВНО из `fixtures/minimal/direction/01-intro.yaml`. */
-export const FIXTURE_PARAMS = {
-  kenburns: {
-    from: { scale: 1.0, x: 0.0, y: 0.0 },
-    to: { scale: 1.12, x: 0.03, y: -0.02 },
-    easing: 'power2.inOut',
-  },
-  flash: { strengthPct: 35, durationSamples: 4800 },
-  still: { asset: 'ledger', fit: 'cover' },
-  captionEmphasis: { style: 'bold' },
-  /**
-   * **`grade@1` — ЕДИНСТВЕННЫЙ, ЧЬИ `params` ВЗЯТЫ НЕ ИЗ ФИКСТУРЫ, И ПРИЧИНА НАЗВАНА**
-   * (`E-07`). `fixtures/minimal` его не зовёт вовсе: это шаблон среза `mvp`, а фикстура —
-   * Week-1, и править её задание `E-07` запрещает. Числа поэтому взяты у ЕДИНСТВЕННОЙ
-   * настоящей режиссуры, которая шаблон зовёт, — `examples/vertical-v1/direction/01-archive.yaml`
-   * («тёплый архив»), и это то же правило, что действовало для пяти прежних: гейт снимается
-   * на той паре (шаблон, `params`), которую зовёт настоящая режиссура (ADR-0008 п. 1).
-   *
-   * `grain` здесь НЕ нулевой намеренно: зерно есть самая дорогая и самая сомнительная часть
-   * шаблона (детерминизм `feTurbulence` в headless Chrome — `INFERENCE` до гейта), и гейт,
-   * снятый без него, отвечал бы не на тот вопрос.
-   */
-  grade: {
-    saturate: 0.85,
-    contrast: 1.08,
-    sepia: 0.28,
-    hueRotate: -6,
-    vignette: 0.35,
-    grain: 0.15,
-  },
-  /**
-   * **`parallax25@1` — ВТОРОЙ, ЧЬИ `params` ВЗЯТЫ НЕ ИЗ ФИКСТУРЫ, И ПРИЧИНА ТА ЖЕ** (`E-02`).
-   * `fixtures/minimal` его не зовёт (шаблон среза `r`, а её режиссура правке не подлежит),
-   * поэтому числа взяты у ЕДИНСТВЕННОЙ настоящей режиссуры, которая шаблон зовёт, —
-   * `examples/vertical-v1/direction/01-archive.yaml`, сцена «улица 1900». Правило то же, что
-   * действовало для шести прежних: гейт снимается на той паре (шаблон, `params`), которую
-   * зовёт настоящая режиссура (ADR-0008 п. 1).
-   *
-   * `layers` здесь — ДВА alias'а демо, и это не украшение: длина списка есть число слоёв, то
-   * есть главный вход цены шаблона. Сами alias'ы в рендерере не читаются (ассеты приезжают в
-   * IR уже разрешёнными, по ролям), но написать вместо них `['a', 'b']` значило бы снять гейт
-   * на паре, которой никто не зовёт.
-   *
-   * `scale: 1.04` — «дыхание» есть намеренно: это второй вход в расчёт запаса покрытия кадра
-   * (`worstScale` реализации), и гейт, снятый без него, отвечал бы не на тот вопрос.
-   */
-  parallax25: {
-    layers: ['street', 'street-figure'],
-    drift: 0.05,
-    depthSpread: 2.4,
-    easing: 'power2.inOut',
-    scale: 1.04,
-  },
-} as const;
+/**
+ * **`params` ШЕСТИ ШАБЛОНОВ — ЧИТАЮТСЯ ИЗ ПАПОК, А НЕ ЛЕЖАТ ЛИТЕРАЛОМ** *(изменено: `TPL-01b`,
+ * 2026-09-10; долг №193 закрыт)*.
+ *
+ * ~~Литерал на 50 строк, у каждого шаблона свои числа и абзац «откуда взяты».~~ Он был ПЕРВОЙ
+ * из двух копий случая гейта; вторая (`CASES` браузерного гейта) повторяла его дословно, и
+ * правка клипов в одном месте из двух означала бы, что владелец снимает записи на композиции,
+ * которую браузерный тест не мерил ни разу. Обе копии стали производными от файла в папке
+ * шаблона — `<id>@<N>/gate-case.json`, — и «отставать» им теперь не от чего.
+ *
+ * ПОЧЕМУ КЛЮЧ — `templateId` БЕЗ ВЕРСИИ. Так его читают все шесть вызывающих (`.still`,
+ * `.kenburns`, …), и менять их эта задача не бралась. Разбор имени — `parseTemplateDirName`
+ * спека, то есть та же единственная грамматика (долг №37), а не срез строки по `@`.
+ *
+ * ЧТО ЗДЕСЬ ОСТАЛОСЬ АВТОРСКИМ: НИЧЕГО. Число, которого нет ни в одном `gate-case.json`, в
+ * запрос гейта попасть больше не может.
+ */
+export type FixtureParamsKey =
+  | 'captionEmphasis'
+  | 'flash'
+  | 'grade'
+  | 'kenburns'
+  | 'parallax25'
+  | 'still';
+
+/**
+ * Шесть ключей ИМЕНАМИ, а не `Record<string, …>`: под `noUncheckedIndexedAccess` индексный тип
+ * отдавал бы `| undefined` каждому из шести вызывающих. Полнота карты проверяется РАНТАЙМОМ
+ * (`assertAllKeys` ниже) — то есть шаблон, у которого пропал `gate-case.json`, краснеет здесь,
+ * а не приезжает `undefined` в запрос гейта. `bed@1` в списке нет: гейт на нём неисполним по
+ * построению (долг №189), и файла случая у него тоже нет.
+ */
+export const FIXTURE_PARAMS: Readonly<Record<FixtureParamsKey, Record<string, unknown>>> =
+  assertAllKeys(
+  Object.fromEntries(
+    readGateCases().map((kase) => {
+      const own = kase.clips.find((clip) => clip.template === kase.call);
+      if (own === undefined) {
+        throw new Error(
+          `\`${kase.call}/gate-case.json\`: среди клипов нет ни одного с \`template: ` +
+            `"${kase.call}"\`. Случай гейта обязан звать ШАБЛОН СВОЕЙ ПАПКИ — иначе запись ` +
+            'уехала бы в папку того, кого не мерили',
+        );
+      }
+      const parsed = parseTemplateDirName(kase.call);
+      if (parsed === null) throw new Error(`имя случая гейта \`${kase.call}\` не разбирается`);
+      return [parsed.templateId, own.params] as const;
+    }),
+  ),
+);
+
+/**
+ * Полнота карты РАНТАЙМОМ: тип обещает шесть ключей — проверяем, что файлы их дали.
+ *
+ * Список ключей — ВНУТРИ функции, а не рядом с ней `const`'ом: `FIXTURE_PARAMS` инициализируется
+ * этим вызовом на уровне модуля, а объявление `const` соседа к тому моменту ещё в TDZ
+ * (`ReferenceError`, измерено). Объявление функции поднимается, её тело — нет.
+ */
+function assertAllKeys(
+  map: Readonly<Record<string, Record<string, unknown>>>,
+): Readonly<Record<FixtureParamsKey, Record<string, unknown>>> {
+  const keys: readonly FixtureParamsKey[] = [
+    'captionEmphasis',
+    'flash',
+    'grade',
+    'kenburns',
+    'parallax25',
+    'still',
+  ];
+  const missing = keys.filter((key) => map[key] === undefined);
+  if (missing.length > 0) {
+    throw new Error(
+      `у шаблонов ${missing.join(', ')} нет \`gate-case.json\` в папке. Случай гейта читается ` +
+        'из папки (`TPL-01b`), и пропавший файл обязан краснеть здесь, а не приезжать ' +
+        '`undefined` в запрос гейта',
+    );
+  }
+  return map as Readonly<Record<FixtureParamsKey, Record<string, unknown>>>;
+}
 
 /**
  * Запрос ИЗ ПРОИЗВОЛЬНЫХ КЛИПОВ — вход живого гейта `H-06`.
@@ -595,6 +630,36 @@ export async function readyRequest(
 // разрешению владельца `GATE-PREP`), и в `validateRequest` уходят уже абсолютные.
 // Исключение — шрифт: он системный и абсолютный по построению (долг №187).
 
+/** Форма файла `<id>@<N>/gate-case.json`: `note` для человека плюс сам случай. */
+interface GateCaseFile {
+  readonly note: string;
+  readonly captions: boolean;
+  readonly clips: readonly TemplateClip[];
+}
+
+/**
+ * **СЛУЧАИ ГЕЙТА — ФАЙЛАМИ ПАПОК ШАБЛОНОВ** (`TPL-01b`, 2026-09-10; долг №193 закрыт).
+ *
+ * Шаблон, у которого файла нет, случая не имеет — и это законное состояние, а не пропуск:
+ * `bed@1` аудио-домена, в `RenderIR.clips` он не попадает вовсе, а его реализация есть отказ
+ * (долг №189). Прежде это выражалось отсутствием имени в литерале; теперь — отсутствием файла
+ * в папке, то есть тем же способом, что и у `gates.json`.
+ *
+ * Порядок — байтовый по имени папки (`templateDirs`, ADR-0007 §4), а не порядок литерала.
+ * На содержимое запросов он не влияет: файл запроса пишется по одному на пару, а `bundle.hash`
+ * считается по каталогу композиции.
+ */
+function readGateCases(dir: string = templateLibraryDir()): readonly GateRequestCase[] {
+  const out: GateRequestCase[] = [];
+  for (const call of templateDirs(dir)) {
+    const file = templateGateCaseFile(call, dir);
+    if (!existsSync(file)) continue;
+    const body = JSON.parse(readFileSync(file, 'utf8')) as GateCaseFile;
+    out.push({ call, clips: body.clips, captions: body.captions });
+  }
+  return out;
+}
+
 /** Один случай гейта: НАЗВАННЫЙ шаблон и клипы, которыми он снимается. */
 export interface GateRequestCase {
   /** Имя вызова, по которому пишется запись гейта. */
@@ -624,53 +689,7 @@ export interface GateRequestCase {
  * `declareAssets`, — и `still@1` под ним не дал бы гейту ничего, кроме лишнего клипа в
  * измеряемой композиции. Клип одиночный, `withLayers: 2`. Шаблонов стало ШЕСТЬ.
  */
-export const GATE_REQUEST_CASES: readonly GateRequestCase[] = [
-  {
-    call: 'still@1',
-    clips: [{ template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true }],
-    captions: false,
-  },
-  {
-    call: 'kenburns@1',
-    clips: [
-      { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
-      { template: 'kenburns@1', params: FIXTURE_PARAMS.kenburns, z: 10 },
-    ],
-    captions: false,
-  },
-  {
-    call: 'flash@1',
-    clips: [{ template: 'flash@1', params: FIXTURE_PARAMS.flash, z: 20 }],
-    captions: false,
-  },
-  {
-    call: 'captionEmphasis@1',
-    clips: [
-      {
-        template: 'captionEmphasis@1',
-        params: FIXTURE_PARAMS.captionEmphasis,
-        z: 30,
-        withFont: true,
-      },
-    ],
-    captions: true,
-  },
-  {
-    call: 'grade@1',
-    clips: [
-      { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
-      { template: 'grade@1', params: FIXTURE_PARAMS.grade, z: 25 },
-    ],
-    captions: false,
-  },
-  {
-    call: 'parallax25@1',
-    clips: [
-      { template: 'parallax25@1', params: FIXTURE_PARAMS.parallax25, z: 10, withLayers: 2 },
-    ],
-    captions: false,
-  },
-];
+export const GATE_REQUEST_CASES: readonly GateRequestCase[] = readGateCases();
 
 /** Профиль пары: то, чем `draftHalf` отличается от `final` в ЗАПРОСЕ. */
 export interface GateRequestProfile {

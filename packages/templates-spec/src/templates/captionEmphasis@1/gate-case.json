@@ -1,0 +1,14 @@
+{
+  "note": "Единственный случай с субтитрами и единственный со шрифтом: полоса и есть предмет измерения.",
+  "captions": true,
+  "clips": [
+    {
+      "template": "captionEmphasis@1",
+      "params": {
+        "style": "bold"
+      },
+      "z": 30,
+      "withFont": true
+    }
+  ]
+}

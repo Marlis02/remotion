@@ -115,7 +115,17 @@ function toDirectionRecord(raw: Direction['records'][number], filePath: string):
   };
   return raw.track === 'voice'
     ? { ...base, track: 'voice', voiceRole: raw.voiceRole }
-    : { ...base, track: raw.track, z: raw.z, template: raw.template, params: raw.params };
+    : {
+        ...base,
+        track: raw.track,
+        z: raw.z,
+        template: raw.template,
+        // `preset` и `params` переносятся ТОЛЬКО КОГДА ЕСТЬ (`exactOptionalPropertyTypes`):
+        // ключ со значением `undefined` — не то же самое, что отсутствующий ключ, и запись
+        // «`params: undefined`» означала бы «параметры названы и пусты» вместо «не названы».
+        ...(raw.preset === undefined ? {} : { preset: raw.preset }),
+        ...(raw.params === undefined ? {} : { params: raw.params }),
+      };
 }
 
 /**
@@ -189,6 +199,9 @@ function assertNoGridPoint(value: JsonValue, path: string, filePath: string, rec
 /** Обход `params` записи. У директивной записи `voice` параметров нет — обходить нечего. */
 function assertParamsRealizable(record: DirectionRecord, filePath: string): void {
   if (record.track === 'voice') return;
+  // Записи без `params` (вызов одним `preset`) обходить нечего: `gridPoint` живёт в значениях,
+  // а значения пресета проверены при загрузке каталога — своей `paramsSchema` (`TPL-01b`).
+  if (record.params === undefined) return;
   const params: TemplateParams = record.params;
   for (const [key, value] of Object.entries(params)) {
     assertNoGridPoint(value, `params.${key}`, filePath, record.recordId);

@@ -39,6 +39,8 @@ import { resolveAlias, type AssetCatalog } from '@vpe/media';
 import {
   declaredDurationOf,
   parseTemplateName,
+  presetNames,
+  presetsOf,
   type AnyTemplateSpec,
   type TemplateRegistry,
 } from '@vpe/templates-spec';
@@ -53,6 +55,17 @@ import { CompileError, type CompileProblem } from './errors.js';
  * в которой это уедет в IR: sha вместо alias'ов, роли рядом, длительность в сэмплах.
  */
 export interface ClipContract {
+  /**
+   * **`params` ВЫЗОВА, УЖЕ РАЗВЁРНУТЫЕ** — пресет наложен, автор поверх (`TPL-01b`, шаг 2-бис).
+   *
+   * **ЗДЕСЬ, А НЕ В ЗАПИСИ, И ЭТО ОБЯЗАННОСТЬ, А НЕ УДОБСТВО.** Пресет разворачивается ровно
+   * в одном месте — тут, до `paramsSchema`, — а Timeline и IR обязаны увидеть РЕЗУЛЬТАТ, а не
+   * запись файла: иначе `segmentIrHash` зависел бы от того, назвал автор числа или имя, и
+   * перевод ролика на пресеты переснял бы все кадры при тех же значениях. Поэтому
+   * [`records.ts`](./records.ts) кладёт в клип `contract.params`, а не `record.params`, и
+   * второго места разворачивания в компиляторе нет.
+   */
+  readonly params: TemplateParams;
   /** `declareAssets` + `resolveAlias`, порядок деклараций спека сохранён. */
   readonly assets: readonly IrAssetRef[];
   /** `declareFonts` + запись `kind: 'font'` каталога, порядок деклараций спека сохранён. */
@@ -158,7 +171,8 @@ function contractOf(
   input: TemplateContractsInput,
   where: string,
   template: string,
-  params: TemplateParams,
+  preset: string | undefined,
+  authored: TemplateParams | undefined,
   hasUntil: boolean,
   isGenerated: boolean,
   problems: CompileProblem[],
@@ -172,6 +186,54 @@ function contractOf(
   } catch (error) {
     problems.push({ address: where, message: error instanceof Error ? error.message : String(error) });
     return null;
+  }
+
+  // ── Шаг 2-бис. РАЗВОРАЧИВАНИЕ ПРЕСЕТА — МЕЖДУ РЕЕСТРОМ И СХЕМОЙ (`TPL-01b`) ──────────────
+  //
+  // ПОЧЕМУ ЗДЕСЬ, А НЕ РАНЬШЕ И НЕ ПОЗЖЕ. Раньше нельзя: пресет принадлежит ШАБЛОНУ, а какой
+  // это шаблон, известно только после `resolve` (шаг 2). Позже нельзя: схема обязана видеть
+  // ТЕ ЖЕ `params`, что уедут в IR, — иначе `.strict()` проверял бы одно, а рисовалось бы
+  // другое. Между ними — единственная точка, и она одна на весь компилятор.
+  //
+  // НАЛОЖЕНИЕ — ПО ВЕРХНЕМУ УРОВНЮ КЛЮЧЕЙ, ГЛУБОКОГО СЛИЯНИЯ НЕТ (правило объявлено в
+  // ревизии ADR-0002/0004). Довод: `from: {scale, x, y}` у `kenburns@1` — это ОДНА величина
+  // «откуда», а не три независимых. Глубокое слияние позволило бы автору переопределить
+  // `from.x`, оставив чужие `from.scale`/`from.y`, — то есть собрать ход, которого нет ни в
+  // пресете, ни в записи, и объяснить его можно было бы только чтением обоих файлов сразу.
+  // Правило одно и читается за секунду: ключ верхнего уровня либо авторский, либо из пресета.
+  let params: TemplateParams;
+  if (preset === undefined) {
+    // Схема `direction/1` не пускает запись без обоих (`.refine`), но тип этого не знает, а
+    // `?? {}` подсунул бы схеме шаблона пустые `params` вместо отказа — то есть отказ не по
+    // тому адресу. Здесь это невозможное состояние, и названо оно вслух.
+    if (authored === undefined) {
+      problems.push({
+        address: where,
+        message:
+          `\`${template}\`: у записи нет ни \`preset\`, ни \`params\`. Это состояние отвергает ` +
+          'схема `direction/1`; если оно доехало сюда, запись пришла мимо схемы',
+      });
+      return null;
+    }
+    params = authored;
+  } else {
+    const found = presetsOf(spec).get(preset);
+    if (found === undefined) {
+      const available = presetNames(spec);
+      problems.push({
+        address: where,
+        message:
+          `\`${template}\` не знает пресета \`${preset}\`. ` +
+          (available.length === 0
+            ? 'У этого шаблона пресетов нет ни одного: заведите файл `presets/<имя>.json` в ' +
+              'его папке либо напишите `params` числами'
+            : `Доступны: ${available.map((name) => `\`${name}\``).join(', ')}. Имя пресета — ` +
+              'имя файла в `presets/` его папки, и выдумать его компилятор не вправе'),
+      });
+      return null;
+    }
+    // Порядок спреда И ЕСТЬ правило наложения: авторский ключ побеждает пресетный.
+    params = authored === undefined ? found.params : { ...found.params, ...authored };
   }
 
   // Шаг 3. `safeParse`, а не `parse`: путь к полю нужен КАЖДЫЙ, а не только первый.
@@ -249,6 +311,7 @@ function contractOf(
   }
 
   return {
+    params,
     assets,
     fonts,
     declaredDurationSamples,
@@ -301,6 +364,7 @@ export function templateContracts(input: TemplateContractsInput): ClipContracts 
       input,
       where,
       record.template,
+      record.preset,
       record.params,
       record.until !== undefined,
       false,
@@ -314,7 +378,9 @@ export function templateContracts(input: TemplateContractsInput): ClipContracts 
     // обращением к `params` по имени поля шаблона — ровно тем, что здесь запрещено. Якорь
     // неявного бита (`b:img-harbour-1`) alias уже содержит по построению (ADR-0002 §4).
     const where = `[img:] · ${record.at.anchor}`;
-    const contract = contractOf(input, where, record.template, record.params, true, true, problems);
+    // У порождённой `[img:]`-записи пресета нет и быть не может: её пишет компилятор, а
+    // пресет — имя, которое даёт автор. `undefined` здесь — утверждение, а не пропуск.
+    const contract = contractOf(input, where, record.template, undefined, record.params, true, true, problems);
     if (contract !== null) out.set(`img:${record.at.anchor}`, contract);
   }
 

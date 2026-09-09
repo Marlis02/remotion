@@ -78,7 +78,7 @@ function run(
 function only(
   records: readonly PlacedRecord[],
   recordId: string,
-  patch: { readonly template?: string; readonly params?: TemplateParams },
+  patch: { readonly template?: string; readonly preset?: string; readonly params?: TemplateParams },
 ): readonly PlacedRecord[] {
   const placed = records.find((one) => one.record.recordId === recordId);
   if (placed === undefined) throw new Error(`записи \`${recordId}\` в фикстуре нет`);
@@ -90,7 +90,12 @@ function only(
       record: {
         ...record,
         template: patch.template ?? record.template,
-        params: patch.params ?? record.params,
+        // `preset`/`params` кладутся ТОЛЬКО КОГДА ЕСТЬ: под `exactOptionalPropertyTypes`
+        // ключ со значением `undefined` — не то же самое, что отсутствующий (`TPL-01b`).
+        ...(patch.preset === undefined ? {} : { preset: patch.preset }),
+        ...((patch.params ?? record.params) === undefined
+          ? {}
+          : { params: (patch.params ?? record.params) as TemplateParams }),
       },
     },
   ];

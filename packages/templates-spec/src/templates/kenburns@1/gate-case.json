@@ -1,0 +1,32 @@
+{
+  "note": "СМЕШАННЫЙ запрос (поправка владельца П2 `H-06`): шаблон двигает слой НИЖЕ себя, и запрос из одних kenburns@1 вырожден — под ним стоит still@1 с той же картинкой.",
+  "captions": false,
+  "clips": [
+    {
+      "template": "still@1",
+      "params": {
+        "asset": "ledger",
+        "fit": "cover"
+      },
+      "z": 0,
+      "withAsset": true
+    },
+    {
+      "template": "kenburns@1",
+      "params": {
+        "from": {
+          "scale": 1.0,
+          "x": 0.0,
+          "y": 0.0
+        },
+        "to": {
+          "scale": 1.12,
+          "x": 0.03,
+          "y": -0.02
+        },
+        "easing": "power2.inOut"
+      },
+      "z": 10
+    }
+  ]
+}

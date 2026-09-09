@@ -45,7 +45,7 @@ import type { SegmentRenderRequest } from '../src/contract.js';
 import { createGateMedia } from '../src/gate-media.js';
 import { formatGateOutcome, runGate, type GateMedia } from '../src/gate.js';
 import { rendererTemplates } from '../src/templates/index.js';
-import { FIXTURE_PARAMS, makeTemplateFixture, readyRequest } from './fixture.js';
+import { FIXTURE_PARAMS, GATE_REQUEST_CASES, makeTemplateFixture, readyRequest } from './fixture.js';
 
 /** Кадров в сегменте. Двенадцать — 0.4 с при 30 fps: движение видно, прогон дёшев. */
 const FRAMES = 12;
@@ -90,52 +90,17 @@ const runRoot = (): string => mkdtempSync(path.join(tmpdir(), 'vpe-h06-'));
  * Клипы запроса каждого шаблона. `kenburns@1` и `grade@1` — смешанные (поправка владельца П2
  * `H-06`; для грейда — то же основание, `E-07`).
  *
- * **ЭТО ВТОРАЯ КОПИЯ СПИСКА, И ОНА ИЗВЕСТНА — ДОЛГ №193.** Первая — `GATE_REQUEST_CASES` в
- * [`fixture.ts`](./fixture.ts), источник файлов `gate-requests/*.json`. Обе описывают одни и
- * те же композиции и обязаны совпадать дословно; `E-07` расширил ОБЕ, потому что слить их
- * задача не бралась. *(`E-02`, 2026-08-31 — расширил ОБЕ снова, случаем `parallax25@1`; и
- * нашёл ТРЕТЬЮ копию, неполную, — `CALLS` в `cli/test/gate-requests-cli.test.ts`, долг №228.)*
+ * ~~**ЭТО ВТОРАЯ КОПИЯ СПИСКА, И ОНА ИЗВЕСТНА — ДОЛГ №193.** Первая — `GATE_REQUEST_CASES` в
+ * `fixture.ts`, источник файлов `gate-requests/*.json`. Обе описывают одни и те же композиции
+ * и обязаны совпадать дословно; `E-07` расширил ОБЕ, потому что слить их задача не бралась.~~
+ * *(изменено: `TPL-01b`, 2026-09-10 — долг №193 ЗАКРЫТ.)*
+ *
+ * **КОПИИ БОЛЬШЕ НЕТ: ЭТО ТОТ ЖЕ СПИСОК.** Случай гейта переехал в папку шаблона
+ * (`<id>@<N>/gate-case.json`), `GATE_REQUEST_CASES` читает её, а здесь стоит он сам. Значит
+ * «браузерный тест мерил не ту композицию, на которой владелец снял запись» стало невыразимо:
+ * композиция теперь ровно одна, и живёт она в git файлом, а не в двух литералах тестовой зоны.
  */
-const CASES = [
-  {
-    call: 'still@1',
-    clips: [{ template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true }],
-    captions: false,
-  },
-  {
-    call: 'kenburns@1',
-    clips: [
-      { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
-      { template: 'kenburns@1', params: FIXTURE_PARAMS.kenburns, z: 10 },
-    ],
-    captions: false,
-  },
-  {
-    call: 'flash@1',
-    clips: [{ template: 'flash@1', params: FIXTURE_PARAMS.flash, z: 20 }],
-    captions: false,
-  },
-  {
-    call: 'captionEmphasis@1',
-    clips: [
-      { template: 'captionEmphasis@1', params: FIXTURE_PARAMS.captionEmphasis, z: 30, withFont: true },
-    ],
-    captions: true,
-  },
-  {
-    call: 'grade@1',
-    clips: [
-      { template: 'still@1', params: FIXTURE_PARAMS.still, z: 0, withAsset: true },
-      { template: 'grade@1', params: FIXTURE_PARAMS.grade, z: 25 },
-    ],
-    captions: false,
-  },
-  {
-    call: 'parallax25@1',
-    clips: [{ template: 'parallax25@1', params: FIXTURE_PARAMS.parallax25, z: 10, withLayers: 2 }],
-    captions: false,
-  },
-] as const;
+const CASES = GATE_REQUEST_CASES;
 
 describe('`H-06`/`E-07` — живой гейт V13 на профиле `draftHalf`, N = 3', () => {
   for (const kase of CASES) {

@@ -1,0 +1,13 @@
+{
+  "note": "Выраженный параллакс: вдвое больший ход ближнего плана и большее разделение планов — числа правились после просмотра глазами. Взято дословно из examples/vertical-v1/direction/01-archive.yaml r:4d8ea15b (механик 1920). ALIAS'Ы ЗДЕСЬ — КОНКРЕТНОГО ПРОЕКТА (mechanic, mechanic-figure): своими их перекрывает `params` записи поверх пресета.",
+  "params": {
+    "layers": [
+      "mechanic",
+      "mechanic-figure"
+    ],
+    "drift": 0.09,
+    "depthSpread": 3.2,
+    "easing": "power2.inOut",
+    "scale": 1.06
+  }
+}

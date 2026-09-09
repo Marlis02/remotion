@@ -21,6 +21,7 @@ import {
   determinismClassOf,
   formatTemplateName,
   parseTemplateName,
+  presetNames,
   type LoadedTemplate,
 } from '@vpe/templates-spec';
 
@@ -33,6 +34,12 @@ export interface TemplateRow {
   readonly msPerFrameBudget: number;
   readonly determinism: string;
   readonly easing: string;
+  /**
+   * Имена пресетов через запятую либо `—` (`TPL-01b`). ИМЕНА, а не числа: числа печатает
+   * `vpe spec export`, у которого есть место под них, а таблица отвечает на вопрос «что можно
+   * написать в `preset:`».
+   */
+  readonly presets: string;
   /** Файл записей либо `—`: спек без файла законен (ноль записей). */
   readonly file: string;
 }
@@ -52,12 +59,21 @@ export function templateRows(loaded: readonly LoadedTemplate[]): readonly Templa
       msPerFrameBudget: manifest.msPerFrameBudget,
       determinism: determinismClassOf(manifest),
       easing: manifest.easingIds.length === 0 ? '—' : manifest.easingIds.join(','),
+      presets: presetNames(item.spec).length === 0 ? '—' : presetNames(item.spec).join(','),
       file: item.file ?? '—',
     };
   });
 }
 
-const HEAD = ['шаблон', 'версия', 'гейт', 'бюджет мс/кадр', 'класс детерминизма', 'easing'] as const;
+const HEAD = [
+  'шаблон',
+  'версия',
+  'гейт',
+  'бюджет мс/кадр',
+  'класс детерминизма',
+  'easing',
+  'пресеты',
+] as const;
 
 /** Печать таблицы. Ширины считаются по содержимому: колонка не обрезает имя шаблона. */
 export function formatTemplateTable(rows: readonly TemplateRow[]): string {
@@ -68,6 +84,7 @@ export function formatTemplateTable(rows: readonly TemplateRow[]): string {
     String(row.msPerFrameBudget),
     row.determinism,
     row.easing,
+    row.presets,
   ]);
   const widths = HEAD.map((title, column) =>
     Math.max(title.length, ...body.map((cells) => (cells[column] ?? '').length)),

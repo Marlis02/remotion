@@ -13,16 +13,8 @@ records:
   track: visual
   z: 10
   template: "kenburns@1"
-  params:
-    easing: power2.inOut
-    from:
-      scale: 1.06
-      x: -0.05
-      y: 0
-    to:
-      scale: 1.14
-      x: 0.05
-      y: 0
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
 -
   recordId: "5b7e0d18"
   at:
@@ -34,8 +26,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  params:
-    style: bold
+  preset: "bold"
 # Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
 # от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
 -
@@ -49,14 +40,9 @@ records:
   track: visual
   z: 10
   template: "parallax25@1"
-  params:
-    depthSpread: 2.6
-    drift: 0.045
-    easing: power2.inOut
-    layers:
-    - mechanic
-    - mechanic-figure
-    scale: 1.06
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
 -
   recordId: "0e6d3b7f"
   at:
@@ -68,8 +54,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  params:
-    style: bold
+  preset: "bold"
 # Сцена road: портретный снимок — медленный наезд без горизонтального хода.
 # Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
 # ради которого написана сцена; until у flash@1 не нужен.
@@ -84,16 +69,8 @@ records:
   track: visual
   z: 10
   template: "kenburns@1"
-  params:
-    easing: power2.inOut
-    from:
-      scale: 1.04
-      x: 0
-      y: 0.02
-    to:
-      scale: 1.12
-      x: 0
-      y: -0.02
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
 -
   recordId: "e18f52b0"
   at:
@@ -105,8 +82,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  params:
-    style: bold
+  preset: "bold"
 -
   recordId: "48c0e9a7"
   at:
@@ -115,8 +91,7 @@ records:
   track: effect
   z: 20
   template: "flash@1"
-  params:
-    durationSamples: 3600
-    strengthPct: 22
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
 # bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
 # grade@1 не вызван: в канале выключен (ENV-01).

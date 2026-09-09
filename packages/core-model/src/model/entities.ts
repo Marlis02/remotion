@@ -82,7 +82,16 @@ export interface AnchorRef {
 export type JsonValue = TemplateParams[string];
 
 /** Параметры шаблона — тип поля `params` схемы `direction/1`, а не его вторая копия. */
-export type TemplateParams = Extract<Direction['records'][number], { params: unknown }>['params'];
+/**
+ * **ДИСКРИМИНАНТ — `template`, А НЕ `params`** *(изменено: `TPL-01b`, 2026-09-10)*. `params`
+ * стали необязательными (запись вправе назвать `preset` вместо них), а `Extract<T, {params:
+ * unknown}>` на необязательном поле даёт `never`: TypeScript требует, чтобы свойство
+ * ПРИСУТСТВОВАЛО. `template` у шаблонной записи обязателен и отличает её от голосовой так же
+ * однозначно — тип по-прежнему выводится из схемы, а не объявляется второй раз.
+ */
+export type TemplateParams = NonNullable<
+  Extract<Direction['records'][number], { template: unknown }>['params']
+>;
 
 /**
  * Семь дорожек ADR-0001: `speech·music·sfx·caption·visual·effect` — из схемы `direction/1`,
@@ -128,7 +137,16 @@ export interface TemplateDirectionRecord extends DirectionRecordBase {
    * префикс `local:` (Charter V3), нормирует манифест шаблона — задача `TS-01`.
    */
   readonly template: string;
-  readonly params: TemplateParams;
+  /**
+   * **Имя пресета шаблона** — `params`, сохранённые под именем (`TPL-01b`, 2026-09-10).
+   *
+   * Живёт РОВНО до компилятора: `templateContracts` разворачивает пресет в обычные `params`
+   * ДО схемы шаблона, и ни Timeline, ни IR, ни ключи кэша, ни seed'ы поля `preset` не видят
+   * ни разу. Здесь оно есть потому, что здесь описана ЗАПИСЬ ФАЙЛА, а в файле оно стоит.
+   */
+  readonly preset?: string;
+  /** Необязательны РОВНО при `preset` — это правило схемы `direction/1` (`.refine`). */
+  readonly params?: TemplateParams;
 }
 
 /**

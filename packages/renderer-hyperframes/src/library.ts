@@ -26,8 +26,11 @@ import { fileURLToPath } from 'node:url';
 import {
   GATES_FILE_NAME,
   GATE_REQUESTS_DIR,
+  PRESETS_DIR,
+  PRESET_FILE_EXT,
   TEMPLATE_LIBRARY,
   attachGates,
+  attachPresets,
   createRegistry,
   gateRequestFileName,
   loadedSpecs,
@@ -35,6 +38,7 @@ import {
   type AnyTemplateSpec,
   type GateFileSource,
   type LoadedTemplate,
+  type PresetFileSource,
   type TemplateRegistry,
 } from '@vpe/templates-spec';
 
@@ -42,6 +46,17 @@ import { RenderAdapterError } from './errors.js';
 
 /** Подкаталог пакета `@vpe/templates-spec`, где лежат спеки и записи гейта рядом с ними. */
 export const LIBRARY_SUBDIR = path.join('src', 'templates');
+
+/**
+ * Имя файла СЛУЧАЯ ГЕЙТА внутри папки шаблона (`TPL-01b`, долг №193).
+ *
+ * ~~Клипы и `params`, которыми снимается гейт, жили ДВУМЯ литералами в тестовой зоне —
+ * `GATE_REQUEST_CASES` фикстуры и `CASES` браузерного гейта.~~ Случай гейта есть свойство
+ * ШАБЛОНА ровно так же, как `gates.json` и `gate-requests/`, и лежит он там же. Имя живёт
+ * здесь, а не в `templates-spec`: файл читает диск, а грамматики в имени нет — это константа
+ * раскладки каталога, и её место рядом с двумя соседними.
+ */
+export const GATE_CASE_FILE_NAME = 'gate-case.json';
 
 /** Имя пакета, у которого спрашивается каталог библиотеки. */
 const TEMPLATES_SPEC = '@vpe/templates-spec';
@@ -142,6 +157,16 @@ export function templateGateRequestFile(
   return path.join(templateGateRequestsDir(name, dir), gateRequestFileName(profileId));
 }
 
+/** Каталог пресетов одного шаблона: `<библиотека>/<id>@<N>/presets`. */
+export function templatePresetsDir(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(dir, name, PRESETS_DIR);
+}
+
+/** Файл случая гейта шаблона: `<библиотека>/<id>@<N>/gate-case.json`. */
+export function templateGateCaseFile(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(dir, name, GATE_CASE_FILE_NAME);
+}
+
 /** Файл записей гейта шаблона: `<библиотека>/<id>@<N>/gates.json`. */
 export function templateGatesFile(name: string, dir: string = templateLibraryDir()): string {
   return path.join(dir, name, GATES_FILE_NAME);
@@ -175,6 +200,34 @@ export function gateFileSources(dir: string): readonly GateFileSource[] {
 }
 
 /**
+ * Файлы пресетов каталога — по папкам шаблонов, внутри каждой по имени файла.
+ *
+ * **ДВЕ ЯВНЫЕ СОРТИРОВКИ, А НЕ ОДНА** (ADR-0007 §4: порядок `readdir` задаёт файловая
+ * система). Папки сортирует `templateDirs`, файлы внутри — эта функция; иначе порядок
+ * отказов «пресет не проходит схему» зависел бы от того, в каком порядке ФС отдала имена, и
+ * два прогона на одной поломке называли бы разные файлы первыми.
+ *
+ * ПОДКАТАЛОГА `presets/` МОЖЕТ НЕ БЫТЬ — это законное состояние («пресетов не завели»), и
+ * отличается оно от «каталога библиотеки нет» ровно тем, что второе есть «мы смотрим не туда».
+ */
+export function presetFileSources(dir: string): readonly PresetFileSource[] {
+  const out: PresetFileSource[] = [];
+  for (const name of templateDirs(dir)) {
+    const presetsDir = path.join(dir, name, PRESETS_DIR);
+    if (!existsSync(presetsDir) || !statSync(presetsDir).isDirectory()) continue;
+    const files = readdirSync(presetsDir)
+      .filter((file) => file.endsWith(PRESET_FILE_EXT))
+      .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    for (const fileName of files) {
+      const file = path.join(presetsDir, fileName);
+      if (!statSync(file).isFile()) continue;
+      out.push({ path: file, dirName: name, fileName, text: readFileSync(file, 'utf8') });
+    }
+  }
+  return out;
+}
+
+/**
  * **Прод-каталог: спеки из кода + записи гейта с диска.**
  *
  * Это и есть «манифест собирается из двух мест». Отказы (файл без спека, чужое имя внутри
@@ -186,6 +239,6 @@ export function gateFileSources(dir: string): readonly GateFileSource[] {
 export function loadTemplateLibrary(input: LibraryInput = {}): TemplateLibrary {
   const dir = input.dir ?? templateLibraryDir();
   const specs = input.specs ?? TEMPLATE_LIBRARY;
-  const loaded = attachGates(specs, gateFileSources(dir));
+  const loaded = attachPresets(attachGates(specs, gateFileSources(dir)), presetFileSources(dir));
   return { dir, loaded, registry: createRegistry(loadedSpecs(loaded)) };
 }

@@ -29,6 +29,7 @@ import { canonicalJson, renderFamily } from '@vpe/schema';
 import {
   determinismClassOf,
   introspectParams,
+  presetsOf,
   EASING_REGISTRY,
   TEMPLATE_REGISTRY_VERSION,
   TRANSFORM_ORDER,
@@ -99,6 +100,21 @@ export interface SpecExportTemplate {
   readonly paramsJsonSchema: unknown;
   /** Границы, которых JSON Schema не выражает: тексты `.refine` по адресам полей. */
   readonly paramsRefinements: readonly ParamRefinement[];
+  /**
+   * **Пресеты шаблона — `params`, сохранённые под именем** (`TPL-01b`). Пусто — их не завели.
+   *
+   * СПИСКОМ, А НЕ КАРТОЙ: `ReadonlyMap` спека `canonicalJson` отвергает (и правильно), а
+   * выгрузка обязана печататься и в markdown, и в `--json`. Порядок — байтовый по имени.
+   */
+  readonly presets: readonly SpecExportPreset[];
+}
+
+/** Один пресет в карточке: имя, фраза «для чего» и сами `params`. */
+export interface SpecExportPreset {
+  readonly name: string;
+  readonly note: string;
+  /** Значения как есть — чтобы «что именно в нём» читалось, не открывая файл. */
+  readonly params: unknown;
 }
 
 /** Пример вызова: запись режиссуры, скопированная из живого файла, и адрес этого файла. */
@@ -546,6 +562,16 @@ const ANSWER: readonly SpecSection[] = [
         'дорожек: `speech`, `music`, `sfx`, `caption`, `visual`, `effect`. `z` — целое, ' +
         'порядок слоёв. `template` — имя вызова из каталога §2. `params` — параметры ' +
         'ЭТОГО шаблона, и никакие другие: лишнее поле есть отказ схемы с путём.',
+      '**`preset` — ПЕРВОЕ, ЧТО НАДО ПОПРОБОВАТЬ ВМЕСТО `params`** (`TPL-01b`). Пресет — это ' +
+        '`params`, сохранённые под именем и уже стоявшие в собранном ролике: `preset: ' +
+        '"drift-right"` вместо шести чисел. Имена и числа каждого — в карточке шаблона §2. ' +
+        'Запись обязана нести `preset` ЛИБО `params` (можно оба); без обоих — отказ схемы.',
+      '**Правило наложения — ПО ВЕРХНЕМУ УРОВНЮ КЛЮЧЕЙ, глубокого слияния нет.** `params` ' +
+        'рядом с `preset` перекрывают одноимённые ключи пресета ЦЕЛИКОМ: написав `from: ' +
+        '{scale: 1.1}` поверх пресета, вы получите `from` РОВНО из этих полей, а не смесь с ' +
+        'пресетным `from.x`. Это и делает результат читаемым: каждый ключ верхнего уровня ' +
+        'либо ваш, либо из пресета, и третьего не бывает. Чаще всего перекрывают `asset` и ' +
+        '`layers` — alias\'ы в пресете принадлежат тому проекту, из которого он снят.',
       'Порядок `z`, которым собран живой ролик: картинка 0 (порождённая `[img:]`), эффект ' +
         'над ней 10, вспышка 20, грейд 25, субтитры 30.',
     ],
@@ -609,6 +635,11 @@ function cardOf(item: LoadedTemplate): SpecExportTemplate {
     determinism: determinismClassOf(manifest),
     paramsJsonSchema: params.jsonSchema,
     paramsRefinements: params.refinements,
+    // Байтовый порядок по имени: карту наполнил `readdir` загрузчика, и печатать её в порядке
+    // ФС значило бы дифф выгрузки там, где ничего не менялось.
+    presets: [...presetsOf(spec).entries()]
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .map(([name, preset]) => ({ name, note: preset.note, params: preset.params })),
   };
 }
 
@@ -707,7 +738,31 @@ function templateLines(card: SpecExportTemplate): readonly string[] {
     '```',
     '',
     ...refinementLines(card.paramsRefinements),
+    ...presetLines(card.presets),
   ];
+}
+
+/**
+ * Пресеты карточки — **ИМЯ, ФРАЗА И ЧИСЛА**, по строке на пресет (`TPL-01b`).
+ *
+ * Числа печатаются рядом с именем намеренно: без них «`drift-right`» — это обещание, которое
+ * нельзя проверить, не открыв файл, а выгрузку читают там, где файлов нет. С ними видно, что
+ * именно берётся и что останется, если перекрыть один ключ.
+ */
+function presetLines(presets: readonly SpecExportPreset[]): readonly string[] {
+  if (presets.length === 0) {
+    return ['**Пресетов нет:** значения этому шаблону пишут числами.', ''];
+  }
+  const out: string[] = [
+    `**Пресеты — \`params\` под именем (${String(presets.length)}).** Пишутся как ` +
+      '`preset: "<имя>"` вместо `params`; свои `params` рядом с `preset` накладываются ПОВЕРХ ' +
+      'по верхнему уровню ключей:',
+    '',
+  ];
+  for (const preset of presets) {
+    out.push(`* \`${preset.name}\` — ${preset.note}`, '', '  ```json', `  ${canonicalJson(preset.params)}`, '  ```', '');
+  }
+  return out;
 }
 
 /**

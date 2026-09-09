@@ -127,6 +127,22 @@ export {
   type LoadedTemplate,
 } from './gates-file.js';
 
+// Дом пресетов: файлы `<id>@<N>/presets/<name>.json` В ПАПКЕ шаблона (`TPL-01b`). Диска здесь
+// тоже нет — содержимое приезжает значением; читает его тот же единственный загрузчик, что и
+// `gates.json`. Пресет разворачивается КОМПИЛЯТОРОМ до `paramsSchema` и ниже не существует.
+export {
+  attachPresets,
+  parsePresetFileName,
+  presetFileName,
+  presetNames,
+  presetsOf,
+  PresetFileSchema,
+  PRESETS_DIR,
+  PRESET_FILE_EXT,
+  type PresetFileSource,
+  type TemplatePreset,
+} from './presets.js';
+
 // Прод-библиотека: СЕМЬ версионированных единиц каталога (`E-00`; прежнее имя
 // `FIXTURE_TEMPLATES`). Сам список — ПРОИЗВОДНЫЙ от листинга каталога и генерируется
 // (`scripts/gen-template-registry.mjs`, `TPL-01a`); отсюда он выходит одним именем.

@@ -138,7 +138,12 @@ function draftsOfRecords(input: RecordTracksInput, problems: CompileProblem[]): 
       recordId: record.recordId,
       filePath: placed.filePath,
       template: record.template,
-      params: record.params,
+      // **РАЗВЁРНУТЫЕ `params` КОНТРАКТА, А НЕ ЗАПИСЬ ФАЙЛА** (`TPL-01b`). Пресет
+      // разворачивается один раз — в `contract.ts`, до схемы шаблона, — и в Timeline (а через
+      // него в IR и в `segmentIrHash`) обязан уехать РЕЗУЛЬТАТ: иначе кадры зависели бы от
+      // того, назвал автор числа или имя пресета, а перевод ролика на пресеты переснимал бы
+      // всё при тех же значениях. `record.params` здесь была бы вторая, неразвёрнутая правда.
+      params: contract.params,
       // Тот же `scope`, который уже прочитан выше для `areaEndOf`: вход формулы seed'а
       // (ADR-0007 §1), сохранённый вместе с записью, а не выведенный заново (`CP-04`).
       scope: placed.scope,
@@ -194,6 +199,11 @@ function draftsOfGenerated(input: RecordTracksInput, problems: CompileProblem[])
       fill: {
         kind: 'generated',
         template: record.template,
+        // **ЗДЕСЬ — `record.params`, И ЭТО НЕ ЗАБЫТАЯ ПРАВКА `TPL-01b`.** У порождённой
+        // `[img:]`-записи пресета нет по построению (её пишет компилятор, а пресет называет
+        // автор), поэтому `contract.params` ей равны байт в байт; а тип у неё УЖЕ второй
+        // (`{asset: string}` вместо `TemplateParams` — `types.ts`), и подстановка развёрнутой
+        // величины его бы стёрла. Разворачивать нечего — берём то, что типизировано сильнее.
         params: record.params,
         contract,
       },

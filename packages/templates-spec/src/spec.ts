@@ -21,6 +21,7 @@ import type { Samples } from '@vpe/core-model';
 import type { z } from 'zod';
 
 import type { TemplateManifest } from './manifest.js';
+import type { TemplatePreset } from './presets.js';
 import type { AssetRef, FontRef } from './refs.js';
 
 /**
@@ -87,6 +88,22 @@ export interface TemplateSpec<P = unknown> {
    */
   declareDuration?(params: P): Samples | null;
   readonly manifest: TemplateManifest;
+  /**
+   * **`params`, СОХРАНЁННЫЕ ПОД ИМЕНЕМ** — пресеты шаблона (`TPL-01b`, 2026-09-10).
+   *
+   * **ПОЛЕ НЕОБЯЗАТЕЛЬНОЕ, ПОТОМУ ЧТО ЕГО СТАВИТ НЕ СПЕК.** Пресеты живут файлами в папке
+   * шаблона (`<id>@<N>/presets/<name>.json`) и приклеиваются загрузчиком — ровно как записи
+   * гейта: неизменная часть контракта в коде, авторская в файлах рядом (`presets.ts`).
+   * Требовать поле от спека значило бы, что новый пресет — это правка TypeScript.
+   *
+   * ЧИТАЕТСЯ ОДНОЙ ФУНКЦИЕЙ — `presetsOf` (`presets.ts`), которая отдаёт пустую карту, если
+   * подкаталога не было. Прямое чтение поля размножило бы `undefined`-ветку по вызывающим.
+   *
+   * `ReadonlyMap`, А НЕ ОБЪЕКТ: имя пресета приходит из имени файла, то есть это ключ-строка
+   * из внешнего мира, и объект дал бы `__proto__` ключом. `canonicalJson` `Map` отвергает —
+   * и правильно: спек в ключ кэша не едет, а карточка `vpe spec export` печатает СПИСОК.
+   */
+  readonly presets?: ReadonlyMap<string, TemplatePreset>;
 }
 
 /** Спек любого шаблона — то, чем оперируют реестр и гейт. */
