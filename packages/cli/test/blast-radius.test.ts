@@ -28,14 +28,14 @@ import path from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
-import { readStoreLock, segmentKey, type SegmentKeyInput } from '@vpe/media';
+import { readStoreLock } from '@vpe/media';
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import { CompileProfileSchema, readFamily } from '@vpe/schema';
-import { segmentIrHash } from '@vpe/compile';
 
 import { AC4_PROFILE_ID } from '../src/ac4.js';
 import { readProject, readRenderProfile } from '../src/build-stages/inputs.js';
 import { runPipeline } from '../src/build-stages/pipeline.js';
+import { segmentCacheKey } from '../src/build-stages/render.js';
 
 import { cleanupRoots, countingRandom, makeProject, type TestProject } from './build-fixture.js';
 
@@ -153,18 +153,23 @@ async function keysOf(project: TestProject, scale: string, tag: string): Promise
     [],
   );
 
+  // ═══ КЛЮЧ СЧИТАЕТ ТА ЖЕ ФУНКЦИЯ, ЧТО И СБОРКА (`CACHE-01`, находка Н5) ═══
+  // До `CACHE-01` рецепт был написан здесь вторым экземпляром, и это делало golden охранником
+  // САМОГО СЕБЯ: разойдись сборка с тестом хоть одним полем (порядок списка sha, узкий профиль
+  // вместо полного), golden остался бы зелёным, а кэш промахивался бы не там. Показано
+  // нарушением Н5 протокола: правка рецепта в `render.ts` НЕ КРАСИЛА ни один тест.
+  // Экземпляр теперь один — `segmentCacheKey`, — и второго завести негде.
   const segments = new Map<string, string>();
   for (const segment of result.ir.segments) {
-    const input = {
-      segmentIrHash: segmentIrHash(segment),
-      compileProfile,
-      pixelProfile: renderProfile.pixelProfile,
-      assetShas: [...segment.assets.map((asset) => asset.sha256)].sort(),
-      fontShas: [...segment.fonts.map((font) => font.sha256)].sort(),
-      gridShas: [],
-      engineFingerprint: FINGERPRINT,
-    } as unknown as SegmentKeyInput;
-    segments.set(segment.segmentId, String(segmentKey(input)));
+    segments.set(
+      segment.segmentId,
+      segmentCacheKey({
+        ir: segment,
+        compileProfile,
+        pixelProfile: renderProfile.pixelProfile,
+        engineFingerprint: FINGERPRINT,
+      }),
+    );
   }
 
   const chunks = new Map<string, { chunkKey: string; voiceKey: string }>();

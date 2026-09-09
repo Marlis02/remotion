@@ -54,6 +54,7 @@ import {
   providerSpeechSource,
   recordSpeechPlan,
   speechPlan,
+  stageVoiceCache,
   takeFilePath,
   tokensOfPlan,
   type AccountSnapshot,
@@ -86,6 +87,14 @@ export interface PipelineInput {
   readonly randomBytes: RandomBytes;
   /** Разрешён ли промах `voice` (**K8**). Без него промах — падение, а не поход к провайдеру. */
   readonly allowTts: boolean;
+  /**
+   * `--no-cache`: межсборочный кэш стадии `voice` не спрашивается и не пополняется
+   * (`CACHE-01`). Умолчание — кэш включён.
+   *
+   * НА **K8** ЭТО НЕ ВЛИЯЕТ НИ ОДНОЙ ВЕТКОЙ: промах без `--allow-tts` остаётся падением с
+   * инструкцией, потому что гейт стоит у `guardedSource`, а не у кэша (ADR-0006 §9).
+   */
+  readonly noCache?: boolean;
   /**
    * Источник дубля. Умолчание — реализация, названная проектом (`V-06`); тест подставляет свою.
    *
@@ -386,6 +395,22 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
           store: new LocalStore(project.layout.storeDir),
           lock: input.lock,
           projectRoot: project.layout.takesRoot,
+          // ═══ МЕЖСБОРОЧНЫЙ КЭШ `voice` (`CACHE-01`, долг №198) ═══
+          // ЧТО ЭТО ЧИНИТ: при ЧАСТИЧНОМ промахе (один чанк из десяти) стадия зовётся на весь
+          // план, и до этой строки она синтезировала заново и те девять, что уже оплачены.
+          // Теперь каждый чанк спрашивает кэш перед источником (`record.ts`), и платится
+          // только промах.
+          //
+          // ЧЕГО ЭТО НЕ ЧИНИТ, И ЭТО ИЗМЕРЕНО, А НЕ ПРЕДПОЛОЖЕНО: кэш наполняется только
+          // сборками, идущими уже с этой строкой. `.cache` в git не идёт, поэтому у проекта с
+          // оплаченными дублями, но пустым `.cache/voice`, ПЕРВЫЙ частичный промах после
+          // правки всё равно платит за весь план. Лечит это `voiceCacheFromTakes` — она
+          // написана и покрыта (`M-05`), но её не зовёт никто; долг №198 переоценён этим
+          // остатком, а не закрыт.
+          //
+          // КОРЕНЬ — ЗАПИСИ, а не чтения: `.cache` пишется, и прогон на `fixtures/minimal`
+          // не имеет права положить туда ни байта.
+          ...(input.noCache === true ? {} : { cache: stageVoiceCache(project.layout.takesRoot) }),
           speechEdges: project.audioProfile.speechEdges,
           // «Как сделано» — из СНИМКА АККАУНТА, а не из констант (`V-06`). У герметичного
           // провайдера снимка нет и быть не может, и тогда здесь стоят честные `none`/`null`:

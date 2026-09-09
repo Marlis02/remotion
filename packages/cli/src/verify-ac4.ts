@@ -61,16 +61,29 @@ const sha256Hex = (bytes: Uint8Array): string =>
  * ВЫВОД СБОРКИ УХОДИТ С ПРЕФИКСОМ ПРОГОНА: два одинаковых потока строк подряд нечитаемы, а
  * молча их проглотить нельзя — рендер идёт минутами, и автор смотрит на ход.
  */
-async function runOnce(
-  args: VerifyAc4Args,
-  deps: VerifyAc4Deps,
-  run: 1 | 2,
-  runRoot: string,
-  now: string,
-  audio: { readonly audioProfile: Parameters<typeof ingestMusic>[0]['audioProfile']; readonly projectSampleRate: number },
-): Promise<Measured> {
-  const buildDir = path.join(runRoot, `run-${String(run)}`);
-  const buildArgs: BuildArgs = {
+/**
+ * Аргументы ОДНОГО из двух прогонов AC4 — отдельной функцией, чтобы её можно было спросить.
+ *
+ * ═══ `--no-cache` ЗДЕСЬ — ЧАСТЬ КРИТЕРИЯ, А НЕ НАСТРОЙКА (долг №239, `CACHE-01`) ═══
+ * AC4 спрашивает: «даёт ли РЕНДЕРЕР одинаковые кадры дважды». Пусти во второй прогон
+ * межсборочный кэш сегментов — и он ответит «да» на другой вопрос: «отдаёт ли кэш те же
+ * байты, что положил», а это тавтология. Поэтому второй прогон обязан быть НЕЗАВИСИМЫМ.
+ *
+ * ПЕРВЫЙ ПРОГОН ТОЖЕ ИДЁТ БЕЗ КЭША, и это не перестраховка: сравниваются два прогона, и они
+ * обязаны идти ОДНИМ путём. Прогретый первый и холодный второй сравнивали бы попадание с
+ * рендером — то есть проверяли бы **K3**, а не AC4.
+ *
+ * ПОБОЧНОЕ СЛЕДСТВИЕ, НАЗВАННОЕ ВСЛУХ: `framemd5` сегмента на попадании кэша ЧИТАЕТСЯ из
+ * манифеста (`render.ts`, решение владельца `CACHE-01` вопрос 3), а здесь он МЕРЯЕТСЯ настоящим
+ * декодом настоящего рендера. То есть ночной контур продолжает проверять ту величину, которую
+ * коммит-цикл берёт на веру.
+ *
+ * ФУНКЦИЯ ЭКСПОРТИРУЕТСЯ РАДИ ОХРАННИКА: «оба прогона идут с `--no-cache`» проверяется по
+ * АРГУМЕНТАМ, без браузера и без сборки, — а значит проверяется в обычном тестовом контуре, а
+ * не только в ночном.
+ */
+export function ac4BuildArgs(args: VerifyAc4Args, buildDir: string, now: string): BuildArgs {
+  return {
     command: 'build',
     projectDir: args.projectDir,
     profileId: AC4_PROFILE_ID,
@@ -84,7 +97,20 @@ async function runOnce(
     writeRoot: null,
     storeDir: args.storeDir,
     gatesDir: null,
+    noCache: true,
   };
+}
+
+async function runOnce(
+  args: VerifyAc4Args,
+  deps: VerifyAc4Deps,
+  run: 1 | 2,
+  runRoot: string,
+  now: string,
+  audio: { readonly audioProfile: Parameters<typeof ingestMusic>[0]['audioProfile']; readonly projectSampleRate: number },
+): Promise<Measured> {
+  const buildDir = path.join(runRoot, `run-${String(run)}`);
+  const buildArgs = ac4BuildArgs(args, buildDir, now);
 
   deps.out(`\n── прогон ${String(run)}/2 → ${buildDir} ─────────────────────────────\n`);
   const code = await build(buildArgs, deps);

@@ -13,16 +13,23 @@
 // полученный хэш в запрос; адаптер пересоберёт каталог из тех же полей и СВЕРИТ (**R2**) —
 // правило не ослаблено, у него просто появился законный первый вычислитель.
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { segmentIrHash } from '@vpe/compile';
 import type { RenderIrSegment } from '@vpe/core-model';
 import {
+  StageCache,
   buildSegmentArtifact,
   concatAndMux,
   encodeWav,
+  probeStreamFingerprint,
+  segmentKey,
+  type CacheManifestEntry,
   type PcmS16,
   type SegmentArtifact,
+  type SegmentKeyInput,
   type Store,
 } from '@vpe/media';
 import {
@@ -39,7 +46,7 @@ import {
   type RendererTemplateRegistry,
   type SegmentRenderRequest,
 } from '@vpe/renderer-hyperframes';
-import type { AudioProfile, RenderProfile, Sha256 } from '@vpe/schema';
+import { asSha256, type AudioProfile, type CompileProfile, type RenderProfile, type Sha256 } from '@vpe/schema';
 import type { TemplateRegistry } from '@vpe/templates-spec';
 
 import { AC4_GATE_SKIP_WHY, isGateProfile, type BuildProfileId } from '../ac4.js';
@@ -79,6 +86,9 @@ export interface SegmentRenderInput {
   readonly index: number;
 }
 
+/** Как сегмент получен: из кэша, рендером, либо кэш выключен флагом (`CACHE-01`). */
+export type SegmentCacheVerdict = 'hit' | 'miss' | 'off';
+
 /** Что получилось по сегменту: запрос (для отчёта), ответ адаптера и артефакт `media`. */
 export interface SegmentResult {
   readonly segmentId: string;
@@ -86,6 +96,21 @@ export interface SegmentResult {
   readonly artifact: SegmentArtifact;
   readonly engineCompositionHash: string | null;
   readonly browserLaunchLine: string | null;
+  /**
+   * Откуда байты. НИЖЕ ПО ТЕЧЕНИЮ ЭТО ПОЛЕ НЕ ЧИТАЕТ НИКТО, кроме отчётов: `assembleFinal`
+   * берёт `artifact.path`, `BuildRecord` — измерения, и оба обязаны быть слепы к источнику
+   * (**K3**: «попадание == промах»). Поле существует ради ОТЧЁТА — «почему эта сборка шла
+   * четыре секунды» есть законный вопрос, и ответ на него не должен требовать чтения `.cache`.
+   */
+  readonly cache: SegmentCacheVerdict;
+  /**
+   * Стенка `buildRequest` — цена, которую платит и попадание (`CACHE-01`).
+   *
+   * Материализация каталога композиции нужна ВСЕГДА: `bundle.hash` иначе неизвестен, а по нему
+   * решается «промах по композиции». Число печатается в `reports/timings.txt`, чтобы «сколько
+   * стоит прогретая сборка» отвечалось измерением, а не оценкой.
+   */
+  readonly requestMs: number;
 }
 
 /** `compositionId` из `segmentId`: `seg:intro` → `seg-intro`. Двоеточие — не имя каталога. */
@@ -225,13 +250,124 @@ export interface RenderSegmentsInput {
   readonly segments: readonly RenderIrSegment[];
   readonly layout: RenderLayout;
   readonly compileProfile: BuildRequestInput['compileProfile'];
+  /**
+   * ПОЛНЫЙ профиль компиляции — вход `segmentKey` (`CACHE-01`), а не вход запроса.
+   *
+   * Рядом с узким `compileProfile` выше, а не вместо него: узкий несёт три поля, которые
+   * читает адаптер (**K4**), а `views/segment.json` называет девятнадцать — включая
+   * `safeAreas.*` и `maxDurationFrames`, которых у узкого нет вовсе.
+   */
+  readonly compileProfileFull: CompileProfile;
   readonly renderProfile: RenderProfile;
   readonly store: Store;
   readonly specs: TemplateRegistry;
   readonly profileId: BuildProfileId;
+  /**
+   * Отпечаток окружения, ИЗМЕРЕННЫЙ ДО РЕНДЕРА (`build.ts` §6) — седьмое слагаемое
+   * `segmentKey` (ADR-0006 §2, **K6**: единственное место измеренного окружения в ключе).
+   *
+   * Приходит ЗНАЧЕНИЕМ, а не измеряется здесь второй раз: две пробы одной машины могут
+   * разойтись (перезапуск Chrome между ними), и тогда ключ описывал бы окружение, в котором
+   * **R12** не спрашивался.
+   */
+  readonly engineFingerprint: string;
+  /**
+   * Корень, под которым живёт `.cache/segment/<profileId>` (ADR-0005 §1).
+   *
+   * Это КОРЕНЬ ЗАПИСИ (`--write-root`), а не корень чтения: кэш — запись, и сборка
+   * `fixtures/minimal` иначе положила бы `.cache/` внутрь фикстуры, которую нельзя трогать ни
+   * символом. У обычной сборки оба корня совпадают, и разница видна только на фикстуре.
+   */
+  readonly cacheRoot: string;
+  /** `--no-cache`: кэш не спрашивается и не пополняется ни одной записью. */
+  readonly noCache: boolean;
   readonly deps: RenderDeps;
   /** Печать хода: сегмент за сегментом. Рендер идёт минутами — молчать нельзя. */
   readonly out: (text: string) => void;
+}
+
+/**
+ * Вход `segmentKey` НА НАСТОЯЩИХ ВЕЛИЧИНАХ — семь слагаемых ADR-0006 §2 (`CACHE-01`).
+ *
+ * ═══ РЕЦЕПТ ОДИН НА РЕПОЗИТОРИЙ, И ЭТО ГЛАВНОЕ СВОЙСТВО ФУНКЦИИ ═══
+ * Тем же составом ключ собирает golden blast radius (**K9**,
+ * [`blast-radius.test.ts`](../../test/blast-radius.test.ts)): `segmentIrHash(segment)`,
+ * ПОЛНЫЙ профиль компиляции, `pixelProfile` целиком, отсортированные списки sha ассетов и
+ * шрифтов, пустой `gridShas`, `engineFingerprint`. Разойдись эти два места хоть одним полем —
+ * golden охранял бы множество промахов ДРУГОГО ключа, то есть не того, по которому кэш
+ * решает, рендерить или нет.
+ *
+ * СПИСКИ БЕРУТСЯ ИЗ IR, А НЕ ИЗ ЗАПРОСА, и это не мелочь: запрос склеен по `sha256`
+ * (`byFirstSha`), а IR перечисляет ССЫЛКИ — один файл в двух ролях даёт в нём две строки.
+ * Ключ обязан считаться по тому же перечню, что и в golden, а тот берёт IR.
+ *
+ * Каст — тот же приём, что в `blast-radius.test.ts` и `media/test/cache-helpers.ts`: схемы
+ * семейств ШИРЕ, чем `SegmentKeyInput`, а какие их поля входят в ключ, решает не тип, а
+ * `views/segment.json` — он же и падает, если названного пути во входах нет (**K2**).
+ */
+export function segmentCacheKey(input: {
+  readonly ir: RenderIrSegment;
+  readonly compileProfile: CompileProfile;
+  readonly pixelProfile: RenderProfile['pixelProfile'];
+  readonly engineFingerprint: string;
+}): string {
+  const key = {
+    segmentIrHash: segmentIrHash(input.ir),
+    compileProfile: input.compileProfile,
+    pixelProfile: input.pixelProfile,
+    assetShas: [...input.ir.assets.map((asset) => asset.sha256)].sort(),
+    fontShas: [...input.ir.fonts.map((font) => font.sha256)].sort(),
+    // ADR-0006 §15: в v1 всегда пуст — `gridPoint` отвергается валидатором.
+    gridShas: [],
+    engineFingerprint: input.engineFingerprint,
+  } as unknown as SegmentKeyInput;
+  return String(segmentKey(key));
+}
+
+/**
+ * Артефакт сегмента ИЗ БАЙТОВ КЭША — «неотличим от рендеренного» делом, а не обещанием.
+ *
+ * ═══ ЧТО ИЗМЕРЯЕТСЯ, А ЧТО ЧИТАЕТСЯ — И ПОЧЕМУ ЛИНИЯ ПРОХОДИТ ЗДЕСЬ ═══
+ * (Решение владельца, `CACHE-01` вопрос 3; разрез по ЦЕНЕ, а не по удобству.)
+ *
+ *   * ИЗМЕРЯЮТСЯ `sha256` (один проход по мегабайтам) и `stream` (`ffprobe`, десятки мс) —
+ *     то есть ровно те же функции от того же файла, что на промахе;
+ *   * ЧИТАЮТСЯ из манифеста `framemd5Sha256` и `frameCount`. Пересчёт `framemd5` стоит
+ *     декодирования КАЖДОГО кадра — секунд на сегмент, то есть половины выигрыша.
+ *
+ * ПОЧЕМУ ЧТЕНИЕ ЗДЕСЬ ЗАКОННО. `framemd5` — чистая функция БАЙТОВ и версии ffmpeg. Байты
+ * доказаны: стадия `segment` спрашивает кэш с `verify: true`, то есть `get` уже сверил
+ * sha256 и уронил бы сборку на расхождении. Версия ffmpeg входит в ключ через
+ * `engineFingerprint` (**K6**), то есть другая версия — другой ключ и другая запись.
+ *
+ * И ВТОРАЯ ПОЛОВИНА ТОГО ЖЕ ДОВОДА: подлинность `framemd5` по-прежнему МЕРЯЕТСЯ, а не только
+ * читается, — `vpe verify ac4` идёт с `--no-cache` (долг №239), поэтому ночной контур считает
+ * его настоящим декодом на настоящем рендере.
+ *
+ * `frameCount` СВЕРЯЕТСЯ С IR, а не принимается на веру: ADR-0006 §8 дословно — «на попадании
+ * проверяются размер и `frameCount` (дёшево)». Размер сверил `get`, число кадров сверяется
+ * здесь, и сверяется с тем, сколько кадров этому сегменту НУЖНО.
+ */
+async function artifactFromCache(input: {
+  readonly bytes: Uint8Array;
+  readonly outputPath: string;
+  readonly entry: CacheManifestEntry;
+  readonly wallMs: number;
+}): Promise<SegmentArtifact> {
+  writeFileSync(input.outputPath, input.bytes);
+  const stream = await probeStreamFingerprint({ path: input.outputPath });
+  return {
+    path: input.outputPath,
+    sha256: asSha256(createHash('sha256').update(input.bytes).digest('hex')),
+    frameCount: input.entry.frameCount as number,
+    framemd5Sha256: asSha256(input.entry.framemd5Sha256 as string),
+    stream,
+    // ЕДИНСТВЕННОЕ МЕСТО, ГДЕ ПОПАДАНИЕ НЕ МОЖЕТ БЫТЬ НЕОТЛИЧИМО ПО ПОСТРОЕНИЮ, и потому
+    // числа честные, а не переписанные из записи: стенка — настоящая стенка ЭТОГО пути,
+    // попыток не было, пик RSS не измерялся. Ноль читается рядом со строкой `cache=hit` в
+    // `timings.txt` — иначе его пришлось бы читать как «померили ноль».
+    stats: { wallMs: input.wallMs, retries: 0, peakRssBytes: 0 },
+  };
 }
 
 /**
@@ -245,13 +381,44 @@ function gateOf(input: RenderSegmentsInput): NonNullable<Parameters<typeof rende
     : { mode: 'skip', why: AC4_GATE_SKIP_WHY };
 }
 
-/** Рендер всех сегментов по порядку ролика. Параллелизм — внутри рендерера (`workers`). */
+/**
+ * Рендер всех сегментов по порядку ролика. Параллелизм — внутри рендерера (`workers`).
+ *
+ * ═══ ГДЕ СТОИТ МЕЖСБОРОЧНЫЙ КЭШ И ПОЧЕМУ ИМЕННО ЗДЕСЬ (`CACHE-01`, долг №200) ═══
+ * ВЫШЕ точки инъекции `deps.render`, а не обёрткой вокруг неё. Значение кэша — ЗАКОДИРОВАННЫЙ
+ * сегмент (`.mts`), то есть выход `buildSegmentArtifact`, а `deps.render` отдаёт КАДРЫ.
+ * Обёртка вокруг адаптера обязана была бы на попадании выдумать каталог PNG — то есть
+ * «похожие байты», третий исход, которого у **K3** нет по построению.
+ *
+ * ТРИ ИСХОДА ВОПРОСА К КЭШУ, И КАЖДЫЙ ПЕЧАТАЕТСЯ СВОИМ СЛОВОМ:
+ *   * `попадание` — ключ есть, композиция та же: байты кладутся по ТОМУ ЖЕ пути, что дал бы
+ *     рендер, и ниже по течению никто не знает, откуда они;
+ *   * `промах по композиции` — ключ есть, а `bundleHash` записи не равен `bundle.hash` этого
+ *     запроса. `bundle.hash` в `segmentKey` НЕ ВХОДИТ (ADR-0006 §2 после `DOC-06`), а правка
+ *     кода шаблона меняет именно его: без этой ветки кэш отдавал бы кадры предыдущей
+ *     реализации шаблона молча (долги №155, №196);
+ *   * `промах` — записи нет либо байты значения исчезли (`get` вернул `undefined`).
+ *
+ * ЦЕНА, КОТОРУЮ ПЛАТИТ И ПОПАДАНИЕ: `buildRequest` зовётся ВСЕГДА, потому что `bundle.hash`
+ * иначе неизвестен, а он и есть половина вопроса выше. То есть прогретая сборка всё равно
+ * материализует каталог композиции каждого сегмента. Величина измеряется и печатается —
+ * `requestMs` в `reports/timings.txt`.
+ */
 export async function renderSegments(input: RenderSegmentsInput): Promise<readonly SegmentResult[]> {
   const templates = input.deps.templates ?? rendererTemplates;
   const run = input.deps.render ?? renderSegment;
   const out: SegmentResult[] = [];
+  // `verify: true` — РЕШЕНИЕ ВЛАДЕЛЬЦА (`CACHE-01` вопрос 1), усиление ADR-0006 §8, а не
+  // ослабление: буква ADR говорит «sha256 — под `--verify-cache`», но флага у сборки нет, а
+  // цена проверки нулевая (тот же проход sha256, что нужен артефакту). Без неё подмена байтов
+  // ТОЙ ЖЕ ДЛИНЫ прошла бы молча — то есть попадание перестало бы быть равным промаху.
+  // Расхождение буквы ADR с поведением записано долгом №246.
+  const cache = input.noCache
+    ? null
+    : new StageCache(input.cacheRoot, { stage: 'segment', profileId: input.profileId }, { verify: true });
 
   for (const [index, ir] of input.segments.entries()) {
+    const requestStarted = input.deps.clock();
     const request = await buildRequest({
       ir,
       index,
@@ -261,11 +428,60 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       store: input.store,
       templates,
     });
+    const requestMs = input.deps.clock() - requestStarted;
 
     input.out(
       `сегмент ${String(index + 1)}/${String(input.segments.length)} \`${ir.segmentId}\`: ` +
         `${String(ir.segmentDurationInFrames)} кадров, bundle ${request.bundle.hash.slice(0, 12)}…\n`,
     );
+
+    if (cache === null) {
+      input.out('  кэш: выключен\n');
+    } else {
+      const key = segmentCacheKey({
+        ir,
+        compileProfile: input.compileProfileFull,
+        pixelProfile: input.renderProfile.pixelProfile,
+        engineFingerprint: input.engineFingerprint,
+      });
+      const hitStarted = input.deps.clock();
+      const entry = await cache.lookup(key);
+      if (entry !== undefined && entry.bundleHash !== request.bundle.hash) {
+        input.out(
+          `  кэш: промах по композиции (запись снята на bundle ` +
+            `${(entry.bundleHash ?? 'нет в записи').slice(0, 12)}…)\n`,
+        );
+      } else if (entry !== undefined) {
+        assertUsableEntry(entry, ir, key, input.cacheRoot, input.profileId);
+        const bytes = await readCachedBytes(cache, key, input.cacheRoot, input.profileId);
+        if (bytes !== undefined) {
+          const artifact = await artifactFromCache({
+            bytes,
+            outputPath: request.outputPath,
+            entry,
+            wallMs: input.deps.clock() - hitStarted,
+          });
+          input.out(`  кэш: попадание ${key.slice(0, 12)}…\n`);
+          out.push({
+            segmentId: ir.segmentId,
+            bundleHash: request.bundle.hash,
+            artifact,
+            // Рендерер в этом прогоне не работал — величин из его трассы нет и выдумывать их
+            // нечем. `null` здесь означает «не спрашивали», и это ровно то, что случилось.
+            engineCompositionHash: null,
+            browserLaunchLine: null,
+            cache: 'hit',
+            requestMs,
+          });
+          continue;
+        }
+        // Запись есть, байтов нет — ПРОМАХ по контракту `StageCache` (кэш инвалидируется по
+        // определению). Печатается тем же словом: пересчёт — законный исход, порча — нет.
+        input.out('  кэш: промах (байты значения исчезли)\n');
+      } else {
+        input.out('  кэш: промах\n');
+      }
+    }
 
     const response = await run(request, {
       clock: input.deps.clock,
@@ -299,16 +515,114 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       stats: response.stats,
     });
 
+    if (cache !== null) {
+      // ПОРЯДОК ЗНАЧИМ, и он тот же, что у стадии `voice`: сначала артефакт на диске, потом
+      // запись в кэш. Обрыв между шагами оставляет байты без записи — это промах, то есть
+      // пересчёт; обратный порядок оставил бы запись, ведущую в пустоту.
+      await cache.put(
+        segmentCacheKey({
+          ir,
+          compileProfile: input.compileProfileFull,
+          pixelProfile: input.renderProfile.pixelProfile,
+          engineFingerprint: input.engineFingerprint,
+        }),
+        readFileSync(artifact.path),
+        {
+          frameCount: artifact.frameCount,
+          framemd5Sha256: String(artifact.framemd5Sha256),
+          bundleHash: request.bundle.hash,
+          segmentId: ir.segmentId,
+        },
+      );
+    }
+
     out.push({
       segmentId: ir.segmentId,
       bundleHash: request.bundle.hash,
       artifact,
       engineCompositionHash: response.engineCompositionHash,
       browserLaunchLine: response.browserLaunchLine,
+      cache: cache === null ? 'off' : 'miss',
+      requestMs,
     });
   }
 
   return out;
+}
+
+/**
+ * Запись манифеста, годная к употреблению, — или ОТКАЗ с адресом, а не тихий пересчёт.
+ *
+ * Две проверки, и обе про то, что запись описывает ИМЕННО ЭТОТ сегмент:
+ *   * состав полей. Запись с совпавшим `bundleHash`, но без `frameCount`/`framemd5Sha256`
+ *     получиться самой не может — её либо правили руками, либо писала другая версия движка.
+ *     Достроить умолчаниями нечего: `framemd5` пришлось бы пересчитать декодом, а это ровно
+ *     то, что попадание обязано НЕ делать;
+ *   * число кадров против IR. ADR-0006 §8 дословно: «на попадании проверяются размер и
+ *     `frameCount` (дёшево)». Размер сверил `get`; здесь сверяется, что кадров в записи
+ *     столько, сколько нужно ЭТОМУ сегменту.
+ */
+function assertUsableEntry(
+  entry: CacheManifestEntry,
+  ir: RenderIrSegment,
+  key: string,
+  cacheRoot: string,
+  profileId: BuildProfileId,
+): void {
+  if (entry.frameCount === undefined || entry.framemd5Sha256 === undefined) {
+    throw new CliError(
+      'K3',
+      `кэш сегментов: запись \`${key}\` неполна — нет ` +
+        `\`${entry.frameCount === undefined ? 'frameCount' : 'framemd5Sha256'}\`. Достроить её ` +
+        'умолчаниями нельзя ни одним полем: попадание перестало бы быть равным промаху. ' +
+        `Лечится удалением пространства имён: \`rm -rf ${cacheNamespaceHint(cacheRoot, profileId)}\``,
+      EXIT.error,
+    );
+  }
+  const wanted = Number(ir.segmentDurationInFrames);
+  if (entry.frameCount !== wanted) {
+    throw new CliError(
+      'K3',
+      `кэш сегментов, сегмент \`${ir.segmentId}\`, ключ \`${key}\`: запись обещает ` +
+        `${String(entry.frameCount)} кадров, а сегменту нужно ${String(wanted)}. Ключ есть ` +
+        'функция входов — расхождение здесь означает, что под ключом лежит ЧУЖОЙ сегмент. ' +
+        `Лечится удалением пространства имён: \`rm -rf ${cacheNamespaceHint(cacheRoot, profileId)}\``,
+      EXIT.error,
+    );
+  }
+}
+
+/**
+ * Байты значения — с ПЕРЕВОДОМ порчи в отказ сборки, а не в тихий пересчёт (**K3**).
+ *
+ * `CacheError` из `get` означает ровно одно: по валидному ключу лежат не те байты (усечение
+ * или подмена). Проглотить его промахом значило бы стереть след порчи и пересчитать — то есть
+ * сделать вид, что кэша не было. Поэтому он превращается в отказ сборки С СОВЕТОМ: удалить
+ * пространство имён можно за одну команду, а понять, почему ролик собрался «немного другим»,
+ * нельзя вовсе.
+ */
+async function readCachedBytes(
+  cache: StageCache,
+  key: string,
+  cacheRoot: string,
+  profileId: BuildProfileId,
+): Promise<Uint8Array | undefined> {
+  try {
+    return await cache.get(key);
+  } catch (error) {
+    throw new CliError(
+      'K3',
+      `кэш сегментов испорчен: ${error instanceof Error ? error.message : String(error)}\n` +
+        `Сборка остановлена, а НЕ пересчитана молча (**K3**). Кэш восстановим целиком — ` +
+        `удалите пространство имён и повторите: \`rm -rf ${cacheNamespaceHint(cacheRoot, profileId)}\``,
+      EXIT.error,
+    );
+  }
+}
+
+/** Путь пространства имён для совета в отказе. Раскладку знает `media` — здесь только текст. */
+function cacheNamespaceHint(cacheRoot: string, profileId: BuildProfileId): string {
+  return path.join(cacheRoot, '.cache', 'segment', profileId);
 }
 
 export interface AssembleInput {

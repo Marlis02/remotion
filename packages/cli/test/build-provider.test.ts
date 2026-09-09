@@ -137,6 +137,7 @@ async function runBuild(
     writeRoot: null,
     storeDir: project.storeDir,
     gatesDir: project.gatesDir,
+    noCache: false,
   };
   const deps: BuildDeps = {
     now: () => '2026-08-31T00:00:00.000Z',

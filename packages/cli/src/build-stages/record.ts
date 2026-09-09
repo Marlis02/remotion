@@ -36,6 +36,17 @@ export interface SegmentRow {
   readonly sha256: string;
   readonly framemd5Sha256: string;
   readonly frameCount: number;
+  /**
+   * Откуда взялись байты сегмента (`CACHE-01`): `hit` — межсборочный кэш, `miss` — рендер,
+   * `off` — кэш выключен `--no-cache`.
+   *
+   * ЭТО ЕДИНСТВЕННОЕ ПОЛЕ ЗАПИСИ, КОТОРОЕ ОТ ПРОГОНА ЗАВИСИТ ПО СУЩЕСТВУ, и оно здесь, а не в
+   * `timings.txt`, намеренно: «холодная сборка и прогретая дали равные артефакты» — это
+   * утверждение о `sha256`/`framemd5Sha256` СОСЕДНИХ полей, и читать его надо в одной строке
+   * с тем, откуда байты пришли. Родня ему — `voice.sourceCalls`/`voice.cacheHits`, которые
+   * зависят от прогона ровно так же и лежат в записи с `L-01`.
+   */
+  readonly cache: 'hit' | 'miss' | 'off';
 }
 
 /**
@@ -68,6 +79,24 @@ export interface BuildRecord {
     /** Сколько раз позван источник дубля — «сколько оплачено» (**K3**). */
     readonly sourceCalls: number;
     readonly cacheHits: number;
+  };
+  /**
+   * Межсборочный кэш СЕГМЕНТОВ (`CACHE-01`) — блок верхнего уровня, а НЕ поле внутри `voice`.
+   *
+   * ═══ ПОЧЕМУ ЭТИ ЧИСЛА НЕЛЬЗЯ СЛИВАТЬ С `voice.cacheHits` ═══
+   * Разница найдена владельцем на первой живой сборке и записана дословно в
+   * [`pipeline.ts`](pipeline.ts) (поле `reusedTakes`): `voice.cacheHits` считает попадания
+   * кэша СТАДИИ ГОЛОСА — «за что эта сборка не заплатила деньгами», — а `segmentHits`
+   * считает несостоявшиеся РЕНДЕРЫ, то есть сэкономленные минуты. Сложить их в одно число
+   * значило бы получить величину, из которой не следует ни то, ни другое.
+   *
+   * `mode` отдельным полем, а не выводится из равенства `segmentHits` нулю: холодная сборка с
+   * кэшем и сборка с `--no-cache` дают один и тот же ноль попаданий и это РАЗНЫЕ события.
+   */
+  readonly cache: {
+    readonly mode: 'on' | 'off';
+    readonly segments: number;
+    readonly segmentHits: number;
   };
   readonly audio: {
     readonly totalSamples: number;

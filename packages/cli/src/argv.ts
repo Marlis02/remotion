@@ -90,6 +90,22 @@ export interface BuildArgs {
   readonly storeDir: string | null;
   /** Каталог записей гейта. `null` — каталог библиотеки рядом со спеками. */
   readonly gatesDir: string | null;
+  /**
+   * `--no-cache`: выключить МЕЖСБОРОЧНЫЙ кэш обеих стадий — `voice` и `segment` (`CACHE-01`).
+   *
+   * ОДИН ФЛАГ НА ДВЕ СТАДИИ, А НЕ ДВА. Вопрос, на который он отвечает, один: «считать всё
+   * заново, не веря ничему на диске». Раздельные флаги дали бы четыре состояния, из которых
+   * два («голос из кэша, сегменты заново» и наоборот) никому не нужны, а объяснять их
+   * пришлось бы в каждом отчёте.
+   *
+   * ФЛАГ БЕЗ ЗНАЧЕНИЯ — той же причины, что у `--allow-tts`: `--no-cache=false` был бы вторым
+   * способом сказать «кэш нужен», а первый — не писать флаг вовсе.
+   *
+   * ЗДЕСЬ ЖЕ ЕДИНСТВЕННЫЙ ВНУТРЕННИЙ ПОТРЕБИТЕЛЬ: `vpe verify ac4` ставит его ОБОИМ прогонам
+   * (долг №239 — второй прогон обязан быть независимым от кэша, иначе он проверял бы кэш, а
+   * не рендерер; первый — ради симметрии, чтобы сравнивались два одинаковых пути).
+   */
+  readonly noCache: boolean;
 }
 
 /**
@@ -215,7 +231,7 @@ export type CliCommand =
 
 /** Строка помощи — единственное место, где перечислены обе команды. */
 export const USAGE = [
-  'vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>]',
+  'vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>] [--no-cache]',
   '          [--build-dir <кат>] [--write-root <кат>] [--store-dir <кат>] [--gates-dir <кат>]',
   'vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]   (запрос — на stdin)',
   'vpe store verify --project <кат> [--store-dir <кат>] [--write-verified] [--now <ISO>]',
@@ -384,6 +400,7 @@ function parseBuild(rest: readonly string[]): BuildArgs {
   let writeRoot: string | null = null;
   let storeDir: string | null = null;
   let gatesDir: string | null = null;
+  let noCache = false;
 
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i] ?? '';
@@ -421,6 +438,9 @@ function parseBuild(rest: readonly string[]): BuildArgs {
         gatesDir = valueOf(rest, i, arg);
         i += 1;
         break;
+      case '--no-cache':
+        noCache = true;
+        break;
       default:
         throw new CliError(
           'argv',
@@ -457,6 +477,7 @@ function parseBuild(rest: readonly string[]): BuildArgs {
     writeRoot,
     storeDir,
     gatesDir,
+    noCache,
   };
 }
 

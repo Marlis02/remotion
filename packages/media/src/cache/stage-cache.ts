@@ -50,6 +50,27 @@ export interface CacheManifestEntry {
   readonly sha256: string;
   readonly size: number;
   readonly frameCount?: number;
+  /**
+   * Хэш композиции, из которой получены байты (`CACHE-01`).
+   *
+   * НЕ ВЫВОДИТСЯ ИЗ БАЙТОВ, и в этом вся причина, по которой поле здесь. `bundle.hash` —
+   * величина ВХОДА запроса (ADR-0006 §2 после `DOC-06`: в `segmentKey` входит хэш РЕАЛИЗАЦИИ
+   * композиции), но в сам `segmentKey` она не входит ни одним полем, а смена кода шаблона
+   * меняет именно её. Без этой записи попадание засчитывалось бы правкой шаблона — то есть
+   * кэш отдавал бы кадры, нарисованные ПРЕДЫДУЩЕЙ реализацией (долги №155, №196).
+   */
+  readonly bundleHash?: string;
+  /**
+   * `framemd5` готового файла — то, что дорого пересчитать (`CACHE-01`).
+   *
+   * ПОЧЕМУ ЭТО ЧИТАЕТСЯ, А НЕ ИЗМЕРЯЕТСЯ НА ПОПАДАНИИ. `framemd5` — чистая функция БАЙТОВ и
+   * версии ffmpeg; байты доказаны sha256 (стадия `segment` идёт с `verify: true`), а версия
+   * ffmpeg входит в ключ через `engineFingerprint`. Пересчёт же стоит декодирования КАЖДОГО
+   * кадра — секунды на сегмент, то есть половина выигрыша от кэша.
+   */
+  readonly framemd5Sha256?: string;
+  /** Чей это сегмент — след для чтения манифеста глазами; в решениях не участвует. */
+  readonly segmentId?: string;
 }
 
 /** Манифест пространства имён: записи, упорядоченные по ключу. */
@@ -58,9 +79,18 @@ export interface CacheManifest {
   readonly entries: readonly CacheManifestEntry[];
 }
 
-/** Что кладут в кэш вместе с байтами. */
+/**
+ * Что кладут в кэш вместе с байтами.
+ *
+ * Состав — ровно поля `CacheManifestEntry`, которые считает НЕ этот файл: `sha256` и `size`
+ * он выводит из самих байтов, всё прочее знает только вызывающий. Все поля необязательны,
+ * потому что стадии разные: у записи `voice` нет ни кадров, ни композиции.
+ */
 export interface CachePutMeta {
   readonly frameCount?: number;
+  readonly bundleHash?: string;
+  readonly framemd5Sha256?: string;
+  readonly segmentId?: string;
 }
 
 export interface StageCacheOptions {
@@ -205,10 +235,17 @@ export class StageCache {
 
     await writeAtomic(cacheValuePath(this.projectRoot, this.address, key), bytes);
 
-    const entry: CacheManifestEntry =
-      meta.frameCount === undefined
-        ? { key, sha256: sha, size: bytes.length }
-        : { key, sha256: sha, size: bytes.length, frameCount: meta.frameCount };
+    // Необязательное поле ОТСУТСТВУЕТ, а не лежит пустым: `frameCount: 0` означал бы «кадров
+    // ноль», то есть ложь, и то же верно про пустую строку в `bundleHash`.
+    const entry: CacheManifestEntry = {
+      key,
+      sha256: sha,
+      size: bytes.length,
+      ...(meta.frameCount === undefined ? {} : { frameCount: meta.frameCount }),
+      ...(meta.bundleHash === undefined ? {} : { bundleHash: meta.bundleHash }),
+      ...(meta.framemd5Sha256 === undefined ? {} : { framemd5Sha256: meta.framemd5Sha256 }),
+      ...(meta.segmentId === undefined ? {} : { segmentId: meta.segmentId }),
+    };
     const entries = [...manifest.entries.filter((item) => item.key !== key), entry];
     await writeManifest(this.projectRoot, this.address, { stage: this.address.stage, entries });
   }

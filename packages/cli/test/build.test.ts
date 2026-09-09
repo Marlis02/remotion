@@ -65,6 +65,8 @@ function frameRenderer(calls: { count: number }): NonNullable<BuildDeps['render'
 
 interface RunOptions {
   readonly now?: string;
+  /** `--no-cache`: межсборочный кэш обеих стадий выключен (`CACHE-01`). */
+  readonly noCache?: boolean;
   readonly writeRoot?: string;
   readonly allowTts?: boolean;
   readonly buildDir?: string;
@@ -95,6 +97,7 @@ async function runBuild(project: TestProject, options: RunOptions = {}): Promise
     writeRoot: options.writeRoot ?? null,
     storeDir: project.storeDir,
     gatesDir: options.gatesDir ?? project.gatesDir,
+    noCache: options.noCache ?? false,
   };
   const deps: BuildDeps = {
     now: () => '2026-08-30T99:99:99Z',

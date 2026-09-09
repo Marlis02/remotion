@@ -73,6 +73,22 @@ export interface ProjectInputs {
   readonly layout: BuildLayout;
   readonly project: Project;
   readonly compileProfile: CompileProfileInput;
+  /**
+   * ТОТ ЖЕ профиль компиляции ЦЕЛИКОМ — вход `segmentKey` (`CACHE-01`, ADR-0006 §2).
+   *
+   * ПОЧЕМУ РЯДОМ С УЗКИМ, А НЕ ВМЕСТО НЕГО. Это два РАЗНЫХ вопроса к одному файлу.
+   * `compileProfile` выше — то, что стадии компиляции РАЗРЕШЕНО читать (узкий вход, на нём
+   * стоит **K4**); здесь — то, по чему считается КЛЮЧ, а состав ключа определяет
+   * `views/segment.json`, и он называет поля, которых у узкого входа нет вовсе
+   * (`width`, `height`, `safeAreas.*`, `maxDurationFrames`). Сузить второе до первого значило
+   * бы выбросить поля из ключа; расширить первое до второго — отдать компилятору то, что ему
+   * запрещено видеть.
+   *
+   * ВТОРОГО ЧТЕНИЯ ФАЙЛА ЗДЕСЬ НЕТ: значение — тот же объект, который `readProject` уже
+   * разбирает `CompileProfileSchema`, и это ровно тот же рецепт, каким собирает ключ golden
+   * blast radius (**K9**). Разойдись они — golden охранял бы не то, что делает кэш.
+   */
+  readonly compileProfileFull: CompileProfile;
   readonly audioProfile: AudioProfile;
   /**
    * `compile-profile/1 → maxDurationFrames` (предел **T9**) — УЗКИМ входом, а не полем
@@ -242,6 +258,7 @@ export function readProject(input: LayoutInput): ProjectInputs {
   return {
     layout,
     project,
+    compileProfileFull: compile,
     compileProfile: {
       projectSampleRate: compile.projectSampleRate,
       fps: compile.fps,

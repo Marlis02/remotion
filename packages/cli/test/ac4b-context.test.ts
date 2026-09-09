@@ -37,7 +37,7 @@ import { runPipeline } from '../src/build-stages/pipeline.js';
 import type { BuildRecord } from '../src/build-stages/record.js';
 import { compositionIdOf, renderSegments } from '../src/build-stages/render.js';
 
-import { cleanupRoots, countingRandom, makeProject, type TestProject } from './build-fixture.js';
+import { TEST_FINGERPRINT, cleanupRoots, countingRandom, makeProject, type TestProject } from './build-fixture.js';
 
 afterAll(cleanupRoots);
 
@@ -183,6 +183,7 @@ describe('**D12** — сегмент не зависит от соседей', (
         writeRoot: null,
         storeDir: project.storeDir,
         gatesDir: null,
+        noCache: false,
       };
       expect(await build(args, deps), out).toBe(0);
 
@@ -219,9 +220,16 @@ describe('**D12** — сегмент не зависит от соседей', (
           width: read.project.width,
           height: read.project.height,
         },
+        compileProfileFull: read.compileProfileFull,
         renderProfile: readRenderProfile(read.layout.projectRoot, read.project, AC4_PROFILE_ID, []),
         store: new LocalStore(read.layout.storeDir),
         specs: library.registry,
+        engineFingerprint: TEST_FINGERPRINT,
+        cacheRoot: read.layout.takesRoot,
+        // AC4-b мерит КОНТЕКСТНУЮ НЕЗАВИСИМОСТЬ сегмента, а не кэш: попадание сделало бы
+        // равенство байтов тавтологией (те же байты из одного файла), а проверяется, что
+        // сегмент, отрендеренный В ОДИНОЧКУ, равен ему же в ролике.
+        noCache: true,
         profileId: AC4_PROFILE_ID,
         deps,
         out: (text) => (out += text),

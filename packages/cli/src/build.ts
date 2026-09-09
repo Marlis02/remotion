@@ -166,6 +166,7 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     now,
     randomBytes: deps.randomBytes,
     allowTts: args.allowTts,
+    noCache: args.noCache,
     runtime,
     secrets,
     ...(transport === undefined || apiKey === undefined
@@ -269,10 +270,18 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
       width: project.project.width,
       height: project.project.height,
     },
+    compileProfileFull: project.compileProfileFull,
     renderProfile,
     store: new LocalStore(project.layout.storeDir),
     specs: library.registry,
     profileId: args.profileId,
+    // ТОТ ЖЕ отпечаток, по которому спрашивался **R12** двадцатью строками выше: ключ кэша
+    // обязан описывать окружение, в котором гейт СПРАШИВАЛСЯ, а не измеренное второй раз.
+    engineFingerprint: fingerprint,
+    // Корень ЗАПИСИ, а не чтения (`--write-root`): `.cache` — запись, и прогон на
+    // `fixtures/minimal` не имеет права положить туда ни байта.
+    cacheRoot: project.layout.takesRoot,
+    noCache: args.noCache,
     deps,
     out: deps.out,
   });
@@ -294,6 +303,7 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     sha256: segment.artifact.sha256,
     framemd5Sha256: segment.artifact.framemd5Sha256,
     frameCount: segment.artifact.frameCount,
+    cache: segment.cache,
   }));
 
   const finalBytes = readFileSync(assembled.finalPath);
@@ -318,6 +328,14 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
       sourceCalls: result.recorded.sourceCalls,
       cacheHits: result.recorded.cacheHits,
     },
+    // ПОПАДАНИЯ СЕГМЕНТОВ — ОТДЕЛЬНОЕ ЧИСЛО, а не слагаемое `voice.cacheHits`: первое считает
+    // сэкономленные минуты рендера, второе — деньги, не потраченные на синтез. Разбор, почему
+    // их нельзя складывать, — `record.ts` у поля и `pipeline.ts` у `reusedTakes`.
+    cache: {
+      mode: args.noCache ? 'off' : 'on',
+      segments: segments.length,
+      segmentHits: segments.filter((segment) => segment.cache === 'hit').length,
+    },
     audio: {
       totalSamples: result.audio.totalSamples,
       totalFrames: result.audio.totalFrames,
@@ -340,7 +358,12 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
         (segment) =>
           `${segment.segmentId}: wallMs=${String(segment.artifact.stats.wallMs)} ` +
           `retries=${String(segment.artifact.stats.retries)} ` +
-          `peakRssBytes=${String(segment.artifact.stats.peakRssBytes)}`,
+          `peakRssBytes=${String(segment.artifact.stats.peakRssBytes)} ` +
+          // `cache=hit` рядом с нулями: на попадании рендера не было, и `retries=0`/
+          // `peakRssBytes=0` читаются как «не рендерилось», а не как «померили ноль».
+          // `requestMs` — цена, которую платит и попадание: `bundle.hash` неизвестен без
+          // материализации каталога композиции (`CACHE-01`).
+          `cache=${segment.cache} requestMs=${String(segment.requestMs)}`,
       ),
       'ЭТОТ ФАЙЛ — ОТЧЁТ, а не артефакт: числа зависят от прогона, и равными у двух сборок они',
       'не бывают. Всё, что обязано быть равным, лежит в `build/` вне `reports/`.',
