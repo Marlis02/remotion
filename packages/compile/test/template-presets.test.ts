@@ -80,7 +80,8 @@ function recordWith(
   if (placed === undefined) throw new Error('записи `a3f19c2b` в фикстуре нет');
   const record = placed.record;
   if (record.track === 'voice') throw new Error('запись директивная');
-  const { params: _drop, ...rest } = record;
+  const { params, ...rest } = record;
+  void params; // поле снято намеренно — тест проверяет запись БЕЗ params
   return [
     {
       ...placed,
