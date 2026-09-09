@@ -110,11 +110,18 @@ export {
   type GateMediaDeps,
 } from './gate-media.js';
 
-// Каталог шаблонов на диске: спеки из кода + записи `<id>@<N>.gates.json` рядом (`E-00`).
+// Каталог шаблонов на диске: спеки из кода + папка `<id>@<N>/` с `gates.json` и запросами
+// гейта (`E-00`; папка вместо суффикса — `TPL-01a`). Четыре адресные функции выведены наружу
+// ради одного правила: путь к записям и запросам шаблона строит ОДНО место, а не каждый
+// вызывающий своей склейкой (`vpe template gate`, билдер запросов, оба теста запросов).
 export {
   LIBRARY_SUBDIR,
   gateFileSources,
   loadTemplateLibrary,
+  templateDirs,
+  templateGateRequestFile,
+  templateGateRequestsDir,
+  templateGatesFile,
   templateLibraryDir,
   templatesSpecDir,
   type LibraryInput,

@@ -3,7 +3,7 @@
 //
 // ЧТО ЗДЕСЬ ЕСТЬ И ЧЕГО НЕТ. Здесь — библиотечная функция `runGate`: она СНИМАЕТ гейт и
 // возвращает результат. Здесь НЕТ команды `vpe template gate` (`E-00`: она зовёт эту функцию
-// и пишет файл `<id>@<n>.gates.json` — решение владельца `H-04`, вопрос 1, вариант «б»), нет
+// и пишет файл `<id>@<n>/gates.json` — решение владельца `H-04`, вопрос 1, вариант «б»), нет
 // реализаций настоящих шаблонов (`H-06`) и нет второго пути рендера: гейт зовёт `renderSegment`
 // — тот же адаптер, что и продакшн-сборка, в той же изоляции `H-05`. Гейт, снятый другим
 // путём, измерял бы другую пару.
@@ -549,7 +549,7 @@ export function formatGateOutcome(outcome: GateOutcome): string {
 
   switch (outcome.class) {
     case 'PASS':
-      lines.push('  запись гейта (в `<id>@<n>.gates.json` её кладёт `vpe template gate`):');
+      lines.push('  запись гейта (в `<id>@<n>/gates.json` её кладёт `vpe template gate`):');
       lines.push(`    profileId:         ${outcome.record.profileId}`);
       lines.push(`    N:                 ${String(outcome.record.N)}`);
       lines.push(`    sha256:            ${outcome.record.sha256}`);

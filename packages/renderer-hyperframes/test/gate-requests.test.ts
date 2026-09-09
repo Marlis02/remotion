@@ -46,13 +46,25 @@ import {
 const TIMEOUT = 120_000;
 
 const UPDATE = process.env['VPE_GATE_REQUESTS_UPDATE'] === '1';
-const DIR = gateRequestsDir();
-const ASSET = path.join(DIR, GATE_REQUEST_PATHS.asset);
-const FONT = path.join(DIR, GATE_REQUEST_PATHS.font);
+
+/**
+ * **КАТАЛОГ ЗАПРОСОВ ТЕПЕРЬ СВОЙ У КАЖДОГО ШАБЛОНА** (`TPL-01a`, 2026-09-09): он лежит в папке
+ * шаблона, `templates-spec/src/templates/<id>@<N>/gate-requests/`. Прежний общий `DIR` снят —
+ * одного каталога больше нет, и ассеты вместе с ним разъехались по папкам (решение владельца
+ * В2: общих ассетов почти нет — 705 KB шрифта нужны одному шаблону, а 432-байтовая шахматка
+ * трём, и две её лишние копии дешевле, чем правка байтов двенадцати запросов).
+ */
+const dirOf = (call: string): string => gateRequestsDir(call);
 
 /** Все ДВЕНАДЦАТЬ пар (случай, профиль) — то, что обязано лежать файлами. */
 const PAIRS = GATE_REQUEST_CASES.flatMap((kase) =>
-  GATE_REQUEST_PROFILES.map((profile) => ({ kase, profile, name: gateRequestFileName(kase, profile) })),
+  GATE_REQUEST_PROFILES.map((profile) => ({
+    kase,
+    profile,
+    name: gateRequestFileName(profile),
+    dir: dirOf(kase.call),
+    label: `${kase.call}/${gateRequestFileName(profile)}`,
+  })),
 );
 
 const HOWTO =
@@ -61,18 +73,37 @@ const HOWTO =
   '— и посмотреть дифф глазами: сдвиг `bundle.hash` означает, что ПРЕЖНИЕ записи гейта устарели.';
 
 describe('`GATE-PREP` — ассет запросов лежит файлом и это те самые байты', () => {
-  it('`assets/pattern-32.png` побайтово равен `PNG_PATTERN_32` фикстуры', () => {
-    if (UPDATE) {
-      mkdirSync(path.dirname(ASSET), { recursive: true });
-      writeFileSync(ASSET, PNG_PATTERN_32);
-    }
-    expect(existsSync(ASSET), `нет файла ассета \`${ASSET}\`. ${HOWTO}`).toBe(true);
-    // Сравниваются sha256, а не буферы: сообщение о разнице двух картинок в 32×32 нечитаемо,
-    // а хэш называет факт «байты другие» одной строкой. Та же величина едет в `bundle.hash`.
-    expect(sha256Hex(readFileSync(ASSET)), `байты \`${ASSET}\` разошлись с фикстурой. ${HOWTO}`).toBe(
-      sha256Hex(PNG_PATTERN_32),
-    );
-  });
+  // **ТРИ КОПИИ ОДНОЙ ШАХМАТКИ, И ЭТО ЦЕНА, НАЗВАННАЯ ВЛАДЕЛЬЦЕМ** (`TPL-01a`, В2). Запрос
+  // адресует ассет ОТНОСИТЕЛЬНЫМ путём от каталога САМОГО ФАЙЛА (`resolveRequestPaths`), и
+  // единственный способ переехать в папки шаблонов, не тронув байты запросов, — положить файл
+  // рядом с каждым, кто его просит. Просят трое, файл весит 432 байта, лишних копий две.
+  // Список ВЫЧИСЛЯЕТСЯ из самих запросов, а не переписывается: восьмой шаблон, которому нужна
+  // та же шахматка основанием, попадёт сюда сам — вместе со своим файлом.
+  const owners = GATE_REQUEST_CASES.map((kase) => kase.call).filter((call) =>
+    GATE_REQUEST_PROFILES.some((profile) =>
+      (
+        JSON.parse(
+          readFileSync(path.join(dirOf(call), gateRequestFileName(profile)), 'utf8'),
+        ) as { assets: readonly { path: string }[] }
+      ).assets.some((asset) => asset.path === GATE_REQUEST_PATHS.asset),
+    ),
+  );
+
+  for (const call of owners) {
+    it(`\`${call}/gate-requests/assets/pattern-32.png\` побайтово равен \`PNG_PATTERN_32\``, () => {
+      const asset = path.join(dirOf(call), GATE_REQUEST_PATHS.asset);
+      if (UPDATE) {
+        mkdirSync(path.dirname(asset), { recursive: true });
+        writeFileSync(asset, PNG_PATTERN_32);
+      }
+      expect(existsSync(asset), `нет файла ассета \`${asset}\`. ${HOWTO}`).toBe(true);
+      // Сравниваются sha256, а не буферы: сообщение о разнице двух картинок в 32×32 нечитаемо,
+      // а хэш называет факт «байты другие» одной строкой. Та же величина едет в `bundle.hash`.
+      expect(sha256Hex(readFileSync(asset)), `байты \`${asset}\` разошлись с фикстурой. ${HOWTO}`).toBe(
+        sha256Hex(PNG_PATTERN_32),
+      );
+    });
+  }
 });
 
 describe('`E-02` — два слоя параллакса лежат файлами и это те самые байты', () => {
@@ -85,7 +116,7 @@ describe('`E-02` — два слоя параллакса лежат файла�
   for (const [index, bytes] of PARALLAX_LAYER_PNGS.entries()) {
     const rel = GATE_REQUEST_PATHS.layers[index] ?? '';
     it(`\`${rel}\` побайтово равен слою ${String(index)} фикстуры`, () => {
-      const file = path.join(DIR, rel);
+      const file = path.join(dirOf('parallax25@1'), rel);
       if (UPDATE) {
         mkdirSync(path.dirname(file), { recursive: true });
         writeFileSync(file, bytes);
@@ -103,6 +134,8 @@ describe('`E-02` — два слоя параллакса лежат файла�
     expect(GATE_REQUEST_PATHS.layers).toHaveLength(PARALLAX_LAYER_PNGS.length);
   });
 });
+
+const FONT = path.join(dirOf('captionEmphasis@1'), GATE_REQUEST_PATHS.font);
 
 describe('`ENV-01` — шрифт запросов лежит файлом и это те самые байты (долг №187)', () => {
   // ЧЕМ ЭТОТ ФАЙЛ ОТЛИЧАЕТСЯ ОТ СОСЕДА СВЕРХУ. `pattern-32.png` ПРОИЗВОДНЫЙ: его порождает
@@ -132,38 +165,72 @@ describe('`ENV-01` — шрифт запросов лежит файлом и э
 });
 
 describe('`GATE-PREP`/`E-07`/`E-02` — двенадцать файлов запросов равны порождению билдера', () => {
-  for (const { kase, profile, name } of PAIRS) {
+  for (const { kase, profile, name, dir, label } of PAIRS) {
     it(
-      `\`${name}\` совпадает с билдером байт в байт`,
+      `\`${label}\` совпадает с билдером байт в байт`,
       async () => {
-        const file = path.join(DIR, name);
+        const file = path.join(dir, name);
         const built = await buildGateRequestFile(kase, profile);
         if (UPDATE) {
-          mkdirSync(DIR, { recursive: true });
+          mkdirSync(dir, { recursive: true });
           writeFileSync(file, built, 'utf8');
         }
         expect(existsSync(file), `нет файла запроса \`${file}\`. ${HOWTO}`).toBe(true);
-        expect(readFileSync(file, 'utf8'), `\`${name}\` разошёлся с билдером. ${HOWTO}`).toBe(built);
+        expect(readFileSync(file, 'utf8'), `\`${label}\` разошёлся с билдером. ${HOWTO}`).toBe(built);
       },
       TIMEOUT,
     );
   }
 
-  it('в каталоге ровно двенадцать файлов запросов — ни одного лишнего', () => {
-    const found = readdirSync(DIR)
-      .filter((entry) => entry.endsWith('.json'))
-      .sort();
-    // Лишний файл — это запрос, которого не порождает билдер: его никто не сверяет, а
-    // владелец увидит его в каталоге наравне с настоящими и может снять по нему гейт.
-    expect(found, `лишние или пропавшие файлы в \`${DIR}\`. ${HOWTO}`).toEqual(
-      PAIRS.map((pair) => pair.name).sort(),
-    );
-  });
+  // ~~В каталоге ровно двенадцать файлов.~~ *(изменено: `TPL-01a`.)* Каталог теперь свой у
+  // каждого шаблона, и лишний файл ловится В ЕГО ПАПКЕ. Смысл прежний: запрос, которого не
+  // порождает билдер, никто не сверяет, а владелец увидит его наравне с настоящими и может
+  // снять по нему гейт.
+  for (const kase of GATE_REQUEST_CASES) {
+    it(`в \`${kase.call}/gate-requests/\` ровно два файла запросов — ни одного лишнего`, () => {
+      const dir = dirOf(kase.call);
+      const found = readdirSync(dir)
+        .filter((entry) => entry.endsWith('.json'))
+        .sort();
+      expect(found, `лишние или пропавшие файлы в \`${dir}\`. ${HOWTO}`).toEqual(
+        GATE_REQUEST_PROFILES.map((profile) => gateRequestFileName(profile)).sort(),
+      );
+    });
+  }
+
+  // **ОХРАННИК СИРОТ** (`TPL-01a`, компенсация к решению владельца В6). Список исключений
+  // NUL-линта стал ПАТТЕРНОМ (`*@*/gate-requests/assets/**`), и без этой строки под паттерн
+  // прошёл бы любой бинарник, который никто не сверяет. Здесь правило обратное к «лишнему
+  // запросу»: каждый файл ассета обязан быть НАЗВАН хотя бы одним запросом своей папки.
+  for (const kase of GATE_REQUEST_CASES) {
+    it(`в \`${kase.call}/gate-requests/assets/\` нет сирот: каждый файл назван запросом`, () => {
+      const assetsDir = path.join(dirOf(kase.call), 'assets');
+      const onDisk = existsSync(assetsDir) ? readdirSync(assetsDir).sort() : [];
+      const named = new Set<string>();
+      for (const profile of GATE_REQUEST_PROFILES) {
+        const parsed = JSON.parse(
+          readFileSync(path.join(dirOf(kase.call), gateRequestFileName(profile)), 'utf8'),
+        ) as { assets: readonly { path: string }[]; fonts: readonly { path: string }[] };
+        for (const ref of [...parsed.assets, ...parsed.fonts]) named.add(path.basename(ref.path));
+      }
+      // Лицензия шрифта — ЗАКОННАЯ спутница байтов (V10, provenance), и запросом она не
+      // адресуется: её читает человек, а не рендерер. Названа поимённо, а не разрешена
+      // расширением: `.txt` рядом с гейтом мог бы оказаться чем угодно.
+      const allowedCompanions = new Set(['DejaVuSans-Bold.LICENSE.txt']);
+      const orphans = onDisk.filter((file) => !named.has(file) && !allowedCompanions.has(file));
+      expect(
+        orphans,
+        `в \`${assetsDir}\` лежат файлы, которых не просит ни один запрос этой папки. Байты, ` +
+          'которые никто не сверяет, живут своей жизнью: они проходят исключение NUL-линта и ' +
+          'при этом не входят ни в один `bundle.hash`',
+      ).toEqual([]);
+    });
+  }
 });
 
 describe('`GATE-PREP`/`ENV-01` — пути внутри файлов: относительные разрешимы, R2 соблюдён', () => {
-  for (const { name } of PAIRS) {
-    it(`\`${name}\`: ассет и шрифт резолвятся от каталога файла, R2 соблюдён`, () => {
+  for (const { name, dir: DIR, label } of PAIRS) {
+    it(`\`${label}\`: ассет и шрифт резолвятся от каталога файла, R2 соблюдён`, () => {
       const parsed = JSON.parse(readFileSync(path.join(DIR, name), 'utf8')) as {
         tmpDir: string;
         outputPath: string;
@@ -177,8 +244,8 @@ describe('`GATE-PREP`/`ENV-01` — пути внутри файлов: отно�
       // одному чекауту, а владелец работает с двух машин. Резолвит команда — от каталога
       // ФАЙЛА ЗАПРОСА, не от `cwd`.
       for (const asset of parsed.assets) {
-        expect(path.isAbsolute(asset.path), `\`${name}\`: ассет обязан быть ОТНОСИТЕЛЬНЫМ`).toBe(false);
-        expect(existsSync(path.resolve(DIR, asset.path)), `\`${name}\`: ассет \`${asset.path}\` не резолвится`).toBe(true);
+        expect(path.isAbsolute(asset.path), `\`${label}\`: ассет обязан быть ОТНОСИТЕЛЬНЫМ`).toBe(false);
+        expect(existsSync(path.resolve(DIR, asset.path)), `\`${label}\`: ассет \`${asset.path}\` не резолвится`).toBe(true);
       }
 
       // ── шрифт: ~~системный абсолютный~~ ИЗ КАТАЛОГА ЗАПРОСОВ ─────────────────────────
@@ -190,12 +257,12 @@ describe('`GATE-PREP`/`ENV-01` — пути внутри файлов: отно�
       // хватает и здесь оно главное: под этими байтами посчитаны `bundle.hash` десяти
       // запросов и сняты десять записей гейта.
       for (const font of parsed.fonts) {
-        expect(path.isAbsolute(font.path), `\`${name}\`: шрифт обязан быть ОТНОСИТЕЛЬНЫМ`).toBe(false);
+        expect(path.isAbsolute(font.path), `\`${label}\`: шрифт обязан быть ОТНОСИТЕЛЬНЫМ`).toBe(false);
         const resolved = path.resolve(DIR, font.path);
-        expect(existsSync(resolved), `\`${name}\`: шрифт \`${font.path}\` не резолвится`).toBe(true);
+        expect(existsSync(resolved), `\`${label}\`: шрифт \`${font.path}\` не резолвится`).toBe(true);
         expect(
           sha256Hex(readFileSync(resolved)),
-          `\`${name}\`: шрифт \`${font.path}\` — не те байты, под которыми сняты записи гейта`,
+          `\`${label}\`: шрифт \`${font.path}\` — не те байты, под которыми сняты записи гейта`,
         ).toBe(GATE_FONT_SHA256);
       }
 

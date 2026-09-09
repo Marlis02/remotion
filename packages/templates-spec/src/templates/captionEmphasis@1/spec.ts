@@ -23,9 +23,9 @@
 
 import { z } from 'zod';
 
-import type { TemplateManifest } from '../manifest.js';
-import type { FontRef } from '../refs.js';
-import type { TemplateSpec } from '../spec.js';
+import type { TemplateManifest } from '../../manifest.js';
+import type { FontRef } from '../../refs.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /** Стили эмфазы. Один элемент — см. шапку файла. */
 const STYLES = ['bold'] as const;

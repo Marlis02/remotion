@@ -121,7 +121,7 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
       console.log(out);
       expect(code, `${out}\n${err}`).toBe(EXIT.pass);
 
-      const file = path.join(gatesDir, 'solid@1.gates.json');
+      const file = path.join(gatesDir, 'solid@1', 'gates.json');
       expect(existsSync(file), out).toBe(true);
       expect(out).toContain(file);
 
@@ -193,7 +193,7 @@ describe('`vpe template gate` живьём: `solid@1`, профиль `draftHalf
       expect(out).toMatch(/была ДЕЙСТВУЮЩЕЙ/u);
 
       const parsed = GateFileSchema.parse(
-        JSON.parse(readFileSync(path.join(gatesDir, 'solid@1.gates.json'), 'utf8')),
+        JSON.parse(readFileSync(path.join(gatesDir, 'solid@1', 'gates.json'), 'utf8')),
       );
       expect(parsed.entries).toHaveLength(1);
     },

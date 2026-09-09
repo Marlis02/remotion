@@ -38,7 +38,7 @@
 
 import { canonicalJson } from '@vpe/core-model';
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 /**
  * Умолчания «тёплого архива» — предложение сессии, принятое владельцем к просмотру глазами

@@ -105,47 +105,57 @@ export {
   type GateRejection,
 } from './gate.js';
 
-// Дом записей гейта: файл `<id>@<N>.gates.json` рядом со спеком (`E-00`, долг №170).
-// Диска здесь нет — содержимое файлов приезжает значением (граница пакета, R3).
+// Дом записей гейта: файл `<id>@<N>/gates.json` В ПАПКЕ шаблона (`E-00`, долг №170; переезд —
+// `TPL-01a`). Диска здесь нет — содержимое файлов приезжает значением (граница пакета, R3),
+// а имена папки/файлов/подкаталога запросов — единственный источник адресации для тех, у кого
+// диск есть (`renderer-hyperframes/src/library.ts`, `cli/src/template-gate.ts`, билдер запросов).
 export {
   attachGates,
-  gatesFileName,
+  gateRequestFileName,
   loadedSpecs,
   makeGateFile,
-  parseGatesFileName,
+  parseTemplateDirName,
   replaceEntry,
+  templateDirName,
   GateFileSchema,
   GATES_FILE_SCHEMA,
-  GATES_FILE_SUFFIX,
+  GATES_FILE_NAME,
+  GATE_REQUESTS_DIR,
   type GateFile,
   type GateFileEntry,
   type GateFileSource,
   type LoadedTemplate,
 } from './gates-file.js';
 
-// Прод-библиотека: ~~пять~~ СЕМЬ версионированных единиц каталога (`E-00`; прежнее имя
-// `FIXTURE_TEMPLATES`). *(дополнено: `E-02`, 2026-08-31.)*
+// Прод-библиотека: СЕМЬ версионированных единиц каталога (`E-00`; прежнее имя
+// `FIXTURE_TEMPLATES`). Сам список — ПРОИЗВОДНЫЙ от листинга каталога и генерируется
+// (`scripts/gen-template-registry.mjs`, `TPL-01a`); отсюда он выходит одним именем.
+export { TEMPLATE_LIBRARY } from './templates/index.js';
+
+// **ИМЕНОВАННЫЕ СПЕКИ И ИХ ТИПЫ `params` — ПРЯМО ИЗ ПАПОК, А НЕ ИЗ РЕЕСТРА** *(изменено:
+// `TPL-01a`, 2026-09-09)*. Прежде они ехали через `./templates/index.js`; теперь тот файл
+// генерируется, а имена типов (`KenburnsParams`, `Parallax25Params`) из имени папки не
+// выводятся ничем — генератор, который бы их угадывал, был бы вторым разбором TypeScript.
+//
+// **ЭТОТ СПИСОК НОВОМУ ШАБЛОНУ ПРАВИТЬ НЕ НАДО, И ЭТО НЕ ПОСЛАБЛЕНИЕ, А ПРЕЦЕДЕНТ.** `grade@1`
+// стоит в библиотеке с `E-07` и наружу не выведен вовсе: шаблон адресуется реестром по имени,
+// а именованный экспорт нужен только тому, у кого есть ВТОРОЙ вызывающий, — сегодня это тесты
+// и `compile`. Восьмой шаблон попадает в `TEMPLATE_LIBRARY` папкой; строка здесь появляется
+// тогда и только тогда, когда его имя кому-то понадобилось.
 //
 // **ТРИ ИМЕНИ `parallax25@1` ВЫВЕДЕНЫ НАРУЖУ, И КАЖДОЕ — ПО АДРЕСУ.** `LAYER_ROLE_PREFIX` и
 // `layerRole` читает реализация рендерера (она собирает имя роли внутри текста `mountSource`)
 // и билдер запросов гейта; `MAX_PARALLAX_LAYERS` — тест протокола нарушений Н1, которому
-// нужен ПЯТЫЙ слой, а не литерал `5`. Спеки остальных шести наружу ничего, кроме себя и
-// своего типа `params`, не выводят — им нечего.
+// нужен ПЯТЫЙ слой, а не литерал `5`.
+export { bed1, type BedParams } from './templates/bed@1/spec.js';
+export { captionEmphasis1, type CaptionEmphasisParams } from './templates/captionEmphasis@1/spec.js';
+export { flash1, type FlashParams } from './templates/flash@1/spec.js';
+export { kenburns1, type KenburnsParams } from './templates/kenburns@1/spec.js';
 export {
-  TEMPLATE_LIBRARY,
-  bed1,
-  captionEmphasis1,
-  flash1,
-  kenburns1,
   parallax251,
-  still1,
   layerRole,
   LAYER_ROLE_PREFIX,
   MAX_PARALLAX_LAYERS,
-  type BedParams,
-  type CaptionEmphasisParams,
-  type FlashParams,
-  type KenburnsParams,
   type Parallax25Params,
-  type StillParams,
-} from './templates/index.js';
+} from './templates/parallax25@1/spec.js';
+export { still1, type StillParams } from './templates/still@1/spec.js';

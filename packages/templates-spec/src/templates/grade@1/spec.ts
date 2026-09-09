@@ -32,8 +32,8 @@
 
 import { z } from 'zod';
 
-import type { TemplateManifest } from '../manifest.js';
-import type { TemplateSpec } from '../spec.js';
+import type { TemplateManifest } from '../../manifest.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /**
  * Множитель — доля, а не проценты. Верхняя граница 4 выбрана как «вчетверо» — предел, за

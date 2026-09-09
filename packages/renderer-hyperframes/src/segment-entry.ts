@@ -81,7 +81,7 @@ export interface SegmentEntryResult {
  * выпуска; черновик называется явно.
  *
  * РЕЕСТР — ПРОД-КАТАЛОГ, СОБРАННЫЙ ИЗ ДВУХ МЕСТ (`E-00`, долг №171): пять версионированных
- * единиц `TEMPLATE_LIBRARY` плюс записи гейта из файлов `<id>@<N>.gates.json`, лежащих рядом
+ * единиц `TEMPLATE_LIBRARY` плюс записи гейта из файлов `<id>@<N>/gates.json`, лежащих в папках
  * со спеками (`loadTemplateLibrary`).
  */
 export function gateFromArgv(argv: readonly string[]): NonNullable<RenderOptions['gate']> {

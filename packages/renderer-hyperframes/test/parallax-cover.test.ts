@@ -34,7 +34,7 @@ import { describe, expect, it } from 'vitest';
 
 import { renderSegment } from '../src/run.js';
 import { rendererTemplates, type RendererTemplateRegistry } from '../src/templates/index.js';
-import { parallax251Impl } from '../src/templates/parallax25@1.js';
+import { parallax251Impl } from '../src/templates/parallax25@1/impl.js';
 import { decodeRgb, pngSize } from '../src/where.js';
 import { makeTemplateFixture, readyRequest } from './fixture.js';
 

@@ -57,7 +57,7 @@
 
 import { canonicalJson } from '@vpe/core-model';
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 /** Роль шрифта — та же строка, что в `declaredFonts` спека. */
 const FONT_ROLE = 'caption';

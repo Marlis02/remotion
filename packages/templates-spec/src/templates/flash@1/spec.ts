@@ -18,9 +18,9 @@
 import { asSamples, type Samples } from '@vpe/core-model';
 import { z } from 'zod';
 
-import type { EasingId } from '../easing.js';
-import type { TemplateManifest } from '../manifest.js';
-import type { TemplateSpec } from '../spec.js';
+import type { EasingId } from '../../easing.js';
+import type { TemplateManifest } from '../../manifest.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /**
  * Кривая затухания вспышки — членство в реестре **D5** закрыто ТИПОМ, на компиляции.

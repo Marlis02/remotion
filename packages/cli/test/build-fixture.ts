@@ -164,8 +164,10 @@ export function writeGates(
       profileId,
       sha256: '2'.repeat(64),
     }));
+    // Запись живёт в ПАПКЕ шаблона (`TPL-01a`): `<gatesDir>/<id>@<N>/gates.json`.
+    mkdirSync(path.join(gatesDir, name), { recursive: true });
     writeFileSync(
-      path.join(gatesDir, `${name}.gates.json`),
+      path.join(gatesDir, name, 'gates.json'),
       `${JSON.stringify({ entries, schema: 'template-gates/1', templateId: id, templateVersion: Number(version) })}\n`,
       'utf8',
     );

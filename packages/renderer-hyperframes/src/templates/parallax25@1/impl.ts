@@ -45,7 +45,7 @@
 import { canonicalJson } from '@vpe/core-model';
 import { LAYER_ROLE_PREFIX, TRANSFORM_ORDER } from '@vpe/templates-spec';
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 /** Ненулевые значения пробы порядка: на нулях GSAP вправе не собрать `translate` вовсе. */
 const PROBE = { x: 1, y: 1, scale: 2 } as const;

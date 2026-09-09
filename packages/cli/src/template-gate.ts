@@ -4,7 +4,7 @@
 //
 // ЧТО ОНА ДЕЛАЕТ И ЧЕГО НЕ ДЕЛАЕТ. Делает: резолвит шаблон по ПРОД-каталогу, читает фикстуру
 // запроса, зовёт `runGate` (N прогонов, две величины, класс), печатает исход и — ТОЛЬКО при
-// `PASS` — кладёт запись в `<id>@<N>.gates.json` рядом со спеком. Не делает: не рендерит ролик
+// `PASS` — кладёт запись в `<id>@<N>/gates.json` в папке шаблона. Не делает: не рендерит ролик
 // (`L-01`), не чинит FLAKY (нормализацию применяет автор и переснимает гейт), не решает за
 // автора, годится ли шаблон.
 //
@@ -51,6 +51,7 @@ import {
   loadTemplateLibrary,
   rendererTemplates,
   runGate,
+  templateGatesFile,
   validateRequest,
   type GateInput,
   type GateOutcome,
@@ -61,7 +62,6 @@ import {
   formatTemplateName,
   gateStaleness,
   type AnyTemplateSpec,
-  gatesFileName,
   makeGateFile,
   parseTemplateName,
   replaceEntry,
@@ -116,7 +116,7 @@ function readText(file: string, what: string): string {
  *
  * ЗАЧЕМ. Контракт ADR-0008 требует АБСОЛЮТНЫХ путей, и требует справедливо: смысл запроса не
  * вправе зависеть от рабочего каталога подпроцесса. Но запросы гейта теперь лежат ФАЙЛАМИ в
- * репозитории (`renderer-hyperframes/gate-requests/`), а абсолютный путь в коммиченном файле
+ * репозитории (`templates-spec/src/templates/<id>@<N>/gate-requests/`, `TPL-01a`), а абсолютный путь в файле
  * привязал бы их к ОДНОМУ чекауту: владелец снимает гейты с двух машин, и на второй побайтовая
  * сверка файлов с билдером была бы красной, а runbook — неисполнимым.
  *
@@ -417,7 +417,10 @@ export async function templateGate(args: TemplateGateArgs, deps: TemplateGateDep
   }
 
   const fresh: GateFileEntry = { gate: outcome.record, bundleHash: request.bundle.hash };
-  const file = path.join(library.dir, gatesFileName(parseTemplateName(template)));
+  // ПУТЬ СТРОИТ ОДНА ФУНКЦИЯ (`TPL-01a`): запись живёт в ПАПКЕ шаблона (`<id>@<N>/gates.json`),
+  // и собственная склейка здесь была бы вторым знанием о раскладке каталога.
+  const file = templateGatesFile(formatTemplateName(parseTemplateName(template)), library.dir);
+  mkdirSync(path.dirname(file), { recursive: true });
   const body = makeGateFile(parseTemplateName(template), replaceEntry(item.entries, fresh));
   // `canonicalJson`, а не `JSON.stringify`: файл лежит в git, и две формы записи одного факта
   // дали бы два диффа на одно измерение (ADR-0007 §3; линт запрещает `JSON.stringify` в

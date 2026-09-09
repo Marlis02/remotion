@@ -1,5 +1,5 @@
-// **КАТАЛОГ ШАБЛОНОВ НА ДИСКЕ — единственное место, где читаются файлы `<id>@<N>.gates.json`**
-// (`E-00`, долги №170 и №171).
+// **КАТАЛОГ ШАБЛОНОВ НА ДИСКЕ — единственное место, где читаются файлы `<id>@<N>/gates.json`**
+// (`E-00`, долги №170 и №171; папка вместо суффикса — `TPL-01a`, 2026-09-09).
 //
 // ПОЧЕМУ ДИСКОВАЯ ПОЛОВИНА ЖИВЁТ ЗДЕСЬ, А НЕ В `templates-spec`. Тот пакет не имеет права
 // импортировать `node:fs` — охранник `tests/boundaries/templates-spec-imports.test.ts`, и
@@ -14,8 +14,9 @@
 //
 // КАТАЛОГ БИБЛИОТЕКИ — ИСХОДНИКИ, А НЕ `dist`. Записи гейта коммитит автор руками (решение
 // владельца 5, RM1), значит они живут рядом со спеками в дереве исходников
-// `packages/templates-spec/src/templates/`. `tsc` их не копирует и копировать не должен:
-// `dist` — производное, а запись гейта — измерение, которое обязано быть в git.
+// `packages/templates-spec/src/templates/<id>@<N>/`. `tsc` их не копирует и копировать не
+// должен: `dist` — производное, а запись гейта — измерение, которое обязано быть в git. Там же
+// лежат ЗАПРОСЫ гейта (`gate-requests/`) — адрес отдаёт `templateGateRequestsDir` ниже.
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -23,11 +24,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  GATES_FILE_SUFFIX,
+  GATES_FILE_NAME,
+  GATE_REQUESTS_DIR,
   TEMPLATE_LIBRARY,
   attachGates,
   createRegistry,
+  gateRequestFileName,
   loadedSpecs,
+  parseTemplateDirName,
   type AnyTemplateSpec,
   type GateFileSource,
   type LoadedTemplate,
@@ -89,7 +93,7 @@ export function templatesSpecDir(from: string = fileURLToPath(import.meta.url)):
   }
 }
 
-/** Каталог библиотеки: спеки и файлы `<id>@<N>.gates.json` рядом с ними. */
+/** Каталог библиотеки: папки `<id>@<N>/` со спеком, записями гейта и запросами. */
 export function templateLibraryDir(): string {
   return path.join(templatesSpecDir(), LIBRARY_SUBDIR);
 }
@@ -110,7 +114,40 @@ export interface TemplateLibrary {
   readonly registry: TemplateRegistry;
 }
 
-/** Файлы записей каталога, отсортированные по имени: порядок чтения не зависит от ФС. */
+/**
+ * Папки шаблонов каталога в байтовом порядке (ADR-0007 §4: `readdir` сортируется явно).
+ *
+ * Разбор имени — `parseTemplateDirName` спека, то есть единственная грамматика репозитория
+ * (долг №37). Чужая папка молча пропускается: каталог библиотеки — не список шаблонов, а
+ * место, где они лежат, и `index.ts` рядом с ними тоже файл.
+ */
+export function templateDirs(dir: string): readonly string[] {
+  return readdirSync(dir)
+    .filter((name) => parseTemplateDirName(name) !== null)
+    .filter((name) => statSync(path.join(dir, name)).isDirectory())
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+/** Каталог запросов гейта одного шаблона: `<библиотека>/<id>@<N>/gate-requests`. */
+export function templateGateRequestsDir(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(dir, name, GATE_REQUESTS_DIR);
+}
+
+/** Файл запроса гейта пары (шаблон, профиль) — единственный способ его адресовать. */
+export function templateGateRequestFile(
+  name: string,
+  profileId: string,
+  dir: string = templateLibraryDir(),
+): string {
+  return path.join(templateGateRequestsDir(name, dir), gateRequestFileName(profileId));
+}
+
+/** Файл записей гейта шаблона: `<библиотека>/<id>@<N>/gates.json`. */
+export function templateGatesFile(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(dir, name, GATES_FILE_NAME);
+}
+
+/** Файлы записей каталога, отсортированные по имени папки: порядок чтения не зависит от ФС. */
 export function gateFileSources(dir: string): readonly GateFileSource[] {
   if (!existsSync(dir)) {
     throw new RenderAdapterError('R12', `каталога библиотеки шаблонов нет: \`${dir}\``, [
@@ -123,15 +160,17 @@ export function gateFileSources(dir: string): readonly GateFileSource[] {
       },
     ]);
   }
-  const names = readdirSync(dir)
-    .filter((name) => name.endsWith(GATES_FILE_SUFFIX))
-    .sort();
-  return names
-    .filter((name) => statSync(path.join(dir, name)).isFile())
-    .map((name) => ({
-      path: path.join(dir, name),
-      fileName: name,
-      text: readFileSync(path.join(dir, name), 'utf8'),
+  // ПАПКА БЕЗ `gates.json` — ЗАКОННОЕ СОСТОЯНИЕ, а не пропуск. Это шаблон, гейт которого ещё
+  // не снят (`UNGATED`), и именно на нуле записей **R12** обязана не пустить сборку. Отличие
+  // от прежней формы (файл с суффиксом) — ровно в этом: раньше «нет файла» было видно по
+  // отсутствию имени в листинге, теперь по отсутствию файла в папке.
+  return templateDirs(dir)
+    .map((name) => ({ name, file: path.join(dir, name, GATES_FILE_NAME) }))
+    .filter((item) => existsSync(item.file) && statSync(item.file).isFile())
+    .map((item) => ({
+      path: item.file,
+      dirName: item.name,
+      text: readFileSync(item.file, 'utf8'),
     }));
 }
 

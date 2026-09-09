@@ -38,9 +38,10 @@ const record: GateRecord = {
 
 const dir = (): string => mkdtempSync(path.join(tmpdir(), 'vpe-e00-lib-'));
 
-/** Кладёт файл записей для шаблона в каталог. */
+/** Кладёт файл записей для шаблона в его ПАПКУ (`TPL-01a`). */
 function putGates(root: string, templateId: string, bundleHash = 'd'.repeat(64)): string {
-  const file = path.join(root, `${templateId}@1.gates.json`);
+  const file = path.join(root, `${templateId}@1`, 'gates.json');
+  mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(
     file,
     JSON.stringify(
@@ -56,21 +57,23 @@ describe('каталог шаблонов на диске', () => {
     const spec = templatesSpecDir();
     expect(existsSync(path.join(spec, 'package.json'))).toBe(true);
     expect(templateLibraryDir()).toBe(path.join(spec, LIBRARY_SUBDIR));
-    // Спеки лежат ИМЕННО там — иначе записи гейта легли бы не рядом с ними.
-    expect(existsSync(path.join(templateLibraryDir(), 'still@1.ts'))).toBe(true);
+    // Спеки лежат ИМЕННО там — иначе записи гейта легли бы не рядом с ними. Единица каталога
+    // — ПАПКА (`TPL-01a`): `spec.ts`, `gates.json` и `gate-requests/` внутри неё.
+    expect(existsSync(path.join(templateLibraryDir(), 'still@1', 'spec.ts'))).toBe(true);
+    expect(existsSync(path.join(templateLibraryDir(), 'still@1', 'gates.json'))).toBe(true);
+    expect(existsSync(path.join(templateLibraryDir(), 'still@1', 'gate-requests', 'final.json'))).toBe(true);
   });
 
-  it('читаются ТОЛЬКО файлы `*.gates.json`, и порядок не зависит от ФС', () => {
+  it('читаются ТОЛЬКО папки шаблонов с `gates.json`, и порядок не зависит от ФС', () => {
     const root = dir();
     putGates(root, 'flash');
     putGates(root, 'bed');
     writeFileSync(path.join(root, 'README.md'), 'не запись', 'utf8');
-    writeFileSync(path.join(root, 'still@1.ts'), 'export const x = 1;\n', 'utf8');
+    writeFileSync(path.join(root, 'index.ts'), 'export const x = 1;\n', 'utf8');
+    // Папка шаблона БЕЗ `gates.json` — законное состояние (`UNGATED`), а не пропуск файла.
+    mkdirSync(path.join(root, 'still@1'), { recursive: true });
 
-    expect(gateFileSources(root).map((source) => source.fileName)).toEqual([
-      'bed@1.gates.json',
-      'flash@1.gates.json',
-    ]);
+    expect(gateFileSources(root).map((source) => source.dirName)).toEqual(['bed@1', 'flash@1']);
   });
 
   it('каталога нет — отказ, а не «записей нет»', () => {
@@ -101,35 +104,40 @@ describe('каталог шаблонов на диске', () => {
     expect(() => loadTemplateLibrary({ dir: root, specs: [still1] })).toThrow(orphan);
   });
 
-  it('ПРОД-каталог читается и несёт снятые записи: ПЯТЬ шаблонов, оба профиля, PASS', () => {
+  it('ПРОД-каталог читается и несёт снятые записи: все, кроме `bed@1`, оба профиля, PASS', () => {
     const library = loadTemplateLibrary();
     expect(library.dir).toBe(templateLibraryDir());
     expect([...library.registry.names].sort()).toEqual(
       TEMPLATE_LIBRARY.map((spec: AnyTemplateSpec) => `${spec.templateId}@${String(spec.templateVersion)}`).sort(),
     );
-    // ~~Ни одной записи гейта на прод-паре~~ *(изменено: `L-01`, 2026-08-30, по точечному
-    // разрешению владельца.)* Прежнее ожидание (`entries ⇒ []`) описывало каталог времён
-    // `E-00`, когда реализаций не было ни одной; записи ~~четырёх~~ **ПЯТИ** шаблонов на обоих
-    // профилях снял владелец руками по [runbook](../../../docs/gate-runbook.md) и закоммитил.
-    // Ассерт держит ФАКТ, а не его отсутствие: `bed@1` записей не имеет и иметь не может (гейт
-    // на нём неисполним, долг №189 — он аудио-домена и в `RenderIR.clips` не попадает), у
-    // остальных ~~четырёх~~ **пяти** — ровно по одной записи на профиль, и обе `PASS`.
+    // ~~Ни одной записи гейта на прод-паре~~ *(изменено: `L-01`, 2026-08-30.)* Записи ПЯТИ
+    // шаблонов на обоих профилях снял владелец руками по
+    // [runbook](../../../docs/gate-runbook.md) и закоммитил.
     //
-    // **СПИСОК ПОИМЁННЫЙ, И ОН КРАСНЕЕТ НА КАЖДОМ НОВОМ ЗАГЕЙЧЕННОМ ШАБЛОНЕ** *(долг приёмки
-    // `ENV-01`, поправлено `E-02`, 2026-08-31)*. `grade@1` прошёл гейт задачей `E-07`, его
-    // записи легли в репозиторий — и этот ассерт стал красным, хотя ничего не сломалось.
-    // Кандидат «считать по каталогу» (`library.loaded`, а не литерал) НЕ применён здесь
-    // намеренно: он снял бы и вторую половину утверждения — «`bed@1` записей не имеет», —
-    // ради которой список и писался поимённо. Долг **№227**.
+    // **СПИСОК ЗАГЕЙЧЕННЫХ ВЫЧИСЛЯЕТСЯ, А ОБЕ ПОЛОВИНЫ УТВЕРЖДЕНИЯ ЖИВЫ** *(изменено:
+    // `TPL-01a`, 2026-09-09; долг №227 закрыт)*.
+    //
+    // ~~Список был ПОИМЁННЫЙ и краснел не когда что-то сломалось, а когда владелец снял гейт
+    // на очередном шаблоне и закоммитил записи.~~ Кандидат «считать по каталогу» был отвергнут
+    // `E-02` потому, что снял бы вторую половину — «`bed@1` записей не имеет и иметь не
+    // может» (гейт на нём неисполним, долг №189). Долг просил ОДИН ассерт, который держит
+    // обе половины, — вот он: множество загейченных вычисляется, а исключение НАЗЫВАЕТСЯ.
+    // Восьмой шаблон, чей гейт снял владелец, теперь зелёный; `bed@1`, у которого записи
+    // ВДРУГ появились бы, — красный, и это тот же отказ, что и раньше.
+    const UNGATEABLE = ['bed@1'];
     const withEntries = library.loaded.filter((item) => item.entries.length > 0);
-    expect(withEntries.map((item) => item.name).sort()).toEqual([
-      'captionEmphasis@1',
-      'flash@1',
-      'grade@1',
-      'kenburns@1',
-      'parallax25@1',
-      'still@1',
-    ]);
+    const expected = library.loaded
+      .map((item) => item.name)
+      .filter((name) => !UNGATEABLE.includes(name))
+      .sort();
+    expect(
+      withEntries.map((item) => item.name).sort(),
+      'Записи гейта обязаны быть у ВСЕХ шаблонов каталога, кроме названного `bed@1`: он ' +
+        'аудио-домена, в `RenderIR.clips` не попадает, и гейт на нём неисполним (долг №189). ' +
+        'Шаблон без записей — это либо гейт, который владелец ещё не снял (тогда снять по ' +
+        'runbook), либо новый шаблон без гейта в коммите (тогда он не имеет права быть в ' +
+        'библиотеке — Charter V13).',
+    ).toEqual(expected);
     for (const item of withEntries) {
       expect(item.entries.map((entry) => entry.gate.profileId).sort()).toEqual(['draftHalf', 'final']);
       expect(item.entries.every((entry) => entry.gate.class === 'PASS')).toBe(true);
@@ -137,7 +145,10 @@ describe('каталог шаблонов на диске', () => {
       // по построению (`gateStaleness`, поправка владельца П2).
       expect(item.entries.every((entry) => typeof entry.bundleHash === 'string')).toBe(true);
     }
-    expect(library.loaded.find((item) => item.name === 'bed@1')?.entries).toEqual([]);
+    // Вторая половина — дословно та, ради которой список писался поимённо.
+    for (const name of UNGATEABLE) {
+      expect(library.loaded.find((item) => item.name === name)?.entries).toEqual([]);
+    }
   });
 
   it('каталог, куда записи ещё не клали, создаётся вызывающим, а не молча', () => {

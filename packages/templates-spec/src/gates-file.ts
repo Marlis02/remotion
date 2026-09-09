@@ -1,6 +1,12 @@
-// **ДОМ ЗАПИСЕЙ ГЕЙТА — файл `<id>@<N>.gates.json` рядом со спеком** (решение владельца
-// `H-04`, вопрос 1, вариант «б»; долг №170). Здесь — ЧИСТАЯ половина: форма файла, слияние
-// «спек в коде + записи из файла» и три отказа. Диска здесь нет ни строкой.
+// **ДОМ ЗАПИСЕЙ ГЕЙТА — файл ~~`<id>@<N>.gates.json` рядом со спеком~~ `<id>@<N>/gates.json`
+// В ПАПКЕ ШАБЛОНА** (решение владельца `H-04`, вопрос 1, вариант «б»; долг №170; *переезд —
+// `TPL-01a`, 2026-09-09*). Здесь — ЧИСТАЯ половина: форма файла, слияние «спек в коде +
+// записи из файла» и три отказа. Диска здесь нет ни строкой.
+//
+// **ИМЯ ШАБЛОНА НЕСЁТ ПАПКА, А НЕ ФАЙЛ** (`TPL-01a`). У всех записей каталога теперь одно имя
+// файла — `gates.json`, а различает их каталог `<id>@<N>/`. Разбор поэтому переехал с имени
+// файла на имя ПАПКИ (`parseTemplateDirName` ниже), а склейку пути делает вызывающий: `path`
+// в этом пакете запрещён тем же охранником границы, что и `node:fs`.
 //
 // ПОЧЕМУ ЧТЕНИЕ ФАЙЛА ЖИВЁТ НЕ ЗДЕСЬ, А В РЕНДЕРЕРЕ. `templates-spec/src/**` не имеет права
 // импортировать `node:fs` — охранник `tests/boundaries/templates-spec-imports.test.ts`, и
@@ -41,8 +47,14 @@ import { z } from 'zod';
 /** Имя семейства файла записей. Версия в имени — по образцу семейств `@vpe/schema` (V7). */
 export const GATES_FILE_SCHEMA = 'template-gates/1';
 
-/** Суффикс имени файла записей. `<id>@<N>` + это = имя файла рядом со спеком. */
-export const GATES_FILE_SUFFIX = '.gates.json';
+/**
+ * Имя файла записей ВНУТРИ папки шаблона. Одно на весь каталог (`TPL-01a`).
+ *
+ * ~~`GATES_FILE_SUFFIX = '.gates.json'`~~ — прежняя форма, где имя шаблона было ПРЕФИКСОМ
+ * имени файла. Суффикс снят целиком, а не оставлен алиасом: два способа адресовать одну
+ * запись означали бы два ответа на вопрос «где лежит гейт `still@1`».
+ */
+export const GATES_FILE_NAME = 'gates.json';
 
 /**
  * Одна запись файла: `GateRecord` ПЛОСКО плюс `bundleHash` (решение владельца, развилка 3).
@@ -121,34 +133,50 @@ export const GateFileSchema = z
 /** Разобранный файл записей. */
 export type GateFile = z.infer<typeof GateFileSchema>;
 
-/** Имя файла записей для шаблона: `<id>@<N>.gates.json` (namespace входит, как в имени вызова). */
-export function gatesFileName(name: TemplateName): string {
-  return `${formatTemplateName(name)}${GATES_FILE_SUFFIX}`;
+/**
+ * Имя ПАПКИ шаблона: ровно имя вызова (`still@1`, `local:kenburns@1`).
+ *
+ * **ЕДИНСТВЕННОЕ МЕСТО, ГДЕ ИМЯ ШАБЛОНА СТАНОВИТСЯ ИМЕНЕМ НА ДИСКЕ** (`TPL-01a`). Внутри
+ * папки лежат `spec.ts`, `gates.json` и `gate-requests/`; собирает путь вызывающий, потому
+ * что `node:path` этому пакету запрещён (**R3**, охранник границы).
+ */
+export function templateDirName(name: TemplateName): string {
+  return formatTemplateName(name);
 }
 
 /**
- * Имя файла → имя шаблона. `null` — это не файл записей (чужое имя или чужой суффикс).
+ * Имя ПАПКИ → имя шаблона. `null` — это не папка шаблона (чужое имя).
  *
  * Разбор — ЕДИНСТВЕННОЙ грамматикой репозитория (`parseTemplateName`, долг №37): вторая
- * регулярка здесь означала бы, что `local:kenburns@1.gates.json` разбирается двумя разными
- * способами.
+ * регулярка здесь означала бы, что `local:kenburns@1` разбирается двумя разными способами.
  */
-export function parseGatesFileName(fileName: string): TemplateName | null {
-  if (!fileName.endsWith(GATES_FILE_SUFFIX)) return null;
-  const bare = fileName.slice(0, -GATES_FILE_SUFFIX.length);
+export function parseTemplateDirName(dirName: string): TemplateName | null {
   try {
-    return parseTemplateName(bare);
+    return parseTemplateName(dirName);
   } catch {
     return null;
   }
 }
 
+/** Имя файла запроса гейта внутри `<id>@<N>/gate-requests/`: `draftHalf.json`, `final.json`. */
+export function gateRequestFileName(profileId: string): string {
+  return `${profileId}.json`;
+}
+
+/** Подкаталог запросов гейта внутри папки шаблона. */
+export const GATE_REQUESTS_DIR = 'gate-requests';
+
 /** Содержимое одного файла записей, поданное значением: путь (для диагноза) и текст. */
 export interface GateFileSource {
   /** Полный путь — он попадает в текст отказа дословно (поправка владельца П1). */
   readonly path: string;
-  /** Имя файла без каталога: из него разбирается пара `<id>@<N>`. */
-  readonly fileName: string;
+  /**
+   * Имя ПАПКИ шаблона (`still@1`): из него разбирается пара `<id>@<N>`.
+   *
+   * ~~Имя файла без каталога.~~ *(изменено: `TPL-01a`, 2026-09-09.)* Файл теперь у всех один
+   * — `gates.json`; различает записи каталог, и он же несёт имя.
+   */
+  readonly dirName: string;
   /** Содержимое файла как текст. Разбор JSON — здесь, чтобы отказ назвал файл. */
   readonly text: string;
 }
@@ -230,13 +258,13 @@ export function attachGates(
 
   const filesByName = new Map<string, { source: GateFileSource; file: GateFile }>();
   for (const source of sources) {
-    const parsedName = parseGatesFileName(source.fileName);
+    const parsedName = parseTemplateDirName(source.dirName);
     if (parsedName === null) {
       throw new TemplateSpecError(
         'R12',
-        `\`${source.path}\`: имя файла записей не разбирается. Форма — ` +
-          `\`<id>@<N>${GATES_FILE_SUFFIX}\` (id в lowerCamelCase, версия — целое ≥ 1), ` +
-          'то есть ровно имя вызова шаблона плюс суффикс',
+        `\`${source.path}\`: имя папки шаблона \`${source.dirName}\` не разбирается. Форма — ` +
+          '`<id>@<N>` (id в lowerCamelCase, версия — целое ≥ 1), то есть ровно имя вызова ' +
+          `шаблона; файл записей внутри неё зовётся \`${GATES_FILE_NAME}\``,
       );
     }
     const name = formatTemplateName(parsedName);
@@ -245,9 +273,9 @@ export function attachGates(
     if (file.templateId !== parsedName.templateId || file.templateVersion !== parsedName.templateVersion) {
       throw new TemplateSpecError(
         'R12',
-        `\`${source.path}\`: имя файла говорит \`${name}\`, а его содержимое — ` +
+        `\`${source.path}\`: имя папки говорит \`${name}\`, а его содержимое — ` +
           `\`${file.templateId}@${String(file.templateVersion)}\`. Запись, разошедшаяся с ` +
-          'именем файла, описывает другой шаблон',
+          'именем папки, описывает другой шаблон',
         { template: name },
       );
     }

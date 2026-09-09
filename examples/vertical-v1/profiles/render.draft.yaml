@@ -20,8 +20,18 @@ profileId: draftHalf      # имя файла ↔ profileId связаны ADR-0
 # обязанность адаптера сверх контракта после квантования времени.
 pixelProfile:
   browserGpu: false               # как у final: софтверный путь
-  imageFormat: jpeg
-  jpegQuality: 80
+  imageFormat: png                # РЕШЕНИЕ ВЛАДЕЛЬЦА (а), 2026-09-09, долг №183: jpeg-
+                                  # последовательности у HyperFrames 0.8.5 нет вовсе
+                                  # (`RENDERER_IMAGE_FORMATS`), и адаптер отказывал правилом
+                                  # «ADR-0008 профиль» — то есть черновик ЖИВОГО проекта не
+                                  # собирался ни разу. Форма — как у `gate-profiles/draftHalf.yaml`.
+  # jpegQuality: 80               # схема render-profile/1 при png это поле ЗАПРЕЩАЕТ, поэтому
+                                  # строка закомментирована, а не удалена — прецедент №154.
+                                  # Покрытие матрицы K1 по `jpegQuality` от этой правки НЕ
+                                  # страдает: его держит `fixtures/minimal/profiles/
+                                  # render.draft.yaml` (`RENDER_DRAFT_FILE` в
+                                  # `packages/media/test/assemble-helpers.ts`), то есть
+                                  # ТЕСТОВАЯ фикстура, а не живой проект.
   scale: 0.5                      # 540x960 при 1080x1920 у final
   colorSpace: bt709
   pixelFormat: yuv420p

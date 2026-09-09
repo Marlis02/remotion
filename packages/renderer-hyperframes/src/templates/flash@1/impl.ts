@@ -26,7 +26,7 @@
 import { canonicalJson } from '@vpe/core-model';
 import type { EasingId } from '@vpe/templates-spec';
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 /**
  * Кривая затухания вспышки — членство в реестре **D5** закрыто типом.

@@ -11,10 +11,11 @@ import {
   attachGates,
   createRegistry,
   gateStaleness,
-  gatesFileName,
+  gateRequestFileName,
   loadedSpecs,
   makeGateFile,
-  parseGatesFileName,
+  parseTemplateDirName,
+  templateDirName,
   replaceEntry,
   still1,
   type AnyTemplateSpec,
@@ -50,27 +51,36 @@ const fileText = (templateId: string, entries: readonly GateFileEntry[]): string
   JSON.stringify(makeGateFile({ namespace: null, templateId, templateVersion: 1 }, entries));
 
 const source = (templateId: string, entries: readonly GateFileEntry[], dir = '/tmp/lib') => ({
-  path: `${dir}/${templateId}@1.gates.json`,
-  fileName: `${templateId}@1.gates.json`,
+  path: `${dir}/${templateId}@1/gates.json`,
+  dirName: `${templateId}@1`,
   text: fileText(templateId, entries),
 });
 
 describe('форма файла `template-gates/1`', () => {
-  it('имя файла — имя вызова плюс суффикс, и разбирается обратно', () => {
-    expect(gatesFileName({ namespace: null, templateId: 'kenburns', templateVersion: 1 })).toBe(
-      'kenburns@1.gates.json',
+  // ~~Имя файла — имя вызова плюс суффикс.~~ *(изменено: `TPL-01a`, 2026-09-09.)* **ИМЯ НЕСЁТ
+  // ПАПКА**, файл внутри у всех один — `gates.json`; запросы гейта в ней же зовутся по профилю.
+  it('имя ПАПКИ — имя вызова, и разбирается обратно', () => {
+    expect(templateDirName({ namespace: null, templateId: 'kenburns', templateVersion: 1 })).toBe(
+      'kenburns@1',
     );
-    expect(gatesFileName({ namespace: 'local', templateId: 'kenburns', templateVersion: 2 })).toBe(
-      'local:kenburns@2.gates.json',
+    expect(templateDirName({ namespace: 'local', templateId: 'kenburns', templateVersion: 2 })).toBe(
+      'local:kenburns@2',
     );
-    expect(parseGatesFileName('kenburns@1.gates.json')).toEqual({
+    expect(parseTemplateDirName('kenburns@1')).toEqual({
       namespace: null,
       templateId: 'kenburns',
       templateVersion: 1,
     });
-    // Чужой суффикс и неразбираемое имя — «это не файл записей», а не исключение.
-    expect(parseGatesFileName('kenburns@1.json')).toBeNull();
-    expect(parseGatesFileName('README.gates.json')).toBeNull();
+    // Неразбираемое имя — «это не папка шаблона», а не исключение: рядом со шаблонами лежит
+    // `index.ts`, и он обязан молча пропускаться, а не ронять чтение каталога.
+    expect(parseTemplateDirName('kenburns@1.gates.json')).toBeNull();
+    expect(parseTemplateDirName('index.ts')).toBeNull();
+    expect(parseTemplateDirName('README')).toBeNull();
+  });
+
+  it('имя файла запроса гейта — имя профиля (`TPL-01a`)', () => {
+    expect(gateRequestFileName('draftHalf')).toBe('draftHalf.json');
+    expect(gateRequestFileName('final')).toBe('final.json');
   });
 
   it('запись файла = `GateRecord` ПЛЮС `bundleHash`, и строгость `GateRecord` сохранена', () => {
@@ -162,7 +172,7 @@ describe('манифест собирается из ДВУХ мест: спек
     const loaded = attachGates([still1], [source('still', [entry])]);
     expect(loaded[0]?.spec.manifest.gates).toEqual([record()]);
     expect(loaded[0]?.entries[0]?.bundleHash).toBe(BUNDLE);
-    expect(loaded[0]?.file).toBe('/tmp/lib/still@1.gates.json');
+    expect(loaded[0]?.file).toBe('/tmp/lib/still@1/gates.json');
     // `bundleHash` в МАНИФЕСТ не уезжает: состав `GateRecord` назван инвариантом R12 дословно.
     expect(Object.keys(loaded[0]?.spec.manifest.gates[0] ?? {})).not.toContain('bundleHash');
   });
@@ -176,15 +186,20 @@ describe('манифест собирается из ДВУХ мест: спек
     }
     expect(thrown).toBeInstanceOf(TemplateSpecError);
     const message = (thrown as TemplateSpecError).message;
-    expect(message).toContain('/tmp/lib/kenburns@1.gates.json');
+    expect(message).toContain('/tmp/lib/kenburns@1/gates.json');
     expect(message).toContain('id `kenburns`');
     expect(message).toContain('версия 1');
     expect(message).toMatch(/отказ, а не пропуск/u);
   });
 
-  it('имя внутри файла разошлось с именем файла — отказ', () => {
-    const bad = { ...source('still', [{ gate: record(), bundleHash: BUNDLE }]), fileName: 'flash@1.gates.json', path: '/tmp/lib/flash@1.gates.json' };
+  it('имя внутри файла разошлось с именем ПАПКИ — отказ', () => {
+    const bad = { ...source('still', [{ gate: record(), bundleHash: BUNDLE }]), dirName: 'flash@1', path: '/tmp/lib/flash@1/gates.json' };
     expect(() => attachGates([still1, specNamed('flash')], [bad])).toThrow(/описывает другой шаблон/u);
+  });
+
+  it('имя ПАПКИ не разбирается — отказ называет папку и форму имени', () => {
+    const bad = { path: '/tmp/lib/README/gates.json', dirName: 'README', text: fileText('still', []) };
+    expect(() => attachGates([still1], [bad])).toThrow(/имя папки шаблона `README` не разбирается/u);
   });
 
   it('записи И в коде, И в файле — отказ: два ответа на один вопрос', () => {
@@ -199,8 +214,8 @@ describe('манифест собирается из ДВУХ мест: спек
 
   it('файл не разбирается как JSON — отказ называет путь', () => {
     expect(() =>
-      attachGates([still1], [{ path: '/tmp/lib/still@1.gates.json', fileName: 'still@1.gates.json', text: '{нет' }]),
-    ).toThrow(/still@1\.gates\.json` не разбирается как JSON/u);
+      attachGates([still1], [{ path: '/tmp/lib/still@1/gates.json', dirName: 'still@1', text: '{нет' }]),
+    ).toThrow(/still@1\/gates\.json` не разбирается как JSON/u);
   });
 });
 

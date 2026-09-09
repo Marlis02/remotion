@@ -1,20 +1,21 @@
-// **~~ВОСЕМЬ~~ ДЕСЯТЬ ФАЙЛОВ ЗАПРОСОВ ГЕЙТА ГЛАЗАМИ КОМАНДЫ** *(дополнено: `E-02`,
-// 2026-08-31 — пара `parallax25@1`; про недостающую пару `grade@1` см. `CALLS` ниже)* — и правка `GATE-PREP`, которая сделала их
-// возможными. Браузера здесь нет: `deps.gate` подменён, проверяется ВХОД команды.
+// **~~ВОСЕМЬ~~ ~~ДЕСЯТЬ~~ ВСЕ ФАЙЛЫ ЗАПРОСОВ ГЕЙТА ГЛАЗАМИ КОМАНДЫ** *(дополнено: `E-02`,
+// 2026-08-31 — пара `parallax25@1`; `TPL-01a`, 2026-09-09 — список читается с диска, и
+// недостающая пара `grade@1` приехала сама, долг №228 закрыт)* — и правка `GATE-PREP`, которая
+// сделала их возможными. Браузера здесь нет: `deps.gate` подменён, проверяется ВХОД команды.
 //
-// ЗАЧЕМ ОТДЕЛЬНЫЙ ФАЙЛ. Побайтовая сверка тех же восьми файлов с билдером живёт в
+// ЗАЧЕМ ОТДЕЛЬНЫЙ ФАЙЛ. Побайтовая сверка тех же файлов с билдером живёт в
 // `renderer-hyperframes/test/gate-requests.test.ts` — там, где живёт единственный источник
 // (`test/fixture.ts`, долг №179). Сюда её не перенести: импорт тестовой зоны чужого пакета не
 // собирается `tsc --build`. Зато ЗДЕСЬ есть то, чего нет там: `@vpe/schema` (`readFamily`) и
 // сама команда с охранником №181. Один и тот же файл проверяется с двух сторон, и ни одна
 // сторона не повторяет другую.
 //
-// ЧТО ДОКАЗЫВАЕТСЯ ВОСЬМЬЮ ПРОГОНАМИ. Что владелец, скопировав строку из `docs/gate-runbook.md`,
+// ЧТО ДОКАЗЫВАЕТСЯ ЭТИМИ ПРОГОНАМИ. Что владелец, скопировав строку из `docs/gate-runbook.md`,
 // НЕ получит отказа на входе: файл читается, относительные пути резолвятся, тройка **K4**
 // сходится с yaml-профилем, охранник названного шаблона доволен (в том числе на СМЕШАННОМ
 // `kenburns@1` — `still@1` основанием, №181). Всё, что остаётся живому прогону, — сам гейт.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -27,8 +28,13 @@ import { GateFileSchema, type GateRecord } from '@vpe/templates-spec';
 import { EXIT, runCli, type CliDeps } from '../src/index.js';
 import { makeRequest, tempDir } from './fixture.js';
 
-/** Каталог файлов запросов — соседний пакет, читается ФАЙЛАМИ, а не импортом. */
-const REQUESTS = fileURLToPath(new URL('../../renderer-hyperframes/gate-requests', import.meta.url));
+/**
+ * Каталог библиотеки шаблонов — соседний пакет, читается ФАЙЛАМИ, а не импортом.
+ *
+ * ~~`renderer-hyperframes/gate-requests/` одной кучей.~~ *(изменено: `TPL-01a`, 2026-09-09.)*
+ * Запросы гейта живут в папке своего шаблона: `<библиотека>/<id>@<N>/gate-requests/<профиль>.json`.
+ */
+const LIBRARY = fileURLToPath(new URL('../../templates-spec/src/templates', import.meta.url));
 
 /** Профилей гейта ровно два (`GATE_PROFILES`); имя профиля — тип, а не свободная строка. */
 type Pair = 'draftHalf' | 'final';
@@ -42,23 +48,33 @@ const PROFILE_FILES: Readonly<Record<Pair, string>> = {
 };
 
 /**
- * Имена, которыми команда зовётся из runbook'а.
+ * **ИМЕНА, КОТОРЫМИ КОМАНДА ЗОВЁТСЯ ИЗ RUNBOOK'А — ЧИТАЮТСЯ С ДИСКА** *(изменено: `TPL-01a`,
+ * 2026-09-09; долг №228 закрыт)*.
  *
- * **ЭТО ТРЕТЬЯ КОПИЯ СПИСКА СЛУЧАЕВ ГЕЙТА, И ОНА НЕПОЛНАЯ — НАХОДКА `E-02`, А НЕ РЕШЕНИЕ.**
- * Долг №193 называет ДВЕ копии (`GATE_REQUEST_CASES` фикстуры и `CASES` браузерного гейта);
- * вот третья, и она отстала: `grade@1` завёл `E-07` в обе названные копии, а сюда его не
- * добавил — то есть ДВЕ команды runbook'а из десяти не проверены на входе ни разу. `E-02`
- * добавляет СВОЁ имя (`parallax25@1`) и не трогает чужой пропуск: чинить его — правка,
- * которой владелец не заказывал, а найденное записано долгом **№228** с адресом. Счёт пар
- * здесь поэтому 10, а не 12: пять имён на два профиля.
+ * ~~`CALLS = ['still@1', 'kenburns@1', 'flash@1', 'captionEmphasis@1', 'parallax25@1']` —
+ * ТРЕТЬЯ копия списка случаев гейта, и она отстала на `grade@1` (находка `E-02`, долг №228):
+ * ДВЕ команды runbook'а из двенадцати не проверялись на входе ни разу.~~
+ *
+ * Отставать больше нечему: список — это листинг каталога. Запрос гейта лежит в папке своего
+ * шаблона, и «шаблон, у которого есть запросы» вычисляется, а не переписывается из чужого
+ * файла. Копий списка СЛУЧАЕВ (клипы и `params`) по-прежнему две — `GATE_REQUEST_CASES`
+ * фикстуры и `CASES` браузерного гейта, долг №193; здесь копии не было и нет.
  */
-const CALLS = ['still@1', 'kenburns@1', 'flash@1', 'captionEmphasis@1', 'parallax25@1'] as const;
 const PROFILES: readonly Pair[] = ['draftHalf', 'final'];
 /** N профиля — то же, что в схеме манифеста (`GATE_RUNS`): 3 у `draftHalf`, 10 у `final`. */
 const N_OF: Readonly<Record<Pair, number>> = { draftHalf: 3, final: 10 };
 
+/** Папки шаблонов, у которых есть каталог запросов гейта, в байтовом порядке. */
+const CALLS: readonly string[] = readdirSync(LIBRARY)
+  .filter((name) => existsSync(path.join(LIBRARY, name, 'gate-requests')))
+  .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+
 const PAIRS = CALLS.flatMap((call) =>
-  PROFILES.map((profileId) => ({ call, profileId, file: path.join(REQUESTS, `${call}.${profileId}.json`) })),
+  PROFILES.map((profileId) => ({
+    call,
+    profileId,
+    file: path.join(LIBRARY, call, 'gate-requests', `${profileId}.json`),
+  })),
 );
 
 /** Исход гейта, поданный вместо прогонов: команду проверяем до `runGate`, а не вместо него. */
@@ -224,7 +240,7 @@ describe('`GATE-PREP` — команда принимает все восемь 
       expect(code, `${out}\n${err}`).toBe(EXIT.pass);
       // Запись пишется по НАЗВАННОМУ шаблону, а не по первому клипу: у `kenburns@1` файл
       // смешанный (`still@1` основанием, №181), и именно это здесь и проверяется.
-      const written = path.join(gatesDir, `${call}.gates.json`);
+      const written = path.join(gatesDir, call, 'gates.json');
       expect(existsSync(written), out).toBe(true);
       const parsed = GateFileSchema.parse(JSON.parse(readFileSync(written, 'utf8')));
       expect(parsed.entries[0]?.gate.profileId).toBe(profileId);

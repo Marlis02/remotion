@@ -1,0 +1,66 @@
+# TPL-01a — протокол нарушений
+
+Проба Н1 — папка-шаблон без запуска генератора. Ожидание: охранник реестра краснеет с именем папки.
+
+$ mkdir -p packages/templates-spec/src/templates/zzprobe@1
+$ node scripts/gen-template-registry.mjs --check
+packages/templates-spec/src/templates/index.ts: разошёлся с генератором, строка 47:
+  сгенерировано: "import { zzprobe1 } from './zzprobe@1/spec.js';"
+  в дереве:      ""
+
+Реестры шаблонов ПРОИЗВОДНЫЕ от листинга каталогов `packages/*/src/templates/*@*/`. Появилась или исчезла папка шаблона — перегенерировать: `node scripts/gen-template-registry.mjs` — и посмотреть дифф глазами: новая строка в обоих реестрах и есть «восьмой шаблон заведён».
+EXIT=1
+
+$ TZ=UTC LC_ALL=C npx vitest run tests/lints/template-registry-generated.test.ts
+     × `--check` зелёный: текст в дереве равен сгенерированному 43ms
+     × ЗОНА НАЙДЕНА: обе папки существуют и в них одни и те же шаблоны 3ms
+     × каждая папка несёт свою половину: `spec.ts` в спеках, `impl.ts` в рендерере 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/lints/template-registry-generated.test.ts > `TPL-01a` — реестры шаблонов совпадают с генератором > `--check` зелёный: текст в дереве равен сгенерированному
+AssertionError: Реестр шаблонов разошёлся с листингом каталога. Это либо новая папка шаблона без запуска генератора, либо правка сгенерированного `index.ts` руками. Лечится одной командой: `node scripts/gen-template-registry.mjs`. Вывод:
+: expected 1 to be +0 // Object.is equality
+ FAIL  tests/lints/template-registry-generated.test.ts > `TPL-01a` — реестры шаблонов совпадают с генератором > ЗОНА НАЙДЕНА: обе папки существуют и в них одни и те же шаблоны
+AssertionError: состав папок двух пакетов разошёлся: у шаблона обязаны быть обе половины: expected [ 'bed@1', 'captionEmphasis@1', …(5) ] to deeply equal [ 'bed@1', 'captionEmphasis@1', …(6) ]
+ FAIL  tests/lints/template-registry-generated.test.ts > `TPL-01a` — реестры шаблонов совпадают с генератором > каждая папка несёт свою половину: `spec.ts` в спеках, `impl.ts` в рендерере
+AssertionError: zzprobe@1: нет spec.ts: expected false to be true // Object.is equality
+      Tests  3 failed | 2 passed (5)
+rmdir: failed to remove 'packages/templates-spec/src/templates/zzprobe@1': No such file or directory
+
+$ rmdir packages/templates-spec/src/templates/zzprobe@1 && node scripts/gen-template-registry.mjs --check
+реестры шаблонов совпадают с генератором
+EXIT=0
+
+ЗАМЕЧАНИЕ к Н1: каталог zzprobe@1 удалил сам тест-охранник (его собственная проба чистит за собой в finally), поэтому ручной rmdir выше не нашёл файла. Дерево восстановлено — последний --check зелёный.
+
+----------------------------------------------------------------------
+Проба Н2 — ручная правка СГЕНЕРИРОВАННОГО реестра. Ожидание: тот же охранник краснеет, называя строку.
+
+$ sed -i "s/  still1,/  still1, \/\/ рука/" packages/templates-spec/src/templates/index.ts
+$ node scripts/gen-template-registry.mjs --check
+packages/templates-spec/src/templates/index.ts: разошёлся с генератором, строка 66:
+  сгенерировано: "  still1,"
+  в дереве:      "  still1, // рука"
+
+Реестры шаблонов ПРОИЗВОДНЫЕ от листинга каталогов `packages/*/src/templates/*@*/`. Появилась или исчезла папка шаблона — перегенерировать: `node scripts/gen-template-registry.mjs` — и посмотреть дифф глазами: новая строка в обоих реестрах и есть «восьмой шаблон заведён».
+EXIT=1
+
+$ node scripts/gen-template-registry.mjs   # лечение одной командой
+~ packages/templates-spec/src/templates/index.ts
+= packages/renderer-hyperframes/src/templates/index.ts
+EXIT=0
+реестры шаблонов совпадают с генератором
+
+----------------------------------------------------------------------
+Проба Н3 — СИРОТА в gate-requests/assets (компенсация к решению В6: зона NUL-линта).
+Ожидание: файл проходит исключение NUL-линта, но краснеет охранник сирот.
+
+$ printf "\\x00\\x00" > packages/templates-spec/src/templates/still@1/gate-requests/assets/orphan.bin
+$ npx vitest run tests/lints/nul-in-sources.test.ts packages/renderer-hyperframes/test/gate-requests.test.ts
+     × в `still@1/gate-requests/assets/` нет сирот: каждый файл назван запросом 7ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/gate-requests.test.ts > `GATE-PREP`/`E-07`/`E-02` — двенадцать файлов запросов равны порождению билдера > в `still@1/gate-requests/assets/` нет сирот: каждый файл назван запросом
+AssertionError: в `/home/ct/Desktop/remotion/packages/templates-spec/src/templates/still@1/gate-requests/assets` лежат файлы, которых не просит ни один запрос этой папки. Байты, которые никто не сверяет, живут своей жизнью: они проходят исключение NUL-линта и при этом не входят ни в один `bundle.hash`: expected [ 'orphan.bin' ] to deeply equal []
+      Tests  1 failed | 47 passed (48)
+
+$ rm …/orphan.bin && повторный прогон
+      Tests  48 passed (48)

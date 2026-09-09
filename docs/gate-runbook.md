@@ -4,7 +4,7 @@
 записи глазами (решение владельца 5, RM1; Charter V13; [ADR-0008](adr/0008-renderer-boundary.md)).
 
 **Что получится.** ~~Четыре~~ ~~пять~~ **ШЕСТЬ** файлов
-`packages/templates-spec/src/templates/<id>@1.gates.json`, в каждом по ДВЕ записи —
+`packages/templates-spec/src/templates/<id>@1/gates.json`, в каждом по ДВЕ записи —
 `draftHalf` и `final`. Без них **R12** не пустит шаблон в сборку.
 *(пятый — `grade@1`, добавлен `E-07`, 2026-08-31; шестой — `parallax25@1`, добавлен `E-02`,
 2026-08-31.)*
@@ -19,6 +19,19 @@
 
 ## 0. Перед первой командой
 
+**ГДЕ ТЕПЕРЬ ЛЕЖАТ ЗАПРОСЫ ГЕЙТА** *(`TPL-01a`, 2026-09-09)*. Раскладка сменилась: шаблон —
+это ПАПКА, и запрос гейта лежит в ней, а не в общем каталоге рендерера.
+
+| было | стало |
+|---|---|
+| `packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json` | `packages/templates-spec/src/templates/still@1/gate-requests/draftHalf.json` |
+| `packages/templates-spec/src/templates/still@1/gates.json` | `packages/templates-spec/src/templates/still@1/gates.json` |
+| `packages/renderer-hyperframes/gate-requests/assets/pattern-32.png` | `…/still@1/gate-requests/assets/pattern-32.png` (и такие же копии у `kenburns@1`, `grade@1`) |
+
+**Файлы переехали ПОБАЙТНО** — sha256 всех двенадцати запросов и шести `gates.json` до и после
+совпали, `bundle.hash` ни одного не сдвинулся. Значит **записи гейта остаются действующими и
+переснимать их не нужно**; изменились только пути в командах ниже.
+
 Всё выполняется **из корня репозитория**; пути ниже — от него.
 
 ```bash
@@ -32,7 +45,7 @@ ffmpeg -version | head -1      # обязано быть 7.0.2-static; без ff
 **Проверка шрифта СНЯТА** *(`ENV-01`, 2026-08-31 — долг №187 закрыт.)* Здесь стояла строка
 `ls /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf`, и она проверяла ровно то, чего
 больше нет: шрифт гейта приезжал из машины. Теперь его байты лежат в репозитории
-(`packages/renderer-hyperframes/gate-requests/assets/DejaVuSans-Bold.ttf`, sha `d1c3ff99…287b`),
+(`packages/templates-spec/src/templates/captionEmphasis@1/gate-requests/assets/DejaVuSans-Bold.ttf`, sha `d1c3ff99…287b`),
 файлы запросов адресуют их относительным путём, и `git clone` достаточно. Если файл всё же
 испорчен или пропал, это скажет юнит ниже — с именем файла и обеими sha, а не `ls`.
 
@@ -55,21 +68,24 @@ TZ=UTC LC_ALL=C pnpm vitest run \
 у `E-07`, повторён на седьмом шаблоне и дал тот же ответ: `sha256` десяти старых файлов до и
 после перегенерации совпали строка в строку, `git status --porcelain` показал ровно ЧЕТЫРЕ
 новых пути — два запроса `parallax25@1` и два PNG слоёв в `gate-requests/assets/`. Значит
-записи `*.gates.json` пяти прежних шаблонов **остаются действующими**; новых команд — две.
+записи `<id>@N/gates.json` пяти прежних шаблонов **остаются действующими**; новых команд — две.
 
 **`E-07` (2026-08-31): прежние ВОСЕМЬ файлов запросов НЕ СДВИНУЛИСЬ.** Шестой шаблон
 `grade@1` добавил ДВА новых файла и не тронул ни байта в восьми старых — проверено
 побайтовой сверкой `sha256` до и после перегенерации, `git status --porcelain` показал ровно
 две новые строки. Причина: `runtime.js` эта задача не трогала, версия реестра реализаций не
 менялась, а композиция несёт только ИСПОЛЬЗОВАННЫЕ шаблоны (`materialize.ts`). Значит записи
-`*.gates.json` четырёх прежних шаблонов **остаются действующими**, и переснимать их не нужно
+`<id>@N/gates.json` четырёх прежних шаблонов **остаются действующими**, и переснимать их не нужно
 — достаточно двух новых команд ниже.
 
 На эталонной машине это **53 из 53**. *(`ENV-01`: было 40 — шрифт добавил два утверждения о
 своих байтах, стало 42. Прогон в mount-namespace без системного DejaVu даёт то же число — юнит
 больше не зависит от машины. `E-02`: 42 → 53, из них 31 в `gate-requests.test.ts` — два новых
 файла запросов дают четыре утверждения, два PNG слоёв — три, — и 22 в `gate-requests-cli.test.ts`,
-где пара `parallax25@1` добавила четыре.)*
+где пара `parallax25@1` добавила четыре. `TPL-01a`, 2026-09-09: 53 → **70** — 44 в
+`gate-requests.test.ts` (переезд в папки: охранник сирот по шаблону, «в папке ровно два файла»
+вместо одного общего счёта, шахматка сверяется в трёх папках) и 26 в `gate-requests-cli.test.ts`
+— туда доехала пропущенная пара `grade@1`, долг №228.)*
 
 **Красный тест здесь означает СТОП.** Файлы запросов производны от билдеров
 `packages/renderer-hyperframes/test/fixture.ts`; расхождение значит, что композиция изменилась
@@ -78,7 +94,7 @@ TZ=UTC LC_ALL=C pnpm vitest run \
 ```bash
 VPE_GATE_REQUESTS_UPDATE=1 TZ=UTC LC_ALL=C pnpm vitest run \
   packages/renderer-hyperframes/test/gate-requests.test.ts
-git diff packages/renderer-hyperframes/gate-requests/
+git diff packages/templates-spec/src/templates/*/gate-requests/
 ```
 
 ---
@@ -89,7 +105,7 @@ git diff packages/renderer-hyperframes/gate-requests/
 читают окно как `{frameStart, frameEnd}`. Композиция от этого изменилась, и `bundle.hash` всех
 восьми запросов сдвинулся (пары до/после — [`impl/L-01/report.md`](impl/L-01/report.md) §2).
 Файлы `gate-requests/*.json` УЖЕ перегенерированы билдером и закоммичены задачей; записи
-`*.gates.json` — нет, их снимает владелец этим runbook'ом.
+`<id>@N/gates.json` — нет, их снимает владелец этим runbook'ом.
 
 **Почему это нельзя отложить, хотя сборка не падает.** Вход **R12** сверяет пару
 (профиль, `engineFingerprint`) и класс записи, а `bundleHash` ему подать нечем (долг №196), и
@@ -109,27 +125,27 @@ git diff packages/renderer-hyperframes/gate-requests/
 
 ```bash
 node packages/cli/dist/bin/vpe.js template gate still@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/still@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 
 node packages/cli/dist/bin/vpe.js template gate kenburns@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/kenburns@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/kenburns@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 
 node packages/cli/dist/bin/vpe.js template gate flash@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/flash@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/flash@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 
 node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/captionEmphasis@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/captionEmphasis@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 
 node packages/cli/dist/bin/vpe.js template gate grade@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/grade@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/grade@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 
 node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/parallax25@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/parallax25@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
@@ -137,27 +153,27 @@ node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile draftHalf
 
 ```bash
 node packages/cli/dist/bin/vpe.js template gate still@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/still@1.final.json \
+  --request packages/templates-spec/src/templates/still@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 
 node packages/cli/dist/bin/vpe.js template gate kenburns@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/kenburns@1.final.json \
+  --request packages/templates-spec/src/templates/kenburns@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 
 node packages/cli/dist/bin/vpe.js template gate flash@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/flash@1.final.json \
+  --request packages/templates-spec/src/templates/flash@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 
 node packages/cli/dist/bin/vpe.js template gate captionEmphasis@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/captionEmphasis@1.final.json \
+  --request packages/templates-spec/src/templates/captionEmphasis@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 
 node packages/cli/dist/bin/vpe.js template gate grade@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/grade@1.final.json \
+  --request packages/templates-spec/src/templates/grade@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 
 node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile final \
-  --request packages/renderer-hyperframes/gate-requests/parallax25@1.final.json \
+  --request packages/templates-spec/src/templates/parallax25@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 ```
 
@@ -197,7 +213,7 @@ node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile final \
 1. первая строка вывода — `ГЕЙТ: PASS · профиль <...> · N = <3|10>`;
 2. в таблице **один** различный `framemd5` и **один** различный `sha256` (строка
    «различных framemd5: 1; различных sha256: 1»);
-3. напечатан полный путь: `запись создана: /…/packages/templates-spec/src/templates/<id>@1.gates.json`,
+3. напечатан полный путь: `запись создана: /…/packages/templates-spec/src/templates/<id>@1/gates.json`,
    и код выхода `0` (проверить `echo $?`).
 
 Образец удачного прогона (`GATE-PREP`, `still@1`, `draftHalf`):
@@ -209,7 +225,7 @@ node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile final \
    2 | 697b51ed150fecc7 | 330031a71d47952a |     12 | 1482
    3 | 697b51ed150fecc7 | 330031a71d47952a |     12 | 1512
   различных framemd5: 1; различных sha256: 1 (порядок проверки: framemd5 → sha256)
-запись создана: …/packages/templates-spec/src/templates/still@1.gates.json
+запись создана: …/packages/templates-spec/src/templates/still@1/gates.json
 ```
 
 Повторный прогон того же шаблона на том же профиле — законен: команда скажет «прежняя запись
@@ -229,20 +245,20 @@ git status --porcelain packages/templates-spec/src/templates/
 `final`):
 
 ```
-?? packages/templates-spec/src/templates/captionEmphasis@1.gates.json
-?? packages/templates-spec/src/templates/flash@1.gates.json
-?? packages/templates-spec/src/templates/grade@1.gates.json
-?? packages/templates-spec/src/templates/kenburns@1.gates.json
-?? packages/templates-spec/src/templates/parallax25@1.gates.json
-?? packages/templates-spec/src/templates/still@1.gates.json
+?? packages/templates-spec/src/templates/captionEmphasis@1/gates.json
+?? packages/templates-spec/src/templates/flash@1/gates.json
+?? packages/templates-spec/src/templates/grade@1/gates.json
+?? packages/templates-spec/src/templates/kenburns@1/gates.json
+?? packages/templates-spec/src/templates/parallax25@1/gates.json
+?? packages/templates-spec/src/templates/still@1/gates.json
 ```
 
 *(`E-02`, 2026-08-31: пять прежних файлов уже лежат в репозитории и остаются действующими —
-`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `parallax25@1.gates.json`;
+`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `parallax25@1/gates.json`;
 остальные десять команд перезапишут прежние записи свежими, что законно.)*
 
 *(`E-07`, 2026-08-31: четыре прежних файла уже лежат в репозитории и остаются действующими —
-`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `grade@1.gates.json`;
+`bundle.hash` их запросов не сдвинулся, см. §0. Новым будет ОДИН, `grade@1/gates.json`;
 остальные четыре команды перезапишут прежние записи свежими, что законно — команда скажет
 «прежняя запись была ДЕЙСТВУЮЩЕЙ и замещается свежей».)*
 
@@ -302,7 +318,7 @@ git status --porcelain packages/templates-spec/src/templates/
 
 ```bash
 ./scripts/vpe-docker template gate still@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/still@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
@@ -327,6 +343,80 @@ git status --porcelain packages/templates-spec/src/templates/
 
 **Чего образ НЕ доказывает.** Он гонялся на ОДНОЙ машине. Вторая половина критерия `ENV-02`
 — «запись, снятая в образе, открывает сборку на чужой машине» — не измерена: долг №245.
+
+---
+
+## 4-ter. КАК ДОБАВИТЬ ВОСЬМОЙ ШАБЛОН (`TPL-01a`, 2026-09-09)
+
+**Шаблон — это ПАПКА, и мест правки ровно четыре: две папки, запуск генератора, доки.**
+Измерено `E-02` на седьмом шаблоне: до этой задачи их было **18**.
+
+### Шаг 1 — две папки с одним именем
+
+```bash
+mkdir -p packages/templates-spec/src/templates/<id>@1
+mkdir -p packages/renderer-hyperframes/src/templates/<id>@1
+```
+
+Имя папки — ровно имя вызова (`<id>@<N>`, id в lowerCamelCase). Две, а не одна, потому что
+граница ADR-0009 несущая: `compile` зависит от `templates-spec` и не имеет права видеть
+`gsap`, поэтому спек и реализация живут в разных пакетах.
+
+Внутрь кладутся:
+
+| файл | что это | обязателен |
+|---|---|---|
+| `templates-spec/…/<id>@1/spec.ts` | контракт: `paramsSchema`, `guidance`, `manifest`, `declareAssets`/`declareFonts`. Экспорт зовётся **`<id>1`** — соглашение, из которого генератор берёт имя | да |
+| `renderer-hyperframes/…/<id>@1/impl.ts` | реализация: `mountSource`. Экспорт — **`<id>1Impl`** | да |
+| `templates-spec/…/<id>@1/gates.json` | записи гейта — **их ставит владелец** командой из §1, руками не пишутся | да, до сборки (**R12**) |
+| `templates-spec/…/<id>@1/gate-requests/{draftHalf,final}.json` | запросы гейта — **производные**, их порождает билдер (шаг 3) | да |
+| `templates-spec/…/<id>@1/gate-requests/assets/…` | байты, которые просит запрос. Общего каталога нет: файл лежит рядом с тем, кто его просит | если шаблон просит ассеты |
+
+### Шаг 2 — запустить генератор реестров
+
+```bash
+node scripts/gen-template-registry.mjs
+```
+
+Ожидаемый вывод — две строки, по одной на реестр:
+
+```
+~ packages/templates-spec/src/templates/index.ts
+~ packages/renderer-hyperframes/src/templates/index.ts
+```
+
+`=` вместо `~` означает «ничего не изменилось»: папку не увидели (не то имя) либо генератор уже
+запускали. Проверить, не записывая:
+
+```bash
+node scripts/gen-template-registry.mjs --check   # exit 0 = реестры актуальны
+```
+
+**Забыть этот шаг нельзя молча:** `tests/lints/template-registry-generated.test.ts` краснеет с
+именем папки и с этой самой командой в тексте отказа.
+
+### Шаг 3 — породить запросы гейта
+
+Случай гейта (клипы и `params`) объявляется в `GATE_REQUEST_CASES`
+([`renderer-hyperframes/test/fixture.ts`](../packages/renderer-hyperframes/test/fixture.ts)) —
+**это единственное место сверх папки, и оно известно**: `params` и состав композиции из имени
+папки не выводятся. Вторая копия того же списка живёт в `templates-gate.test.ts` (долг №193).
+
+```bash
+TZ=UTC LC_ALL=C VPE_GATE_REQUESTS_UPDATE=1 pnpm vitest run \
+  packages/renderer-hyperframes/test/gate-requests.test.ts
+git status --porcelain packages/templates-spec/src/templates/
+```
+
+Ожидается **ровно два новых файла запросов** в папке нового шаблона (плюс его ассеты, если
+есть). Тронулся ЧУЖОЙ запрос — это сдвиг `bundle.hash`, то есть чужие записи гейта устарели:
+остановиться и разобраться ДО коммита.
+
+### Шаг 4 — снять гейт и записать доки
+
+Две команды из §1 (обе профили), затем строка шаблона в
+[`docs/roadmap.md`](roadmap.md) §5 и упоминание в отчёте задачи. Сборка без записи гейта не
+стартует — это **R12**, а не рекомендация.
 
 ---
 

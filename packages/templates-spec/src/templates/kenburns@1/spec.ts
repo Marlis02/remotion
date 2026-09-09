@@ -21,10 +21,10 @@
 
 import { z } from 'zod';
 
-import type { EasingId } from '../easing.js';
-import type { TemplateManifest } from '../manifest.js';
-import { geometry } from '../params.js';
-import type { TemplateSpec } from '../spec.js';
+import type { EasingId } from '../../easing.js';
+import type { TemplateManifest } from '../../manifest.js';
+import { geometry } from '../../params.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /**
  * Кривые, которые шаблон объявляет, что умеет, — **ПОДМНОЖЕСТВО закрытого реестра**.

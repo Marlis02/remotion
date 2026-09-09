@@ -27,7 +27,7 @@
 // `msPerFrameBudget: 0` СПЕКА — ТА ЖЕ МЫСЛЬ С ДРУГОЙ СТОРОНЫ ГРАНИЦЫ: «Ноль — измерение по
 // построению, а не оценка».
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 const BED_MOUNT = `function (host, ctx) {
         throw new Error(

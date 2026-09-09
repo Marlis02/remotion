@@ -193,7 +193,7 @@ DoD: после каждого ролика — `vpe store push`.
 
 ```bash
 ./scripts/vpe-docker template gate still@1 --profile draftHalf \
-  --request packages/renderer-hyperframes/gate-requests/still@1.draftHalf.json \
+  --request packages/templates-spec/src/templates/still@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
@@ -201,6 +201,20 @@ DoD: после каждого ролика — `vpe store push`.
 `ГЕЙТ: PASS · профиль draftHalf · N = 3`; «различных framemd5: 1; различных sha256: 1»;
 полный путь созданной записи. Полный список из двенадцати команд — там же, в runbook'е;
 раздел «в образе» объясняет, чем прогон в образе отличается от прогона на машине.
+
+**Шаблон — это ПАПКА** (`TPL-01a`, 2026-09-09). Запрос гейта и запись живут в ней:
+`packages/templates-spec/src/templates/<id>@<N>/{spec.ts, gates.json, gate-requests/}`, а
+реализация — в одноимённой папке рендерера (`impl.ts`). Оба `templates/index.ts`
+**генерируются** по листингу каталога:
+
+```bash
+node scripts/gen-template-registry.mjs          # записать оба реестра
+node scripts/gen-template-registry.mjs --check  # сверить, ничего не записывая
+```
+
+Забыть запуск нельзя молча — краснеет `tests/lints/template-registry-generated.test.ts`.
+Пошаговый рецепт «как добавить восьмой шаблон» — [`docs/gate-runbook.md`](docs/gate-runbook.md)
+§4-ter.
 
 ### 3. Проверить, что среда та самая
 

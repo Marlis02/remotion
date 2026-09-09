@@ -26,10 +26,10 @@
 
 import { z } from 'zod';
 
-import type { TemplateManifest } from '../manifest.js';
-import { aliasRef, decibels, MediaTimePointParamSchema } from '../params.js';
-import type { AssetRef } from '../refs.js';
-import type { TemplateSpec } from '../spec.js';
+import type { TemplateManifest } from '../../manifest.js';
+import { aliasRef, decibels, MediaTimePointParamSchema } from '../../params.js';
+import type { AssetRef } from '../../refs.js';
+import type { TemplateSpec } from '../../spec.js';
 
 const ParamsSchema = z
   .object({

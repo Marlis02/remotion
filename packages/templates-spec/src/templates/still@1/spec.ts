@@ -23,10 +23,10 @@
 
 import { z } from 'zod';
 
-import type { TemplateManifest } from '../manifest.js';
-import { aliasRef } from '../params.js';
-import type { AssetRef } from '../refs.js';
-import type { TemplateSpec } from '../spec.js';
+import type { TemplateManifest } from '../../manifest.js';
+import { aliasRef } from '../../params.js';
+import type { AssetRef } from '../../refs.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /** Раскладка картинки в кадре. Один элемент — см. шапку файла. */
 const FITS = ['cover'] as const;

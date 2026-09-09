@@ -4,7 +4,7 @@
 // матрица живёт в `renderer-hyperframes/test/gate.test.ts` (`H-04`). Живой прогон команды —
 // отдельный файл `template-gate-render.test.ts`, и он требует браузера.
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
@@ -128,7 +128,7 @@ describe('`vpe template gate` — отказы до единого прогон�
     expect(result.code).toBe(EXIT.refusal);
     expect(result.err).toMatch(/шаблона `solid@1` нет в библиотеке/u);
     expect(result.err).toContain('kenburns@1');
-    expect(existsSync(path.join(gatesDir, 'solid@1.gates.json'))).toBe(false);
+    expect(existsSync(path.join(gatesDir, 'solid@1', 'gates.json'))).toBe(false);
   });
 
   // ── №181: «запрос вправе нести шаблоны-ОСНОВАНИЯ; запись пишется по НАЗВАННОМУ» ───────
@@ -142,8 +142,8 @@ describe('`vpe template gate` — отказы до единого прогон�
     expect(result.code, result.err).toBe(EXIT.pass);
     // Запись легла по НАЗВАННОМУ шаблону, а не по соседу, — это и есть вторая половина
     // правила: сосед участвует в измерении, но не в имени записи.
-    expect(existsSync(path.join(gatesDir, 'still@1.gates.json'))).toBe(true);
-    expect(existsSync(path.join(gatesDir, 'kenburns@1.gates.json'))).toBe(false);
+    expect(existsSync(path.join(gatesDir, 'still@1', 'gates.json'))).toBe(true);
+    expect(existsSync(path.join(gatesDir, 'kenburns@1', 'gates.json'))).toBe(false);
   });
 
   it('**запрос БЕЗ названного шаблона — отказ**: основание без того, ради чего оно положено', async () => {
@@ -203,7 +203,8 @@ describe('`vpe template gate` — отказы до единого прогон�
 
   it('**файл записей БЕЗ спека — отказ команды** (П1: полный путь и пара в тексте)', async () => {
     const { argv, gatesDir } = scene();
-    const orphan = path.join(gatesDir, 'shaderBg@1.gates.json');
+    const orphan = path.join(gatesDir, 'shaderBg@1', 'gates.json');
+    mkdirSync(path.dirname(orphan), { recursive: true });
     writeFileSync(
       orphan,
       JSON.stringify(
@@ -229,7 +230,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
     const result = await run(argv, () => Promise.resolve(outcome()));
     expect(result.code).toBe(EXIT.pass);
 
-    const file = path.join(gatesDir, 'still@1.gates.json');
+    const file = path.join(gatesDir, 'still@1', 'gates.json');
     expect(existsSync(file)).toBe(true);
     // Путь напечатан ЦЕЛИКОМ: автору нужно знать, что коммитить руками.
     expect(result.out).toContain(file);
@@ -268,7 +269,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
       ),
     );
     expect(result.code).toBe(EXIT.fail);
-    expect(existsSync(path.join(gatesDir, 'still@1.gates.json'))).toBe(false);
+    expect(existsSync(path.join(gatesDir, 'still@1', 'gates.json'))).toBe(false);
     expect(result.out).toMatch(/запись НЕ создана \(класс `FAIL`\)/u);
     expect(result.out).toMatch(/Charter V13/u);
   });
@@ -284,7 +285,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
       ),
     );
     expect(result.code).toBe(EXIT.flaky);
-    expect(existsSync(path.join(gatesDir, 'still@1.gates.json'))).toBe(false);
+    expect(existsSync(path.join(gatesDir, 'still@1', 'gates.json'))).toBe(false);
     expect(result.out).toMatch(/нормализация применена и гейт ПЕРЕСНЯТ/u);
   });
 
@@ -296,15 +297,16 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
       ),
     );
     expect(result.code).toBe(EXIT.error);
-    expect(existsSync(path.join(gatesDir, 'still@1.gates.json'))).toBe(false);
+    expect(existsSync(path.join(gatesDir, 'still@1', 'gates.json'))).toBe(false);
     expect(result.out).toMatch(/прогонов гейта не было/u);
   });
 
   it('пересъёмка ЗАМЕЩАЕТ запись профиля и называет, чем прежняя устарела', async () => {
     const { argv, gatesDir } = scene();
     // Прежняя запись: тот же профиль, ЧУЖОЙ отпечаток — то есть устаревшая.
+    mkdirSync(path.join(gatesDir, 'still@1'), { recursive: true });
     writeFileSync(
-      path.join(gatesDir, 'still@1.gates.json'),
+      path.join(gatesDir, 'still@1', 'gates.json'),
       JSON.stringify(
         makeGateFile({ namespace: null, templateId: 'still', templateVersion: 1 }, [
           { gate: record({ engineFingerprint: 'f'.repeat(64), date: '2026-01-01T00:00:00Z' }), bundleHash: 'e'.repeat(64) },
@@ -320,7 +322,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
     expect(result.out).toMatch(/другом окружении/u);
 
     const after = GateFileSchema.parse(
-      JSON.parse(readFileSync(path.join(gatesDir, 'still@1.gates.json'), 'utf8')),
+      JSON.parse(readFileSync(path.join(gatesDir, 'still@1', 'gates.json'), 'utf8')),
     );
     // Записей по-прежнему две: свежая `draftHalf` заместила прежнюю, `final` не тронут.
     expect(after.entries).toHaveLength(2);
@@ -331,8 +333,9 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
 
   it('прежняя запись была ДЕЙСТВУЮЩЕЙ — команда говорит и это, а не молчит', async () => {
     const { argv, gatesDir } = scene();
+    mkdirSync(path.join(gatesDir, 'still@1'), { recursive: true });
     writeFileSync(
-      path.join(gatesDir, 'still@1.gates.json'),
+      path.join(gatesDir, 'still@1', 'gates.json'),
       JSON.stringify(
         makeGateFile({ namespace: null, templateId: 'still', templateVersion: 1 }, [
           { gate: record({ date: '2026-08-01T00:00:00Z' }), bundleHash: BUNDLE_OF_REQUEST },

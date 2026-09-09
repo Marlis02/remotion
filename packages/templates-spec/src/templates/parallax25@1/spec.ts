@@ -40,11 +40,11 @@
 
 import { z } from 'zod';
 
-import type { EasingId } from '../easing.js';
-import type { TemplateManifest } from '../manifest.js';
-import { aliasRef, geometry } from '../params.js';
-import type { AssetRef } from '../refs.js';
-import type { TemplateSpec } from '../spec.js';
+import type { EasingId } from '../../easing.js';
+import type { TemplateManifest } from '../../manifest.js';
+import { aliasRef, geometry } from '../../params.js';
+import type { AssetRef } from '../../refs.js';
+import type { TemplateSpec } from '../../spec.js';
 
 /**
  * Потолок числа слоёв — **четыре** (roadmap §3, строка `E-02`).

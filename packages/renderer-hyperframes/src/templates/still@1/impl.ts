@@ -23,7 +23,7 @@
 
 import { canonicalJson } from '@vpe/core-model';
 
-import type { RendererTemplate } from './index.js';
+import type { RendererTemplate } from '../index.js';
 
 /**
  * Раскладка картинки в кадре — значение по умолчанию.

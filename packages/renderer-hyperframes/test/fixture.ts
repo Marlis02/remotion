@@ -10,12 +10,12 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { canonicalJson } from '@vpe/core-model';
-import { layerRole } from '@vpe/templates-spec';
+import { gateRequestFileName as gateRequestNameOf, layerRole } from '@vpe/templates-spec';
 
 import type { SegmentRenderRequest } from '../src/contract.js';
+import { templateGateRequestsDir } from '../src/library.js';
 import { renderSegment } from '../src/run.js';
 import { rendererTemplates } from '../src/templates/index.js';
 import { validateRequest } from '../src/validate.js';
@@ -260,9 +260,16 @@ export const PARALLAX_LAYER_PNGS: readonly Buffer[] = [PARALLAX_FAR_32, PARALLAX
  */
 const GATE_FONT_REL = 'assets/DejaVuSans-Bold.ttf';
 
-/** DejaVu Sans Bold ИЗ РЕПОЗИТОРИЯ — временный шрифт гейта (решение владельца 4, RM2). */
-export const GATE_FONT_PATH = fileURLToPath(
-  new URL(`../gate-requests/${GATE_FONT_REL}`, import.meta.url),
+/**
+ * DejaVu Sans Bold ИЗ РЕПОЗИТОРИЯ — временный шрифт гейта (решение владельца 4, RM2).
+ *
+ * Лежит в папке ЕДИНСТВЕННОГО шаблона, который его просит (`TPL-01a`, решение владельца В2):
+ * общего места для ассетов запросов нет, потому что общих ассетов почти нет — 705 KB шрифта
+ * нужны одному `captionEmphasis@1`, и копии их нигде больше не заводится.
+ */
+export const GATE_FONT_PATH = path.join(
+  templateGateRequestsDir('captionEmphasis@1'),
+  GATE_FONT_REL,
 );
 export const GATE_FONT_FAMILY = 'DejaVu Sans';
 
@@ -737,14 +744,26 @@ export function relPathForRole(role: string): string {
   );
 }
 
-/** Каталог файлов запросов — от исходника фикстуры, а не от `cwd`. */
-export function gateRequestsDir(): string {
-  return fileURLToPath(new URL('../gate-requests', import.meta.url));
+/**
+ * **Каталог файлов запросов ОДНОГО шаблона — в его папке** (`TPL-01a`, 2026-09-09).
+ *
+ * ~~`renderer-hyperframes/gate-requests/` одной кучей на всю библиотеку.~~ Запрос гейта —
+ * свойство ШАБЛОНА, как и `gates.json`, и лежит он там же: `templates-spec/src/templates/
+ * <id>@<N>/gate-requests/`. Адрес строит `templateGateRequestsDir` продакшн-кода, а не своя
+ * склейка: второе знание о раскладке каталога разошлось бы с первым молча.
+ */
+export function gateRequestsDir(call: string): string {
+  return templateGateRequestsDir(call);
 }
 
-/** Имя файла запроса: `<шаблон>.<профиль>.json`, например `still@1.draftHalf.json`. */
-export function gateRequestFileName(kase: GateRequestCase, profile: GateRequestProfile): string {
-  return `${kase.call}.${profile.profileId}.json`;
+/** Имя файла запроса — имя ПРОФИЛЯ: `draftHalf.json`, `final.json` (шаблон несёт папка). */
+export function gateRequestFileName(profile: GateRequestProfile): string {
+  return gateRequestNameOf(profile.profileId);
+}
+
+/** Полный путь файла запроса пары (шаблон, профиль). */
+export function gateRequestFilePath(kase: GateRequestCase, profile: GateRequestProfile): string {
+  return path.join(gateRequestsDir(kase.call), gateRequestFileName(profile));
 }
 
 /**
