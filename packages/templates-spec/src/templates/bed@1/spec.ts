@@ -99,7 +99,11 @@ export const bed1: TemplateSpec<BedParams> = {
     'второй ассет, которого шаблон не объявляет, и схема такую пару отвергает. В v1 музыка ' +
     'НЕ микшируется — клип лежит в `AudioPlan.music[]` как есть, а `gainDb` и ' +
     '`duckUnderSpeechDb` объявлены и типизированы, но звука пока не меняют (долг №141).',
-  declareAssets: (params): readonly AssetRef[] => [{ alias: params.asset, role: 'asset' }],
+  // `kind: 'audio'` НАЗВАН ЯВНО — единственный из семи спеков, кому умолчание `image` не
+  // подходит (`ASSET-01` §2.3). Подложка есть ЗВУК, и молчаливая картинка под ней означала бы
+  // шаблон, объявивший не то, что он просит: `still@1` рядом ждёт того же слова `asset`, но
+  // совсем другого файла.
+  declareAssets: (params): readonly AssetRef[] => [{ alias: params.asset, role: 'asset', kind: 'audio' }],
   declareFonts: () => [],
   manifest,
 };

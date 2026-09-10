@@ -13,6 +13,7 @@
 import { GATE_PROFILES, type GateProfileId } from '@vpe/templates-spec';
 
 import { AC4_PROFILE_ID, type BuildProfileId } from './ac4.js';
+import { RIGHTS_HINTS } from './asset.js';
 import { CliError, EXIT } from './errors.js';
 
 /** `vpe template gate <id>@<N> --profile final|draftHalf --request <файл>`. */
@@ -244,12 +245,78 @@ export interface StoreArgs {
   readonly now: string | null;
 }
 
+/**
+ * `vpe asset add <файл> --project <кат> --alias <имя> --note "<строка>" --rights <статус> …`
+ * (`ASSET-01`).
+ *
+ * **`--rights` ОБЯЗАТЕЛЕН, И УМОЛЧАНИЯ У НЕГО НЕТ НАМЕРЕННО.** Права — единственное поле
+ * записи, которого движок не может ИЗМЕРИТЬ: геометрию, кадры, альфу и звук снимает прибор,
+ * а «чьё это» знает только человек. Умолчание здесь («наверное, `own`») означало бы, что
+ * движок сочиняет юридическое утверждение за автора, — и сочинял бы его молча, потому что
+ * судить значение сегодня некому (долг №210, Policy Guard `CP-06` не написан).
+ *
+ * **`--note` ОБЯЗАТЕЛЕН ПО ТОЙ ЖЕ ПРИЧИНЕ, ЧТО `guidance` У СПЕКА ШАБЛОНА.** Это описание
+ * ассета одной строкой для ИИ-сценариста (`docs/ai-scenarist.md` §3), и ассет без него попал
+ * бы в список строкой «есть такой alias, что на нём — неизвестно», то есть тихой дырой в
+ * задании для ИИ.
+ */
+export interface AssetAddArgs {
+  readonly command: 'asset';
+  readonly action: 'add';
+  /** Файл на диске — ЕДИНСТВЕННЫЙ позиционный аргумент команды. */
+  readonly filePath: string;
+  readonly projectDir: string;
+  readonly alias: string;
+  /** Описание одной строкой → `provenance.work.note`. */
+  readonly note: string;
+  /** Статус прав → `provenance.work.status`. Свободная строка (P12), не enum. */
+  readonly rights: string;
+  /** `provenance.origin.sourceUrl`. `null` — файл не скачан, а снят. */
+  readonly sourceUrl: string | null;
+  /** `provenance.reproduction.attributionText`; его наличие ставит `attributionRequired`. */
+  readonly attribution: string | null;
+  /**
+   * `derivedFrom` — ЧЕТЫРЕ ФЛАГА ВМЕСТЕ ИЛИ НИ ОДНОГО.
+   *
+   * `--op` появился в разборе, потому что схема требует `transform.op` («что сделали» —
+   * `alpha-cutout` у живой записи `98defdd0…`), а из имени инструмента он не выводится:
+   * `rembg` — это ЧЕМ, а не ЧТО. Выдумать его команда не вправе — это решение автора
+   * (решение владельца В6, `ASSET-01`).
+   */
+  readonly derivedFrom: string | null;
+  readonly op: string | null;
+  readonly tool: string | null;
+  readonly toolVersion: string | null;
+  /** CAS проекта. `null` — `store.path` из `project.yaml`, с раскрытием `~` и **P8**. */
+  readonly storeDir: string | null;
+  /** Момент `retrievedAt` (**D4**). `null` — `VPE_NOW`, затем часы процесса. */
+  readonly now: string | null;
+  /**
+   * Путь к `ffprobe`. `null` — имя `ffprobe`, то есть «как его зовёт PATH».
+   *
+   * Флаг ЕСТЬ, потому что прибор — вход, а не окружение (шапка `assemble/ffprobe.ts`: «ни
+   * чтения `process.env`, ни поиска бинарника своими правилами»). Тесты подают его явно и
+   * потому не зависят от того, что стоит на машине.
+   */
+  readonly ffprobePath: string | null;
+}
+
+/** `vpe asset list --project <кат>` — список для ИИ-сценариста (см. `asset.ts`). */
+export interface AssetListArgs {
+  readonly command: 'asset';
+  readonly action: 'list';
+  readonly projectDir: string;
+}
+
+export type AssetArgs = AssetAddArgs | AssetListArgs;
+
 export type StoreAction = 'verify' | 'fetch' | 'push';
 
 /** Подкоманды `store` — закрытым списком; `gc` среди них нет и не будет (**K10**). */
 const STORE_ACTIONS: readonly StoreAction[] = ['verify', 'fetch', 'push'];
 
 export type CliCommand =
+  | AssetArgs
   | BuildArgs
   | RenderSegmentArgs
   | SpecExportArgs
@@ -272,6 +339,10 @@ export const USAGE = [
   'vpe template list [--gates-dir <кат>]',
   'vpe template demo <id>@<N> | --all  [--profile draftHalf|final] [--out <кат>] [--gates-dir <кат>]',
   '                           [--now <ISO>] [--no-cache] [--keep-tmp]',
+  'vpe asset add <файл> --project <кат> --alias <имя> --note "<строка>" --rights <статус>',
+  '                [--source-url <url>] [--attribution "<текст>"] [--store-dir <кат>] [--now <ISO>]',
+  '                [--derived-from <sha> --op <операция> --tool <имя> --tool-version <v>] [--ffprobe <путь>]',
+  'vpe asset list --project <кат>',
   'vpe spec export [--json] [--out <файл>]',
   'vpe verify ac4 --project <кат> [--profile <файл.yaml>] [--run-root <кат>] [--store-dir <кат>]',
   '               [--allow-tts] [--now <ISO>]',
@@ -317,6 +388,7 @@ export function parseArgv(argv: readonly string[]): CliCommand {
   if (argv[0] === 'build') return parseBuild(argv.slice(1));
   if (argv[0] === 'render-segment') return parseRenderSegment(argv.slice(1));
   if (argv[0] === 'store') return parseStore(argv.slice(1));
+  if (argv[0] === 'asset') return parseAsset(argv.slice(1));
   if (argv[0] === 'spec') return parseSpec(argv.slice(1));
   if (argv[0] === 'verify') return parseVerify(argv.slice(1));
   if (argv[0] !== 'template') {
@@ -690,6 +762,191 @@ function parseRenderSegment(rest: readonly string[]): RenderSegmentArgs {
  * подкоманды: «перенести блобы» без второй стороны есть команда без адресата. У `verify`
  * второй стороны нет вовсе — он спрашивает ОДИН стор про список `store.lock`.
  */
+/**
+ * `vpe asset add|list` (`ASSET-01`).
+ *
+ * ПОДКОМАНДА НАЗЫВАЕТСЯ ЯВНО, закрытым списком из двух: `add` пишет в четыре места сразу
+ * (стор, запись, алиас, `store.lock`), `list` не пишет никуда. Умолчания у такой пары быть
+ * не может — «`vpe asset <файл>`» означало бы, что запись в git происходит от команды,
+ * которую человек считал чтением.
+ */
+function parseAsset(rest: readonly string[]): AssetArgs {
+  const action = rest[0];
+  if (action !== 'add' && action !== 'list') {
+    throw new CliError(
+      'argv',
+      `неизвестная подкоманда \`asset ${action ?? ''}\`. Есть \`add\` и \`list\`.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+  const tail = rest.slice(1);
+
+  let filePath: string | null = null;
+  let projectDir: string | null = null;
+  let alias: string | null = null;
+  let note: string | null = null;
+  let rights: string | null = null;
+  let sourceUrl: string | null = null;
+  let attribution: string | null = null;
+  let derivedFrom: string | null = null;
+  let op: string | null = null;
+  let tool: string | null = null;
+  let toolVersion: string | null = null;
+  let storeDir: string | null = null;
+  let now: string | null = null;
+  let ffprobePath: string | null = null;
+
+  for (let i = 0; i < tail.length; i += 1) {
+    const arg = tail[i] ?? '';
+    switch (arg) {
+      case '--project':
+        projectDir = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--alias':
+        alias = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--note':
+        note = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--rights':
+        rights = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--source-url':
+        sourceUrl = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--attribution':
+        attribution = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--derived-from':
+        derivedFrom = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--op':
+        op = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--tool':
+        tool = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--tool-version':
+        toolVersion = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--store-dir':
+        storeDir = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--now':
+        now = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      case '--ffprobe':
+        ffprobePath = valueOf(tail, i, arg);
+        i += 1;
+        break;
+      default:
+        if (arg.startsWith('--')) {
+          throw new CliError('argv', `неизвестный флаг \`${arg}\`.\n${USAGE}`, EXIT.input);
+        }
+        if (filePath !== null) {
+          throw new CliError(
+            'argv',
+            `лишний аргумент \`${arg}\`: файл принимается ОДИН за вызов (уже назван ` +
+              `\`${filePath}\`). Пачка файлов — это пачка вызовов, и каждый из них назовёт ` +
+              'свой alias, свои права и своё описание',
+            EXIT.input,
+          );
+        }
+        filePath = arg;
+    }
+  }
+
+  if (projectDir === null) {
+    throw new CliError('argv', `\`--project\` обязателен.\n${USAGE}`, EXIT.input);
+  }
+
+  if (action === 'list') {
+    if (filePath !== null) {
+      throw new CliError('argv', `\`asset list\` файла не принимает: \`${filePath}\``, EXIT.input);
+    }
+    return { command: 'asset', action: 'list', projectDir };
+  }
+
+  if (filePath === null) {
+    throw new CliError('argv', `файл не назван.\n${USAGE}`, EXIT.input);
+  }
+  if (alias === null) {
+    throw new CliError(
+      'argv',
+      '`--alias` обязателен: имя, под которым ассет зовут `params` режиссуры. Вывести его из ' +
+        'имени файла нельзя — `IMG_20260910_143012.jpg` не является именем, которое кто-то ' +
+        'захочет писать в `direction/*.yaml`',
+      EXIT.input,
+    );
+  }
+  if (note === null) {
+    throw new CliError(
+      'argv',
+      '`--note` обязателен: описание ассета одной строкой. Его печатает `vpe asset list`, а ' +
+        'оттуда оно уезжает в чат с ИИ-сценаристом (`docs/ai-scenarist.md` §3: «список ' +
+        "alias'ов с одной строкой описания каждой»). Ассет без описания — тихая дыра в " +
+        'задании для ИИ: alias есть, а что на нём — неизвестно',
+      EXIT.input,
+    );
+  }
+  if (rights === null) {
+    throw new CliError(
+      'argv',
+      '`--rights` обязателен: чьё это и на каких условиях. Умолчания нет намеренно — права ' +
+        'единственное поле записи, которое движок не может ИЗМЕРИТЬ (геометрию, кадры, ' +
+        'альфу и звук снимает прибор), а сочинить его молча значило бы выдать юридическое ' +
+        'утверждение за автора. Обычно здесь пишут: ' +
+        `${RIGHTS_HINTS.map((hint) => `\`${hint}\``).join(', ')} — но список это ПОДСКАЗКА, ` +
+        'а не перечень: схема держит статус свободной строкой сознательно (P12)',
+      EXIT.input,
+    );
+  }
+
+  const derivation = [derivedFrom, op, tool, toolVersion];
+  const named = derivation.filter((value) => value !== null).length;
+  if (named !== 0 && named !== derivation.length) {
+    throw new CliError(
+      'argv',
+      '`--derived-from`, `--op`, `--tool` и `--tool-version` называются ЧЕТВЕРО ВМЕСТЕ либо ' +
+        `ни один (назван${named === 1 ? '' : 'о'} ${String(named)}). Цепочка прав тянется к ` +
+        'оригиналу явно (ADR-0005 §9a): производный файл без указания, ЧТО с ним сделали и ' +
+        'ЧЕМ, — это запись, по которой лицензию прочитать нельзя',
+      EXIT.input,
+    );
+  }
+
+  return {
+    command: 'asset',
+    action: 'add',
+    filePath,
+    projectDir,
+    alias,
+    note,
+    rights,
+    sourceUrl,
+    attribution,
+    derivedFrom,
+    op,
+    tool,
+    toolVersion,
+    storeDir,
+    now,
+    ffprobePath,
+  };
+}
+
 function parseStore(rest: readonly string[]): StoreArgs {
   const given = rest[0] ?? '';
   if (!(STORE_ACTIONS as readonly string[]).includes(given)) {

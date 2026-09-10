@@ -53,7 +53,7 @@ function fail(what: string, file: string, error: unknown): never {
   );
 }
 
-interface StoreContext {
+export interface StoreContext {
   readonly projectRoot: string;
   readonly lockPath: string;
   readonly entries: readonly StoreLockEntry[];
@@ -71,7 +71,10 @@ interface StoreContext {
  * единственной копией оплаченного аудио. (Долг №44 этим закрыт НЕ ЦЕЛИКОМ: `vpe build
  * --store-dir` по-прежнему зовёт `path.resolve` — см. `build-stages/inputs.ts`.)
  */
-function readStoreContext(args: StoreArgs): StoreContext {
+export function readStoreContext(args: {
+  readonly projectDir: string;
+  readonly storeDir: string | null;
+}): StoreContext {
   const projectRoot = path.resolve(args.projectDir);
   const projectFile = path.join(projectRoot, 'project.yaml');
   let storePath: string;

@@ -13,3 +13,4 @@ export {
   type EffectiveLicense,
 } from './catalog.js';
 export { AssetPathError, readAssetCatalog, type AssetCatalogPaths } from './load.js';
+export * from './probe.js';

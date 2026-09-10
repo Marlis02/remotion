@@ -87,7 +87,7 @@ export const FINGERPRINT_FIELDS = [
  * их не определяет. Отсутствие обязано читаться как отсутствие, а не как `undefined`,
  * молча превратившийся в `"undefined"` при сравнении.
  */
-interface RawStream {
+export interface RawStream {
   readonly codec_type?: string;
   readonly codec_name?: string;
   readonly profile?: string;
@@ -101,6 +101,19 @@ interface RawStream {
   readonly r_frame_rate?: string;
   readonly avg_frame_rate?: string;
   readonly nb_read_packets?: string;
+  // ═══ ПОЛЯ, ДОБАВЛЕННЫЕ `ASSET-01` (паспорт ассета, `assets/probe.ts`) ═══
+  // Читатель у них другой, а прибор и его разбор — ТОТ ЖЕ: второй парсер вывода ffprobe
+  // рядом с этим разошёлся бы с ним при первой правке формы (шапка файла, правило целиком).
+  /** `-count_frames`: кадров ПО ДЕКОДУ. Отличается от `nb_read_packets` на битом хвосте. */
+  readonly nb_read_frames?: string;
+  /** Аудио-поток: частота дискретизации строкой (`"48000"`), как её отдаёт прибор. */
+  readonly sample_rate?: string;
+  /** Аудио-поток: число каналов. */
+  readonly channels?: number;
+  /** `Display Matrix` и родня. `rotation` бывает отрицательным — это поворот файла. */
+  readonly side_data_list?: readonly { readonly rotation?: number }[];
+  /** Обложка (`attached_pic: 1`) — видео-поток, который видео не является. */
+  readonly disposition?: Readonly<Record<string, number>>;
 }
 
 interface RawPacket {

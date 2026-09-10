@@ -18,6 +18,28 @@
 // НЕИЗВЕСТНЫЙ ФОРМАТ — ОШИБКА, А НЕ `.bin`. Файл, чей тип мы не знаем, браузер отобразит
 // «как получится», то есть по своему угадыванию, — и это ровно тот класс расхождения между
 // машинами, ради которого шрифты передаются файлами с checksum (`FACT` r2 §7.4 п. 2).
+//
+// ═══ ТАБЛИЦА ФОРМАТОВ — ОДНА НА ВЕСЬ РЕПОЗИТОРИЙ (`ASSET-01`, решение владельца В7, 2026-09-10) ═══
+// С `ASSET-01` этот файл читает не только адаптер: `vpe asset add` определяет вид ассета теми
+// же байтами — иначе «картинка это или видео» решалось бы вторым способом, и два способа
+// разошлись бы при первой правке (тот же довод, по которому `store.lock` читается
+// `readFamily`, а не голым YAML). Поэтому здесь появились ДВЕ вещи:
+//
+// * `sniffFormat` — НЕ БРОСАЮЩИЙ вариант того же поиска. CLI не адаптер: `RenderAdapterError`
+//   с правилом `R5` в отказе `vpe asset add` называл бы правило, к которому команда
+//   отношения не имеет. Разбор один, ответы разные — `extensionOf` построен НАД `sniffFormat`;
+// * `mp4/mov` (`ftyp` со смещения 4) и `webm/mkv` (EBML) — виды блоба, которые проект
+//   отныне кладёт в CAS (`VID-01`, паспорт видео-ассета).
+//
+// **ЦЕНА ЭТОГО СКАЗАНА ВСЛУХ И ЗАПИСАНА ДОЛГОМ №260.** До `ASSET-01` mp4 в каталоге композиции
+// был ОТКАЗОМ, теперь он получит `.mp4` и проедет молча. Вызывающих сегодня нет — ни один из
+// семи шаблонов видео не просит, — но охранника «видео в запросе рендерера» тоже нет, и
+// поставить его обязан `VID-02` (шаблон `video@1`), а не эта задача: правило «видео кладёт
+// ffmpeg нижним слоем, а Chrome рисует поверх» (`SP-VID`, вердикт «а») принадлежит ему.
+//
+// ЧТО СЮДА НЕ ПОПАЛО И ПОЧЕМУ. `gif`: сигнатура известна, поддержки нет — и это РАЗНЫЕ
+// новости для того, кто читает отказ (см. `UNSUPPORTED_MAGIC` ниже). Молчаливое «формат не
+// опознан» на GIF отправило бы автора искать битые байты там, где байты целы.
 
 import { RenderAdapterError } from './errors.js';
 
@@ -39,11 +61,34 @@ export const KNOWN_MAGIC: readonly Magic[] = Object.freeze([
   { offset: 0, bytes: [0xff, 0xd8, 0xff], ext: 'jpg', name: 'JPEG' },
   // WebP: `RIFF....WEBP` — четыре байта размера между двумя маркерами, поэтому две записи.
   { offset: 0, bytes: [0x52, 0x49, 0x46, 0x46], ext: 'webp', name: 'RIFF-контейнер' },
+  // ISO-BMFF (`mp4`, `mov`, `m4v`, `3gp`): маркер `ftyp` стоит СО СМЕЩЕНИЯ 4 — первые четыре
+  // байта заняты размером бокса. Измерено на `work/in/demo.mp4`: `00 00 00 20 66 74 79 70`.
+  // Расширение одно на всё семейство: контейнер различает не оно, а `major_brand`, и знать
+  // его здесь незачем — тип для браузера у них общий.
+  { offset: 4, bytes: [0x66, 0x74, 0x79, 0x70], ext: 'mp4', name: 'ISO-BMFF (mp4/mov)' },
+  // Matroska/WebM: EBML-заголовок. WebM — профиль Matroska, и на уровне первых байт они
+  // НЕРАЗЛИЧИМЫ; различает их `DocType` внутри EBML, до которого этот файл не разбирается —
+  // разбор контейнера был бы вторым парсером рядом с ffprobe.
+  { offset: 0, bytes: [0x1a, 0x45, 0xdf, 0xa3], ext: 'webm', name: 'EBML (webm/mkv)' },
   { offset: 0, bytes: [0x00, 0x01, 0x00, 0x00], ext: 'ttf', name: 'TrueType' },
   { offset: 0, bytes: [0x74, 0x72, 0x75, 0x65], ext: 'ttf', name: 'TrueType (true)' },
   { offset: 0, bytes: [0x4f, 0x54, 0x54, 0x4f], ext: 'otf', name: 'OpenType/CFF' },
   { offset: 0, bytes: [0x77, 0x4f, 0x46, 0x46], ext: 'woff', name: 'WOFF' },
   { offset: 0, bytes: [0x77, 0x4f, 0x46, 0x32], ext: 'woff2', name: 'WOFF2' },
+]);
+
+/**
+ * Форматы, которые проект ОПОЗНАЁТ, но не поддерживает.
+ *
+ * ОТДЕЛЬНАЯ ТАБЛИЦА, А НЕ ПРОПУСК В ПЕРВОЙ, потому что это разные новости: «не опознан» —
+ * повод смотреть на байты (файл битый, скачался наполовину, это вообще не то, что думали),
+ * «опознан, но не поддержан» — повод открыть долг. GIF здесь один; шрифты и звук в
+ * `vpe asset add` отвергаются НЕ ЗДЕСЬ, а видом ассета (они опознаются и поддерживаются, но
+ * их приём — не эта задача, долг №261).
+ */
+export const UNSUPPORTED_MAGIC: readonly Magic[] = Object.freeze([
+  { offset: 0, bytes: [0x47, 0x49, 0x46, 0x38, 0x37, 0x61], ext: 'gif', name: 'GIF87a' },
+  { offset: 0, bytes: [0x47, 0x49, 0x46, 0x38, 0x39, 0x61], ext: 'gif', name: 'GIF89a' },
 ]);
 
 const startsWith = (bytes: Uint8Array, magic: Magic): boolean => {
@@ -54,43 +99,84 @@ const startsWith = (bytes: Uint8Array, magic: Magic): boolean => {
 const isAt = (bytes: Uint8Array, offset: number, ascii: string): boolean =>
   [...ascii].every((ch, i) => bytes[offset + i] === ch.charCodeAt(0));
 
+/** Опознанный формат: расширение, человеческое имя и поддержан ли он проектом. */
+export interface Sniffed {
+  readonly ext: string;
+  readonly name: string;
+  /** `false` — сигнатура в `UNSUPPORTED_MAGIC`: формат известен, работать с ним нечем. */
+  readonly supported: boolean;
+}
+
+/** Первые восемь байт словами — единственная форма, в которой их печатают отказы. */
+export function headHex(bytes: Uint8Array): string {
+  return [...bytes.slice(0, 8)].map((b) => b.toString(16).padStart(2, '0')).join(' ');
+}
+
+/**
+ * Формат по первым байтам — **НЕ БРОСАЯ**. `null` — ни одна сигнатура не совпала.
+ *
+ * ПОЧЕМУ НЕ БРОСАЕТ. Читателей у таблицы двое, и отказы у них разные: адаптер обязан назвать
+ * правило `R5`/`ADR-0008 форма` (`extensionOf` ниже), а `vpe asset add` — сказать «пока
+ * только картинки и видео» и назвать долг. Общий бросающий вариант заставил бы CLI ловить
+ * `RenderAdapterError` и переписывать его текст, то есть врать про правило.
+ *
+ * `wav` возвращается наравне с остальными: «это звук» — законный ответ прибора, а решение,
+ * что с ним делать, принадлежит вызывающему (адаптер откажет по **R5**, `asset add` — по
+ * виду ассета).
+ */
+export function sniffFormat(bytes: Uint8Array): Sniffed | null {
+  for (const magic of KNOWN_MAGIC) {
+    if (!startsWith(bytes, magic)) continue;
+    if (magic.ext !== 'webp') return { ext: magic.ext, name: magic.name, supported: true };
+    // RIFF — семейство: WAV и WebP делят первые четыре байта. Различает их байт 8..11.
+    if (isAt(bytes, 8, 'WEBP')) return { ext: 'webp', name: 'WebP', supported: true };
+    if (isAt(bytes, 8, 'WAVE')) return { ext: 'wav', name: 'WAV (звук)', supported: true };
+    break;
+  }
+  for (const magic of UNSUPPORTED_MAGIC) {
+    if (startsWith(bytes, magic)) return { ext: magic.ext, name: magic.name, supported: false };
+  }
+  return null;
+}
+
 /**
  * Расширение файла по его первым байтам.
  *
  * @param bytes содержимое файла (достаточно первых 16 байт, но берётся весь буфер: он уже
  *   прочитан валидатором для сверки sha256, второго чтения не будет).
  * @param at адрес внутри запроса — попадёт в текст ошибки.
- * @throws {RenderAdapterError} `ADR-0008 форма` — формат неизвестен.
+ * @throws {RenderAdapterError} `ADR-0008 форма` — формат неизвестен либо не поддержан;
+ *   `R5` — файл оказался звуком.
  */
 export function extensionOf(bytes: Uint8Array, at: string): string {
-  for (const magic of KNOWN_MAGIC) {
-    if (!startsWith(bytes, magic)) continue;
-    if (magic.ext !== 'webp') return magic.ext;
-    // RIFF — семейство: WAV и WebP делят первые четыре байта. Различает их байт 8..11.
-    if (isAt(bytes, 8, 'WEBP')) return 'webp';
-    if (isAt(bytes, 8, 'WAVE')) {
-      throw new RenderAdapterError('ADR-0008 форма', `${at}: файл — WAV (звук)`, [
-        {
-          rule: 'R5',
-          at,
-          message:
-            'звук в каталоге композиции означал бы аудио-дорожку внутри сегмента, а сегменты ' +
-            'немы (**R5**): дорожка ролика непрерывна и кодируется ОДИН раз при муксе (V6)',
-        },
-      ]);
-    }
-    break;
+  const found = sniffFormat(bytes);
+  if (found?.ext === 'wav') {
+    throw new RenderAdapterError('ADR-0008 форма', `${at}: файл — WAV (звук)`, [
+      {
+        rule: 'R5',
+        at,
+        message:
+          'звук в каталоге композиции означал бы аудио-дорожку внутри сегмента, а сегменты ' +
+          'немы (**R5**): дорожка ролика непрерывна и кодируется ОДИН раз при муксе (V6)',
+      },
+    ]);
   }
-  const head = [...bytes.slice(0, 8)]
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join(' ');
+  if (found !== null && found.supported) return found.ext;
+
+  const head = headHex(bytes);
+  const recognised =
+    found === null
+      ? `первые байты \`${head}\` не совпали ни с одной известной сигнатурой ` +
+        `(${KNOWN_MAGIC.map((m) => m.name).join(', ')}). `
+      : `первые байты \`${head}\` опознаны как ${found.name}, и этот формат проект не ` +
+        'поддерживает ни одним шагом конвейера. ';
   throw new RenderAdapterError('ADR-0008 форма', `${at}: формат файла не опознан`, [
     {
       rule: 'ADR-0008 форма',
       at,
       message:
-        `первые байты \`${head}\` не совпали ни с одной известной сигнатурой ` +
-        `(${KNOWN_MAGIC.map((m) => m.name).join(', ')}). Расширение выводится из БАЙТОВ, ` +
+        recognised +
+        'Расширение выводится из БАЙТОВ, ' +
         'потому что в запросе его нет ни одним полем, а добавить поле — значит изменить ' +
         'контракт ADR-0008. Неизвестный формат — отказ, а не `.bin`: браузер отобразил бы ' +
         'такой файл по своему угадыванию, и результат разошёлся бы между машинами',

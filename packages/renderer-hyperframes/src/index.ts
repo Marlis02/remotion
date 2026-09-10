@@ -21,7 +21,14 @@ export { RenderAdapterError, type RenderRule } from './errors.js';
 
 export { assertRequestFiles, isInside, validateRequest, type RequestFile } from './validate.js';
 
-export { extensionOf, KNOWN_MAGIC } from './magic.js';
+export {
+  extensionOf,
+  headHex,
+  sniffFormat,
+  KNOWN_MAGIC,
+  UNSUPPORTED_MAGIC,
+  type Sniffed,
+} from './magic.js';
 
 // Тело точки входа подпроцесса (`L-02`): одно на две оболочки — бинарь пакета и команда
 // `vpe render-segment`.

@@ -12,6 +12,7 @@ import path from 'node:path';
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 
 import { parseArgv } from './argv.js';
+import { asset } from './asset.js';
 import { build, type BuildDeps } from './build.js';
 import { CliError, EXIT } from './errors.js';
 import { renderSegmentCommand } from './render-segment.js';
@@ -47,6 +48,7 @@ export async function runCli(argv: readonly string[], deps: CliDeps): Promise<nu
     if (command.command === 'build') return await build(command, deps);
     if (command.command === 'render-segment') return await renderSegmentCommand(command, deps);
     if (command.command === 'store') return await store(command, deps);
+    if (command.command === 'asset') return await asset(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
     if (command.command === 'template demo') return await templateDemo(command, deps);
     if (command.command === 'verify ac4') return await verifyAc4(command, deps);

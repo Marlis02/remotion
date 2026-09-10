@@ -212,6 +212,66 @@ describe('`CP-07` — компилятор НЕ ВЫДУМЫВАЕТ: семь �
     expect(error.problems[0]?.message).toContain('роли `asset`');
   });
 
+  // ── §3.6 `ASSET-01`: ВИД ФАЙЛА ПРОТИВ ВИДА, КОТОРОГО ЖДЁТ РОЛЬ ────────────────────────
+  //
+  // ДО `ASSET-01` ОБА ЭТИХ ВХОДА ПРОХОДИЛИ МОЛЧА, и это была не гипотеза: alias разрешался в
+  // sha, пара `{sha, role}` уезжала в IR, и `kind` записи не спрашивал никто. Падало это в
+  // рендерере — в подпроцессе, через три стадии, сообщением про `<img>`. С приходом вида
+  // `video` (`VID-01`) вход стал обыденным: `vpe asset add` кладёт видео в тот же каталог и
+  // под такой же alias, что и фотографию.
+
+  /** Копия каталога, где под данным alias лежит запись ДРУГОГО вида. Фикстура не трогается. */
+  const withKind = (base: AssetCatalog, alias: string, kind: string): AssetCatalog => {
+    const sha = base.aliases.get(alias);
+    if (sha === undefined) throw new Error(`alias \`${alias}\` не найден`);
+    const record = base.records.get(sha);
+    if (record === undefined) throw new Error(`записи \`${sha}\` нет`);
+    return {
+      records: new Map([...base.records, [sha, { ...record, kind }]]),
+      aliases: base.aliases,
+      files: base.files,
+    };
+  };
+
+  it('видео под `still@1` ⇒ `problem` «ждали image», а не тихий проход до рендерера', async () => {
+    const base = await ofFixture();
+    const error = caught(() =>
+      run(base, {
+        catalog: withKind(base.catalog, 'ledger', 'video'),
+        records: only(base.records, '5d6e1130', { params: { asset: 'ledger', fit: 'cover' } }),
+        generated: [],
+      }),
+    );
+    expect(error.problems[0]?.message).toContain('`image`');
+    expect(error.problems[0]?.message).toContain('`video`');
+    expect(error.problems[0]?.message).toContain('ролью `asset`');
+    // Отказ обязан сказать, ЧЕМ чинить: команда, печатающая вид у каждого alias'а.
+    expect(error.problems[0]?.message).toContain('vpe asset list');
+  });
+
+  it('картинка под `bed@1` ⇒ `problem` «ждали audio»: подложка есть звук', async () => {
+    const base = await ofFixture();
+    // `bed@1` — единственный из семи спеков, кто называет вид ЯВНО. Здесь это проверяется
+    // делом: подменяется не спек, а ВИД ЗАПИСИ под его alias'ом.
+    const error = caught(() =>
+      run(base, {
+        catalog: withKind(base.catalog, 'pad-loop', 'image'),
+        records: only(base.records, 'c81a05f7', {}),
+        generated: [],
+      }),
+    );
+    expect(error.problems[0]?.message).toContain('`audio`');
+    expect(error.problems[0]?.message).toContain('`image`');
+  });
+
+  it('умолчание `image` покрывает шесть спеков из семи — фикстура проходит без правок', async () => {
+    // ЦЕНА ПРАВКИ НАЗВАНА ЧИСЛОМ: ни один спек, кроме `bed@1`, вида не объявляет, и все
+    // восемь вызовов фикстуры по-прежнему получают контракт. Если бы умолчание было другим
+    // (или его не было вовсе), этот тест покраснел бы на всех записях с картинками.
+    const base = await ofFixture();
+    expect(run(base).size).toBe(8);
+  });
+
   it('версия реестра против профиля ⇒ ошибка ДО первой записи (**K6**)', async () => {
     const base = await ofFixture();
     const error = caught(() => run(base, { version: '2' }));

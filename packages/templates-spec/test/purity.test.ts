@@ -90,7 +90,10 @@ describe('`TS-01` — манифест ⊇ фактические роли на 
     const params: unknown = bed.paramsSchema.parse(
       templateRecords.find((r) => r.template === 'bed@1')?.params,
     );
-    expect(bed.declareAssets(params)).toEqual([{ alias: 'pad-loop', role: 'asset' }]);
+    // `kind: 'audio'` назван ЯВНО (`ASSET-01`, §2.3): `bed@1` — единственный из семи спеков,
+    // кому умолчание `image` не подходит, и утверждение теста включает это слово. Умолчание
+    // здесь проверять нечем — оно проверяется тем, что остальные шесть спеков не тронуты.
+    expect(bed.declareAssets(params)).toEqual([{ alias: 'pad-loop', role: 'asset', kind: 'audio' }]);
   });
 });
 

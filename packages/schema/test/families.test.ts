@@ -655,11 +655,59 @@ describe('`asset-record/1` — ветка шрифта принимается, �
     // поймать не может — а это ровно то, чем стал бы отклонённый вариант Б (`licenseId`
     // рядом с `provenance`). Решение владельца: лицензия живёт в `provenance`, там же, где
     // у всех остальных ассетов; второй словарь разошёлся бы с первым при первой правке.
+    //
+    // ═══ ВЕТОК СТАЛО ЧЕТЫРЕ (`VID-01`, 2026-09-10, разрешение владельца) ═══
+    // Четвёртая — видео, и она перечислена здесь ПОИМЁННО ровно по той же причине, по
+    // которой перечислены три первых: охранник обязан краснеть на ЛЮБОЙ правке состава,
+    // включая ту, которую внесла эта задача. Число `4` без списка полей рядом было бы
+    // счётчиком, а не утверждением о форме. `codec` и `container` в списке нет намеренно
+    // (их не читает никто — ffmpeg определяет контейнер по байтам), и их появление обязано
+    // покраснеть здесь, а не выясниться на первом ролике с видео.
     const branches = AssetRecordSchema.shape.intrinsic.options;
-    expect(branches).toHaveLength(3);
+    expect(branches).toHaveLength(4);
     expect(Object.keys(branches[0].shape)).toEqual(['width', 'height']);
     expect(Object.keys(branches[1].shape)).toEqual(['durationSamples', 'sampleRate']);
     expect(Object.keys(branches[2].shape)).toEqual(['family', 'subfamily', 'format', 'fsType']);
+    expect(Object.keys(branches[3].shape)).toEqual([
+      'width',
+      'height',
+      'rotation',
+      'fps',
+      'frames',
+      'hasAlpha',
+      'audio',
+    ]);
+  });
+
+  it('ветка видео: законный паспорт принят, а испорченный отвергнут по каждому полю', () => {
+    const video = (patch: Record<string, unknown> = {}): string =>
+      JSON.stringify({
+        width: 1080,
+        height: 1920,
+        rotation: 90,
+        fps: { num: 30000, den: 1001 },
+        frames: 157,
+        hasAlpha: false,
+        audio: { sampleRate: 48000, channels: 2 },
+        ...patch,
+      });
+
+    expect(() => loadRecord('video-ok', fontText({ intrinsic: video() }))).not.toThrow();
+    // `audio: null` — ЯВНОЕ утверждение «дорожки нет», а не пропуск поля (довод P11).
+    expect(() => loadRecord('video-mute', fontText({ intrinsic: video({ audio: null }) }))).not.toThrow();
+
+    // Поворот — четыре значения, и `45` среди них нет: геометрия такого кадра не выражается
+    // парой `width`/`height` вовсе.
+    expect(() => loadRecord('video-rot45', fontText({ intrinsic: video({ rotation: 45 }) }))).toThrow();
+    // Частота — ДРОБЬ, а не число: `29.97` не выражается двоичной дробью, и запись, принявшая
+    // его, увезла бы ошибку в кадровую сетку.
+    expect(() => loadRecord('video-fps-num', fontText({ intrinsic: video({ fps: 29.97 }) }))).toThrow();
+    // Кадров ноль не бывает у файла, который приняли: это либо пустышка, либо битый декод.
+    expect(() => loadRecord('video-noframes', fontText({ intrinsic: video({ frames: 0 }) }))).toThrow();
+    // Пропуск поля — тоже отказ: паспорт неполон, а «не измерили» и «нет» — разные новости.
+    expect(() => loadRecord('video-noalpha-field', fontText({ intrinsic: '{ "width": 1080, "height": 1920, "rotation": 0, "fps": { "num": 30, "den": 1 }, "frames": 157, "audio": null }' }))).toThrow();
+    // `.strict()` держит и эту ветку: лишнее поле — отказ, а не молчаливый пропуск.
+    expect(() => loadRecord('video-codec', fontText({ intrinsic: video({ codec: 'h264' }) }))).toThrow();
   });
 
   it('две прежние ветки не сломаны: изображение и звук читаются как раньше', () => {

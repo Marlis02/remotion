@@ -39,7 +39,7 @@ export {
 } from './name.js';
 
 // Ссылки, которые объявляет шаблон.
-export type { AssetRef, FontRef } from './refs.js';
+export { DEFAULT_ASSET_KIND, type AssetKind, type AssetRef, type FontRef } from './refs.js';
 
 // Общие формы полей `params`; `gridPoint` невыразим (долг №35).
 export {

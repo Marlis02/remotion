@@ -75,12 +75,21 @@ function oneChapter(count: number, short: readonly string[] = []): string {
  * данными, и `bed@1` с одним полем компилировался. Теперь вызов проходит `paramsSchema` спека,
  * и «`bed@1` без `inPoint`/`gainDb`/`duckUnderSpeechDb`» — ошибка компиляции. Это не издержка
  * теста, а его же утверждение: синтетика обязана быть таким же законным вызовом, как фикстура.
+ *
+ * ═══ ВТОРАЯ ПОЛОВИНА ТОГО ЖЕ УТВЕРЖДЕНИЯ (`ASSET-01`, 2026-09-10) ═══
+ * У `bed@1` здесь стоял `asset: "harbour"` — **alias КАРТИНКИ фикстуры под музыкальной
+ * подложкой**. Тест этого не замечал, потому что вида ассета не проверял никто: alias
+ * разрешался в sha, и на этом вопросы кончались. Проверка появилась (`AssetRoleSpec.kind`,
+ * `contract.ts`), и оба теста R6/R7 покраснели — НЕ от неё, а от собственных данных.
+ * Подложка теперь берёт `pad-loop`, единственный аудио-alias фикстуры. Предмет тестов
+ * (разрез по границе сцены и по границе главы) не изменился ни на кадр: `music` не
+ * сегментируется независимо от того, какие байты под ней лежат.
  */
 const PARAMS_OF: Readonly<Record<string, string>> = {
   'still@1': '      asset: "harbour"\n',
   'bed@1':
-    '      asset: "harbour"\n' +
-    '      inPoint: { kind: mediaTime, asset: "harbour", offsetSamples: 0 }\n' +
+    '      asset: "pad-loop"\n' +
+    '      inPoint: { kind: mediaTime, asset: "pad-loop", offsetSamples: 0 }\n' +
     '      gainDb: -18\n' +
     '      duckUnderSpeechDb: -6\n',
 };
