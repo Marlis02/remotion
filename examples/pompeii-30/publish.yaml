@@ -1,0 +1,25 @@
+schema: publish/1
+
+# Вход BLOCK-правил Policy Guard. Три источника названы поимённо; лицензии — в записях
+# ассетов (`assets/records/*.json`), `{{attributions}}` компилятор соберёт из их provenance.
+title: "What The Ash Kept"
+
+descriptionTemplate: |
+  Vesuvius, the year seventy-nine, and the city that stayed where it fell.
+
+  Sources and licences:
+  {{attributions}}
+
+topic: history
+voiceRole: narrator
+madeForKids: false
+
+disclosure:
+  syntheticVoice: true            # живой ElevenLabs, но голос синтетический
+  aiImagery: false                # две фотографии девятнадцатого века и одно полотно 1833 года
+  aiMusic: false                  # музыки в ролике нет вовсе (решение владельца 2026-09-10)
+
+sources:
+  - { url: "https://commons.wikimedia.org/wiki/File:Karl_Brullov_-_The_Last_Day_of_Pompeii_-_Google_Art_Project.jpg", appliesTo: "sc:eruption" }
+  - { url: "https://commons.wikimedia.org/wiki/File:Sommer,_Giorgio_(1834-1914)_-_n._10800_-_Pompei_-_Scavi_nuovi.jpg", appliesTo: "sc:buried" }
+  - { url: "https://commons.wikimedia.org/wiki/File:Sommer,_Giorgio_(1834-1914)_-_n._1279_-_Impronte_umane_(Pompei).png", appliesTo: "sc:cast" }

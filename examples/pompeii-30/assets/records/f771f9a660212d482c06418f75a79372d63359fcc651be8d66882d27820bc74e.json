@@ -1,0 +1,29 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "f771f9a660212d482c06418f75a79372d63359fcc651be8d66882d27820bc74e",
+  "kind": "image",
+  "intrinsic": {
+    "width": 3810,
+    "height": 3070
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "Джорджо Соммер, снимок №1279 «Impronte umane (Pompei)»: гипсовый слепок погибшего, отливки 1873 года. Третья сцена — интересный факт: пустоту в пепле заливают гипсом, и она отдаёт фигуру. Автор умер в 1914 — PD-old-100."
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "origin": {
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sommer,_Giorgio_(1834-1914)_-_n._1279_-_Impronte_umane_(Pompei).png",
+      "retrievedAt": "2026-09-10T00:00:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

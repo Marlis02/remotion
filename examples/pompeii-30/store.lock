@@ -1,0 +1,57 @@
+schema: store-lock/1
+lastVerifiedAt: null
+entries:
+-
+  sha256: "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7"
+  size: 744936
+  kind: "font"
+  origin: "github.com/google/fonts"
+  replicas: []
+-
+  sha256: "1538f030169eeb17194a307943d32c2b5cf7bf4e842eff9f009c8bd9e7d477a0"
+  size: 104768
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "2d1a25abd9eb785b24fb6f3adf268a2d62ef71e90d5464e32060816d58c98cb9"
+  size: 461426
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "727ae6f55c05812b58bb5612aac96163fc8a2c645477916e734caa0cfe5a5e71"
+  size: 2273287
+  kind: "asset"
+  origin: "ingest:file"
+  replicas: []
+-
+  sha256: "b2f1b205172fedbe531fcb7fbea1bd3faff97af89adbea4a4d0d27db4057a2b1"
+  size: 336596
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "cc20e789c5bd2491c82e5094a3ff68ef8d101c9ee14e6820a61d3f038b87d05a"
+  size: 459198
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "d0f26c33283d797bac7c6b2655f223671dd0206eeb8b59d467e9f544dee35c08"
+  size: 75790
+  kind: "voice"
+  origin: "tts:elevenlabs@1"
+  replicas: []
+-
+  sha256: "f771f9a660212d482c06418f75a79372d63359fcc651be8d66882d27820bc74e"
+  size: 21605442
+  kind: "asset"
+  origin: "ingest:file"
+  replicas: []
+-
+  sha256: "ffa1b28577a534f50eb74b306b61d21ef5df8d4c9b8574480b866a6ec31b0615"
+  size: 398899
+  kind: "asset"
+  origin: "ingest:file"
+  replicas: []

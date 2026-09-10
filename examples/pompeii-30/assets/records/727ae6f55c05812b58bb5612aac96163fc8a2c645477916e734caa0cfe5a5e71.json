@@ -1,0 +1,29 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "727ae6f55c05812b58bb5612aac96163fc8a2c645477916e734caa0cfe5a5e71",
+  "kind": "image",
+  "intrinsic": {
+    "width": 3840,
+    "height": 2696
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "Карл Брюллов, «Последний день Помпеи», 1830–1833, Русский музей. Скан Google Art Project, уменьшен до ширины 3840. Открывающая сцена: извержение и толпа на улице Гробниц. Автор умер в 1852 — PD-old-100; репродукция плоского произведения PD-Art."
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "origin": {
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Karl_Brullov_-_The_Last_Day_of_Pompeii_-_Google_Art_Project.jpg",
+      "retrievedAt": "2026-09-10T00:00:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

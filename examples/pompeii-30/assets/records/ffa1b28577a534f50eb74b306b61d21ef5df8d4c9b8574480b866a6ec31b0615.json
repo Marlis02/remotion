@@ -1,0 +1,29 @@
+{
+  "schema": "asset-record/1",
+  "sha256": "ffa1b28577a534f50eb74b306b61d21ef5df8d4c9b8574480b866a6ec31b0615",
+  "kind": "image",
+  "intrinsic": {
+    "width": 2000,
+    "height": 1405
+  },
+  "derivedFrom": null,
+  "provenance": {
+    "work": {
+      "status": "public-domain",
+      "note": "Джорджо Соммер (1834–1914), снимок №10800 «Pompei — Scavi nuovi»: раскопанный город и Везувий за ним, до 1914 года. Вторая сцена — последствия: то, что откопали. Автор умер в 1914 — PD-old-100."
+    },
+    "reproduction": {
+      "status": "public-domain",
+      "attributionRequired": false
+    },
+    "recording": {
+      "status": "n/a"
+    },
+    "origin": {
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sommer,_Giorgio_(1834-1914)_-_n._10800_-_Pompei_-_Scavi_nuovi.jpg",
+      "retrievedAt": "2026-09-10T00:00:00Z"
+    },
+    "sourceSnapshot": null,
+    "c2paManifestBlob": null
+  }
+}

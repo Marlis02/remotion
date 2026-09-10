@@ -1,0 +1,98 @@
+schema: direction/1
+
+# Вся параметрика живёт здесь; проза остаётся прозой (ADR-0002).
+# at/until — ТОЛЬКО якоря b:/sc:/ch:/r: (ADR-0004 §2).
+#
+# Записи для [img: …] здесь НЕ перечислены: их порождает компилятор (`expandImg`) как
+# still@1 на z: 0. Окна kenburns@1 написаны ТОЙ ЖЕ парой якорей — эффект двигает соседний
+# снизу слой, и разъехавшиеся окна оставили бы его без цели.
+#
+# МУЗЫКИ И ЗВУКОВЫХ ЭФФЕКТОВ ЗДЕСЬ НЕТ, И ЭТО РЕШЕНИЕ ВЛАДЕЛЬЦА (2026-09-10), а не пропуск.
+# Задание называло подложку и эффекты; измерено по коду: микса в v1 нет вовсе — музыка едет
+# ДАННЫМИ (`music[]`, решение владельца 1 «а», `CP-05`, шапка `compile/src/audio/types.ts`),
+# `mixSaturating` в аудио-зоне не зовётся ни разу, дорожка ролика = речь + тишины движка.
+# Запись `bed@1` дала бы строку в плане и НОЛЬ звука в mp4. Владелец выбрал «без музыки,
+# только голос». Вернуть подложку будет стоить одной записи здесь — после `X-02`.
+#
+# Из эффектов остаётся визуальный: одна вспышка на бите `plaster`.
+
+records:
+  # ── сцена 1: извержение (Брюллов, 1833) ─────────────────────────────────────
+  - recordId: "3b1f70a2"
+    at: { kind: anchor, anchor: "b:img-last-day-1" }
+    until: { kind: anchor, anchor: "sc:eruption" }     # until на scope-якоре = его конец
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    # Полотно горизонтальное (3840×2696) в кадре 9:16: ведём по горизонтали, чтобы был виден
+    # сюжет — толпа под чёрным небом, — а не растянутый фрагмент. Тот же выбор и та же
+    # причина, что у улицы 1900 в `vertical-v1`.
+    preset: "drift-right"
+
+  - recordId: "5c93e1d4"
+    at: { kind: anchor, anchor: "sc:eruption" }
+    until: { kind: anchor, anchor: "sc:eruption" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    preset: "bold"
+
+  # ── сцена 2: раскопки (Соммер, до 1914) ─────────────────────────────────────
+  - recordId: "a4d970e1"
+    at: { kind: anchor, anchor: "b:img-excavation-1" }
+    until: { kind: anchor, anchor: "sc:buried" }
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    # Диагональ с наездом, но ЧИСЛА СВОИ, а не пресетные, и причина измерена по кадру
+    # (прогон final 2026-09-10): у отпечатка Соммера по нижнему краю напечатана подпись
+    # мастерской («…vi nuovi»), и `diagonal-close` её В КАДРЕ ОСТАВЛЯЕТ — он стартует с
+    # scale 1.02 и ведёт картинку ВНИЗ (y: −0.02 → +0.02), то есть к концу сцены подписи
+    # видно больше, а не меньше. Здесь наезд начинается с 1.10 (обрез снизу 96 px при
+    # высоте полосы подписи ~82 px) и кадр смещён ВВЕРХ на всём окне.
+    preset: "diagonal-close"
+    params:
+      from: { scale: 1.10, x: 0.02, y: -0.05 }
+      to: { scale: 1.20, x: -0.02, y: -0.02 }
+      easing: "power2.inOut"
+
+  - recordId: "7e21b6c8"
+    at: { kind: anchor, anchor: "sc:buried" }
+    until: { kind: anchor, anchor: "sc:buried" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    preset: "bold"
+
+  # ── сцена 3: слепок (Соммер, отливки 1873) ──────────────────────────────────
+  - recordId: "9d4a0f37"
+    at: { kind: anchor, anchor: "b:img-cast-1" }
+    until: { kind: anchor, anchor: "sc:cast" }
+    track: visual
+    z: 10
+    template: "kenburns@1"
+    # Снимок почти квадратный (3810×3070) и в 9:16 вписан по высоте: горизонтальный ход
+    # здесь не нужен, остаётся медленный наезд. Числа свои по той же причине, что у сцены 2:
+    # у отпечатка светлые поля сверху и снизу, и пресетный старт 1.04 их в кадре оставляет.
+    preset: "portrait-push-up"
+    params:
+      from: { scale: 1.12, x: 0.0, y: 0.02 }
+      to: { scale: 1.20, x: 0.0, y: -0.02 }
+      easing: "power2.inOut"
+
+  # Вспышка на бите `plaster` — единственное место, где ролик прибавляет голос: слово о том,
+  # как гипс отдаёт фигуру. Слабая, 22 % и 150 мс — пресет `soft-accent`.
+  - recordId: "2f60c95b"
+    at: { kind: anchor, anchor: "b:plaster" }
+    track: effect
+    z: 20
+    template: "flash@1"
+    preset: "soft-accent"
+
+  - recordId: "c81e35da"
+    at: { kind: anchor, anchor: "sc:cast" }
+    until: { kind: anchor, anchor: "sc:cast" }
+    track: caption
+    z: 30
+    template: "captionEmphasis@1"
+    preset: "bold"

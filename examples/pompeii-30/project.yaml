@@ -1,0 +1,39 @@
+schema: project/1
+
+id: pompeii-30
+channelId: demo-channel
+
+# ДЕМО-РОЛИК «Помпеи», ~30 секунд (задание владельца 2026-09-10). Не фикстура: тесты этот
+# каталог не читают, он существует ради просмотра глазами (Charter §8 п. 5).
+#
+# Геометрия — те же числа, что у `vertical-v1` и фикстуры, и по тем же причинам:
+# 30 fps — решение владельца 3 (RM2, 2026-08-22), 1080×1920 — вертикаль Shorts.
+fps: { num: 30, den: 1 }
+width: 1080
+height: 1920
+
+projectSampleRate: 24000
+
+# Четыре случайных байта, как в соседних проектах; вход seed'а (ADR-0007 §1).
+seedRoot: 1149798411
+
+profiles:
+  compile: profiles/compile.yaml
+  render: profiles/render.final.yaml
+  draft: profiles/render.draft.yaml
+  renderAc4: profiles/render.ac4.yaml
+  audio: profiles/audio.yaml
+
+# ЖИВОЙ ГОЛОС. Пересъёмка требует ДВУХ разрешений сразу (`V-06`): `--allow-tts` и
+# `ELEVENLABS_LIVE=1` в командной строке. Здесь лежит ИМЯ переменной окружения,
+# не значение (CLAUDE.md §2).
+voice:
+  providerId: "tts:elevenlabs@1"
+  modelId: "eleven_multilingual_v2"
+  voiceId: "ELEVENLABS_VOICE_ID"
+  seed: 7
+  binderId: "provider-timestamps@1"
+
+store:
+  path: "~/.vpe/store"
+  remotes: ["local-dir"]

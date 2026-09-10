@@ -1,0 +1,7 @@
+schema: aliases/1
+
+# alias → sha256. Три изображения public domain, лицензия каждого названа поимённо в его
+# записи `assets/records/<sha256>.json`. Строки ниже дописывает `vpe asset add`.
+last-day: "727ae6f55c05812b58bb5612aac96163fc8a2c645477916e734caa0cfe5a5e71"
+excavation: "ffa1b28577a534f50eb74b306b61d21ef5df8d4c9b8574480b866a6ec31b0615"
+cast: "f771f9a660212d482c06418f75a79372d63359fcc651be8d66882d27820bc74e"
