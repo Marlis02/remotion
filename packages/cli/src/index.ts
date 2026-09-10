@@ -20,6 +20,7 @@ export {
   type SpecExportArgs,
   type StoreAction,
   type StoreArgs,
+  type TemplateDemoArgs,
   type TemplateGateArgs,
   type TemplateListArgs,
   type VerifyAc4Args,
@@ -107,6 +108,19 @@ export {
   type BudgetReport,
   type BudgetSpan,
 } from './budget.js';
+export {
+  aliasesText,
+  demoProjectSkeletonDir,
+  demoRecordId,
+  directionText,
+  materializeDemoProject,
+  presetsShown,
+  sourceText,
+  templateDemo,
+  templatesWithDemo,
+  type DemoProject,
+  type TemplateDemoDeps,
+} from './template-demo.js';
 export { templateGate, type GateRunner, type TemplateGateDeps } from './template-gate.js';
 export { formatTemplateTable, templateRows, type TemplateRow } from './template-list.js';
 export { runCli, type CliDeps } from './run.js';

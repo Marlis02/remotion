@@ -1,0 +1,30 @@
+{
+  "title": "captionEmphasis@1 — субтитры с эмфазой",
+  "note": "Единственный пресет bold — им шаблон зовётся во ВСЕХ шести записях обеих живых режиссур канала. Группы субтитров порождает компилятор из прозы; запись включает полосу и стиль на всю сцену, а слово под маркером [emph] подсвечивается внутри своей группы.",
+  "text": "# chapter: main\n\n## scene: demo\n\nСубтитры собираются из прозы сами, группами по два-три слова. [beat: emph] Одно слово можно выделить, и оно станет [emph] жирным на своём месте.\n",
+  "assets": [],
+  "fonts": [
+    {
+      "file": "../gate-requests/assets/DejaVuSans-Bold.ttf",
+      "family": "DejaVu Sans",
+      "subfamily": "Bold",
+      "format": "ttf",
+      "fsType": 0
+    }
+  ],
+  "records": [
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:demo"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:demo"
+      },
+      "track": "caption",
+      "z": 30,
+      "preset": "bold"
+    }
+  ]
+}

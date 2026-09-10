@@ -1,0 +1,38 @@
+{
+  "title": "parallax25@1 — два плана с разной скоростью",
+  "note": "Оба пресета шаблона подряд, по сцене на каждый: figure-soft (сдержанный ход 4.5 % ширины кадра, фон в 2.6 раза медленнее) и figure-wide (вдвое больший ход и большее разделение планов). Слои — СВОИ ассеты шаблона, от ДАЛЬНЕГО к ближнему, поэтому под записью [img:] не нужен.",
+  "text": "# chapter: main\n\n## scene: soft\n\nДальний план едет медленнее ближнего, и от этого кадр становится глубже.\n\n## scene: wide\n\nТот же приём, но ход вдвое больше: планы расходятся заметно.\n",
+  "assets": [
+    {
+      "alias": "far",
+      "file": "../gate-requests/assets/parallax-far-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    },
+    {
+      "alias": "near",
+      "file": "../gate-requests/assets/parallax-near-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "sc:soft" },
+      "until": { "kind": "anchor", "anchor": "sc:soft" },
+      "track": "visual",
+      "z": 10,
+      "preset": "figure-soft",
+      "params": { "layers": ["far", "near"] }
+    },
+    {
+      "at": { "kind": "anchor", "anchor": "sc:wide" },
+      "until": { "kind": "anchor", "anchor": "sc:wide" },
+      "track": "visual",
+      "z": 10,
+      "preset": "figure-wide",
+      "params": { "layers": ["far", "near"] }
+    }
+  ]
+}

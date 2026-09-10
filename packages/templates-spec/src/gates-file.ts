@@ -41,6 +41,7 @@ import { TemplateSpecError } from './errors.js';
 import { GATE_PROFILES, GateRecordSchema, hexDigest, type GateRecord } from './manifest.js';
 import { formatTemplateName, parseTemplateName, type TemplateName } from './name.js';
 import type { AnyTemplateSpec } from './spec.js';
+import type { TemplateDemo } from './demo.js';
 
 import { z } from 'zod';
 
@@ -191,6 +192,15 @@ export interface LoadedTemplate {
   readonly entries: readonly GateFileEntry[];
   /** Путь файла записей либо `null` — записей нет, и это законное состояние. */
   readonly file: string | null;
+  /**
+   * Демо шаблона (`TPL-01c`) — разобранный `demo/demo.json`, и путь этого файла рядом.
+   *
+   * Полей НЕТ, пока их не поставил `attachDemos`; читать отсутствие полагается через
+   * `demoOf`/`demoFileOf` — см. [`demo.ts`](./demo.ts). Путь нужен наравне с содержимым:
+   * пути ассетов внутри демо резолвятся от папки `demo/`, а не от корня репозитория.
+   */
+  readonly demo?: TemplateDemo;
+  readonly demoFile?: string;
 }
 
 /** Каноническое имя спека: namespace выводится из наличия `forkedFrom` (ADR-0008, `registry.ts`). */

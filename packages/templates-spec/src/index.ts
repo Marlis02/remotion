@@ -143,6 +143,24 @@ export {
   type TemplatePreset,
 } from './presets.js';
 
+// Дом демо: папка `<id>@<N>/demo/` (`TPL-01c`). Здесь — только «есть или нет»: содержимое
+// `demo.yaml` разбирает команда `vpe template demo`, которой виден `@vpe/schema` с его
+// читателем семейств. Довод разделения — в шапке `demo.ts`.
+export {
+  attachDemos,
+  demoFileOf,
+  demoOf,
+  DemoFileSchema,
+  DEMO_ASSETS_DIR,
+  DEMO_DIR,
+  DEMO_FILE_NAME,
+  type DemoFileSource,
+  type TemplateDemo,
+  type TemplateDemoAsset,
+  type TemplateDemoFont,
+  type TemplateDemoRecord,
+} from './demo.js';
+
 // Прод-библиотека: СЕМЬ версионированных единиц каталога (`E-00`; прежнее имя
 // `FIXTURE_TEMPLATES`). Сам список — ПРОИЗВОДНЫЙ от листинга каталога и генерируется
 // (`scripts/gen-template-registry.mjs`, `TPL-01a`); отсюда он выходит одним именем.

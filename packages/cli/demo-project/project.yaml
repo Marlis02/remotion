@@ -1,0 +1,54 @@
+schema: project/1
+
+# **СКЕЛЕТ ДЕМО-ПРОЕКТА — данные команды `vpe template demo`** (`TPL-01c`, 2026-09-10).
+#
+# ЧТО ЭТО. Половина проекта, которая у всех демо ОДНА И ТА ЖЕ: геометрия канала, пять
+# профилей и роли голоса. Вторую половину — прозу, режиссуру, каталог ассетов и `store.lock`
+# — команда порождает из `<id>@<N>/demo/demo.yaml` во ВРЕМЕННЫЙ каталог. Дерево здесь
+# неполно намеренно: `source/`, `direction/`, `assets/`, `store.lock` в нём отсутствуют, и
+# собрать этот каталог как проект нельзя — он не проект, а заготовка.
+#
+# ПОЧЕМУ ФАЙЛАМИ, А НЕ КОНСТАНТАМИ В КОДЕ. Профиль — намерение человека (M9), вычисляемых
+# полей в нём нет (P10); профиль, собранный литералами TypeScript, был бы вторым
+# представлением того же намерения и разошёлся бы с первым. Файлы здесь — КОПИИ канальных, и
+# разъезд копий ловит охранник `packages/cli/test/demo-project.test.ts`: он сверяет их
+# построчно с `fixtures/minimal/profiles/*` и `gate-profiles/draftHalf.yaml`.
+#
+# ПОЧЕМУ ПРОФИЛЬ `draft` ВЗЯТ У ГЕЙТА, А НЕ У ФИКСТУРЫ. `fixtures/minimal/profiles/
+# render.draft.yaml` несёт `imageFormat: jpeg`, а адаптер такой формат отказывает (долг
+# №154) — демо на нём не собралось бы ни разу. `gate-profiles/draftHalf.yaml` отличается от
+# него ровно двумя строками (`imageFormat: png`, снятый `jpegQuality`) и уже охраняется
+# `renderer-hyperframes/test/gate-profile.test.ts`.
+
+id: demo
+channelId: demo-channel
+
+fps: { num: 30, den: 1 }
+width: 1080
+height: 1920
+
+projectSampleRate: 24000
+
+seedRoot: 305419896
+
+profiles:
+  compile: profiles/compile.yaml
+  render: profiles/render.final.yaml
+  draft: profiles/render.draft.yaml
+  renderAc4: profiles/render.ac4.yaml
+  audio: profiles/audio.yaml
+
+voice:
+  providerId: "tts:mock@1"       # демо не ходит в сеть и не стоит денег (ADR-0010 §7)
+  modelId: "mock-1"
+  voiceId: "VPE_MOCK_VOICE_ID"   # ИМЯ переменной окружения, не значение (CLAUDE.md §2)
+  seed: 7
+  binderId: "provider-timestamps@1"
+
+# CAS демо — ВРЕМЕННЫЙ каталог, который команда создаёт и сеет сама (`--store-dir`).
+# Значение ниже не используется никогда и написано так, чтобы забытый флаг не увёл запись
+# в `~/.vpe/store`: единственная копия оплаченного аудио живёт там, и демо к ней отношения
+# не имеет (ADR-0005 §8a, M8).
+store:
+  path: "./.demo-store"
+  remotes: []

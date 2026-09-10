@@ -1,0 +1,33 @@
+{
+  "title": "bed@1 — музыкальная подложка под речь",
+  "note": "Единственный пресет under-speech: подложка на −18 дБ, уходящая под голос на −6 дБ. Шаблон аудио-домена: в RenderIR.clips он не попадает никогда (потому у него и нет записи гейта — долг №189), поэтому на экране демо показывает картинку от [img:], а слушать надо звук. Alias и in-point пресета — конкретного проекта, поэтому запись перекрывает оба своими.",
+  "text": "# chapter: main\n\n## scene: demo\n\n[img: pattern] Под голосом играет подложка. [beat: bed] Она тише речи и уходит под неё, а в паузах слышна.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../../still@1/gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    },
+    {
+      "alias": "bed-loop",
+      "file": "assets/bed-loop.wav",
+      "kind": "audio",
+      "intrinsic": { "durationSamples": 72000, "sampleRate": 24000 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "sc:demo" },
+      "until": { "kind": "anchor", "anchor": "ch:main" },
+      "track": "music",
+      "z": 0,
+      "preset": "under-speech",
+      "params": {
+        "asset": "bed-loop",
+        "inPoint": { "kind": "mediaTime", "asset": "bed-loop", "offsetSamples": 12000 }
+      }
+    }
+  ]
+}

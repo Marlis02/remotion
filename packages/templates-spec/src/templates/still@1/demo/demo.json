@@ -1,0 +1,24 @@
+{
+  "title": "still@1 — статичная картинка кадрированием",
+  "note": "Показывает единственный пресет шаблона — cover: вертикаль берётся кадрированием по высоте, а не растяжением. Первая запись порождена маркером [img:] сама (z: 0), вторая написана руками поверх неё (z: 15) — ровно та пара, ради которой шаблон вообще пишут руками.",
+  "text": "# chapter: main\n\n## scene: demo\n\n[img: pattern] Картинка стоит в кадре неподвижно. [beat: cover] Вертикаль берётся кадрированием, а не растяжением.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "b:cover" },
+      "until": { "kind": "anchor", "anchor": "sc:demo" },
+      "track": "visual",
+      "z": 15,
+      "preset": "cover",
+      "params": { "asset": "pattern" }
+    }
+  ]
+}

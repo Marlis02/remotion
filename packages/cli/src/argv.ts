@@ -147,6 +147,35 @@ export interface TemplateListArgs {
 }
 
 /**
+ * `vpe template demo <id>@<N> [--profile draftHalf|final] [--out <кат>] [--all]` (`TPL-01c`).
+ *
+ * **ШАБЛОН ЛИБО `--all`, НО НЕ ОБА.** Демо — ролик, а не отчёт: «собрать все» и «собрать
+ * этот» — разные намерения, и совмещение их одной формой означало бы, что имя шаблона при
+ * `--all` молча игнорируется.
+ *
+ * ПРОФИЛЬ ПО УМОЛЧАНИЮ — `draftHalf`, и это не экономия. Демо смотрят глазами и пересобирают
+ * после каждой правки шаблона; на `final` это минуты (`FACT` SP-3f: ×6.0 разница скорости),
+ * а геометрию времени `draftHalf` не меняет ни на кадр (ADR-0008 «Draft»). `--profile final`
+ * остаётся для тех случаев, когда смотрят КАЧЕСТВО, а не поведение.
+ */
+export interface TemplateDemoArgs {
+  readonly command: 'template demo';
+  /** Имя вызова шаблона либо `null` при `--all`. */
+  readonly template: string | null;
+  readonly profileId: GateProfileId;
+  /** Куда класть `<id>@<N>/final.mp4`. `null` — `build/demo` от рабочего каталога. */
+  readonly out: string | null;
+  /** Куда/откуда читать записи гейта. `null` — каталог библиотеки рядом со спеками. */
+  readonly gatesDir: string | null;
+  /** Момент сборки (**D9**). `null` — `VPE_NOW`, затем часы процесса. */
+  readonly now: string | null;
+  /** **K3**: не трогать межсборочный кэш сегментов. */
+  readonly noCache: boolean;
+  /** Оставить временный проект на диске — отладка демо, которое не собралось. */
+  readonly keepTmp: boolean;
+}
+
+/**
  * `vpe spec export [--json] [--out <файл>]` — правила движка одной выгрузкой (`SPEC-01`).
  *
  * **ФЛАГОВ РОВНО ДВА, И `--gates-dir` СРЕДИ НИХ НЕТ.** Каталог записей у выгрузки один —
@@ -225,6 +254,7 @@ export type CliCommand =
   | RenderSegmentArgs
   | SpecExportArgs
   | StoreArgs
+  | TemplateDemoArgs
   | TemplateGateArgs
   | TemplateListArgs
   | VerifyAc4Args;
@@ -240,6 +270,8 @@ export const USAGE = [
   'vpe template gate <id>@<N> --profile final|draftHalf --request <файл> --render-profile <файл.yaml>',
   '                           [--gates-dir <кат>] [--run-root <кат>]',
   'vpe template list [--gates-dir <кат>]',
+  'vpe template demo <id>@<N> | --all  [--profile draftHalf|final] [--out <кат>] [--gates-dir <кат>]',
+  '                           [--now <ISO>] [--no-cache] [--keep-tmp]',
   'vpe spec export [--json] [--out <файл>]',
   'vpe verify ac4 --project <кат> [--profile <файл.yaml>] [--run-root <кат>] [--store-dir <кат>]',
   '               [--allow-tts] [--now <ISO>]',
@@ -294,9 +326,10 @@ export function parseArgv(argv: readonly string[]): CliCommand {
   const sub = argv[1];
   if (sub === 'gate') return parseGate(argv.slice(2));
   if (sub === 'list') return parseList(argv.slice(2));
+  if (sub === 'demo') return parseDemo(argv.slice(2));
   throw new CliError(
     'argv',
-    `неизвестная подкоманда \`template ${sub ?? ''}\`. Есть \`gate\` и \`list\`.\n${USAGE}`,
+    `неизвестная подкоманда \`template ${sub ?? ''}\`. Есть \`gate\`, \`list\` и \`demo\`.\n${USAGE}`,
     EXIT.input,
   );
 }
@@ -537,6 +570,90 @@ function parseList(rest: readonly string[]): TemplateListArgs {
     throw new CliError('argv', `неизвестный аргумент \`${arg}\`.\n${USAGE}`, EXIT.input);
   }
   return { command: 'template list', gatesDir };
+}
+
+/** Разбор `vpe template demo`. Умолчание профиля — `draftHalf` (см. `TemplateDemoArgs`). */
+function parseDemo(rest: readonly string[]): TemplateDemoArgs {
+  let template: string | null = null;
+  let profile: string | null = null;
+  let out: string | null = null;
+  let gatesDir: string | null = null;
+  let now: string | null = null;
+  let noCache = false;
+  let keepTmp = false;
+  let all = false;
+
+  for (let i = 0; i < rest.length; i += 1) {
+    const arg = rest[i] ?? '';
+    switch (arg) {
+      case '--profile':
+        profile = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--out':
+        out = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--gates-dir':
+        gatesDir = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--now':
+        now = valueOf(rest, i, arg);
+        i += 1;
+        break;
+      case '--no-cache':
+        noCache = true;
+        break;
+      case '--keep-tmp':
+        keepTmp = true;
+        break;
+      case '--all':
+        all = true;
+        break;
+      default:
+        if (arg.startsWith('--')) {
+          throw new CliError('argv', `неизвестный флаг \`${arg}\`.\n${USAGE}`, EXIT.input);
+        }
+        if (template !== null) {
+          throw new CliError(
+            'argv',
+            `лишний аргумент \`${arg}\`: демо собирается для ОДНОГО шаблона за вызов ` +
+              `(уже назван \`${template}\`); все сразу — это \`--all\``,
+            EXIT.input,
+          );
+        }
+        template = arg;
+    }
+  }
+
+  if (all && template !== null) {
+    throw new CliError(
+      'argv',
+      `\`--all\` и имя шаблона (\`${template}\`) вместе не значат ничего: либо все демо ` +
+        'каталога, либо одно названное. Молчаливое предпочтение одного другому означало бы, ' +
+        'что половина командной строки не исполняется',
+      EXIT.input,
+    );
+  }
+  if (!all && template === null) {
+    throw new CliError(
+      'argv',
+      `шаблон не назван, и \`--all\` тоже нет.\n${USAGE}`,
+      EXIT.input,
+    );
+  }
+
+  return {
+    command: 'template demo',
+    template,
+    profileId: profile === null ? 'draftHalf' : profileOf(profile),
+    out,
+    gatesDir,
+    now,
+    noCache,
+    keepTmp,
+  };
 }
 
 /**

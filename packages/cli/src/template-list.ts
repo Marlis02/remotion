@@ -18,6 +18,7 @@
 // работать там, где он всего нужнее — на чужой машине без установленного движка.
 
 import {
+  demoOf,
   determinismClassOf,
   formatTemplateName,
   parseTemplateName,
@@ -40,6 +41,14 @@ export interface TemplateRow {
    * написать в `preset:`».
    */
   readonly presets: string;
+  /**
+   * `есть` либо `нет` — есть ли у шаблона папка `demo/` с файлом (`TPL-01c`).
+   *
+   * ДА/НЕТ, а не число и не путь: вопрос таблицы — «готов ли шаблон», а по решению
+   * владельца **шаблон не считается готовым без демо**. Путь печатает сама команда
+   * `vpe template demo`, когда собирает.
+   */
+  readonly demo: string;
   /** Файл записей либо `—`: спек без файла законен (ноль записей). */
   readonly file: string;
 }
@@ -60,6 +69,7 @@ export function templateRows(loaded: readonly LoadedTemplate[]): readonly Templa
       determinism: determinismClassOf(manifest),
       easing: manifest.easingIds.length === 0 ? '—' : manifest.easingIds.join(','),
       presets: presetNames(item.spec).length === 0 ? '—' : presetNames(item.spec).join(','),
+      demo: demoOf(item) === null ? 'нет' : 'есть',
       file: item.file ?? '—',
     };
   });
@@ -73,6 +83,7 @@ const HEAD = [
   'класс детерминизма',
   'easing',
   'пресеты',
+  'demo',
 ] as const;
 
 /** Печать таблицы. Ширины считаются по содержимому: колонка не обрезает имя шаблона. */
@@ -85,6 +96,7 @@ export function formatTemplateTable(rows: readonly TemplateRow[]): string {
     row.determinism,
     row.easing,
     row.presets,
+    row.demo,
   ]);
   const widths = HEAD.map((title, column) =>
     Math.max(title.length, ...body.map((cells) => (cells[column] ?? '').length)),
@@ -102,6 +114,20 @@ export function formatTemplateTable(rows: readonly TemplateRow[]): string {
   out.push(
     'устаревание записи здесь НЕ проверяется: это вопрос про пару (профиль, отпечаток, ' +
       'композиция), и отвечает на него тот, кто окружение измерил — `vpe template gate`',
+  );
+  // ═══ ШАБЛОН БЕЗ `demo/` — ПРЕДУПРЕЖДЕНИЕ, А НЕ ОТКАЗ (решение владельца `TPL-01c`, §B5.3) ═══
+  // Отказом это быть не может: `template list` читает каталог, а не судит его, и библиотека,
+  // которую нельзя ПОСМОТРЕТЬ, пока все демо не написаны, — плохой обмен. Но и молчать
+  // нельзя: «шаблон не считается готовым без демо» — требование владельца, и место, где оно
+  // видно глазами, ровно одно — эта таблица.
+  const without = rows.filter((row) => row.demo === 'нет').map((row) => row.template);
+  out.push(
+    without.length === 0
+      ? `демо есть у всех ${String(rows.length)} шаблонов каталога`
+      : `ПРЕДУПРЕЖДЕНИЕ: без демо ${String(without.length)} из ${String(rows.length)} — ` +
+          `${without.join(', ')}. Шаблон не считается готовым без демо: заведите ` +
+          '`<id>@<N>/demo/demo.json` (`docs/gate-runbook.md` §4-ter, шаг 3-тер) и соберите ' +
+          'его `vpe template demo <id>@<N>`',
   );
   return out.join('\n');
 }

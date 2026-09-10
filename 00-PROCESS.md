@@ -224,6 +224,36 @@ node scripts/gen-template-registry.mjs --check  # сверить, ничего �
 build` не нужен. В режиссуре пишется `preset: "<имя>"` вместо `params`; свои `params` рядом
 накладываются ПОВЕРХ по верхнему уровню ключей.
 
+**И у папки есть ДЕМО — крошечный собираемый ролик** (`TPL-01c`, 2026-09-10). Решение
+владельца: **шаблон не считается готовым без демо.** Собрать одно либо все:
+
+```bash
+node packages/cli/dist/bin/vpe.js template demo kenburns@1 --profile draftHalf
+node packages/cli/dist/bin/vpe.js template demo --all
+```
+
+Ожидаемый вывод (одно демо, `draftHalf`, ноут владельца — ≈9 с на трёх сегментах):
+
+```
+демо `kenburns@1` → профиль `draftHalf`; временный проект: /tmp/vpe-demo-XXXXXX/project
+проект `demo` → профиль `draftHalf`; build: /tmp/vpe-demo-XXXXXX/build
+сегмент 1/3 `seg:diagonal`: 119 кадров, bundle 02e5396a6946…
+  кэш: промах
+сегмент 2/3 `seg:drift`: 95 кадров, bundle f4ac79b84287…
+сегмент 3/3 `seg:push`: 85 кадров, bundle a17cb8a9bb6e…
+финал: /tmp/vpe-demo-XXXXXX/build/final.mp4
+демо `kenburns@1` готово: build/demo/kenburns@1/final.mp4
+  кадров 299 · сегментов 3 · 8972 мс · sha256 c14e17be05e3…
+  пресетов показано 3 из 3: diagonal-close, drift-right, portrait-push-up
+демо собрано: 1 из 1; каталог <кат>/build/demo
+```
+
+Рядом с роликом ложится `demo-record.json` — sha256, кадры, сегменты, стенка, показанные и
+объявленные пресеты, sha всех блобов. **`~/.vpe/store` команда не трогает**: временный CAS
+она сеет сама из файлов папки, считая sha по байтам. Завести демо восьмому шаблону —
+[`docs/gate-runbook.md`](docs/gate-runbook.md) §4-ter, шаг 3-тер. Кто из шаблонов ещё без
+демо, печатает `vpe template list`: колонка `demo` и предупреждение последней строкой.
+
 ### 3. Проверить, что среда та самая
 
 ```bash

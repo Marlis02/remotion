@@ -1,0 +1,21 @@
+schema: voice-roles/1
+
+# Пресеты ролей голоса — ADR-0010 §3a-bis, ADR-0005 §1b. Форма уточнена решением владельца
+# (S-02, 2026-08-22): СПИСОК, а не карта (порядок канонический и диффится построчно);
+# providerId на роль отсутствует — провайдер один на проект, из project.yaml.voice;
+# modelId опционален — роль без него наследует project.yaml.voice.modelId.
+#
+# voice_id держит ИМЯ ПЕРЕМЕННОЙ ОКРУЖЕНИЯ, а не значение (CLAUDE.md §2, Charter §6).
+# Здесь оно совпадает с project.yaml.voice.voiceId: фикстура ходит только в tts:mock@1.
+#
+# Ссылки из режиссуры на эту роль в фикстуре НЕТ ни одной: запись direction/*.yaml с
+# track: voice и полем voiceRole ставит задача A-02 (roadmap §3). До неё применимость роли —
+# вход стадии plan (V-03), а не резолв записи.
+#
+# voice_settings пуст, и это не заглушка: у tts:mock@1 нет настроек провайдера вовсе
+# (capabilities.requestStitching: none, seedSupport: exact). Правка ЛЮБОГО поля внутри
+# voice_settings обязана менять voiceKey затронутых чанков — инвариант V15, ADR-0006 §2.
+roles:
+  - roleId: "narrator"
+    voice_id: "VPE_MOCK_VOICE_ID"
+    voice_settings: {}

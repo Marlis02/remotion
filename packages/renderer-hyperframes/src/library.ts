@@ -24,11 +24,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  DEMO_ASSETS_DIR,
+  DEMO_DIR,
+  DEMO_FILE_NAME,
   GATES_FILE_NAME,
   GATE_REQUESTS_DIR,
   PRESETS_DIR,
   PRESET_FILE_EXT,
   TEMPLATE_LIBRARY,
+  attachDemos,
   attachGates,
   attachPresets,
   createRegistry,
@@ -36,6 +40,7 @@ import {
   loadedSpecs,
   parseTemplateDirName,
   type AnyTemplateSpec,
+  type DemoFileSource,
   type GateFileSource,
   type LoadedTemplate,
   type PresetFileSource,
@@ -167,6 +172,21 @@ export function templateGateCaseFile(name: string, dir: string = templateLibrary
   return path.join(dir, name, GATE_CASE_FILE_NAME);
 }
 
+/** Каталог демо одного шаблона: `<библиотека>/<id>@<N>/demo`. */
+export function templateDemoDir(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(dir, name, DEMO_DIR);
+}
+
+/** Файл демо шаблона: `<библиотека>/<id>@<N>/demo/demo.yaml` — единственный способ его назвать. */
+export function templateDemoFile(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(templateDemoDir(name, dir), DEMO_FILE_NAME);
+}
+
+/** Каталог СВОИХ файлов демо: `<библиотека>/<id>@<N>/demo/assets`. */
+export function templateDemoAssetsDir(name: string, dir: string = templateLibraryDir()): string {
+  return path.join(templateDemoDir(name, dir), DEMO_ASSETS_DIR);
+}
+
 /** Файл записей гейта шаблона: `<библиотека>/<id>@<N>/gates.json`. */
 export function templateGatesFile(name: string, dir: string = templateLibraryDir()): string {
   return path.join(dir, name, GATES_FILE_NAME);
@@ -228,6 +248,27 @@ export function presetFileSources(dir: string): readonly PresetFileSource[] {
 }
 
 /**
+ * Демо каталога — по папкам шаблонов, ОДНО на папку либо ни одного.
+ *
+ * Читается ровно так же, как `presets/*.json`: `readdir` по папкам шаблонов, `readFile`
+ * содержимого, разбор — в чистой половине (`attachDemos`). Одно демо на папку либо ни одного.
+ *
+ * Папка `demo/` без `demo.yaml` считается ОТСУТСТВИЕМ демо, а не поломкой: подкаталог
+ * `demo/assets/` мог остаться от переименования, и молчаливо пропустить его дешевле, чем
+ * отказать всей библиотеке на файле, который никто не звал.
+ */
+export function demoFileSources(dir: string): readonly DemoFileSource[] {
+  return templateDirs(dir)
+    .map((name) => ({ dirName: name, file: path.join(dir, name, DEMO_DIR, DEMO_FILE_NAME) }))
+    .filter((item) => existsSync(item.file) && statSync(item.file).isFile())
+    .map((item) => ({
+      path: item.file,
+      dirName: item.dirName,
+      text: readFileSync(item.file, 'utf8'),
+    }));
+}
+
+/**
  * **Прод-каталог: спеки из кода + записи гейта с диска.**
  *
  * Это и есть «манифест собирается из двух мест». Отказы (файл без спека, чужое имя внутри
@@ -239,6 +280,9 @@ export function presetFileSources(dir: string): readonly PresetFileSource[] {
 export function loadTemplateLibrary(input: LibraryInput = {}): TemplateLibrary {
   const dir = input.dir ?? templateLibraryDir();
   const specs = input.specs ?? TEMPLATE_LIBRARY;
-  const loaded = attachPresets(attachGates(specs, gateFileSources(dir)), presetFileSources(dir));
+  const loaded = attachDemos(
+    attachPresets(attachGates(specs, gateFileSources(dir)), presetFileSources(dir)),
+    demoFileSources(dir),
+  );
   return { dir, loaded, registry: createRegistry(loadedSpecs(loaded)) };
 }

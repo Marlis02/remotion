@@ -116,8 +116,12 @@ export {
 // вызывающий своей склейкой (`vpe template gate`, билдер запросов, оба теста запросов).
 export {
   LIBRARY_SUBDIR,
+  demoFileSources,
   gateFileSources,
   loadTemplateLibrary,
+  templateDemoAssetsDir,
+  templateDemoDir,
+  templateDemoFile,
   templateDirs,
   templateGateRequestFile,
   templateGateRequestsDir,

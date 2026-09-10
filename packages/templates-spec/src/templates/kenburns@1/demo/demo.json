@@ -1,0 +1,37 @@
+{
+  "title": "kenburns@1 — наезд и ход по снимку",
+  "note": "Все три пресета шаблона подряд, по сцене на каждый: diagonal-close (диагональ, наезд почти от единицы), drift-right (горизонтальный ход слева направо) и portrait-push-up (медленный подъём без горизонтали). Шаблон двигает слой НИЖЕ себя, поэтому под каждой записью лежит картинка от [img:].",
+  "text": "# chapter: main\n\n## scene: diagonal\n\n[img: pattern] Первый ход идёт по диагонали. Наезд начинается почти от единицы.\n\n## scene: drift\n\n[img: pattern] Второй ход горизонтальный: кадр едет слева направо.\n\n## scene: push\n\n[img: pattern] Третий ход поднимает кадр снизу вверх без горизонтали.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "b:img-pattern-1" },
+      "until": { "kind": "anchor", "anchor": "sc:diagonal" },
+      "track": "visual",
+      "z": 10,
+      "preset": "diagonal-close"
+    },
+    {
+      "at": { "kind": "anchor", "anchor": "b:img-pattern-2" },
+      "until": { "kind": "anchor", "anchor": "sc:drift" },
+      "track": "visual",
+      "z": 10,
+      "preset": "drift-right"
+    },
+    {
+      "at": { "kind": "anchor", "anchor": "b:img-pattern-3" },
+      "until": { "kind": "anchor", "anchor": "sc:push" },
+      "track": "visual",
+      "z": 10,
+      "preset": "portrait-push-up"
+    }
+  ]
+}

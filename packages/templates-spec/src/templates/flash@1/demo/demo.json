@@ -1,0 +1,22 @@
+{
+  "title": "flash@1 — вспышка на слове",
+  "note": "Единственный пресет soft-accent: слабая вспышка 150 мс (3600 сэмплов при 24000) на бите, ради которого написана сцена. Это метка одного слова, а не эффект — 22 % против 35 % у фикстуры. Под вспышкой лежит картинка от [img:].",
+  "text": "# chapter: main\n\n## scene: demo\n\n[img: pattern] Вспышка помечает одно слово, а не украшает кадр. [beat: accent] Вот это самое слово, и кадр моргает ровно на нём.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../../still@1/gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "b:accent" },
+      "track": "effect",
+      "z": 20,
+      "preset": "soft-accent"
+    }
+  ]
+}

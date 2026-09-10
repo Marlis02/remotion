@@ -1,0 +1,50 @@
+{
+  "asis": {
+    "code": 0,
+    "ms": 2957,
+    "frames": 12,
+    "chrome": "/home/marlis/.cache/hyperframes/chrome/chrome-headless-shell/linux-152.0.7928.2/chrome-headless-shell-linux64/chrome-headless-shell",
+    "pixFmt": "1080,1920,rgba",
+    "alphaFirst": {
+      "ok": true,
+      "total": 2073600,
+      "expected": 2073600,
+      "zeroPct": 92.98750964506173,
+      "midPct": 4.245707947530864,
+      "fullPct": 2.7667824074074074
+    },
+    "alphaMid": {
+      "ok": true,
+      "total": 2073600,
+      "expected": 2073600,
+      "zeroPct": 92.98750964506173,
+      "midPct": 4.245707947530864,
+      "fullPct": 2.7667824074074074
+    },
+    "file": "/home/marlis/Documents/remotion/work/sp-vid/a1/frames-asis/frame_000007.png"
+  },
+  "clear": {
+    "code": 0,
+    "ms": 1679,
+    "frames": 12,
+    "chrome": "/home/marlis/.cache/hyperframes/chrome/chrome-headless-shell/linux-152.0.7928.2/chrome-headless-shell-linux64/chrome-headless-shell",
+    "pixFmt": "1080,1920,rgba",
+    "alphaFirst": {
+      "ok": true,
+      "total": 2073600,
+      "expected": 2073600,
+      "zeroPct": 92.98750964506173,
+      "midPct": 4.245707947530864,
+      "fullPct": 2.7667824074074074
+    },
+    "alphaMid": {
+      "ok": true,
+      "total": 2073600,
+      "expected": 2073600,
+      "zeroPct": 92.98750964506173,
+      "midPct": 4.245707947530864,
+      "fullPct": 2.7667824074074074
+    },
+    "file": "/home/marlis/Documents/remotion/work/sp-vid/a1/frames-clear/frame_000007.png"
+  }
+}

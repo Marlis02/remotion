@@ -1,0 +1,23 @@
+{
+  "title": "grade@1 — тёплый архивный тон с зерном",
+  "note": "Единственный пресет warm-archive — числа снятой записи examples/vertical-v1 (E-07 §5). Грейд красит то, что лежит НИЖЕ него, поэтому демо состоит из двух записей: картинка от [img:] и грейд поверх. Зерно 0.15 включено намеренно: оно есть самая дорогая часть шаблона.",
+  "text": "# chapter: main\n\n## scene: demo\n\n[img: pattern] Сначала кадр без тона. [beat: grade] Теперь поверх лежит тёплый архивный грейд с зерном.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": { "width": 32, "height": 32 }
+    }
+  ],
+  "fonts": [],
+  "records": [
+    {
+      "at": { "kind": "anchor", "anchor": "b:grade" },
+      "until": { "kind": "anchor", "anchor": "sc:demo" },
+      "track": "effect",
+      "z": 25,
+      "preset": "warm-archive"
+    }
+  ]
+}

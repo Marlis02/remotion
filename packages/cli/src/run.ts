@@ -17,6 +17,7 @@ import { CliError, EXIT } from './errors.js';
 import { renderSegmentCommand } from './render-segment.js';
 import { formatSpecExport, specExport, specExportJson } from './spec-export.js';
 import { store } from './store.js';
+import { templateDemo } from './template-demo.js';
 import { templateGate, type TemplateGateDeps } from './template-gate.js';
 import { formatTemplateTable, templateRows } from './template-list.js';
 import { verifyAc4 } from './verify-ac4.js';
@@ -47,6 +48,7 @@ export async function runCli(argv: readonly string[], deps: CliDeps): Promise<nu
     if (command.command === 'render-segment') return await renderSegmentCommand(command, deps);
     if (command.command === 'store') return await store(command, deps);
     if (command.command === 'template gate') return await templateGate(command, deps);
+    if (command.command === 'template demo') return await templateDemo(command, deps);
     if (command.command === 'verify ac4') return await verifyAc4(command, deps);
 
     if (command.command === 'spec export') {

@@ -1,0 +1,53 @@
+schema: render-profile/1
+profileId: draftHalf
+
+# ПРОФИЛЬ ДЛЯ СНЯТИЯ ГЕЙТА V13, а не для сборки роликов. Заведён `H-06` (2026-08-29) по
+# решению владельца, развилка «п», вариант п1.
+#
+# ЗАЧЕМ ОН СУЩЕСТВУЕТ — ИЗМЕРЕНИЕ, А НЕ ВКУС. `fixtures/minimal/profiles/render.draft.yaml`
+# (это и есть `profileId: draftHalf`) несёт `imageFormat: jpeg`, а адаптер такой формат
+# ОТКАЗЫВАЕТ правилом «ADR-0008 профиль»: у HyperFrames 0.8.5 форматы вывода —
+# `mp4|webm|mov|png-sequence|gif`, последовательности JPEG среди них нет, а mp4 запрещён
+# **R10** (`RENDERER_IMAGE_FORMATS` в `src/validate.ts`). Значит команда
+# `vpe template gate <id>@<N> --profile draftHalf --render-profile <фикстурный draft>` падает
+# на КАЖДОМ шаблоне. Это тот же долг №154, но на профиле `draft`.
+#
+# ПОЧЕМУ НЕ ПРАВИМ ФИКСТУРУ. `render.draft.yaml` намеренно оставлен ЖИВЫМ jpeg-профилем: он
+# единственный держит покрытие матрицы K1 по `pixelProfile.jpegQuality`, восстановленное
+# `H-03` (долг №163). Правка обнулила бы его — и вернула бы дыру, которую закрывали.
+#
+# **ЭТОТ ФАЙЛ ОТЛИЧАЕТСЯ ОТ `render.draft.yaml` РОВНО ДВУМЯ ВЕЩАМИ** (поправка владельца П3):
+# `imageFormat: jpeg` → `png` и снятая строка `jpegQuality: 80`. Всё остальное — байт в байт
+# те же значения. Охранник — `test/gate-profile.test.ts`: он сверяет два файла по ВСЕМ прочим
+# полям, потому что разъезд двух `draftHalf`-профилей означал бы, что гейт мерит одну пару,
+# а сборка идёт на другой, и запись описывает не то, что собирается.
+#
+# Судьба самой draft-пары (живая сборка на фикстурном профиле сегодня невозможна) — долг с
+# адресом `L-01`, там формы встретятся на настоящем ролике.
+pixelProfile:
+  browserGpu: false               # как у final: софтверный путь
+  imageFormat: png                # ЕДИНСТВЕННОЕ отличие №1: jpeg рендерером не выражается
+  # jpegQuality: 80               # ЕДИНСТВЕННОЕ отличие №2: схема render-profile/1 при png
+                                  # это поле ЗАПРЕЩАЕТ, поэтому строка закомментирована,
+                                  # а не удалена — прецедент правки `render.final.yaml` (№154)
+  scale: 0.5                      # 540x960 при 1080x1920 у final
+  colorSpace: bt709
+  pixelFormat: yuv420p
+  codec: h264
+  crf: 28
+  gopSize: 30
+  encoder:
+    threads: 4
+    preset: medium
+    tune: none
+    rcLookahead: 40
+    aqMode: 1
+    psy: 1
+    bitexact: true
+
+executionProfile:
+  workers: 4                      # = логических ядер / 3 (ADR-0008)
+  chapterParallelism: 1
+  segmentTimeoutMs: 900000
+
+# Гейт V13 на этом профиле — N = 3 (Charter V13, ADR-0008 «Гейт», решение владельца 12).
