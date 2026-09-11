@@ -1,13 +1,16 @@
 {
   "title": "video@1 — видео в ролике: весь экран, врезка в углу, пауза с наездом",
-  "note": "Все четыре пресета подряд, по сцене на каждый: fullscreen-cover (весь кадр, кадрирование), fullscreen-contain (весь кадр целиком, поля чёрные), corner-tr-small (врезка в правом верхнем углу ПОВЕРХ картинки — видно, что шаблон пробивает сквозь неё прозрачное окно) и hold-and-zoom (пауза на второй секунде плюс наезд ×1.8). Ассет свой: `demo-clip-320x180.mp4` — синтетика `testsrc2`, 320×180, 48 кадров при 24/1 fps, 21 580 байт. Он лежит в `demo/assets/`, а не берётся из `gate-requests/`, по двум причинам: видео гейта 64×36 на полном кадре нечитаемо, а частота 24 против канальных 30 нужна обоим — на ней и видно повтор кадров. Звук у демо не звучит и звучать не может: `audio` этой версии принимает только `off`.",
-  "text": "# chapter: main\n\n## scene: full\n\n[img: pattern] Первое — видео во весь кадр, кадрированное по вертикали канала.\n\n## scene: fit\n\n[img: pattern] Второе — то же видео целиком, с полями сверху и снизу.\n\n## scene: corner\n\n[img: pattern] Третье — врезка в углу поверх картинки: сквозь неё пробито окно.\n\n## scene: zoom\n\n[img: pattern] Четвёртое — пауза на второй секунде и наезд к точке чуть выше центра.\n",
+  "note": "Все четыре пресета подряд, по сцене на каждый: fullscreen-cover (весь кадр, кадрирование), fullscreen-contain (весь кадр целиком, поля чёрные), corner-tr-small (врезка в правом верхнем углу ПОВЕРХ картинки — видно, что шаблон пробивает сквозь неё прозрачное окно) и hold-and-zoom (пауза на второй секунде плюс наезд ×1.8). Ассет свой: `demo-clip-320x180.mp4` — синтетика `testsrc2`, 320×180, 48 кадров при 24/1 fps, 21 580 байт. Он лежит в `demo/assets/`, а не берётся из `gate-requests/`, по двум причинам: видео гейта 64×36 на полном кадре нечитаемо, а частота 24 против канальных 30 нужна обоим — на ней и видно повтор кадров. ЗВУК У ДЕМО ЕСТЬ (`VID-02b`, 2026-09-12): в тот же файл добавлена дорожка `sine 440 Гц`, 24 000 Гц, моно — картинка при этом не тронута ни битом (видеопоток скопирован `-c:v copy`, 48 кадров как были). Две последние сцены показывают, что звук делает: `fullscreen-cover-sound` и `corner-tr-small-sound` идут с `audio: \"duck\"`, то есть тон слышно между фразами и не слышно под ними.",
+  "text": "# chapter: main\n\n## scene: full\n\n[img: pattern] Первое — видео во весь кадр, кадрированное по вертикали канала.\n\n## scene: fit\n\n[img: pattern] Второе — то же видео целиком, с полями сверху и снизу.\n\n## scene: corner\n\n[img: pattern] Третье — врезка в углу поверх картинки: сквозь неё пробито окно.\n\n## scene: zoom\n\n[img: pattern] Четвёртое — пауза на второй секунде и наезд к точке чуть выше центра.\n\n## scene: sound\n\n[img: pattern] Пятое — то же видео во весь кадр, но со звуком: тон уходит вниз под каждой фразой.\n\n## scene: cornersound\n\n[img: pattern] Шестое — врезка в углу со звуком: слышно между фразами, не слышно под ними.\n",
   "assets": [
     {
       "alias": "pattern",
       "file": "../gate-requests/assets/pattern-32.png",
       "kind": "image",
-      "intrinsic": { "width": 32, "height": 32 }
+      "intrinsic": {
+        "width": 32,
+        "height": 32
+      }
     },
     {
       "alias": "clip",
@@ -17,42 +20,98 @@
         "width": 320,
         "height": 180,
         "rotation": 0,
-        "fps": { "num": 24, "den": 1 },
+        "fps": {
+          "num": 24,
+          "den": 1
+        },
         "frames": 48,
         "hasAlpha": false,
-        "audio": null
+        "audio": {
+          "sampleRate": 24000,
+          "channels": 1
+        }
       }
     }
   ],
   "fonts": [],
   "records": [
     {
-      "at": { "kind": "anchor", "anchor": "b:img-pattern-1" },
-      "until": { "kind": "anchor", "anchor": "sc:full" },
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-1"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:full"
+      },
       "track": "visual",
       "z": 10,
       "preset": "fullscreen-cover"
     },
     {
-      "at": { "kind": "anchor", "anchor": "b:img-pattern-2" },
-      "until": { "kind": "anchor", "anchor": "sc:fit" },
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-2"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:fit"
+      },
       "track": "visual",
       "z": 10,
       "preset": "fullscreen-contain"
     },
     {
-      "at": { "kind": "anchor", "anchor": "b:img-pattern-3" },
-      "until": { "kind": "anchor", "anchor": "sc:corner" },
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-3"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:corner"
+      },
       "track": "visual",
       "z": 10,
       "preset": "corner-tr-small"
     },
     {
-      "at": { "kind": "anchor", "anchor": "b:img-pattern-4" },
-      "until": { "kind": "anchor", "anchor": "sc:zoom" },
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-4"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:zoom"
+      },
       "track": "visual",
       "z": 10,
       "preset": "hold-and-zoom"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-5"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:sound"
+      },
+      "track": "visual",
+      "z": 10,
+      "preset": "fullscreen-cover-sound"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "b:img-pattern-6"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:cornersound"
+      },
+      "track": "visual",
+      "z": 10,
+      "preset": "corner-tr-small-sound"
     }
   ]
 }
