@@ -47,6 +47,8 @@ export function audioProfileFixture(): AudioProfile {
  */
 export const STUB = Object.freeze({
   segmentIrHash: 'ir-0001',
+  /** Хэш реализации композиции (`CACHE-02`). Производит его рендерер; здесь — константа. */
+  bundleHash: 'bundle-0001',
   engineFingerprint: 'engine-0001',
   assetShas: Object.freeze(['a1', 'a2']),
   fontShas: Object.freeze(['f1']),
@@ -58,6 +60,7 @@ export const STUB = Object.freeze({
 export function segmentInputs(compile: CompileProfile, render: RenderProfile): SegmentKeyInput {
   return {
     segmentIrHash: STUB.segmentIrHash,
+    bundleHash: STUB.bundleHash,
     compileProfile: compile,
     // `executionProfile` СЮДА НЕ ПОПАДАЕТ ВОВСЕ, и это не забывчивость: ADR-0006 §5 выводит
     // его из всех ключей (U2 закрыт SP-3-серией). Матрица это ПОКАЗЫВАЕТ — мутация его полей

@@ -108,9 +108,10 @@ export interface SegmentResult {
   /**
    * Стенка `buildRequest` — цена, которую платит и попадание (`CACHE-01`).
    *
-   * Материализация каталога композиции нужна ВСЕГДА: `bundle.hash` иначе неизвестен, а по нему
-   * решается «промах по композиции». Число печатается в `reports/timings.txt`, чтобы «сколько
-   * стоит прогретая сборка» отвечалось измерением, а не оценкой.
+   * Материализация каталога композиции нужна ВСЕГДА: `bundle.hash` иначе неизвестен, а он —
+   * ВХОД `segmentKey` (`CACHE-02`), то есть без него нечего спросить у кэша. Число печатается
+   * в `reports/timings.txt`, чтобы «сколько стоит прогретая сборка» отвечалось измерением, а
+   * не оценкой. Цена названа долгом №249: снимет её кэш стадии `compose`.
    */
   readonly requestMs: number;
   /**
@@ -296,15 +297,16 @@ export interface RenderSegmentsInput {
 }
 
 /**
- * Вход `segmentKey` НА НАСТОЯЩИХ ВЕЛИЧИНАХ — семь слагаемых ADR-0006 §2 (`CACHE-01`).
+ * Вход `segmentKey` НА НАСТОЯЩИХ ВЕЛИЧИНАХ — восемь слагаемых ADR-0006 §2 (`CACHE-01`,
+ * `bundleHash` добавлен `CACHE-02`).
  *
  * ═══ РЕЦЕПТ ОДИН НА РЕПОЗИТОРИЙ, И ЭТО ГЛАВНОЕ СВОЙСТВО ФУНКЦИИ ═══
  * Тем же составом ключ собирает golden blast radius (**K9**,
  * [`blast-radius.test.ts`](../../test/blast-radius.test.ts)): `segmentIrHash(segment)`,
- * ПОЛНЫЙ профиль компиляции, `pixelProfile` целиком, отсортированные списки sha ассетов и
- * шрифтов, пустой `gridShas`, `engineFingerprint`. Разойдись эти два места хоть одним полем —
- * golden охранял бы множество промахов ДРУГОГО ключа, то есть не того, по которому кэш
- * решает, рендерить или нет.
+ * `bundle.hash` запроса, ПОЛНЫЙ профиль компиляции, `pixelProfile` целиком, отсортированные
+ * списки sha ассетов и шрифтов, пустой `gridShas`, `engineFingerprint`. Разойдись эти два
+ * места хоть одним полем — golden охранял бы множество промахов ДРУГОГО ключа, то есть не
+ * того, по которому кэш решает, рендерить или нет.
  *
  * СПИСКИ БЕРУТСЯ ИЗ IR, А НЕ ИЗ ЗАПРОСА, и это не мелочь: запрос склеен по `sha256`
  * (`byFirstSha`), а IR перечисляет ССЫЛКИ — один файл в двух ролях даёт в нём две строки.
@@ -316,12 +318,21 @@ export interface RenderSegmentsInput {
  */
 export function segmentCacheKey(input: {
   readonly ir: RenderIrSegment;
+  /**
+   * `bundle.hash` ЭТОГО запроса (`CACHE-02`) — хэш реализации композиции.
+   *
+   * Приходит ЗНАЧЕНИЕМ, а не считается здесь: его производит `buildRequest`
+   * (`materializeComposition`), и второй счёт означал бы вторую материализацию каталога на
+   * каждый вопрос к кэшу.
+   */
+  readonly bundleHash: string;
   readonly compileProfile: CompileProfile;
   readonly pixelProfile: RenderProfile['pixelProfile'];
   readonly engineFingerprint: string;
 }): string {
   const key = {
     segmentIrHash: segmentIrHash(input.ir),
+    bundleHash: input.bundleHash,
     compileProfile: input.compileProfile,
     pixelProfile: input.pixelProfile,
     assetShas: [...input.ir.assets.map((asset) => asset.sha256)].sort(),
@@ -399,19 +410,26 @@ function gateOf(input: RenderSegmentsInput): NonNullable<Parameters<typeof rende
  * Обёртка вокруг адаптера обязана была бы на попадании выдумать каталог PNG — то есть
  * «похожие байты», третий исход, которого у **K3** нет по построению.
  *
- * ТРИ ИСХОДА ВОПРОСА К КЭШУ, И КАЖДЫЙ ПЕЧАТАЕТСЯ СВОИМ СЛОВОМ:
- *   * `попадание` — ключ есть, композиция та же: байты кладутся по ТОМУ ЖЕ пути, что дал бы
- *     рендер, и ниже по течению никто не знает, откуда они;
- *   * `промах по композиции` — ключ есть, а `bundleHash` записи не равен `bundle.hash` этого
- *     запроса. `bundle.hash` в `segmentKey` НЕ ВХОДИТ (ADR-0006 §2 после `DOC-06`), а правка
- *     кода шаблона меняет именно его: без этой ветки кэш отдавал бы кадры предыдущей
- *     реализации шаблона молча (долги №155, №196);
+ * ДВА ИСХОДА ВОПРОСА К КЭШУ, И КАЖДЫЙ ПЕЧАТАЕТСЯ СВОИМ СЛОВОМ:
+ *   * `попадание` — ключ есть: байты кладутся по ТОМУ ЖЕ пути, что дал бы рендер, и ниже по
+ *     течению никто не знает, откуда они;
  *   * `промах` — записи нет либо байты значения исчезли (`get` вернул `undefined`).
  *
+ * ═══ ТРЕТЬЕГО ИСХОДА БОЛЬШЕ НЕТ, И ЭТО ГЛАВНАЯ ПРАВКА `CACHE-02` ═══
+ * ~~`промах по композиции` — ключ есть, а `bundleHash` записи не равен `bundle.hash` этого
+ * запроса.~~ Вердикт существовал ровно потому, что `bundle.hash` НЕ ВХОДИЛ в `segmentKey`:
+ * `CACHE-01` спрашивал композицию ПОСТ-ФАКТУМ, по мете записи. Он ловил чтение и не мешал
+ * ЗАПИСИ: после пересчёта `put` шёл ТЕМ ЖЕ ключом с ДРУГИМИ байтами и падал **K3** «два
+ * разных выхода при одном ключе» — то есть правка шаблона роняла сборку, и лечилась она
+ * только `rm -rf .cache`. Теперь `bundleHash` — ВХОД ключа (`views/segment.json`,
+ * ADR-0006 §2 после `DOC-06`), другой код шаблона даёт другой ключ, и исход у него обычный:
+ * промах и рендер. `meta.bundleHash` в записи манифеста ОСТАЁТСЯ — диагностикой (по ней
+ * видно глазами, какой композицией снята запись), но ни одного решения на ней больше нет.
+ *
  * ЦЕНА, КОТОРУЮ ПЛАТИТ И ПОПАДАНИЕ: `buildRequest` зовётся ВСЕГДА, потому что `bundle.hash`
- * иначе неизвестен, а он и есть половина вопроса выше. То есть прогретая сборка всё равно
- * материализует каталог композиции каждого сегмента. Величина измеряется и печатается —
- * `requestMs` в `reports/timings.txt`.
+ * иначе неизвестен, а он — слагаемое ключа. То есть прогретая сборка всё равно материализует
+ * каталог композиции каждого сегмента. Величина измеряется и печатается — `requestMs` в
+ * `reports/timings.txt` (долг №249).
  */
 export async function renderSegments(input: RenderSegmentsInput): Promise<readonly SegmentResult[]> {
   const templates = input.deps.templates ?? rendererTemplates;
@@ -449,18 +467,16 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
     } else {
       const key = segmentCacheKey({
         ir,
+        // `bundle.hash` — ВХОД КЛЮЧА (`CACHE-02`). Он уже под рукой: `buildRequest` выше
+        // материализовал каталог и посчитал его, и второго счёта не нужно.
+        bundleHash: request.bundle.hash,
         compileProfile: input.compileProfileFull,
         pixelProfile: input.renderProfile.pixelProfile,
         engineFingerprint: input.engineFingerprint,
       });
       const hitStarted = input.deps.clock();
       const entry = await cache.lookup(key);
-      if (entry !== undefined && entry.bundleHash !== request.bundle.hash) {
-        input.out(
-          `  кэш: промах по композиции (запись снята на bundle ` +
-            `${(entry.bundleHash ?? 'нет в записи').slice(0, 12)}…)\n`,
-        );
-      } else if (entry !== undefined) {
+      if (entry !== undefined) {
         assertUsableEntry(entry, ir, key, input.cacheRoot, input.profileId);
         const bytes = await readCachedBytes(cache, key, input.cacheRoot, input.profileId);
         if (bytes !== undefined) {
@@ -570,6 +586,7 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       await cache.put(
         segmentCacheKey({
           ir,
+          bundleHash: request.bundle.hash,
           compileProfile: input.compileProfileFull,
           pixelProfile: input.renderProfile.pixelProfile,
           engineFingerprint: input.engineFingerprint,

@@ -85,9 +85,18 @@ voiceKey     = blake3( spokenChunkText, providerId, modelId, voiceId, seed, prov
                        roleDigest, ttsPipelineVersion )      // БЕЗ stitch-контекста
 composeKey   = blake3( хэши исходников renderer-hyperframes и templates-*, релевантные строки
                        lockfile, compilerVersion )           // было bundleKey
-segmentKey   = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[],
-                       gridShas[], engineFingerprint )
+segmentKey   = blake3( segmentIrHash, bundleHash, compileProfile, pixelProfile, assetShas[],
+                       fontShas[], gridShas[], engineFingerprint )
 ```
+
+*Изменено: `CACHE-02`, 2026-09-11.* В строке `segmentKey` появилось слагаемое **`bundleHash`**.
+Это не новое решение, а устранение противоречия ВНУТРИ этого же параграфа: блок-цитата
+`DOC-06` двумя абзацами ниже требует «в `segmentKey` входит **хэш реализации**» дословно, а
+формула его не несла — и код шёл за формулой. `CACHE-01` компенсировал разрыв сверкой
+`meta.bundleHash` записи ПОСТ-ФАКТУМ, то есть на чтении; на записи же `put` шёл тем же ключом
+с другими байтами и законно падал **K3** «два разных выхода при одном ключе». Симптом (правка
+шаблона роняет сборку, лечится только `rm -rf .cache`) и разбор —
+[`docs/impl/CACHE-02/report.md`](../impl/CACHE-02/report.md).
 
 *Изменено: SP-3c §7, решение владельца 1 и 4.* Прежняя строка была
 ~~`bundleKey = blake3( хэши исходников renderer-remotion и templates-*, релевантные строки

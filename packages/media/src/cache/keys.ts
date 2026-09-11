@@ -86,7 +86,16 @@ export interface PixelProfileInput {
 }
 
 /**
- * Вход `segmentKey` — ADR-0006 §2 дословно, семь слагаемых.
+ * Вход `segmentKey` — ADR-0006 §2 дословно, восемь слагаемых.
+ *
+ * ВОСЕМЬ, А НЕ СЕМЬ, И ВОСЬМОЕ ЗАПОЗДАЛО (`CACHE-02`). ADR-0006 §2 после `DOC-06` требует
+ * дословно: «в `segmentKey` входит ХЭШ РЕАЛИЗАЦИИ — sha256 канонического перечня каталога
+ * композиции». Формула ADR этой строки не несла, и `CACHE-01` проверял композицию
+ * ПОСТ-ФАКТУМ — сверкой `meta.bundleHash` записи. Цена расхождения измерена не тестом, а
+ * каждодневной работой владельца: правка кода шаблона при том же `segmentIrHash` давала ДВА
+ * РАЗНЫХ ВЫХОДА ПОД ОДНИМ КЛЮЧОМ, то есть отказ **K3** в `put`, и лечилась только
+ * `rm -rf .cache`. Вход ключа — единственная форма, при которой другой код шаблона даёт
+ * другой ключ, то есть ОБЫЧНЫЙ промах.
  *
  * `engineFingerprint` — ОДНО ПОЛЕ, а не список и не объект с версиями. Это первая половина
  * правила «входит ровно один раз»: положить его дважды нельзя, потому что второго места нет.
@@ -95,6 +104,18 @@ export interface PixelProfileInput {
 export interface SegmentKeyInput {
   /** Содержимое сегмента: что и когда показано. Производит `CP-03`. */
   readonly segmentIrHash: string;
+  /**
+   * Хэш РЕАЛИЗАЦИИ композиции — `bundle.hash` запроса (`CACHE-02`).
+   *
+   * ЧТО ИМЕННО: sha256 канонического перечня каталога композиции БЕЗ `ir.json`, `assets/` и
+   * `fonts/` — их содержимое уже учтено `segmentIrHash`, `assetShas[]` и `fontShas[]`, и
+   * второй учёт запрещён (ADR-0006 §3). То есть величина ортогональна остальным семи и
+   * двойного учёта не заводит.
+   *
+   * НЕ ПУТАТЬ с `engineCompositionHash`: тот считает САМ рендерер по ВЫХОДУ и служит только
+   * `verifyComposition`. Здесь — величина ВХОДА, известная до первого кадра.
+   */
+  readonly bundleHash: string;
   readonly compileProfile: CompileProfileInput;
   readonly pixelProfile: PixelProfileInput;
   readonly assetShas: readonly string[];
@@ -132,6 +153,10 @@ export function composeKey(input: ComposeKeyInput): Blake3 {
  * `sampleRate` в него не входит ни одним полем (**K5**): он не влияет ни на один пиксель, а
  * сегменты немы (**R5**). Проверяется мутацией `compileProfile.projectSampleRate`, а не
  * отсутствием строки.
+ *
+ * `bundleHash` в него ВХОДИТ (`CACHE-02`): смена кода шаблона обязана давать другой ключ, а
+ * не другой ВЕРДИКТ при том же ключе. Пост-фактум-сверка, стоявшая здесь до `CACHE-02`,
+ * ловила расхождение на `lookup`, но не мешала `put` положить второй выход под тот же ключ.
  */
 export function segmentKey(input: SegmentKeyInput): Blake3 {
   return keyOf(cacheKeyView('segment'), input as unknown as KeyInputs);

@@ -52,6 +52,15 @@ const GOLDEN = path.join(
  * вопросу «что промахнулось».
  */
 const FINGERPRINT = 'f'.repeat(64);
+/**
+ * Хэш реализации композиции — восьмое слагаемое ключа (`CACHE-02`).
+ *
+ * КОНСТАНТА, и это часть утверждения golden'а: правка `params` одной записи режиссуры кода
+ * шаблонов не трогает, поэтому величина обязана быть одной и той же по обе стороны правки.
+ * Настоящую считает `buildRequest` материализацией каталога — она здесь не нужна: golden
+ * записывает множество ПРОМАХОВ, а не значения ключей.
+ */
+const BUNDLE_HASH = 'b'.repeat(64);
 
 /** Три сцены, в каждой — якорь для режиссуры: правка обязана быть адресуемой. */
 const SOURCE = `schema: source-dialect/1
@@ -165,6 +174,10 @@ async function keysOf(project: TestProject, scale: string, tag: string): Promise
       segment.segmentId,
       segmentCacheKey({
         ir: segment,
+        // `CACHE-02`: восьмое слагаемое ключа. Здесь оно КОНСТАНТА, и это ровно предмет
+        // golden'а: правится `params` ОДНОЙ записи, а код шаблонов не трогается ни байтом,
+        // — значит и множество промахов обязано остаться прежним.
+        bundleHash: BUNDLE_HASH,
         compileProfile,
         pixelProfile: renderProfile.pixelProfile,
         engineFingerprint: FINGERPRINT,

@@ -18,7 +18,7 @@ import path from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
-import { cacheManifestPath, cacheNamespaceDir, cacheValuePath } from '@vpe/media';
+import { StageCache, cacheManifestPath, cacheNamespaceDir, cacheValuePath } from '@vpe/media';
 import {
   FRAME_PATTERN,
   FRAME_START_NUMBER,
@@ -188,6 +188,14 @@ function segmentNamespace(made: TestProject): string {
   return cacheNamespaceDir(made.projectDir, { stage: 'segment', profileId: 'final' });
 }
 
+/** Ключи манифеста стадии `segment` в байтовом порядке — их множество и есть предмет `CACHE-02`. */
+function manifestKeys(made: TestProject): readonly string[] {
+  const manifest = JSON.parse(
+    readFileSync(cacheManifestPath(made.projectDir, { stage: 'segment', profileId: 'final' }), 'utf8'),
+  ) as { entries: { key: string }[] };
+  return manifest.entries.map((entry) => entry.key).sort();
+}
+
 describe('**K3** на СБОРКЕ — попадание равно промаху побайтово (`CACHE-01`, долг №200)', () => {
   it('прогретая сборка не рендерит ничего, а артефакты равны холодным до байта', async () => {
     const made = project();
@@ -242,29 +250,80 @@ describe('**K9** на СБОРКЕ — blast radius правки `params` рав
   });
 });
 
-describe('промах ПО КОМПОЗИЦИИ — правка кода шаблона не проходит мимо кэша (долги №155, №196)', () => {
-  it('другой `bundle.hash` при том же `segmentKey` — промах, и рендерер зовётся', async () => {
+describe('ПРАВКА КОДА ШАБЛОНА ПОВЕРХ СТАРОГО КЭША — обычный промах, а не отказ K3 (`CACHE-02`)', () => {
+  // ═══ ЧТО ЗДЕСЬ ПЕРЕПИСАНО И ПОЧЕМУ ═══
+  // ~~`промах по композиции` — ключ есть, а `bundleHash` записи не равен `bundle.hash`.~~
+  // *(изменено: `CACHE-02`, 2026-09-11.)* Вердикта больше нет, и это не переименование:
+  // `bundle.hash` СТАЛ ВХОДОМ `segmentKey` (`views/segment.json`), поэтому другой код шаблона
+  // даёт другой КЛЮЧ. Симптом, который лечит правка, владелец ловил каждый день: старая
+  // ветка спрашивала композицию только на ЧТЕНИИ, а `put` после пересчёта шёл ТЕМ ЖЕ ключом
+  // с ДРУГИМИ байтами — и падал **K3** «два разных выхода при одном ключе». То есть правка
+  // шаблона роняла сборку, и лечилась она только `rm -rf .cache`.
+  //
+  // ПОДМЕНА — РЕАЛИЗАЦИИ, А НЕ ЗАПИСИ В МАНИФЕСТЕ: правится текст `mountSource`, то есть
+  // ровно то, что меняет автор шаблона, и `bundle.hash` двигается сам, материализацией.
+  const patchedTemplates = (): RendererTemplateRegistry => ({
+    version: rendererTemplates.version,
+    templates: rendererTemplates.templates.map((template) =>
+      template.templateId === 'still' ? { ...template, mountSource: `${template.mountSource} ` } : template,
+    ),
+  });
+
+  it('сборка ПРОХОДИТ поверх старого кэша: промах и рендер, ни одного отказа', async () => {
     const made = project();
     const cold = await runBuild(made, { buildDir: path.join(made.root, 'cold') });
     expect(cold.calls).toBe(3);
 
-    // ПОДМЕНА РЕАЛИЗАЦИИ, А НЕ ЗАПИСИ В МАНИФЕСТЕ: правится текст `mountSource`, то есть
-    // ровно то, что меняет автор шаблона. `segmentKey` при этом не двигается ни битом —
-    // `bundle.hash` в него не входит (ADR-0006 §2 после `DOC-06`), — поэтому без ветки
-    // «промах по композиции» сборка получила бы кадры ПРЕДЫДУЩЕЙ реализации.
-    const patched: RendererTemplateRegistry = {
-      version: rendererTemplates.version,
-      templates: rendererTemplates.templates.map((template) =>
-        template.templateId === 'still'
-          ? { ...template, mountSource: `${template.mountSource} ` }
-          : template,
-      ),
-    };
-    const edited = await runBuild(made, { buildDir: path.join(made.root, 'edited'), templates: patched });
+    const edited = await runBuild(made, {
+      buildDir: path.join(made.root, 'edited'),
+      templates: patchedTemplates(),
+    });
 
-    expect(edited.out).toContain('кэш: промах по композиции');
+    // ГЛАВНОЕ УТВЕРЖДЕНИЕ ЗАДАЧИ: сборка ЗАВЕРШИЛАСЬ. До `CACHE-02` она падала здесь.
+    expect(edited.record.final?.sha256).toMatch(/^[0-9a-f]{64}$/u);
+    // Вердикт — ОБЫЧНЫЙ промах, своим словом и без второго имени.
+    expect(edited.out).toContain('кэш: промах');
+    expect(edited.out).not.toContain('промах по композиции');
     expect(edited.calls).toBeGreaterThan(0);
     expect(edited.record.segments.some((row) => row.cache === 'miss')).toBe(true);
+  });
+
+  it('старые записи ОСТАЛИСЬ рядом с новыми: другой код — другой ключ, а не перезапись', async () => {
+    // Вторая половина того же утверждения, и без неё первая была бы верна и у молчаливой
+    // перезаписи: «промах» напечатался бы, а старая запись исчезла бы под тем же ключом.
+    const made = project();
+    await runBuild(made, { buildDir: path.join(made.root, 'cold') });
+    const before = manifestKeys(made);
+
+    await runBuild(made, { buildDir: path.join(made.root, 'edited'), templates: patchedTemplates() });
+    const after = manifestKeys(made);
+
+    // Сегментов три, шаблон подменён у одного (`still@1` стоит в сцене `three`) — но каталог
+    // композиции материализуется на КАЖДЫЙ сегмент из ОДНОГО реестра, поэтому `bundle.hash`
+    // двигается у всех трёх. Утверждение поэтому не про число, а про ВКЛЮЧЕНИЕ: ни один
+    // старый ключ не потерян, и появились новые.
+    for (const key of before) expect(after, `ключ ${key} исчез`).toContain(key);
+    expect(after.length).toBeGreaterThan(before.length);
+  });
+
+  it('K3 всё ещё ловит НАСТОЯЩУЮ неполноту: два выхода под одним ключом — отказ', async () => {
+    // Контроль осмысленности двух тестов выше: они были бы зелёными и у кэша, который
+    // перестал проверять что-либо вовсе. Здесь `put` зовётся напрямую — ТЕМ ЖЕ ключом с
+    // ДРУГИМИ байтами, — и обязан отказать. Это ровно то, ради чего **K3** существует:
+    // «вход неполон, какая-то величина влияет на результат и не входит в `cacheKeyView`».
+    const made = project();
+    await runBuild(made, { buildDir: path.join(made.root, 'cold') });
+
+    const address = { stage: 'segment', profileId: 'final' } as const;
+    const manifest = JSON.parse(readFileSync(cacheManifestPath(made.projectDir, address), 'utf8')) as {
+      entries: { key: string }[];
+    };
+    const key = manifest.entries[0]?.key ?? '';
+    const cache = new StageCache(made.projectDir, address, { verify: true });
+
+    await expect(cache.put(key, new TextEncoder().encode('другие байты'))).rejects.toThrow(
+      /два разных выхода при одном ключе/u,
+    );
   });
 });
 

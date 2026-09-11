@@ -1,10 +1,11 @@
 {
   "stage": "segment",
   "adr": "ADR-0006 §2, §5, §6",
-  "formula": "segmentKey = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )",
-  "note": "ДВА ИСТОЧНИКА И НИ ОДНОГО ТРЕТЬЕГО (M9, ADR-0006 §3): поля профилей — намерение человека, `engineFingerprint` — измерение машины. `compileProfile` раскрыт ПОИМЁННО, а не целиком: строка K5 требует, чтобы `sampleRate` не входил в ключ немого сегмента, а `projectSampleRate` — поле `compileProfile`. Единственная форма, в которой обе строки ADR верны одновременно, — перечисление путей-полей (§6).",
+  "formula": "segmentKey = blake3( segmentIrHash, bundleHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )",
+  "note": "ДВА ИСТОЧНИКА И НИ ОДНОГО ТРЕТЬЕГО (M9, ADR-0006 §3): поля профилей — намерение человека, `engineFingerprint` — измерение машины. `bundleHash` (`CACHE-02`) третьего источника не заводит: это тоже намерение человека, только записанное КОДОМ, а не полем профиля, — sha256 канонического перечня каталога композиции, и ADR-0006 §2 после `DOC-06` требовал его дословно («в `segmentKey` входит хэш реализации»). `compileProfile` раскрыт ПОИМЁННО, а не целиком: строка K5 требует, чтобы `sampleRate` не входил в ключ немого сегмента, а `projectSampleRate` — поле `compileProfile`. Единственная форма, в которой обе строки ADR верны одновременно, — перечисление путей-полей (§6).",
   "fields": [
     { "path": "segmentIrHash", "kind": "text", "why": "содержимое сегмента: что и когда показано. Производит его `CP-03`; здесь он вход-значение" },
+    { "path": "bundleHash", "kind": "text", "why": "код композиции (шаблоны+рантайм+ассеты каталога); тот же текст сцены на другом коде шаблона — другой кадр" },
     { "path": "compileProfile.fps.num", "kind": "int", "why": "геометрия времени: смена fps меняет IR всех сегментов и обесценивает все записи гейта V13 (ADR-0003)" },
     { "path": "compileProfile.fps.den", "kind": "int", "why": "вторая половина той же дроби; отдельной строкой, потому что дробь — два независимых числа" },
     { "path": "compileProfile.width", "kind": "int", "why": "кадр другого размера — другие пиксели" },

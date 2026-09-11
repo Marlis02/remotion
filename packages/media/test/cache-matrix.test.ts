@@ -254,6 +254,9 @@ describe('K1 — каждый ПРЯМОЙ вход `segmentKey`, названн
   /** Мутант на каждый прямой вход. Значения правдоподобные: в диффе видно, что менялось. */
   const DIRECT: Readonly<Record<string, (input: SegmentKeyInput) => SegmentKeyInput>> = {
     segmentIrHash: (input) => ({ ...input, segmentIrHash: `${input.segmentIrHash}-b` }),
+    // `CACHE-02`: код композиции — вход ключа. Мутант и есть «правка кода шаблона»: тот же
+    // текст сцены, другой `bundle.hash` ⇒ другой ключ, то есть ОБЫЧНЫЙ промах, а не K3.
+    bundleHash: (input) => ({ ...input, bundleHash: `${input.bundleHash}-b` }),
     assetShas: (input) => ({ ...input, assetShas: [...input.assetShas, 'a3'] }),
     fontShas: (input) => ({ ...input, fontShas: [...input.fontShas, 'f2'] }),
     // ADR-0006 §15: в v1 список ВСЕГДА пуст (`gridPoint` отвергается валидатором), и строка

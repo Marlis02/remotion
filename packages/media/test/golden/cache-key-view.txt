@@ -67,86 +67,88 @@ excluded (3):
 
 # cacheKeyView: segment
 # ADR-0006 §2, §5, §6
-# segmentKey = blake3( segmentIrHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )
+# segmentKey = blake3( segmentIrHash, bundleHash, compileProfile, pixelProfile, assetShas[], fontShas[], gridShas[], engineFingerprint )
 
-fields (39):
+fields (40):
   01. segmentIrHash : text
       = "ir-0001"
-  02. compileProfile.fps.num : int
+  02. bundleHash : text
+      = "bundle-0001"
+  03. compileProfile.fps.num : int
       = 30
-  03. compileProfile.fps.den : int
+  04. compileProfile.fps.den : int
       = 1
-  04. compileProfile.width : int
+  05. compileProfile.width : int
       = 1080
-  05. compileProfile.height : int
+  06. compileProfile.height : int
       = 1920
-  06. compileProfile.templateRegistryVersion : text
+  07. compileProfile.templateRegistryVersion : text
       = "1"
-  07. compileProfile.safeAreas.top : int
+  08. compileProfile.safeAreas.top : int
       = 180
-  08. compileProfile.safeAreas.bottom : int
+  09. compileProfile.safeAreas.bottom : int
       = 320
-  09. compileProfile.safeAreas.left : int
+  10. compileProfile.safeAreas.left : int
       = 60
-  10. compileProfile.safeAreas.right : int
+  11. compileProfile.safeAreas.right : int
       = 60
-  11. compileProfile.defaultParagraphGapSamples : int
+  12. compileProfile.defaultParagraphGapSamples : int
       = 4320
-  12. compileProfile.defaultSceneGapSamples : int
+  13. compileProfile.defaultSceneGapSamples : int
       = 7680
-  13. compileProfile.defaultChapterGapSamples : int
+  14. compileProfile.defaultChapterGapSamples : int
       = 14400
-  14. compileProfile.minSegmentDurationFrames : int
+  15. compileProfile.minSegmentDurationFrames : int
       = 45
-  15. compileProfile.maxDurationFrames : int
+  16. compileProfile.maxDurationFrames : int
       = 1800
-  16. compileProfile.captions.tokensPerGroupMin : int
+  17. compileProfile.captions.tokensPerGroupMin : int
       = 1
-  17. compileProfile.captions.tokensPerGroupMax : int
+  18. compileProfile.captions.tokensPerGroupMax : int
       = 3
-  18. compileProfile.captions.minGroupDurationFrames : int
+  19. compileProfile.captions.minGroupDurationFrames : int
       = 6
-  19. compileProfile.captions.maxGroupChars : int
+  20. compileProfile.captions.maxGroupChars : int
       = 21
-  20. pixelProfile.browserGpu : json
+  21. pixelProfile.browserGpu : json
       = false
-  21. pixelProfile.imageFormat : text
+  22. pixelProfile.imageFormat : text
       = "png"
-  22. pixelProfile.jpegQuality : json
+  23. pixelProfile.jpegQuality : json
       = []
-  23. pixelProfile.scale : json
+  24. pixelProfile.scale : json
       = 1
-  24. pixelProfile.colorSpace : text
+  25. pixelProfile.colorSpace : text
       = "bt709"
-  25. pixelProfile.pixelFormat : text
+  26. pixelProfile.pixelFormat : text
       = "yuv420p"
-  26. pixelProfile.codec : text
+  27. pixelProfile.codec : text
       = "h264"
-  27. pixelProfile.crf : json
+  28. pixelProfile.crf : json
       = 18
-  28. pixelProfile.gopSize : int
+  29. pixelProfile.gopSize : int
       = 30
-  29. pixelProfile.encoder.threads : int
+  30. pixelProfile.encoder.threads : int
       = 4
-  30. pixelProfile.encoder.preset : text
+  31. pixelProfile.encoder.preset : text
       = "medium"
-  31. pixelProfile.encoder.tune : text
+  32. pixelProfile.encoder.tune : text
       = "none"
-  32. pixelProfile.encoder.rcLookahead : int
+  33. pixelProfile.encoder.rcLookahead : int
       = 40
-  33. pixelProfile.encoder.aqMode : int
+  34. pixelProfile.encoder.aqMode : int
       = 1
-  34. pixelProfile.encoder.psy : int
+  35. pixelProfile.encoder.psy : int
       = 1
-  35. pixelProfile.encoder.bitexact : json
+  36. pixelProfile.encoder.bitexact : json
       = true
-  36. assetShas : json
+  37. assetShas : json
       = ["a1","a2"]
-  37. fontShas : json
+  38. fontShas : json
       = ["f1"]
-  38. gridShas : json
+  39. gridShas : json
       = []
-  39. engineFingerprint : text
+  40. engineFingerprint : text
       = "engine-0001"
 
 upstream (0):
