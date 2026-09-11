@@ -79,15 +79,18 @@ describe('`GATE-PREP` — ассет запросов лежит файлом и
   // рядом с каждым, кто его просит. Просят трое, файл весит 432 байта, лишних копий две.
   // Список ВЫЧИСЛЯЕТСЯ из самих запросов, а не переписывается: восьмой шаблон, которому нужна
   // та же шахматка основанием, попадёт сюда сам — вместе со своим файлом.
-  const owners = GATE_REQUEST_CASES.map((kase) => kase.call).filter((call) =>
-    GATE_REQUEST_PROFILES.some((profile) =>
-      (
-        JSON.parse(
-          readFileSync(path.join(dirOf(call), gateRequestFileName(profile)), 'utf8'),
-        ) as { assets: readonly { path: string }[] }
-      ).assets.some((asset) => asset.path === GATE_REQUEST_PATHS.asset),
-    ),
-  );
+  //
+  // **СПИСОК СЧИТАЕТСЯ ИЗ СЛУЧАЕВ ГЕЙТА, А НЕ ИЗ ГОТОВЫХ ФАЙЛОВ ЗАПРОСОВ** *(изменено:
+  // `VID-02a`, 2026-09-11)*. Прежде он читал `gate-requests/<профиль>.json` и искал в них
+  // путь ассета — то есть требовал, чтобы файл запроса УЖЕ существовал. У ВОСЬМОГО шаблона
+  // его нет по построению: он и порождается этим прогоном под `VPE_GATE_REQUESTS_UPDATE=1`,
+  // и до первого запуска чтение падало `ENOENT` на СБОРЕ ФАЙЛА — то есть весь файл тестов не
+  // стартовал вовсе, и рецепт §4-ter «породить запросы» был неисполним для нового шаблона.
+  // Теперь источник тот же, что у самих запросов, — `gate-case.json` папки: клип, просящий
+  // ассет (`withAsset`), и есть владелец шахматки. Утверждение файла не ослаблено ни на букву.
+  const owners = GATE_REQUEST_CASES.filter((kase) =>
+    kase.clips.some((clip) => clip.withAsset === true),
+  ).map((kase) => kase.call);
 
   for (const call of owners) {
     it(`\`${call}/gate-requests/assets/pattern-32.png\` побайтово равен \`PNG_PATTERN_32\``, () => {

@@ -85,3 +85,22 @@ export {
   type Framemd5Options,
   type Framemd5Result,
 } from './framemd5.js';
+
+// Стадия нижнего слоя видео (`VID-02a`, 2026-09-11). Стоит между рендером и энкодом; см.
+// шапку `video-underlay.ts` про то, почему она отдельная, а не `-filter_complex` внутри энкода.
+export {
+  compositeVideoUnderlay,
+  loopStepsOf,
+  UNDERLAY_FRAME_PATTERN,
+  videoFrameOf,
+  videoFrameTable,
+  videoUnderlayArgs,
+  zoomAt,
+  type CompositeVideoUnderlayOptions,
+  type CompositeVideoUnderlayRun,
+  type FpsFraction as UnderlayFps,
+  type VideoHold,
+  type VideoRect,
+  type VideoUnderlayPlan,
+  type VideoZoom,
+} from './video-underlay.js';

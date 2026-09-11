@@ -48,6 +48,7 @@ import {
   compositionIdOf,
   measureFingerprint,
   renderSegments,
+  setVideoIntrinsics,
   type RenderDeps,
 } from './build-stages/render.js';
 
@@ -261,6 +262,22 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     segmentsDir: path.join(project.layout.buildDir, 'segments'),
     tmpDir: path.join(project.layout.buildDir, 'tmp'),
   };
+  // ПАСПОРТА ВИДЕО — ДО РЕНДЕРА, ОДИН РАЗ НА СБОРКУ (`VID-02a`). Стадия нижнего слоя строит
+  // свой план по частоте и числу кадров видео, а они живут в записи `asset-record/1`, снятой
+  // ДЕКОДОМ при `vpe asset add` (`VID-01`). Каталог здесь уже прочитан и проверен; мерить
+  // файл второй раз значило бы держать две правды об одном ассете.
+  setVideoIntrinsics(
+    [...project.catalog.records]
+      .filter(([, record]) => record.kind === 'video')
+      .map(([sha, record]) => {
+        const intrinsic = record.intrinsic as { fps?: { num: number; den: number }; frames?: number };
+        return [
+          String(sha),
+          { fps: intrinsic.fps ?? { num: 30, den: 1 }, frames: intrinsic.frames ?? 1 },
+        ] as const;
+      }),
+  );
+
   const started = deps.clock();
   const segments = await renderSegments({
     segments: result.ir.segments,

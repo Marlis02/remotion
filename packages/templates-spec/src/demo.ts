@@ -61,7 +61,11 @@ const DemoAssetSchema = z
   .object({
     alias: z.string().min(1),
     file: z.string().min(1),
-    kind: z.enum(['image', 'audio']),
+    // **`video` ДОБАВЛЕН `VID-02a` (2026-09-11), И ЭТО РАСШИРЕНИЕ СПИСКА, А НЕ ПРАВКА ФОРМЫ.**
+    // Перечень здесь повторяет виды блоба, которые умеет держать запись `asset-record/1`
+    // (`ASSET-01`): восьмому шаблону нужен ассет вида `video`, и без этой строки его демо
+    // невыразимо — а шаблон без демо не принимается (решение владельца `TPL-01c`).
+    kind: z.enum(['image', 'audio', 'video']),
     /** `intrinsic` записи `asset-record/1` как есть — судит его схема записи при сборке. */
     intrinsic: z.record(z.string(), z.unknown()),
   })

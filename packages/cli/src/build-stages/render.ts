@@ -22,6 +22,7 @@ import type { RenderIrSegment } from '@vpe/core-model';
 import {
   StageCache,
   buildSegmentArtifact,
+  compositeVideoUnderlay,
   concatAndMux,
   encodeWav,
   probeStreamFingerprint,
@@ -51,6 +52,7 @@ import type { TemplateRegistry } from '@vpe/templates-spec';
 
 import { AC4_GATE_SKIP_WHY, isGateProfile, type BuildProfileId } from '../ac4.js';
 import { CliError, EXIT } from '../errors.js';
+import { videoPlanOf, type VideoIntrinsicInput, type VideoPlanInput } from './video-plan.js';
 
 /** Подмена рендера — ТОЛЬКО тесты: браузера у них нет. Форма — сигнатура адаптера. */
 export type RenderFn = (
@@ -111,6 +113,13 @@ export interface SegmentResult {
    * стоит прогретая сборка» отвечалось измерением, а не оценкой.
    */
   readonly requestMs: number;
+  /**
+   * Стенка стадии нижнего слоя видео (`VID-02a`) — `null` у сегмента БЕЗ `video@1`.
+   *
+   * `null`, а не `0`, и разница несущая: ноль означал бы «стадия отработала мгновенно», а
+   * правда другая — её не звали вовсе, и байты сегмента побайтово те же, что до этой задачи.
+   */
+  readonly videoUnderlayMs: number | null;
 }
 
 /** `compositionId` из `segmentId`: `seg:intro` → `seg-intro`. Двоеточие — не имя каталога. */
@@ -472,6 +481,10 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
             browserLaunchLine: null,
             cache: 'hit',
             requestMs,
+            // Попадание кэша означает, что стадия в ЭТОМ прогоне не работала: в кэше лежит
+            // готовый `.mts`, то есть результат УЖЕ прошедшей стадии. `null` здесь читается
+            // так же, как у сегмента без видео, и это верно: «не звали в этом прогоне».
+            videoUnderlayMs: null,
           });
           continue;
         }
@@ -507,8 +520,43 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       );
     }
 
+    // ═══ СТАДИЯ НИЖНЕГО СЛОЯ ВИДЕО (`VID-02a`, 2026-09-11) ═══
+    // Стоит МЕЖДУ рендером и кодированием, а не внутри энкода, — разбор в шапке
+    // `media/src/assemble/video-underlay.ts`. Здесь важно одно: **сегмент без `video@1`
+    // стадию не проходит вовсе**, и его байты остаются побайтово теми же, что до этой
+    // задачи. Это не оптимизация, а условие приёмки (охранник — `video-underlay-absent`).
+    const videoPlan = videoPlanOf({
+      ir,
+      width: input.compileProfileFull.width,
+      height: input.compileProfileFull.height,
+      scale: input.renderProfile.pixelProfile.scale,
+      fps: input.compileProfile.fps,
+      videoOf: videoLookupOf(request, input.specs),
+    });
+    let frames = response.frames;
+    let videoUnderlayMs: number | null = null;
+    if (videoPlan !== null) {
+      // Стенку меряет ВЫЗЫВАЮЩИЙ теми же часами, что и остальные стадии (`deps.clock`):
+      // у стадии своих часов нет по запрету Charter V8.
+      const underlayStarted = input.deps.clock();
+      const run = await compositeVideoUnderlay({
+        framesDirIn: response.frames.dir,
+        framesDirOut: path.join(request.tmpDir, 'frames-video'),
+        pattern: response.frames.pattern,
+        startNumber: response.frames.startNumber,
+        plan: videoPlan,
+      });
+      frames = { dir: run.dir, pattern: run.pattern, startNumber: run.startNumber, frameCount: run.frameCount };
+      videoUnderlayMs = input.deps.clock() - underlayStarted;
+      input.out(
+        `  видео: нижний слой ${String(videoPlan.rect.width)}×${String(videoPlan.rect.height)} ` +
+          `в (${String(videoPlan.rect.x)}, ${String(videoPlan.rect.y)}), ` +
+          `${String(Math.round(videoUnderlayMs))} мс\n`,
+      );
+    }
+
     const artifact = await buildSegmentArtifact({
-      frames: response.frames,
+      frames,
       pixelProfile: input.renderProfile.pixelProfile,
       fps: input.compileProfile.fps as Parameters<typeof buildSegmentArtifact>[0]['fps'],
       outputPath: request.outputPath,
@@ -544,10 +592,62 @@ export async function renderSegments(input: RenderSegmentsInput): Promise<readon
       browserLaunchLine: response.browserLaunchLine,
       cache: cache === null ? 'off' : 'miss',
       requestMs,
+      videoUnderlayMs,
     });
   }
 
   return out;
+}
+
+/**
+ * Поиск байтов и паспорта видео по `sha256` — вход разворота плана (`video-plan.ts`).
+ *
+ * **ПУТЬ БЕРЁТСЯ ИЗ ЗАПРОСА, А НЕ ИЗ КАТАЛОГА КОМПОЗИЦИИ.** В `request.assets` уже лежит путь
+ * в CAS, разрешённый `store.path` (`buildRequest`), — то есть ровно те байты, чей `sha256`
+ * вошёл в `bundle.hash`. Читать копию из каталога композиции значило бы читать файл, который
+ * положил адаптер, и зависеть от его раскладки; читать CAS напрямую — заводить второй
+ * резолвер alias'ов.
+ *
+ * **ПАСПОРТ БЕРЁТСЯ ИЗ IR, А НЕ ИЗМЕРЯЕТСЯ ЗАНОВО.** Частота и число кадров видео — поля
+ * записи `asset-record/1`, снятые ДЕКОДОМ при `vpe asset add` (`VID-01`; на шестисекундном
+ * ролике это стоит около секунды и платится один раз). Мерить их здесь второй раз значило бы
+ * держать две правды об одном файле и разойтись на первом VFR.
+ */
+function videoLookupOf(
+  request: SegmentRenderRequest,
+  specs: TemplateRegistry,
+): VideoPlanInput['videoOf'] {
+  void specs;
+  return (sha256) => {
+    const asset = request.assets.find((a) => a.sha256 === sha256);
+    if (asset === undefined) return undefined;
+    const intrinsic = VIDEO_INTRINSICS.get(sha256);
+    return intrinsic === undefined ? undefined : { path: asset.path, intrinsic };
+  };
+}
+
+/**
+ * Паспорта видео, собранные сборкой ДО рендера, по `sha256`.
+ *
+ * **ПОЧЕМУ КАРТА, А НЕ ПОЛЕ IR.** `RenderIrSegment` несёт у ассета ровно `{sha256, role}` —
+ * и это правильно: IR адресует байты, а не описывает их (иначе `segmentIrHash` менялся бы от
+ * правки паспорта, не менявшей ни одного пикселя). Паспорт живёт в каталоге ассетов проекта,
+ * который читает `build.ts`; сюда он приезжает значением через `setVideoIntrinsics`.
+ *
+ * **МОДУЛЬНОЕ СОСТОЯНИЕ НАЗВАНО ВСЛУХ И ЭТО ДОЛГ.** Правильное место — поле
+ * `RenderSegmentsInput`; сегодня оно потребовало бы протащить каталог ассетов через четыре
+ * вызывающих, включая тесты, которые его не строят. Форма выбрана осознанно и с ценой:
+ * два параллельных `renderSegments` в одном процессе разделили бы карту. Параллельных сборок
+ * в v1 нет (`chapterParallelism: 1`), и это записано долгом.
+ */
+const VIDEO_INTRINSICS = new Map<string, VideoIntrinsicInput>();
+
+/** Кладёт паспорта видео проекта перед рендером. Зовёт `build.ts`, один раз на сборку. */
+export function setVideoIntrinsics(
+  entries: Iterable<readonly [string, VideoIntrinsicInput]>,
+): void {
+  VIDEO_INTRINSICS.clear();
+  for (const [sha, intrinsic] of entries) VIDEO_INTRINSICS.set(sha, intrinsic);
 }
 
 /**

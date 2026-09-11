@@ -283,6 +283,54 @@ export const GATE_FONT_PATH = path.join(
 export const GATE_FONT_FAMILY = 'DejaVu Sans';
 
 /**
+ * **ВИДЕО ГЕЙТА — СИНТЕТИЧЕСКОЕ И КРОШЕЧНОЕ** (`VID-02a`, 2026-09-11).
+ *
+ * 64×36, 24 кадра при 24/1 fps, `yuv420p`, **2724 байта**. Породил его пришпиленный ffmpeg
+ * 7.0.2 из `testsrc2` с теми же флагами воспроизводимости, что стоят у канального энкодера
+ * (`-fps_mode cfr`, `-sc_threshold 0`, `open-gop=0`, `+bitexact`), и байты лежат в
+ * репозитории — как и все прочие ассеты запросов.
+ *
+ * **ПОЧЕМУ НЕ ЖИВОЕ ВИДЕО ВЛАДЕЛЬЦА.** `work/in/demo.mp4` — 1920×1080 на 157 кадров, и его
+ * место в живой проверке, а не в git: ассеты запросов гейта коммитятся, и мегабайты в
+ * истории репозитория — цена, которую платить незачем. Гейт мерит ПОВТОРЯЕМОСТЬ композиции,
+ * а она не зависит от того, что нарисовано в кадрах: браузер видео вообще не открывает
+ * (картинку кладёт ffmpeg отдельной стадией). Размер файла назван числом здесь, чтобы
+ * следующий читатель не принял 64×36 за небрежность.
+ *
+ * **ЧАСТОТА 24 ВЫБРАНА ПРОТИВ 30 НАМЕРЕННО:** отображение 24 → 30 и есть то место, где
+ * кадры повторяются, и держать в гейте видео канальной частоты значило бы гейтить
+ * тождественный случай.
+ */
+const GATE_VIDEO_REL = 'assets/clip-64x36.mp4';
+
+export const GATE_VIDEO_PATH = path.join(templateGateRequestsDir('video@1'), GATE_VIDEO_REL);
+
+/** sha256 байтов видео гейта — УТВЕРЖДЕНИЕ, а не пересчёт (довод — у `GATE_FONT_SHA256`). */
+export const GATE_VIDEO_SHA256 =
+  '86235f2a4582a52a3e23ce9cafd813a28f77d6873fb799be3f8c20587e80b985';
+
+/** Читает видео гейта из репозитория и СВЕРЯЕТ его байты — тот же порядок, что у шрифта. */
+export function gateVideoBytes(): Buffer {
+  let bytes: Buffer;
+  try {
+    bytes = readFileSync(GATE_VIDEO_PATH);
+  } catch {
+    throw new Error(
+      `видео \`${GATE_VIDEO_PATH}\` не найдено. Гейт \`video@1\` требует настоящий файл: ` +
+        'путь ассета проверяет `validateRequest`, а его sha входит в `bundle.hash`',
+    );
+  }
+  const actual = sha256Hex(bytes);
+  if (actual !== GATE_VIDEO_SHA256) {
+    throw new Error(
+      `видео гейта \`${GATE_VIDEO_PATH}\`: sha256 байтов \`${actual}\`, а записи гейта сняты ` +
+        `под \`${GATE_VIDEO_SHA256}\`. Это РАЗНЫЕ файлы, и \`bundle.hash\` под ними разный`,
+    );
+  }
+  return bytes;
+}
+
+/**
  * sha256 байтов, на которых сняты ДЕСЯТЬ записей гейта.
  *
  * Величина выписана ЛИТЕРАЛОМ, а не считается с файла: посчитанная с файла, она совпала бы с
@@ -343,6 +391,12 @@ export interface TemplateClip {
    * бы `layer_0`, и обе стороны были бы зелены поодиночке.
    */
   readonly withLayers?: number;
+  /**
+   * Просит ли клип ВИДЕО роли `video` (`VID-02a`). Отдельный флаг, а не `withAsset`: вид
+   * файла — часть контракта роли (`ASSET-01` §2.3), и «картинка» с «видео» здесь не
+   * взаимозаменяемы даже в фикстуре.
+   */
+  readonly withVideo?: boolean;
   /**
    * Окно клипа. По умолчанию — весь сегмент; нужен тем тестам, где окно и есть предмет.
    *
@@ -470,7 +524,10 @@ export function makeTemplateFixture(
     putBlob(ws, bytes, `parallax-${String(index)}.blob`),
   );
 
+  const video = putBlob(ws, gateVideoBytes(), 'clip.blob');
+
   const assetRef = { sha256: asset.sha256, role: 'asset' };
+  const videoRef = { sha256: video.sha256, role: 'video' };
   const fontRef = { sha256: font.sha256, family: GATE_FONT_FAMILY, role: 'caption' };
   /** Ссылки слоёв клипа: роль строит `layerRole` СПЕКА (см. `TemplateClip.withLayers`). */
   const layerRefsOf = (count: number): { sha256: string; role: string }[] =>
@@ -488,6 +545,7 @@ export function makeTemplateFixture(
     });
 
   const usesAsset = clips.some((c) => c.withAsset === true);
+  const usesVideo = clips.some((c) => c.withVideo === true);
   const usesFont = clips.some((c) => c.withFont === true);
   /** Все роли слоёв, встреченные в клипах, — по одной ссылке на роль, порядок ролей. */
   const layerRefs = layerRefsOf(
@@ -507,11 +565,13 @@ export function makeTemplateFixture(
         template: clip.template,
         params: clip.params,
         assets:
-          clip.withLayers === undefined
-            ? clip.withAsset === true
-              ? [assetRef]
-              : []
-            : layerRefsOf(clip.withLayers),
+          clip.withVideo === true
+            ? [videoRef]
+            : clip.withLayers === undefined
+              ? clip.withAsset === true
+                ? [assetRef]
+                : []
+              : layerRefsOf(clip.withLayers),
         fonts: clip.withFont === true ? [fontRef] : [],
         seeds: {},
       })),
@@ -543,7 +603,7 @@ export function makeTemplateFixture(
                     ],
             }))
           : [],
-      assets: [...(usesAsset ? [assetRef] : []), ...layerRefs],
+      assets: [...(usesAsset ? [assetRef] : []), ...(usesVideo ? [videoRef] : []), ...layerRefs],
       fonts: usesFont ? [fontRef] : [],
     },
     compileProfile: {
@@ -564,6 +624,7 @@ export function makeTemplateFixture(
     },
     assets: [
       ...(usesAsset ? [{ sha256: asset.sha256, path: asset.path, role: 'asset' }] : []),
+      ...(usesVideo ? [{ sha256: video.sha256, path: video.path, role: 'video' }] : []),
       ...layerRefs.map((ref, index) => ({
         sha256: ref.sha256,
         path: layerBlobs[index]?.path ?? '',
@@ -737,6 +798,8 @@ export const GATE_REQUEST_PROFILES: readonly GateRequestProfile[] = [
  */
 export const GATE_REQUEST_PATHS = {
   asset: 'assets/pattern-32.png',
+  /** Видео гейта `video@1` (`VID-02a`) — по той же схеме «путь от каталога запроса». */
+  video: GATE_VIDEO_REL,
   /** Слои параллакса — по одному пути на РОЛЬ, порядок глубины (`E-02`). */
   layers: ['assets/parallax-far-32.png', 'assets/parallax-near-32.png'],
   font: GATE_FONT_REL,
@@ -754,6 +817,7 @@ export const GATE_REQUEST_PATHS = {
  */
 export function relPathForRole(role: string): string {
   if (role === 'asset') return GATE_REQUEST_PATHS.asset;
+  if (role === 'video') return GATE_REQUEST_PATHS.video;
   const found = GATE_REQUEST_PATHS.layers.find((_, index) => layerRole(index) === role);
   if (found !== undefined) return found;
   throw new Error(

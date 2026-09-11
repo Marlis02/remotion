@@ -1,0 +1,92 @@
+ПРОТОКОЛ НАРУШЕНИЙ — FIX-02 (долг №265), 2026-09-11
+Правило: каждый охранник обязан быть показан ПАДАЮЩИМ на том нарушении, ради которого
+написан. Откат — только копией файла; после каждой пробы дерево возвращается в исходное
+состояние и контрольный прогон зелёный.
+
+БАЗА: materialize.ts несёт `layerScale` — transform: scale(s) на .layer при scale != 1.
+
+=== Н1: масштаб слоя снят вовсе (дерево до FIX-02, дефект №265 как он был) ===
+     × **№265** — на `scale: 0.5` полоса субтитров В КАДРЕ и в той же зоне кадра 1453ms
+     × `scale: 0.5` — угловой маркер ЛВ лежит в своём углу половинного кадра 5ms
+     × `scale: 0.5` — угловой маркер ПВ лежит в своём углу половинного кадра 2ms
+     × `scale: 0.5` — угловой маркер ЛН лежит в своём углу половинного кадра 2ms
+     × `scale: 0.5` — угловой маркер ПН лежит в своём углу половинного кадра 1ms
+     × `scale: 0.5` — полоса субтитров видна и стоит на своей высоте 1ms
+     × `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости) 48ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  packages/renderer-hyperframes/test/captions-visibility.test.ts > **№185** — видимость групп держит рендерер по `data-*`, и это ИЗМЕРЯЕТСЯ > **№265** — на `scale: 0.5` полоса субтитров В КАДРЕ и в той же зоне кадра
+AssertionError: тёмных пикселей 0, центр (0, 0) при кадре 540×960, рамка y 960…-1, x 540…-1, в левом верхнем углу 0, белых внутри рамки 0: expected 0 to be greater than 5000
+    351|       //    одного тёмного пикселя полосы — она уходила за обрез по по…
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — угловой маркер ЛВ лежит в своём углу половинного кадра
+AssertionError: ЛВ: получено 100, ожидалось 50: expected 50 to be less than or equal to 2
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — угловой маркер ПВ лежит в своём углу половинного кадра
+AssertionError: маркер ПВ в кадре не найден вовсе — композиция обрезана: expected null not to be null
+    214|     it(`\`scale: 0.5\` — угловой маркер ${name} лежит в своём углу пол…
+    216|       expect(box, `маркер ${name} в кадре не найден вовсе — композиция…
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — угловой маркер ЛН лежит в своём углу половинного кадра
+AssertionError: маркер ЛН в кадре не найден вовсе — композиция обрезана: expected null not to be null
+    214|     it(`\`scale: 0.5\` — угловой маркер ${name} лежит в своём углу пол…
+    216|       expect(box, `маркер ${name} в кадре не найден вовсе — композиция…
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — угловой маркер ПН лежит в своём углу половинного кадра
+AssertionError: маркер ПН в кадре не найден вовсе — композиция обрезана: expected null not to be null
+    214|     it(`\`scale: 0.5\` — угловой маркер ${name} лежит в своём углу пол…
+    216|       expect(box, `маркер ${name} в кадре не найден вовсе — композиция…
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — полоса субтитров видна и стоит на своей высоте
+AssertionError: полосы на месте субтитров в кадре нет — ровно симптом №265: expected null not to be null
+    229|   it('`scale: 0.5` — полоса субтитров видна и стоит на своей высоте', …
+    231|     expect(box, 'полосы на месте субтитров в кадре нет — ровно симптом…
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости)
+AssertionError: MAD по яркости = 6.7392 при пороге 0.5: expected 6.739209104936323 to be less than 0.5
+    248|       expect(mad, `MAD по яркости = ${mad.toFixed(4)} при пороге ${Str…
+    249|         .toBeLessThan(MAD_LIMIT);
+ Test Files  2 failed (2)
+      Tests  7 failed | 4 passed (11)
+
+=== Н2: масштаб перенесён на #root (место, которое вендор перезапишет) ===
+     × `scale: 0.5` — угловой маркер ПВ лежит в своём углу половинного кадра 5ms
+     × `scale: 0.5` — угловой маркер ЛН лежит в своём углу половинного кадра 2ms
+     × `scale: 0.5` — угловой маркер ПН лежит в своём углу половинного кадра 1ms
+     × `scale: 0.5` — полоса субтитров видна и стоит на своей высоте 1ms
+     × `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости) 48ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: маркер ПВ в кадре не найден вовсе — композиция обрезана: expected null not to be null
+AssertionError: маркер ЛН в кадре не найден вовсе — композиция обрезана: expected null not to be null
+AssertionError: маркер ПН в кадре не найден вовсе — композиция обрезана: expected null not to be null
+AssertionError: полосы на месте субтитров в кадре нет — ровно симптом №265: expected null not to be null
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости)
+AssertionError: MAD по яркости = 30.0708 при пороге 0.5: expected 30.070830439799508 to be less than 0.5
+    248|       expect(mad, `MAD по яркости = ${mad.toFixed(4)} при пороге ${Str…
+    249|         .toBeLessThan(MAD_LIMIT);
+      Tests  5 failed | 3 passed (8)
+
+=== Н3: масштаб раскрыт ДВАЖДЫ (и на .layer, и на #root) — симптом FIX-01 ===
+     × `scale: 0.5` — угловой маркер ЛВ лежит в своём углу половинного кадра 5ms
+     × `scale: 0.5` — угловой маркер ПВ лежит в своём углу половинного кадра 2ms
+     × `scale: 0.5` — угловой маркер ЛН лежит в своём углу половинного кадра 2ms
+     × `scale: 0.5` — угловой маркер ПН лежит в своём углу половинного кадра 1ms
+     × `scale: 0.5` — полоса субтитров видна и стоит на своей высоте 1ms
+     × `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости) 49ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: ЛВ: получено 25, ожидалось 50: expected 25 to be less than or equal to 2
+AssertionError: ПВ: получено 245, ожидалось 490: expected 245 to be less than or equal to 2
+AssertionError: ЛН: получено 455, ожидалось 910: expected 455 to be less than or equal to 2
+AssertionError: ПН: получено 245, ожидалось 490: expected 245 to be less than or equal to 2
+AssertionError: expected 270 to be less than or equal to 2
+ FAIL  packages/renderer-hyperframes/test/scale-render.test.ts > **№265** — масштаб раскрывается ОДИН раз и на ВСЮ композицию > `scale: 0.5` — кадр совпадает с уменьшенным кадром `scale: 1` (MAD по яркости)
+AssertionError: MAD по яркости = 31.7556 при пороге 0.5: expected 31.75563271601761 to be less than 0.5
+    248|       expect(mad, `MAD по яркости = ${mad.toFixed(4)} при пороге ${Str…
+    249|         .toBeLessThan(MAD_LIMIT);
+      Tests  6 failed | 2 passed (8)
+
+=== КОНТРОЛЬ: дерево восстановлено ===
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+
+=== Н4 (добавлено после находки): масштаб слоя поставлен transform'ом, а не zoom'ом ===
+    (это ровно та правка, которая была первой и прошла линейку, но ломала КАЖДЫЙ сегмент с движением)
+     × **ДВИЖЕНИЕ** — `still@1` + `kenburns@1` на `scale: 0.5` тоже уменьшенная копия `final` 2479ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: MAD по яркости на ДВИЖУЩЕЙСЯ пробе = 32.7262 при пороге 2. Красное здесь означает, что масштаб профиля поставлен свойством, которое шаблон перебивает: GSAP пишет инлайновый `transform`, и он сильнее любой нашей таблицы стилей (`FIX-02`, измерено 34.41 против 0.3184): expected 32.726153549382715 to be less than 2
+    306|       ).toBeLessThan(MAD_MOVING_LIMIT);
+      Tests  1 failed | 8 passed (9)
+

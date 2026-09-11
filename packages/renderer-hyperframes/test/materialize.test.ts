@@ -226,8 +226,11 @@ describe('шаблон без реализации — отказ ДО того,
   // тестового шаблона.
   // *(дополнено: `E-07`, 2026-08-31 — шестым встал `grade@1`; `E-02`, 2026-08-31 — седьмым
   // `parallax25@1`.)*
-  it('продакшн-реестр НАПОЛНЕН семью, и `solid@1` в нём нет', () => {
-    expect(rendererTemplates.templates).toHaveLength(7);
+  // *(дополнено: `VID-02a`, 2026-09-11 — ВОСЕМЬ: `video@1`.)* Число стоит литералом, а не
+  // `.length`, по той же причине, что у соседей: сверка «столько, сколько получилось» была бы
+  // зелёной при любом наполнении.
+  it('продакшн-реестр НАПОЛНЕН восемью, и `solid@1` в нём нет', () => {
+    expect(rendererTemplates.templates).toHaveLength(8);
     expect(rendererTemplates.templates.map((t) => t.templateId)).not.toContain('solid');
   });
 

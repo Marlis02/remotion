@@ -487,9 +487,36 @@ const EXAMPLES: readonly SpecExportExample[] = [
       },
     },
   },
+  {
+    template: 'video@1',
+    source: 'work/asset-test/direction/01-cellars.yaml, запись `d1f0a5c3` (живая проверка `VID-02a`)',
+    note:
+      'ТРИ ВЕЩИ, КОТОРЫХ НЕ ВИДНО ИЗ СХЕМЫ. Первое: `z` обязан быть ВЫШЕ всего непрозрачного ' +
+      'в сцене — видео лежит ПОД графикой, и шаблон пробивает сквозь слои НИЖЕ своего `z` ' +
+      'прозрачное окно; слой на ТОМ ЖЕ `z` видео закроет. Второе: звук видео в ролик не ' +
+      'попадает, `audio` принимает только `off`. Третье: видео, кончившееся раньше окна, ' +
+      'держит последний кадр — зацикливания в этой версии нет.',
+    record: {
+      recordId: 'd1f0a5c3',
+      at: { kind: 'anchor', anchor: 'b:img-street-1' },
+      until: { kind: 'anchor', anchor: 'sc:street' },
+      track: 'visual',
+      z: 25,
+      template: 'video@1',
+      params: {
+        asset: 'demo-video',
+        frame: 'corner',
+        corner: 'tr',
+        size: 0.34,
+        margin: 0.05,
+        fit: 'cover',
+        audio: 'off',
+      },
+    },
+  },
 ];
 
-/** Канонический `direction/1` из всех семи примеров — печатает писатель `@vpe/schema`. */
+/** Канонический `direction/1` из всех восьми примеров — печатает писатель `@vpe/schema`. */
 export function exampleDirectionYaml(examples: readonly SpecExportExample[] = EXAMPLES): string {
   return renderFamily('direction', {
     schema: 'direction/1',

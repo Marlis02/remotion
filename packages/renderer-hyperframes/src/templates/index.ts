@@ -33,6 +33,7 @@ import { grade1Impl } from './grade@1/impl.js';
 import { kenburns1Impl } from './kenburns@1/impl.js';
 import { parallax251Impl } from './parallax25@1/impl.js';
 import { still1Impl } from './still@1/impl.js';
+import { video1Impl } from './video@1/impl.js';
 
 export {
   resolveTemplate,
@@ -42,7 +43,7 @@ export {
 } from './template.js';
 
 /**
- * Продакшн-реестр реализаций — 7 единиц.
+ * Продакшн-реестр реализаций — 8 единиц.
  *
  * Версия — та же величина, что `compileProfile.templateRegistryVersion` у спеков: если
  * реализации разъедутся со спеками, ключ кэша обязан это заметить (**K6**). Она НЕ меняется
@@ -61,5 +62,6 @@ export const rendererTemplates: RendererTemplateRegistry = Object.freeze({
     kenburns1Impl,
     parallax251Impl,
     still1Impl,
+    video1Impl,
   ]) as readonly RendererTemplate[],
 });
