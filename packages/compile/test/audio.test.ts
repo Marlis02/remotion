@@ -237,24 +237,59 @@ describe('`CP-05` — план дорожки на `fixtures/minimal`', () => {
     expect(plan.elements.find((element) => element.segmentId === 'seg:turn')?.atSample).toBe(552000);
   });
 
-  it('музыка осталась ДАННЫМИ и посчитана вслух (решение владельца 1, поправка П4)', async () => {
+  it('музыка ВОШЛА В МИКС и посчитана вслух (`X-02`, ревизия решения владельца 1)', async () => {
     const { plan } = await build();
-    expect(plan.unmixedClips).toBe(plan.music.length);
-    expect(plan.unmixedClips).toBe(1);
+    // Было `unmixedClips == music.length` (поправка П4, 2026-08-27) — стало равенство суммы:
+    // клип аудио-домена либо звучит, либо назван несмикшированным, третьего состояния нет.
+    expect(plan.mixedClips + plan.unmixedClips).toBe(plan.music.length);
+    expect(plan.mixedClips).toBe(1);
+    expect(plan.unmixedClips).toBe(0);
     const bed = plan.music[0];
     expect(bed?.track).toBe('music');
     expect(bed?.template).toBe('bed@1');
     // `params` идут насквозь АВТОРСКИМИ: alias, а не sha (решение владельца `CP-07`, вопрос 2).
     expect(bed?.params).toMatchObject({ asset: 'pad-loop' });
-    // А SHA ТЕПЕРЬ ЕСТЬ (`CP-07`, долг №141 сужен до `X-02`): его объявил `bed@1.declareAssets`
-    // и разрешил контракт вызова. Микса по-прежнему нет — и это по-прежнему сказано ЧИСЛОМ.
     expect(bed?.assets).toEqual([
       { sha256: '0000000000000000000000000000000000000000000000000000000000000004', role: 'asset' },
     ]);
-    expect(dumpAudioPlan(plan)).toContain('music: 1 клипов не смикшированы (X-02)');
-    expect(dumpAudioPlan(plan)).toContain(
+    // ЧИСЛА МИКСА ПРИЕХАЛИ ЧЕТВЁРТОЙ ДЕКЛАРАЦИЕЙ (`declareAudio`), а не чтением `params`
+    // компилятором: `inPoint.offsetSamples: 96000`, `gainDb: -18`, `duckUnderSpeechDb: -6`
+    // фикстуры — дословно.
+    expect(bed?.audio).toMatchObject({
+      assetSha256: '0000000000000000000000000000000000000000000000000000000000000004',
+      role: 'asset',
+      inPointSamples: 96000,
+      gainDb: -18,
+      duckUnderSpeechDb: -6,
+      loop: true,
+    });
+    // Дробь считается ОДНОЙ функцией тракта и проверяется арифметикой, а не литералом из
+    // головы: `round(10^(−18/20) · 32768) = 4125`, `round(10^(−24/20) · 32768) = 2068`.
+    expect(bed?.audio?.gain).toEqual({ numerator: Math.round(Math.pow(10, -18 / 20) * 32768), denominator: 32768 });
+    expect(bed?.audio?.duckedGain).toEqual({
+      numerator: Math.round(Math.pow(10, -24 / 20) * 32768),
+      denominator: 32768,
+    });
+    const dump = dumpAudioPlan(plan);
+    expect(dump).toContain('music: 1 клипов в миксе, 0 не смикшированы');
+    expect(dump).toContain('mix: on duckRamp=2880 crossfade=72');
+    expect(dump).toContain(
       'template=bed@1 assets=0000000000000000000000000000000000000000000000000000000000000004/asset',
     );
+    expect(dump).toContain('gain=-18dB=4125/32768');
+  });
+
+  it('`mix.enabled: false` — клип аудио-домена остаётся ДАННЫМИ, как до `X-02`', async () => {
+    const { timeline, manifest, profile } = await build();
+    const plan = compileAudio({
+      timeline,
+      manifest,
+      profile: { ...profile, mix: { ...profile.mix, enabled: false } },
+    });
+    expect(plan.mixedClips).toBe(0);
+    expect(plan.unmixedClips).toBe(1);
+    expect(plan.music[0]?.audio).toBeNull();
+    expect(dumpAudioPlan(plan)).toContain('mix: off');
   });
 });
 
@@ -535,8 +570,9 @@ describe('`CP-05` — детерминизм', () => {
     expect(dump).toContain('eps=0,0');
     expect(dump).toContain('correct  [551760, 552000) correction:seg:intro seg=seg:intro delta=240 padding=0');
     expect(dump).toContain('correct  [1177680, 1178400) correction:seg:turn seg=seg:turn delta=720 padding=0');
-    // Каждый элемент — своя строка; шапка, раскладка (7 строк), eps, music, клип музыки.
-    expect(dump.split('\n')).toHaveLength(1 + 7 + 1 + 1 + 1 + plan.elements.length);
+    // Каждый элемент — своя строка; шапка, раскладка (7 строк), eps, mix, music, клип музыки
+    // и строка его звука (`X-02`: состав микса печатается там же, где сам клип).
+    expect(dump.split('\n')).toHaveLength(1 + 7 + 1 + 1 + 1 + 1 + 1 + plan.elements.length);
   });
 });
 

@@ -20,6 +20,7 @@
 import type { Samples } from '@vpe/core-model';
 import type { z } from 'zod';
 
+import type { AudioContribution } from './audio.js';
 import type { TemplateManifest } from './manifest.js';
 import type { TemplatePreset } from './presets.js';
 import type { AssetRef, FontRef } from './refs.js';
@@ -87,6 +88,22 @@ export interface TemplateSpec<P = unknown> {
    * `params`. Тот же греп-охранник границы (`node:fs`/сеть в `packages/templates-spec/src/**`).
    */
   declareDuration?(params: P): Samples | null;
+  /**
+   * Звук, который вызов кладёт в дорожку ролика, — либо `null`, если он звука не даёт.
+   *
+   * **ЧЕТВЁРТАЯ ДЕКЛАРАЦИЯ, И ОНА НЕОБЯЗАТЕЛЬНА** *(добавлено: `X-02`, 2026-09-12; расширение
+   * контракта санкционировано заданием владельца «микс делаем»)*. Причина — та же, что у
+   * `declareDuration`: числа микса (`inPoint`, `gainDb`, `duckUnderSpeechDb`) лежат в
+   * `params`, а компилятору читать `params` по имени поля запрещено (`CP-07`, греп
+   * `tests/lints/cp07-template-params.test.ts`). Шаблон читает свои параметры сам.
+   *
+   * **ОТСУТСТВИЕ МЕТОДА И `null` РАЗЛИЧИМЫ, КАК У СЕСТРЫ.** Нет метода — шаблон о звуке не
+   * высказывается вовсе (шесть визуальных спеков из восьми); `null` — высказался и звука не
+   * даёт (`video@1` с `audio: 'off'`). Читает разницу одна функция — `declaredAudioOf`.
+   *
+   * ЧИСТАЯ, как и три соседки: функция ТОЛЬКО `params`.
+   */
+  declareAudio?(params: P): AudioContribution | null;
   readonly manifest: TemplateManifest;
   /**
    * **`params`, СОХРАНЁННЫЕ ПОД ИМЕНЕМ** — пресеты шаблона (`TPL-01b`, 2026-09-10).
@@ -157,4 +174,22 @@ export function declaredDurationOf(spec: AnyTemplateSpec, params: unknown): Samp
   if (spec.declareDuration === undefined) return null;
   const parsed: unknown = spec.paramsSchema.parse(params);
   return spec.declareDuration(parsed);
+}
+
+/**
+ * Звук вызова — либо `null`, если шаблон его не даёт или о нём не высказывается.
+ *
+ * **ЕДИНСТВЕННОЕ МЕСТО, ГДЕ ЧИТАЕТСЯ НАЛИЧИЕ `declareAudio`** — по той же причине, по которой
+ * `declaredDurationOf` читает наличие `declareDuration`: `undefined`-ветка, размноженная по
+ * вызывающим, однажды не будет написана, и вызывающий получит `TypeError` вместо тишины.
+ *
+ * `params` прогоняются схемой ДО вызова: спек, получивший `params`, которых не обещал, вернул
+ * бы усиление, которого автор не писал.
+ *
+ * @throws {z.ZodError} `params` не соответствуют схеме шаблона — с путём к полю.
+ */
+export function declaredAudioOf(spec: AnyTemplateSpec, params: unknown): AudioContribution | null {
+  if (spec.declareAudio === undefined) return null;
+  const parsed: unknown = spec.paramsSchema.parse(params);
+  return spec.declareAudio(parsed);
 }

@@ -24,7 +24,7 @@ import path from 'node:path';
 
 import { dumpAudioPlan, dumpIr, dumpTimeline, segmentIrHash } from '@vpe/compile';
 import { canonicalJson, dumpAst } from '@vpe/core-model';
-import { LocalStore, readStoreLock, renderStoreLock } from '@vpe/media';
+import { FULL_SCALE, LocalStore, readStoreLock, renderStoreLock } from '@vpe/media';
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import { assertBuildMayStart } from '@vpe/templates-spec';
 import { accountSnapshot, type AccountSnapshot, type HttpTransport } from '@vpe/voice';
@@ -357,6 +357,13 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
       totalSamples: result.audio.totalSamples,
       totalFrames: result.audio.totalFrames,
       trackSha256: result.manifest.audioTrack?.sha256 ?? '',
+      mix: {
+        mode: result.audio.mix.enabled ? 'on' : 'off',
+        beds: result.mixed.beds.length,
+        clippedSamples: result.mixed.clippedSamples,
+        samplePeak: result.mixed.loudness.samplePeak,
+        fullScaleSamples: result.mixed.loudness.fullScaleSamples,
+      },
     },
     final: {
       file: path.relative(project.layout.buildDir, assembled.finalPath),
@@ -406,6 +413,19 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
       cacheHits: result.recorded.cacheHits,
       staleTakes: result.staleTakes,
       edgeDrift: result.recorded.edgeDrift.warning,
+      mix: {
+        enabled: result.audio.mix.enabled,
+        beds: result.mixed.beds.map((bed) => ({
+          clipId: bed.clipId,
+          gainDb: bed.gainDb,
+          duckUnderSpeechDb: bed.duckUnderSpeechDb,
+          loops: bed.loops,
+          duckedWindows: bed.duckedWindows,
+        })),
+        clippedSamples: result.mixed.clippedSamples,
+        samplePeak: result.mixed.loudness.samplePeak,
+        fullScale: FULL_SCALE,
+      },
     }),
   );
 

@@ -73,6 +73,11 @@ function elementLine(element: AudioElement): string {
  * БЛОК ПРО МУЗЫКУ ПЕЧАТАЕТСЯ ВСЕГДА, ДАЖЕ КОГДА ЕЁ НЕТ (поправка владельца П4, 2026-08-27):
  * ролик без музыки обязан отличаться от ролика, в котором музыки не было. Молчание здесь
  * означало бы «музыки не просили», а это другое утверждение.
+ *
+ * СОСТАВ МИКСА — ТАМ ЖЕ И ПО ТОЙ ЖЕ ПРИЧИНЕ (`X-02`, 2026-09-12): строка `mix:` печатает
+ * ручки профиля, а строка `звук` у каждого клипа — адрес байтов, точку входа и ОБЕ дроби
+ * усиления. Дорожка, которую нельзя объяснить дампом её плана, — это дорожка, про которую
+ * через неделю никто не скажет, почему она звучит так.
  */
 export function dumpAudioPlan(plan: AudioPlan): string {
   const lines: string[] = [
@@ -81,7 +86,9 @@ export function dumpAudioPlan(plan: AudioPlan): string {
       `tail=${String(plan.trackTailSamples)}`,
     formatBreakdown(plan.breakdown, plan.totalFrames, plan.sampleRate),
     `eps=${plan.epsilonSamples.map((value) => String(value)).join(',')}`,
-    `music: ${String(plan.unmixedClips)} клипов не смикшированы (X-02)`,
+    `mix: ${plan.mix.enabled ? 'on' : 'off'} duckRamp=${String(plan.mix.duckRampSamples)} ` +
+      `crossfade=${String(plan.mix.crossfadeSamples)}`,
+    `music: ${String(plan.mixedClips)} клипов в миксе, ${String(plan.unmixedClips)} не смикшированы`,
   ];
   for (const clip of plan.music) {
     lines.push(
@@ -90,6 +97,19 @@ export function dumpAudioPlan(plan: AudioPlan): string {
         (clip.assets.length === 0
           ? '<нет>'
           : clip.assets.map((asset) => `${asset.sha256}/${asset.role}`).join(',')),
+    );
+    // СОСТАВ МИКСА ПЕЧАТАЕТСЯ ПОКЛИПНО И ДРОБЯМИ, А НЕ ДЕЦИБЕЛАМИ: дробь — то, чем реально
+    // умножены байты, и по ней дорожку можно пересчитать на бумаге. Децибелы рядом — то, что
+    // написал автор; расхождение между ними и есть то, что обязано быть видно.
+    const sound = clip.audio;
+    if (sound === null) continue;
+    lines.push(
+      `    звук   [${String(clip.atSample)}, ${String(clip.untilSample)}) в дорожке ` +
+        `asset=${sound.assetSha256}/${sound.role} inPoint=${String(sound.inPointSamples)} ` +
+        `gain=${String(sound.gainDb)}dB=${String(sound.gain.numerator)}/${String(sound.gain.denominator)} ` +
+        `duck=${String(sound.duckUnderSpeechDb)}dB→` +
+        `${String(sound.duckedGain.numerator)}/${String(sound.duckedGain.denominator)} ` +
+        `loop=${sound.loop ? 'да' : 'нет'}`,
     );
   }
   for (const element of plan.elements) lines.push(elementLine(element));

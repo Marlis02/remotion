@@ -46,6 +46,31 @@ export interface VoiceReportInput {
   readonly staleTakes: readonly string[];
   /** WARN дрейфа краёв (`V-04`) либо `null`. */
   readonly edgeDrift: string | null;
+  /**
+   * Состав дорожки (`X-02`) — строка про МИКС в отчёте про ГОЛОС, и это намеренно.
+   *
+   * Отчёт читает автор канала, и вопрос у него один: «что я услышу». Голос и подложка
+   * складываются в одну дорожку, поэтому «подложек 1, насыщено 0 сэмплов, пик −7.7 dBFS»
+   * стоит там же, где расход на голос, а не в четвёртом файле, который никто не откроет.
+   */
+  readonly mix: MixReportLine;
+}
+
+/** Что микс сделал с дорожкой — числа для отчёта, без единого решения. */
+export interface MixReportLine {
+  readonly enabled: boolean;
+  /** Подложки в порядке плана: клип, уровень и сколько раз ассет повторился. */
+  readonly beds: readonly {
+    readonly clipId: string;
+    readonly gainDb: number;
+    readonly duckUnderSpeechDb: number;
+    readonly loops: number;
+    readonly duckedWindows: number;
+  }[];
+  readonly clippedSamples: number;
+  readonly samplePeak: number;
+  /** Полная шкала для перевода пика в dBFS — приходит из тракта, а не пишется литералом. */
+  readonly fullScale: number;
 }
 
 /** Итог по расходу: то, что печатается строкой ИТОГО и цитируется в отчёте задачи. */
@@ -100,6 +125,40 @@ export function voiceSpend(chunks: readonly VoiceReportChunk[]): VoiceSpend {
 const cell = (value: string, width: number): string => value.padStart(width);
 
 /**
+ * Строки про состав дорожки (`X-02`).
+ *
+ * ПЕЧАТАЮТСЯ ВСЕГДА, ДАЖЕ КОГДА ПОДЛОЖЕК НЕТ, — по той же причине, по которой дамп плана
+ * всегда печатает блок музыки (поправка владельца П4): «микс: только голос» и молчание — это
+ * разные утверждения, и второе неотличимо от «строку забыли».
+ *
+ * НАСЫЩЕНИЕ — ПРЕДУПРЕЖДЕНИЕМ, А НЕ ОТКАЗОМ (пересмотр долга №63, 2026-09-12): строка
+ * начинается со слова ВНИМАНИЕ, чтобы её было видно грепом, но сборка уже собрана.
+ */
+function mixLines(mix: MixReportLine): readonly string[] {
+  const peakDb = mix.samplePeak <= 0 ? '−∞' : (20 * Math.log10(mix.samplePeak / mix.fullScale)).toFixed(2);
+  const head =
+    `МИКС: ${mix.enabled ? 'включён' : 'ВЫКЛЮЧЕН (mix.enabled: false — только голос)'}; ` +
+    `подложек ${String(mix.beds.length)}; пик дорожки ${String(mix.samplePeak)} (${peakDb} dBFS); ` +
+    `насыщено сэмплов ${String(mix.clippedSamples)}`;
+  return [
+    head,
+    ...mix.beds.map(
+      (bed) =>
+        `  ${bed.clipId}: уровень ${String(bed.gainDb)} дБ, под речью ` +
+        `${String(bed.gainDb + bed.duckUnderSpeechDb)} дБ (duck ${String(bed.duckUnderSpeechDb)} дБ на ` +
+        `${String(bed.duckedWindows)} окнах речи), повторов петли ${String(bed.loops)}`,
+    ),
+    ...(mix.clippedSamples === 0
+      ? []
+      : [
+          `  ВНИМАНИЕ: ${String(mix.clippedSamples)} сэмплов упёрлись в границу шкалы при ` +
+            'сложении. Сборка не падает (решение владельца, долг №63), но вершины срезаны в ' +
+            'самих байтах: уменьшите `gainDb` подложки либо приведите громкость файла.',
+        ]),
+  ];
+}
+
+/**
  * Текст отчёта. Формат — таблица плюс две строки итога; читатель у него один — автор канала,
  * и вопрос у него один: «сколько это стоило и за что заплатила ЭТА сборка».
  */
@@ -150,6 +209,8 @@ export function formatVoiceReport(input: VoiceReportInput): string {
             input.staleTakes.join(', '),
         ]),
     `дрейф краёв: ${input.edgeDrift ?? 'нет'}`,
+    '',
+    ...mixLines(input.mix),
     '',
     'ЧИСЛА — ИЗ TAKE-ФАЙЛОВ. «Отправлено» — code points `spokenText` (ADR-0010 §2); «списано» —',
     'сумма ПОКАЛЛЬНЫХ округлений `round(cp × ставка)` (`FACT` SP-2b.7), ставка берётся из',

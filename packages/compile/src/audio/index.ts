@@ -12,14 +12,24 @@ export {
   type CompileAudioInput,
 } from './plan.js';
 
-export { audioTrackRef, renderAudioTrack, withAudioTrack, type PcmSource } from './render.js';
+export {
+  audioTrackRef,
+  mixAudioTrack,
+  renderAudioTrack,
+  withAudioTrack,
+  type MixedAudioTrack,
+  type MixedBed,
+  type PcmSource,
+} from './render.js';
 
 export { dumpAudioPlan, formatBreakdown } from './dump.js';
 
 export type {
   AudioBreakdown,
+  AudioClipSound,
   AudioCorrectionSilence,
   AudioElement,
+  AudioMixPlan,
   AudioMusicClip,
   AudioPlainSilence,
   AudioPlan,

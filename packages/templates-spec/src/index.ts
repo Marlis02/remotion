@@ -79,6 +79,7 @@ export {
 
 // Контракт одного шаблона и вход **R3**.
 export {
+  declaredAudioOf,
   declaredDurationOf,
   requestFiles,
   type AnyTemplateSpec,
@@ -182,6 +183,7 @@ export { TEMPLATE_LIBRARY } from './templates/index.js';
 // и билдер запросов гейта; `MAX_PARALLAX_LAYERS` — тест протокола нарушений Н1, которому
 // нужен ПЯТЫЙ слой, а не литерал `5`.
 export { bed1, type BedParams } from './templates/bed@1/spec.js';
+export type { AudioContribution, AudioInPoint, AudioPause } from './audio.js';
 export { captionEmphasis1, type CaptionEmphasisParams } from './templates/captionEmphasis@1/spec.js';
 export { flash1, type FlashParams } from './templates/flash@1/spec.js';
 export { kenburns1, type KenburnsParams } from './templates/kenburns@1/spec.js';

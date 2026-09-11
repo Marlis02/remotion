@@ -15,6 +15,10 @@
 //
 //   * **байтов** — план это ДАННЫЕ, материализует их `renderAudioTrack(plan, pcmSource)`.
 //     `compileAudio` чистая: ни `fs`, ни часов, ни случайности, ни чтения CAS;
+//   * ~~**микса**~~ **МИКС ЕСТЬ С `X-02` (2026-09-12).** Решение владельца «микс делаем»
+//     отменяет не правило, а ЭТАП: `params` компилятор по-прежнему читать не вправе, и числа
+//     микса приезжают четвёртой декларацией спека (`declareAudio` → `ClipContract.audio` →
+//     `AudioMusicClip.audio`). Абзац ниже оставлен как история решения:
 //   * **микса** — музыка едет ДАННЫМИ (`music[]`, решение владельца 1, вариант «а»): читать
 //     `params` шаблона компилятор не вправе до `TS-01`, а `params.asset` у `bed@1` — alias,
 //     не sha (ИЗМЕРЕНО на `fixtures/minimal`: `asset: 'pad-loop'`). Поэтому `mixSaturating`
@@ -26,7 +30,7 @@
 //     `final-padding` НЕТ. Добивка T5 приезжает ПОЛЕМ элемента `boundary-correction`
 //     последнего сегмента — см. `AudioCorrectionSilence`.
 
-import type { Frames, IrAssetRef, Samples, TemplateParams } from '@vpe/core-model';
+import type { Frames, IrAssetRef, Samples, TemplateParams, TrackKind } from '@vpe/core-model';
 
 /**
  * Вид тишины на дорожке — `TimelineSilence.silenceKind` (ADR-0001) КАК ЕСТЬ, три имени.
@@ -134,7 +138,77 @@ export interface AudioBreakdown {
 }
 
 /**
- * Клип аудио-домена, который дорожка v1 НЕ СМИКШИРОВАЛА (решение владельца 1, вариант «а»).
+ * Ручки микса, приехавшие из профиля звука ДАННЫМИ (`X-02`).
+ *
+ * ПОЧЕМУ В ПЛАНЕ, А НЕ У ТОГО, КТО КЛАДЁТ БАЙТЫ. `renderAudioTrack` получает ТОЛЬКО план и
+ * источник PCM: величина, которой нет в плане, доехала бы до байтов вторым путём — и дамп
+ * плана перестал бы объяснять получившуюся дорожку. Правило то же, по которому в плане лежат
+ * `ε_i` и раскладка: печатается, а не подразумевается.
+ */
+export interface AudioMixPlan {
+  /**
+   * `audio-profile/1 → mix.enabled`. `false` — прежнее поведение «только голос».
+   *
+   * НЕ «ВЫКЛЮЧАТЕЛЬ НА ВСЯКИЙ СЛУЧАЙ», А ПРИБОР СРАВНЕНИЯ: запись `bed@1`, собранная до
+   * `X-02`, и она же после обязаны давать РАЗНЫЙ звук, и доказывается это побайтовым
+   * равенством дорожки при `false` с дорожкой прежней сборки (AC4 на старых записях).
+   */
+  readonly enabled: boolean;
+  /** `mix.duckRampMs`, переведённые в сэмплы проекта: длина спуска и подъёма подложки. */
+  readonly duckRampSamples: Samples;
+  /** `crossfadeSamples` профиля — микрофейд краёв клипа и стыков петли (ADR-0003 T7). */
+  readonly crossfadeSamples: Samples;
+}
+
+/**
+ * Усиление рациональной дробью — та же форма, что у `Gain` в `media/audio/gain.ts`.
+ *
+ * ПЕЧАТАЕТСЯ В ДАМПЕ ЧИСЛАМИ: `4125/32768` проверяемо глазами и не зависит от того, как
+ * движок печатает `double`. Считает дробь ОДНА функция тракта (`gainFromDb`) — здесь она
+ * только лежит.
+ */
+export interface AudioGain {
+  readonly numerator: number;
+  readonly denominator: number;
+}
+
+/**
+ * Звук клипа аудио-домена: что объявил шаблон и во что это превратилось для микса.
+ *
+ * `gainDb`/`duckUnderSpeechDb` остаются рядом с дробями НАМЕРЕННО: дробь — то, чем считают,
+ * децибелы — то, что написал автор, и в отчёте обязано быть видно и то и другое.
+ */
+export interface AudioClipSound {
+  /** Адрес байтов ассета в CAS — разрешён контрактом шаблона (`CP-07`), не планом. */
+  readonly assetSha256: string;
+  /** Роль ассета у шаблона (`asset` у `bed@1`) — для сообщений и дампа. */
+  readonly role: string;
+  readonly inPointSamples: Samples;
+  readonly gainDb: number;
+  readonly duckUnderSpeechDb: number;
+  /** `10^(gainDb/20)` дробью — уровень вне речи. */
+  readonly gain: AudioGain;
+  /** `10^((gainDb + duckUnderSpeechDb)/20)` дробью — уровень под речью. */
+  readonly duckedGain: AudioGain;
+  /** Зацикливать ли ассет, когда окно клипа длиннее него (`true` у подложки). */
+  readonly loop: boolean;
+  /**
+   * Паузы источника, на которых звук клипа МОЛЧИТ (`VID-02b`): `holds` у `video@1`.
+   *
+   * `atSourceSample` — момент внутри файла, `lengthSamples` — сколько молчать. Пустой список —
+   * обычное состояние: подложка не замирает никогда.
+   */
+  readonly pauses: readonly AudioClipPause[];
+}
+
+/** Пауза звука клипа: где в источнике и насколько (`VID-02b`). Оба числа — сэмплы. */
+export interface AudioClipPause {
+  readonly atSourceSample: Samples;
+  readonly lengthSamples: Samples;
+}
+
+/**
+ * Клип аудио-домена — подложка или эффект — и его звук.
  *
  * `params` — ДАННЫМИ насквозь, ровно как в Timeline: контракт параметров объявляет `TS-01`,
  * *(изменено: `CP-07`, 2026-08-28.)* ~~`params.asset` у `bed@1` остаётся alias'ом, который
@@ -145,16 +219,44 @@ export interface AudioBreakdown {
  * по-прежнему нет, и `unmixedClips` по-прежнему считает клипы, которых нет в дорожке.
  */
 export interface AudioMusicClip {
-  /** `music` либо `sfx` — обе дорожки аудио-домена (`NON_CROSSING_TRACKS`, `CP-03`). */
-  readonly track: 'music' | 'sfx';
+  /**
+   * Имя дорожки Timeline, на которой стоит клип.
+   *
+   * **БОЛЬШЕ НЕ ДВА ЛИТЕРАЛА** *(изменено: `VID-02b`, 2026-09-12; было `'music' | 'sfx'`)*.
+   * Звук приносит не только аудио-домен: `video@1` стоит на `visual` и с `audio: "full"`
+   * кладёт в дорожку свой звук. Сузить тип обратно значило бы либо врать в поле, либо завести
+   * второй список клипов со звуком — то есть два места, где считается одно и то же.
+   */
+  readonly track: TrackKind;
   readonly clipId: string;
   readonly template: string;
   /** Авторские `params` (решение владельца `CP-07`, вопрос 2): alias'ы не подменены. */
   readonly params: TemplateParams;
   /** `declareAssets(params)` шаблона, разрешённые в sha (`CP-07`, долг №141 → `X-02`). */
   readonly assets: readonly IrAssetRef[];
+  /** Начало клипа в TIMELINE. Остаётся полем: правки (`O-01`) адресуются к нему. */
   readonly startSample: Samples;
   readonly endSample: Samples;
+  /**
+   * Начало клипа В ДОРОЖКЕ — `startSample` плюс `Σ δ` сегментов до него (`X-02`).
+   *
+   * **ДВЕ КООРДИНАТЫ, А НЕ ОДНА, И ЭТО НЕ ДУБЛИРОВАНИЕ.** Между Timeline и дорожкой лежат
+   * поправки границ (T6): дорожка ДЛИННЕЕ Timeline ровно на `Σ δ`, и клип, положенный по
+   * координате Timeline, поехал бы относительно речи тем сильнее, чем дальше он от начала.
+   * У речевых элементов эта же величина называется `atSample` и считается той же формулой —
+   * второго правила пересчёта в зоне нет.
+   */
+  readonly atSample: Samples;
+  /** Конец клипа в дорожке. `untilSample − atSample` — длина окна, в которое кладётся звук. */
+  readonly untilSample: Samples;
+  /**
+   * Звук клипа — `null`, если шаблон его не объявил (`declareAudio`).
+   *
+   * `null` И ЕСТЬ «НЕ СМИКШИРОВАН»: клип аудио-домена без объявленного звука лежит в плане
+   * данными и в дорожку не попадает — ровно как вся музыка до `X-02`. Считает такие клипы
+   * `unmixedClips`, и ноль у него означает «всё, что просили, звучит».
+   */
+  readonly audio: AudioClipSound | null;
 }
 
 /**
@@ -186,14 +288,28 @@ export interface AudioPlan {
   readonly epsilonSamples: readonly Samples[];
   /** `frameStartSample(F) − Σ A_i` — разность свойства (3) T6, числом (**T6c**). */
   readonly trackTailSamples: Samples;
-  /** Клипы аудио-домена, оставшиеся данными. Микса в v1 нет (долг с адресом `TS-01`/`X-02`). */
+  /** Ручки микса из профиля звука — данными, а не вторым путём до байтов (`X-02`). */
+  readonly mix: AudioMixPlan;
+  /** Клипы аудио-домена: подложки и эффекты, со звуком (`X-02`) либо без него. */
   readonly music: readonly AudioMusicClip[];
+  /**
+   * Сколько клипов аудио-домена ВОЙДУТ в дорожку (`X-02`, 2026-09-12).
+   *
+   * ЧИСЛОМ, А НЕ ДЛИНОЙ ОТФИЛЬТРОВАННОГО МАССИВА У ЧИТАТЕЛЯ — по той же причине, по которой
+   * им был `unmixedClips`: отчёт сборки печатает величину, и «подложка звучит» обязано
+   * отличаться от «подложки не просили» одним взглядом. Ассерт стадии —
+   * `mixedClips + unmixedClips == music.length`.
+   */
+  readonly mixedClips: number;
   /**
    * Сколько клипов аудио-домена НЕ смикшировано (поправка владельца П4, 2026-08-27).
    *
    * ЧИСЛОМ, А НЕ ДЛИНОЙ МАССИВА У ЧИТАТЕЛЯ: отчёт сборки (`L-01`) печатает величину, и ролик
-   * без музыки обязан отличаться от ролика, в котором музыки не было. Равенство
-   * `unmixedClips == music.length` — ассерт стадии, а не соглашение.
+   * без музыки обязан отличаться от ролика, в котором музыки не было. ~~Равенство
+   * `unmixedClips == music.length` — ассерт стадии.~~ *(Изменено `X-02`, 2026-09-12: микс
+   * есть, и ассерт стал `mixedClips + unmixedClips == music.length`.)* Ненулевое значение
+   * теперь означает ровно одно из двух: `mix.enabled: false` либо шаблон аудио-домена, не
+   * объявивший `declareAudio`.
    */
   readonly unmixedClips: number;
 }

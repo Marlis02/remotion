@@ -22,6 +22,11 @@ import { CompileError, templateContracts } from '../src/index.js';
 
 import { buildProject, cleanupRoots, registryOf } from './project.js';
 
+import { fixtureAudioProfile } from './fixture.js';
+
+/** Частота проекта из фикстуры — вход стадии контракта (`VID-02b`), не литерал. */
+const FIXTURE_RATE = fixtureAudioProfile().projectSampleRate;
+
 afterAll(cleanupRoots);
 
 /** Числа пресета `kenburns@1/drift-right` — те же, что лежат в его файле. */
@@ -106,6 +111,8 @@ function contractsOf(
     generated: [],
     catalog: base.catalog,
     registry,
+    // `VID-02b`: частота нужна одному переводу — «кадр источника → сэмпл» у звука видео.
+    projectSampleRate: FIXTURE_RATE,
     templateRegistryVersion: registry.version,
   });
 }

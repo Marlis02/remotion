@@ -102,6 +102,22 @@ export interface BuildRecord {
     readonly totalSamples: number;
     readonly totalFrames: number;
     readonly trackSha256: string;
+    /**
+     * Состав микса (`X-02`, 2026-09-12): что сложено в дорожку и что при этом случилось.
+     *
+     * **`clipped` — ФАКТ В ЗАПИСИ, А НЕ ОТКАЗ СБОРКИ** (пересмотр долга №63 владельцем):
+     * насыщение видно числом, ролик собирается. Ноль подложек при непустом `music[]` плана —
+     * тоже утверждение: либо `mix.enabled: false`, либо шаблон звука не объявил.
+     */
+    readonly mix: {
+      /** `on`/`off` — ручка профиля, а не вывод из числа подложек (их может не быть вовсе). */
+      readonly mode: 'on' | 'off';
+      readonly beds: number;
+      readonly clippedSamples: number;
+      /** Пик дорожки по сэмплам: точное целое, без единого float (`measureLoudness`). */
+      readonly samplePeak: number;
+      readonly fullScaleSamples: number;
+    };
   };
   readonly final: { readonly file: string; readonly sha256: string } | null;
 }

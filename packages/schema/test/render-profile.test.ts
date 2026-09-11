@@ -120,6 +120,12 @@ function schemaKeys(node: unknown, prefix = ''): string[] {
     }
     case 'optional':
     case 'nullable':
+    // `default` РАСПАКОВЫВАЕТСЯ, А НЕ ПРОПУСКАЕТСЯ (`X-02`, 2026-09-12). Поле с умолчанием —
+    // такое же поле схемы, как всякое другое: K6 обязан видеть его имя, иначе блок
+    // `mix: MixSchema.default(…)` прошёл бы мимо проверки «ни одно имя не содержит
+    // version/hash/sha». Тот же приём и по той же причине, что у обходчика матрицы мутации
+    // (`media/src/cache/mutants.ts`, где `default` разбирается наравне с `optional`).
+    case 'default':
       return schemaKeys((node as { unwrap: () => unknown }).unwrap(), prefix);
     case 'array':
       // Элемент списка имени не имеет, но его поля — имеют (`store.remotes[]` у `project/1`).

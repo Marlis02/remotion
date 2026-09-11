@@ -14,6 +14,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { msToSamples } from '@vpe/core-model';
+
 import type { AudioProfileInput, CompileProfileInput } from '../src/index.js';
 
 export const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -41,6 +43,20 @@ function field(text: string, name: string, where: string): number {
  * Читается ИЗ ПРОФИЛЯ, а не литералом: «fps = 30 — решение, а не умолчание» (ADR-0003), и
  * повторить его в тесте значило бы перестать замечать расхождение кода с профилем.
  */
+/** Поле ВНУТРИ блока (два пробела отступа) — `mix.duckRampMs`. Та же строгость, что у `field`. */
+function indentedField(text: string, name: string, where: string): number {
+  const match = new RegExp(`^\\s{2}${name}:\\s*(\\d+)\\s*(?:#.*)?$`, 'm').exec(text);
+  if (match?.[1] === undefined) throw new Error(`${where}: поле \`${name}\` не найдено.`);
+  return Number(match[1]);
+}
+
+/** Булево поле внутри блока — `mix.enabled`. Ни `??`, ни умолчания: нет поля — падение. */
+function boolField(text: string, name: string, where: string): boolean {
+  const match = new RegExp(`^\\s{2}${name}:\\s*(true|false)\\s*(?:#.*)?$`, 'm').exec(text);
+  if (match?.[1] === undefined) throw new Error(`${where}: поле \`${name}\` не найдено.`);
+  return match[1] === 'true';
+}
+
 function fpsField(text: string, where: string): { num: number; den: number } {
   const match = /^fps:\s*\{\s*num:\s*(\d+),\s*den:\s*(\d+)\s*\}/m.exec(text);
   if (match?.[1] === undefined || match[2] === undefined) {
@@ -108,10 +124,22 @@ export function fixtureCompileProfile(): CompileProfileInput {
 export function fixtureAudioProfile(): AudioProfileInput {
   const where = 'fixtures/minimal/profiles/compile.yaml';
   const text = readFixture(where);
+  const projectSampleRate = field(text, 'projectSampleRate', where);
+  // Ручки микса живут в ДРУГОМ профиле — звуковом (`audio-profile/1`), и читаются оттуда:
+  // `crossfadeSamples` и `mix` лежат рядом, потому что оба про байты дорожки, а не про сетку.
+  const audioWhere = 'fixtures/minimal/profiles/audio.yaml';
+  const audioText = readFixture(audioWhere);
   return {
-    projectSampleRate: field(text, 'projectSampleRate', where),
+    projectSampleRate,
     fps: fpsField(text, where),
     maxDurationFrames: field(text, 'maxDurationFrames', where),
+    mix: {
+      enabled: boolField(audioText, 'enabled', audioWhere),
+      // Мс → сэмплы тем же `msToSamples`, которым это делает сборка: второе правило
+      // округления здесь означало бы, что тест и CLI мерят рампу по-разному.
+      duckRampSamples: Number(msToSamples(indentedField(audioText, 'duckRampMs', audioWhere), projectSampleRate)),
+      crossfadeSamples: field(audioText, 'crossfadeSamples', audioWhere),
+    },
   };
 }
 

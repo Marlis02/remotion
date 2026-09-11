@@ -27,26 +27,62 @@
 // параметр — покраснели все записи шаблона), и отказ на первой заставлял бы чинить их по
 // одной, перезапуская сборку. Довод и форма — те же, что у `CompileError` (`CP-01`).
 
-import type {
-  GeneratedDirectionRecord,
-  IrAssetRef,
-  IrFontRef,
-  PlacedRecord,
-  Samples,
-  TemplateParams,
+import {
+  asFrames,
+  frameStartSample,
+  msToSamples,
+  timeGrid,
+  type GeneratedDirectionRecord,
+  type IrAssetRef,
+  type IrFontRef,
+  type PlacedRecord,
+  type Samples,
+  type TemplateParams,
 } from '@vpe/core-model';
 import { resolveAlias, type AssetCatalog } from '@vpe/media';
 import {
   DEFAULT_ASSET_KIND,
+  declaredAudioOf,
   declaredDurationOf,
   parseTemplateName,
   presetNames,
   presetsOf,
   type AnyTemplateSpec,
+  type AudioContribution,
   type TemplateRegistry,
 } from '@vpe/templates-spec';
 
 import { CompileError, type CompileProblem } from './errors.js';
+
+/**
+ * Звук вызова, каким его видит компилятор: объявление шаблона плюс разрешённый sha ассета.
+ *
+ * ФОРМА — ОБЪЯВЛЕНИЕ `templates-spec` С ОДНИМ ЗАМЕНЁННЫМ ПОЛЕМ (`role` → `assetSha256`), а не
+ * второй тип с теми же четырьмя числами: разойдись они — и правка шаблона молча перестала бы
+ * доезжать до микса.
+ */
+export interface ClipAudio extends Omit<AudioContribution, 'role' | 'inPoint' | 'pauses'> {
+  /** Роль, которую назвал спек, — остаётся ради сообщений об ошибках и дампа. */
+  readonly role: string;
+  /** `resolveAlias` по той же таблице, что и `assets` этого же клипа. */
+  readonly assetSha256: IrAssetRef['sha256'];
+  /**
+   * In-point, переведённый в сэмплы ПРОЕКТА (`VID-02b`).
+   *
+   * Перевод «кадр источника → сэмпл» живёт ЗДЕСЬ и только здесь: у этой стадии есть и запись
+   * ассета (частота кадров файла), и частота проекта. Считает его `frameStartSample` —
+   * та же функция, которой считается время ролика, а не вторая формула (**T1**).
+   */
+  readonly inPointSamples: number;
+  /**
+   * Паузы источника: момент ВНУТРИ файла в сэмплах и длительность в кадрах СЕГМЕНТА.
+   *
+   * Длительность остаётся кадрами намеренно: перевести её в сэмплы может только тот, у кого
+   * есть кадровая сетка ПРОЕКТА, а это стадия звука (`compileAudio`), а не контракта. Делить
+   * перевод между двумя местами было бы хуже: одно число считалось бы двумя правилами.
+   */
+  readonly pauses: readonly { readonly atSourceSample: number; readonly frames: number }[];
+}
 
 /**
  * Всё, что вызов шаблона объявил о себе, — по одному на клип.
@@ -73,6 +109,15 @@ export interface ClipContract {
   readonly fonts: readonly IrFontRef[];
   /** `declareDuration?` — `null`, если шаблон о длительности не высказывается (№119). */
   readonly declaredDurationSamples: Samples | null;
+  /**
+   * `declareAudio?` — звук вызова с УЖЕ РАЗРЕШЁННЫМ адресом ассета (`X-02`).
+   *
+   * `null` — звука вызов не даёт (шесть визуальных шаблонов из восьми, и `video@1` с
+   * `audio: 'off'`). Роль, которую назвал спек, здесь уже переведена в sha той же таблицей,
+   * что и `assets`: второй путь разрешения означал бы, что микс однажды сыграет не тот файл,
+   * который объявлен клипом.
+   */
+  readonly audio: ClipAudio | null;
   /** `manifest.purposes` — перечень seed'ов узла (ADR-0007 §1, №135). */
   readonly purposes: readonly string[];
   /** `manifest.msPerFrameBudget` — слагаемое суммы по кадру (ADR-0008 «Бюджет AC2», №146). */
@@ -96,6 +141,15 @@ export interface TemplateContractsInput {
   readonly registry: TemplateRegistry;
   /** `compile-profile/1 → templateRegistryVersion`. Сверяется с `registry.version` (**K6**). */
   readonly templateRegistryVersion: string;
+  /**
+   * `compile-profile/1 → projectSampleRate` — единственное, ради чего стадия знает время
+   * (`VID-02b`).
+   *
+   * НУЖЕН РОВНО ОДНОМУ ПЕРЕВОДУ: «кадр источника → сэмпл» у in-point звука видео. Ни одной
+   * другой строки этой стадии частота не касается, и подавать сюда профиль целиком значило бы
+   * дать контракту доступ к числам, которых он не имеет права видеть (геометрия, сетка, gap'ы).
+   */
+  readonly projectSampleRate: number;
 }
 
 /** Ключ карты контрактов — `clipId`, тот же, что построит укладка (`records.ts`). */
@@ -165,6 +219,91 @@ function fontRefOf(
     return null;
   }
   return { sha256, family: measured, role };
+}
+
+/**
+ * Объявленный звук + запись ассета → звук клипа с числами в сэмплах (`VID-02b`).
+ *
+ * ═══ ДВЕ ПРОВЕРКИ, КОТОРЫЕ ЖИВУТ ИМЕННО ЗДЕСЬ ═══
+ *
+ * 1. **У ФАЙЛА ЕСТЬ ЗВУКОВАЯ ДОРОЖКА.** Видео без звука с `audio: "full"` — это ошибка АВТОРА
+ *    в записи режиссуры, и узнать о ней он обязан здесь, с адресом записи, а не получив ролик,
+ *    в котором «почему-то тихо». Паспорт снимает `vpe asset add` декодом (`intrinsic.audio`),
+ *    поэтому вопрос решается ЧТЕНИЕМ ЗАПИСИ, а не походом в файл.
+ * 2. **КАДР ИСТОЧНИКА ПЕРЕВОДИМ В СЭМПЛ.** Перевод требует частоты кадров ФАЙЛА, и она тоже в
+ *    записи. Считает его `frameStartSample` на сетке `{частота проекта, fps файла}` — та же
+ *    функция, которой считается время ролика; своя формула здесь была бы вторым правилом
+ *    перевода времени, что запрещает **T1**.
+ *
+ * ЧЕГО ЗДЕСЬ НЕТ: сверки частоты ЗВУКА с частотой проекта. Она требует того же числа, но
+ * принадлежит той стадии, которая читает БАЙТЫ (`cli`, перед декодом): отказ «перекодируйте
+ * файл» имеет смысл там, где файл есть, а не там, где есть только запись. Разнесение названо
+ * вслух, чтобы вторая половина правила не потерялась.
+ */
+function clipAudioOf(
+  input: TemplateContractsInput,
+  contribution: AudioContribution,
+  ref: IrAssetRef,
+  template: string,
+  where: string,
+  problems: CompileProblem[],
+): ClipAudio | null {
+  const record = input.catalog.records.get(ref.sha256);
+  const intrinsic: unknown = record?.intrinsic;
+  const shape = typeof intrinsic === 'object' && intrinsic !== null ? (intrinsic as Record<string, unknown>) : {};
+  // Звуковая дорожка есть у записи вида `audio` (там частота — поле верхнего уровня) и у
+  // записи вида `video` со СНЯТЫМ звуком (`intrinsic.audio: {sampleRate, channels}`). `null`
+  // в четвёртой ветви схемы означает «декодом проверено: дорожки нет» — это утверждение, а не
+  // пропуск, и здесь оно читается именно так.
+  const hasOwnRate = typeof shape['sampleRate'] === 'number';
+  const videoAudio = shape['audio'];
+  const hasVideoAudio = typeof videoAudio === 'object' && videoAudio !== null;
+  if (!hasOwnRate && !hasVideoAudio) {
+    problems.push({
+      address: where,
+      message:
+        `\`${template}\` просит звук роли \`${contribution.role}\`, а у ассета ` +
+        `\`${ref.sha256}\` звуковой дорожки нет (\`intrinsic.audio: null\` — измерено ` +
+        'декодом при `vpe asset add`). Тишина вместо звука выглядела бы как собравшийся ' +
+        'ролик, поэтому это отказ: поставьте `audio: "off"` либо возьмите файл со звуком',
+    });
+    return null;
+  }
+
+  let inPointSamples = 0;
+  if (contribution.inPoint.unit === 'samples') {
+    inPointSamples = contribution.inPoint.value;
+  } else if (contribution.inPoint.value !== 0) {
+    const fps = shape['fps'];
+    const rational =
+      typeof fps === 'object' && fps !== null && typeof (fps as { num?: unknown }).num === 'number'
+        ? (fps as { num: number; den: number })
+        : null;
+    if (rational === null) {
+      problems.push({
+        address: where,
+        message:
+          `\`${template}\` сдвигает звук на ${String(contribution.inPoint.value)} кадр(ов) ` +
+          `источника, а запись ассета \`${ref.sha256}\` не несёт частоты кадров. Кадр без ` +
+          'частоты не является моментом времени — паспорт снимает `vpe asset add` декодом',
+      });
+      return null;
+    }
+    inPointSamples = frameStartSample(
+      timeGrid(input.projectSampleRate, rational),
+      asFrames(contribution.inPoint.value),
+    );
+  }
+
+  return {
+    ...contribution,
+    assetSha256: ref.sha256,
+    inPointSamples,
+    pauses: contribution.pauses.map((pause) => ({
+      atSourceSample: msToSamples(pause.atSourceMs, input.projectSampleRate),
+      frames: pause.frames,
+    })),
+  };
 }
 
 /** Один вызов шаблона: шаги 1–5 порядка П1. `null` ⇒ проблемы записаны, контракта нет. */
@@ -320,6 +459,28 @@ function contractOf(
     });
   }
 
+  // ── Шаг 5-бис. ЗВУК ВЫЗОВА (`X-02`) ──────────────────────────────────────────────────────
+  //
+  // ПОСЛЕ АССЕТОВ, И ЭТО ПОРЯДОК, А НЕ УДОБСТВО: объявление называет РОЛЬ, а роли разрешены
+  // шагом 4. Роль, которой нет среди объявленных ассетов, — ошибка ШАБЛОНА, а не автора
+  // записи, и молчание здесь означало бы клип, который просит звук ниоткуда.
+  const contribution = declaredAudioOf(spec, value);
+  let audio: ClipAudio | null = null;
+  if (contribution !== null) {
+    const ref = assets.find((asset) => asset.role === contribution.role);
+    if (ref === undefined) {
+      problems.push({
+        address: where,
+        message:
+          `\`${template}\` объявил звук роли \`${contribution.role}\`, а ассета такой роли ` +
+          'он не объявил (`declareAssets`). Звук берётся из файла, и файл называет РОЛЬ: ' +
+          'роль без ассета означает шаблон, просящий сыграть то, чего он не объявил',
+      });
+    } else {
+      audio = clipAudioOf(input, contribution, ref, template, where, problems);
+    }
+  }
+
   // Порождённая запись + непустые `purposes` — ошибка, а не выдуманный `recordId`.
   // ADR-0007 §1 определяет `recordId` как id, ВЫДАННЫЙ CLI и ЗАПИСАННЫЙ в `direction/*.yaml`;
   // у порождённой `[img:]`-записи нет ни одного из двух событий (решение владельца `C-05`,
@@ -342,6 +503,7 @@ function contractOf(
     assets,
     fonts,
     declaredDurationSamples,
+    audio,
     purposes: spec.manifest.purposes,
     msPerFrameBudget: spec.manifest.msPerFrameBudget,
   };

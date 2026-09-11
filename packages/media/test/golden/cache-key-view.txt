@@ -32,10 +32,11 @@ upstream (9):
   voice-roles/1:roles[].voice_id -> voiceId, roleDigest
   voice-roles/1:roles[].voice_settings -> providerOpts, roleDigest
 
-excluded (11):
+excluded (12):
   audio-profile/1:takeAcceptance.*
   audio-profile/1:speechEdges.*
   audio-profile/1:deliverySampleRate
+  audio-profile/1:mix.*
   take.provenance.billedUnits
   take.provenance.generatedAt
   take.provenance.requestId

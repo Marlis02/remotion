@@ -19,12 +19,26 @@ const AI_TEST_1: readonly VoiceReportChunk[] = [
   { chunkKey: 'js5cstbhen7tdlyc', billedUnits: 162, rate: 0.55, reused: true },
 ];
 
+/**
+ * Микс ролика `ai-test-1` — БЕЗ ПОДЛОЖКИ, и это состояние фикстуры, а не заглушка: `bed@1` в
+ * его режиссуре не вызван ни разу («аудио-alias в списке владельца нет, выдумывать нельзя»).
+ * Строка отчёта обязана печататься и в этом случае (`X-02`).
+ */
+const NO_BEDS = {
+  enabled: true,
+  beds: [],
+  clippedSamples: 0,
+  samplePeak: 19660,
+  fullScale: 32768,
+};
+
 const REPORT = {
   chunks: AI_TEST_1,
   sourceCalls: 0,
   cacheHits: 0,
   staleTakes: [],
   edgeDrift: null,
+  mix: NO_BEDS,
 };
 
 describe('расход голоса — из дублей, а не из сети', () => {

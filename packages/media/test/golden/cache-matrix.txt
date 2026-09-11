@@ -2,9 +2,9 @@
 
 compile-profile: 20 полей = 18 в view + 2 вне
 render-profile: 22 полей = 16 в view + 6 вне
-audio-profile: 21 полей = 0 в view + 21 вне
+audio-profile: 23 полей = 0 в view + 23 вне
 
-segment: всего 63 полей; в ключе 34
+segment: всего 65 полей; в ключе 34
 недостижимо в образце фикстуры: 0
 
 compose: 0 полей схем (входы стадии — хэши файлов и строки lockfile)

@@ -15,7 +15,14 @@ import { afterAll, describe, expect, it } from 'vitest';
 
 import { compose, CompileError, templateContracts } from '../src/index.js';
 
-import { readFixture } from './fixture.js';
+import { fixtureAudioProfile, readFixture } from './fixture.js';
+
+/**
+ * Частота проекта — ИЗ ФИКСТУРЫ, а не литералом (`VID-02b`): стадии контракта она нужна ради
+ * одного перевода («кадр источника → сэмпл» у звука видео), и второе её значение в тесте
+ * означало бы, что тест проверяет сам себя.
+ */
+const FIXTURE_RATE = fixtureAudioProfile().projectSampleRate;
 import { buildProject, cleanupRoots, registryOf } from './project.js';
 import { jitter1, stillWithPurposes } from './specs.js';
 
@@ -70,6 +77,8 @@ function run(
     generated: extra.generated ?? base.generated,
     catalog: extra.catalog ?? base.catalog,
     registry: registryOf(extra.specs),
+    // `VID-02b`: частота нужна одному переводу — «кадр источника → сэмпл» у звука видео.
+    projectSampleRate: FIXTURE_RATE,
     templateRegistryVersion: extra.version ?? '1',
   });
 }

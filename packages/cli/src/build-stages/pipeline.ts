@@ -27,16 +27,19 @@ import {
   compileIr,
   compose,
   readTakes,
-  renderAudioTrack,
+  mixAudioTrack,
   audioTrackRef,
   withAudioTrack,
+  type AudioMusicClip,
   type AudioPlan,
   type BuildIrResult,
+  type MixedAudioTrack,
   type Timeline,
 } from '@vpe/compile';
 import {
   EMPTY_LEDGER,
   expandImg,
+  msToSamples,
   parseSource,
   readDirection,
   sourceText,
@@ -44,7 +47,14 @@ import {
   type RandomBytes,
   type SourceDocument,
 } from '@vpe/core-model';
-import { LocalStore, asBlobSha, pcmFromBytes, readStoreLock, type PcmS16 } from '@vpe/media';
+import {
+  LocalStore,
+  asBlobSha,
+  ingestMusic,
+  pcmFromBytes,
+  readStoreLock,
+  type PcmS16,
+} from '@vpe/media';
 import type { AssemblyManifest } from '@vpe/core-model';
 import type { TemplateRegistry } from '@vpe/templates-spec';
 import {
@@ -153,6 +163,14 @@ export interface PipelineResult {
   readonly ir: BuildIrResult;
   readonly audio: AudioPlan;
   readonly track: PcmS16;
+  /**
+   * Состав микса и его числа (`X-02`): подложки, насыщение, пик дорожки.
+   *
+   * ОТДЕЛЬНЫМ ПОЛЕМ, А НЕ ВНУТРИ `audio`: план — то, что ПОСЧИТАНО без байтов, а это —
+   * результат укладки БАЙТОВ. Слить их значило бы сделать `AudioPlan` зависящим от того, что
+   * лежит в сторе, то есть отнять у него чистоту.
+   */
+  readonly mixed: MixedAudioTrack;
   /** Манифест сборки С ДОРОЖКОЙ (`withAudioTrack`) — тот, что уезжает в отчёт. */
   readonly manifest: AssemblyManifest;
   /**
@@ -454,6 +472,14 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
       projectSampleRate: profile.projectSampleRate,
       fps: profile.fps,
       maxDurationFrames: project.maxDurationFrames,
+      // Ручки микса — из профиля ЗВУКА (`audio-profile/1`), а не из компиляторского: обе
+      // величины про байты дорожки. Мс переводятся в сэмплы здесь, потому что `msToSamples`
+      // — единственное правило округления времени в репозитории (**T1**).
+      mix: {
+        enabled: project.audioProfile.mix.enabled,
+        duckRampSamples: Number(msToSamples(project.audioProfile.mix.duckRampMs, profile.projectSampleRate)),
+        crossfadeSamples: project.audioProfile.crossfadeSamples,
+      },
     },
   });
 
@@ -463,7 +489,17 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
     if (take.pcm.sha256 === null) continue;
     pcm.set(take.pcm.sha256, pcmFromBytes(take.pcm.sampleRate, await store.read(asBlobSha(take.pcm.sha256))));
   }
-  const track = renderAudioTrack(audio, pcm);
+  // ── 7в. БАЙТЫ ЗВУКОВЫХ АССЕТОВ (`X-02`) ─────────────────────────────────────────────────
+  //
+  // ЧИТАЕТ ИХ КОМАНДА, А НЕ КОМПИЛЯТОР, — ровно как байты дублей строкой выше: `compileAudio`
+  // чистая, а декод ассета есть подпроцесс ffmpeg. Источник PCM у обоих один (`Map` по sha),
+  // потому что и дубль, и подложка адресуются содержимым.
+  for (const clip of audio.music) {
+    if (clip.audio === null || pcm.has(clip.audio.assetSha256)) continue;
+    pcm.set(clip.audio.assetSha256, await ingestClipAudio(project, store, clip, profile.projectSampleRate));
+  }
+  const mixed = mixAudioTrack(audio, pcm);
+  const track = mixed.track;
 
   return {
     document,
@@ -476,10 +512,76 @@ export async function runPipeline(input: PipelineInput): Promise<PipelineResult>
     ir,
     audio,
     track,
+    mixed,
     manifest: withAudioTrack(ir.manifest, audioTrackRef(track)),
     staleTakes: [...stale].sort(),
     reusedTakes: [...existing.keys()].sort(),
   };
+}
+
+/**
+ * Байты звукового ассета → PCM тракта (`X-02`).
+ *
+ * ═══ ЧУЖАЯ ЧАСТОТА — ОТКАЗ, А НЕ ТИХИЙ РЕСЕМПЛ (ADR-0010 §9) ═══
+ * Ресемплинг живёт ОДИН РАЗ на ingest ассета, и тогда микс остаётся сложением целых сэмплов,
+ * а версия ресемплера перестаёт влиять на выход сборки. Ресемплировать здесь, на СБОРКЕ,
+ * значило бы вернуть ту самую зависимость: обновился ffmpeg — поехали байты ролика, AC4 красный
+ * без единой правки проекта. Поэтому частота сверяется с записью каталога ДО декода, и
+ * несовпадение — отказ с командой, которой это чинится.
+ *
+ * ПОЧЕМУ ПРОВЕРКА ПО ЗАПИСИ, А НЕ ПО ДЕКОДУ. `ffmpeg -ar <projectRate>` не откажет никогда —
+ * он ресемплирует молча, и узнать об этом было бы неоткуда. `intrinsic.sampleRate` записи
+ * ИЗМЕРЕН при укладке ассета, и он же лежит в дереве проекта под git.
+ */
+async function ingestClipAudio(
+  project: ProjectInputs,
+  store: LocalStore,
+  clip: AudioMusicClip,
+  projectSampleRate: number,
+): Promise<PcmS16> {
+  const sound = clip.audio;
+  if (sound === null) throw new CliError('build вход', `клип \`${clip.clipId}\`: звука нет, ingest незачем`, EXIT.input);
+  const record = project.catalog.records.get(asBlobSha(sound.assetSha256));
+  const intrinsic: unknown = record?.intrinsic;
+  const shape = typeof intrinsic === 'object' && intrinsic !== null ? (intrinsic as Record<string, unknown>) : {};
+  // ДВА ВИДА ЗАПИСИ, ОДНО ЧИСЛО. У звукового ассета частота лежит полем верхнего уровня
+  // (`intrinsic.sampleRate`), у видео — внутри снятого паспорта дорожки (`intrinsic.audio`,
+  // четвёртая ветвь схемы, `ASSET-01`). Третьего места, где она может лежать, схема не знает.
+  const nested = shape['audio'];
+  const rate =
+    typeof shape['sampleRate'] === 'number'
+      ? shape['sampleRate']
+      : typeof nested === 'object' && nested !== null && typeof (nested as { sampleRate?: unknown }).sampleRate === 'number'
+        ? (nested as { sampleRate: number }).sampleRate
+        : null;
+  if (rate === null) {
+    throw new CliError(
+      'build вход',
+      `клип \`${clip.clipId}\`: запись ассета ${sound.assetSha256} не несёт \`intrinsic.sampleRate\`. ` +
+        'Звук берётся из файла, паспорт которого ИЗМЕРЕН при укладке (`vpe asset add`); запись ' +
+        'без частоты означает ассет, уложенный как картинка, либо видео без звуковой дорожки.',
+      EXIT.input,
+    );
+  }
+  if (rate !== projectSampleRate) {
+    throw new CliError(
+      'build вход',
+      `клип \`${clip.clipId}\`: ассет ${sound.assetSha256} записан на ${String(rate)} Гц, а ` +
+        `проект собирается на ${String(projectSampleRate)} Гц. Ресемплинг происходит ОДИН РАЗ ` +
+        'на ingest ассета (ADR-0010 §9), а не на каждой сборке: иначе обновление ffmpeg меняло ' +
+        'бы байты ролика, в котором никто ничего не правил. Перекодируйте файл и уложите ' +
+        `заново: \`ffmpeg -i <файл> -ar ${String(projectSampleRate)} -ac 1 <новый>.wav\`.`,
+      EXIT.input,
+    );
+  }
+
+  const path = await store.path(asBlobSha(sound.assetSha256));
+  const ingested = await ingestMusic({
+    inputPath: path,
+    audioProfile: project.audioProfile,
+    projectSampleRate,
+  });
+  return ingested.pcm;
 }
 
 /** sha256 текста — тот же адрес, каким считает входы `inputs.ts`. */

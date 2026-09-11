@@ -24,6 +24,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { encodeWav, pcmS16 } from '@vpe/media';
+
 export const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 export const FIXTURE = path.join(REPO, 'fixtures/minimal');
 
@@ -182,6 +184,33 @@ export interface ProjectOptions {
   readonly short?: boolean;
 }
 
+/**
+ * Подложка фикстуры БАЙТАМИ — синтетическая, детерминированная, без единого бинарника в git.
+ *
+ * ФОРМА — ТРЕУГОЛЬНАЯ ВОЛНА ЦЕЛЫМИ ЧИСЛАМИ, а не синус: `Math.sin` в ECMA-262
+ * «implementation-approximated», и живая сборка на другом движке дала бы другие БАЙТЫ
+ * подложки — то есть другой sha финала по причине, не имеющей отношения к сборке. Здесь
+ * каждый сэмпл считается сложением и делением целых.
+ *
+ * ЧИСЛА — ИЗ ЗАПИСИ АССЕТА ФИКСТУРЫ (`assets/records/…0004.json`): 2 880 000 сэмплов при
+ * 24 000 Гц, то есть 120 с. Расходись они — и запись описывала бы не тот файл, что лежит в
+ * сторе, а именно это соответствие проверяет `intrinsic.sampleRate` при ingest'е подложки.
+ */
+export function makeBedWav(): Uint8Array {
+  const rate = 24000;
+  const samples = new Int16Array(2_880_000);
+  const period = 240; // 100 Гц — «гул», а не нота: подложка в тесте не музыка, а сигнал.
+  const amplitude = 6000;
+  for (let i = 0; i < samples.length; i += 1) {
+    const phase = i % period;
+    const half = period / 2;
+    // Треугольник: вверх на первой половине периода, вниз на второй. Целочисленно.
+    const value = phase < half ? (amplitude * phase) / half : (amplitude * (period - phase)) / half;
+    samples[i] = Math.round(value) - amplitude / 2;
+  }
+  return encodeWav(pcmS16(rate, samples));
+}
+
 /** Готовый проект: копия фикстуры, засеянный CAS, каталог записей гейта. */
 export function makeProject(options: ProjectOptions = {}): TestProject {
   const root = tempRoot('vpe-l01-');
@@ -194,7 +223,12 @@ export function makeProject(options: ProjectOptions = {}): TestProject {
 
   const storeDir = path.join(root, 'store');
   const png = makePng();
-  for (const n of ['1', '2', '3', '4']) putAt(storeDir, `${'0'.repeat(63)}${n}`, png);
+  for (const n of ['1', '2', '3']) putAt(storeDir, `${'0'.repeat(63)}${n}`, png);
+  // ЧЕТВЁРТЫЙ АССЕТ ФИКСТУРЫ — ЗВУК, А НЕ КАРТИНКА (`X-02`, 2026-09-12). До микса под все
+  // четыре адреса клался один PNG: подложка в дорожку не попадала, и что лежит под
+  // `pad-loop`, не спрашивал никто. Теперь спрашивает — `bed@1` звучит, — и PNG под этим
+  // адресом означал бы ffmpeg, которому дали картинку вместо музыки.
+  putAt(storeDir, `${'0'.repeat(63)}4`, makeBedWav());
   putAt(storeDir, `${'0'.repeat(63)}5`, readFileSync(SYSTEM_FONT_PATH));
 
   return {

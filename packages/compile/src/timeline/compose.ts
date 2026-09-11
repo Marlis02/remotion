@@ -93,6 +93,8 @@ export function compose(input: ComposeInput): Timeline {
     catalog: input.catalog,
     registry: input.registry,
     templateRegistryVersion: input.profile.templateRegistryVersion,
+    // Ради ОДНОГО перевода: «кадр источника → сэмпл» у in-point звука видео (`VID-02b`).
+    projectSampleRate: input.profile.projectSampleRate,
   });
 
   const track = speechTrack({

@@ -25,6 +25,7 @@
 // display-хелпером, от которого не зависит ни одно вычисление (поправка владельца П2).
 
 import {
+  asFrames,
   asSamples,
   frameStartSample,
   mulExact,
@@ -37,13 +38,16 @@ import {
   type TimeGrid,
   type TrackKind,
 } from '@vpe/core-model';
+import { gainFromDb } from '@vpe/media';
 
+import type { ClipContract } from '../timeline/contract.js';
 import type { PlacedSilence, PlacedSpeech, Segment, Timeline, TimelineItem } from '../timeline/types.js';
 
 import { formatBreakdown } from './dump.js';
 import { CompileAudioError } from './errors.js';
 import type {
   AudioBreakdown,
+  AudioClipSound,
   AudioCorrectionSilence,
   AudioElement,
   AudioMusicClip,
@@ -53,14 +57,19 @@ import type {
 } from './types.js';
 
 /**
- * Дорожки аудио-домена, которые дорожка v1 не микширует (решение владельца 1, вариант «а»).
+ * Дорожки АУДИО-ДОМЕНА: их клипы попадают в план ЦЕЛИКОМ, со звуком и без.
  *
  * Второй копией `NON_CROSSING_TRACKS` это не является: там перечень «через что разрез не
- * проходит» (четыре имени, включая `speech` и директивную `voice`), здесь — «что осталось
- * данными» (две). Совпадение двух имён из четырёх — не повод сделать один список из двух
- * разных утверждений.
+ * проходит» (четыре имени, включая `speech` и директивную `voice`), здесь — «что принадлежит
+ * звуку по природе» (две). Совпадение двух имён из четырёх — не повод сделать один список из
+ * двух разных утверждений.
+ *
+ * *(Переименовано: `VID-02b`, 2026-09-12. Было `UNMIXED_TRACKS` — «что осталось данными»; с
+ * приходом микса это утверждение стало ложным, а список — нет.)* Клип ДРУГОЙ дорожки попадает
+ * в план тогда и только тогда, когда его шаблон объявил звук: `video@1` стоит на `visual`, и
+ * иначе его звук не увидел бы никто.
  */
-const UNMIXED_TRACKS: readonly TrackKind[] = ['music', 'sfx'];
+const AUDIO_DOMAIN_TRACKS: readonly TrackKind[] = ['music', 'sfx'];
 
 /** Узкий вход стадии: три величины, и ни одной сверх. */
 export interface AudioProfileInput {
@@ -78,6 +87,19 @@ export interface AudioProfileInput {
    * подачи одного числа.
    */
   readonly maxDurationFrames: number;
+  /**
+   * Ручки микса из `audio-profile/1` (`X-02`).
+   *
+   * УЗКИМ ВХОДОМ, КАК И ТРИ СОСЕДКИ: стадии нужны три числа, а не профиль целиком — иначе
+   * `compileAudio` пришлось бы подавать `deliverySampleRate` и пороги приёмки дубля, к
+   * дорожке отношения не имеющие, и тест перестал бы отличать «стадия читает профиль» от
+   * «стадия читает ровно то, что ей нужно».
+   */
+  readonly mix: {
+    readonly enabled: boolean;
+    readonly duckRampSamples: number;
+    readonly crossfadeSamples: number;
+  };
 }
 
 /** Вход стадии звука. Timeline даёт клипы, манифест — числа T6, профиль — сетку и предел. */
@@ -457,15 +479,95 @@ function assertContinuous(elements: readonly AudioElement[], totalSamples: numbe
 }
 
 /** Клипы аудио-домена, оставшиеся данными (решение владельца 1, вариант «а»; поправка П4). */
-function musicClips(timeline: Timeline): readonly AudioMusicClip[] {
+/**
+ * Объявление шаблона → звук клипа с посчитанными дробями усиления (`X-02`).
+ *
+ * ДЕЦИБЕЛЫ ПЕРЕВОДЯТСЯ В ДРОБЬ ЗДЕСЬ, А НЕ У БАЙТОВ, И ЭТО ДВА СЛЕДСТВИЯ. Первое: перевод
+ * попадает в ПЛАН, то есть печатается дампом и сверяется глазами — `−18 дБ = 4125/32768`.
+ * Второе: он происходит один раз на клип, а не на сэмпл, и `Math.pow` (единственный float на
+ * всём пути) остаётся в одной точке с охранником устойчивости (`gainFromDb`, `media`).
+ *
+ * DUCK СКЛАДЫВАЕТСЯ В ДЕЦИБЕЛАХ, А НЕ ПЕРЕМНОЖАЕТСЯ ДРОБЯМИ: децибелы — логарифм, сложение
+ * здесь и есть умножение отношений, и одно округление вместо двух даёт уровень, который автор
+ * может проверить калькулятором.
+ */
+function soundOf(audio: ClipContract['audio'], grid: TimeGrid): AudioClipSound | null {
+  if (audio === null) return null;
+  return {
+    assetSha256: audio.assetSha256,
+    role: audio.role,
+    inPointSamples: asSamples(audio.inPointSamples),
+    gainDb: audio.gainDb,
+    duckUnderSpeechDb: audio.duckUnderSpeechDb,
+    gain: gainFromDb(audio.gainDb),
+    duckedGain: gainFromDb(audio.gainDb + audio.duckUnderSpeechDb),
+    loop: audio.loop,
+    // ДЛИНА ПАУЗЫ ПЕРЕВОДИТСЯ ЗДЕСЬ, ПОТОМУ ЧТО ЗДЕСЬ КАДРОВАЯ СЕТКА ПРОЕКТА. Пауза задана в
+    // кадрах СЕГМЕНТА (автор считает кадрами ролика), и её длина в сэмплах — это ровно длина
+    // такого числа кадров, то есть `frameStartSample(n)`: та же функция, которой считается
+    // длина всей дорожки. Своя формула была бы вторым правилом перевода времени (**T1**).
+    pauses: audio.pauses.map((pause) => ({
+      atSourceSample: asSamples(pause.atSourceSample),
+      lengthSamples: frameStartSample(grid, asFrames(pause.frames)),
+    })),
+  };
+}
+
+/**
+ * Сэмпл Timeline → сэмпл ДОРОЖКИ: та же формула, по которой кладутся речевые элементы.
+ *
+ * `s − segment.startSample + row.firstSample`, где сегмент — тот, внутри которого лежит `s`.
+ * Разница между двумя координатами есть `Σ δ` предыдущих сегментов (T6), и считать её иначе
+ * значило бы завести второе правило пересчёта времени — ровно то, что запрещает **T1**.
+ *
+ * @throws {CompileAudioError} T5 — сэмпл вне всех сегментов: разбиение `[0, L)` тотально
+ *   (`CP-03`), и точка вне него означает клип, доехавший мимо разбиения.
+ */
+function trackSampleOf(
+  timeline: Timeline,
+  manifest: AssemblyManifest,
+  sample: number,
+  clipId: string,
+): number {
+  for (const [index, segment] of timeline.segments.entries()) {
+    if (sample < segment.startSample || sample >= segment.endSample) continue;
+    const row = manifest.segments[index];
+    if (row === undefined) break;
+    return sample - segment.startSample + row.firstSample;
+  }
+  throw new CompileAudioError(
+    'ADR-0003 T5',
+    `клип \`${clipId}\`: сэмпл ${String(sample)} не попал ни в один сегмент. Разбиение ` +
+      '`[0, L)` тотально (`CP-03`), и точка вне него означает клип, уложенный мимо разбиения',
+  );
+}
+
+function musicClips(
+  timeline: Timeline,
+  manifest: AssemblyManifest,
+  grid: TimeGrid,
+  mixEnabled: boolean,
+): readonly AudioMusicClip[] {
   const out: AudioMusicClip[] = [];
-  for (const kind of UNMIXED_TRACKS) {
-    const track = timeline.tracks.find((candidate) => candidate.kind === kind);
-    for (const item of track?.items ?? []) {
+  for (const track of timeline.tracks) {
+    const kind = track.kind;
+    const audioDomain = AUDIO_DOMAIN_TRACKS.includes(kind);
+    for (const item of track.items) {
       if (item.kind !== 'clip') continue;
+      // ОТБОР, А НЕ ПЕРЕЧЕНЬ ДОРОЖЕК: клип аудио-домена входит всегда (о нём обязан говорить
+      // отчёт, даже когда звука у него нет), клип любой другой дорожки — только если его
+      // шаблон ОБЪЯВИЛ звук. Иначе в плане оказались бы все визуальные клипы ролика.
+      if (!audioDomain && item.fill.contract.audio === null) continue;
+      // Конец окна берётся по ПОСЛЕДНЕМУ сэмплу клипа, а не по `endSample`: `endSample`
+      // исключающий, и на границе сегментов он принадлежал бы уже следующему — то есть окно
+      // подложки выросло бы на поправку соседа.
+      const at = trackSampleOf(timeline, manifest, item.startSample, item.clipId);
+      const until = trackSampleOf(timeline, manifest, item.endSample - 1, item.clipId) + 1;
       out.push({
-        // `kind` здесь — имя дорожки, и оно уже сужено до двух литералов `UNMIXED_TRACKS`.
-        track: kind === 'sfx' ? 'sfx' : 'music',
+        atSample: asSamples(at),
+        untilSample: asSamples(until),
+        audio: mixEnabled ? soundOf(item.fill.contract.audio, grid) : null,
+        track: kind,
         clipId: item.clipId,
         template: item.fill.template,
         params: item.fill.params,
@@ -544,7 +646,8 @@ export function compileAudio(input: CompileAudioInput): AudioPlan {
   assertMaxDuration(manifest, breakdown, profile);
   assertContinuous(elements, totalSamples, manifest);
 
-  const music = musicClips(timeline);
+  const music = musicClips(timeline, manifest, grid, profile.mix.enabled);
+  const mixed = music.filter((clip) => clip.audio !== null).length;
   return {
     sampleRate: profile.projectSampleRate,
     totalFrames: manifest.totalFrames,
@@ -553,7 +656,13 @@ export function compileAudio(input: CompileAudioInput): AudioPlan {
     breakdown,
     epsilonSamples,
     trackTailSamples: manifest.trackTailSamples,
+    mix: {
+      enabled: profile.mix.enabled,
+      duckRampSamples: asSamples(profile.mix.duckRampSamples),
+      crossfadeSamples: asSamples(profile.mix.crossfadeSamples),
+    },
     music,
-    unmixedClips: music.length,
+    mixedClips: mixed,
+    unmixedClips: music.length - mixed,
   };
 }

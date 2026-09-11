@@ -370,7 +370,9 @@ describe('полнота матрицы: каждое поле входа ста
     expect(total).toBeGreaterThan(reaching);
     expect(`voice: ${String(reaching)} из ${String(total)} полей трёх схем достигают стадии`).toContain('voice:');
     expect(reaching).toBe(9);
-    expect(total).toBe(47);
+    // 49 = 47 + два поля `mix` из `audio-profile/1` (`X-02`, 2026-09-12). Стадии `voice` они
+    // не достигают: микс складывает УЖЕ полученные дубли, и в `SpeechPlanInput` их нет.
+    expect(total).toBe(49);
   });
 
   it('метаданные ADR-0006 §6 не участвуют в ключе ни одним путём', () => {

@@ -315,3 +315,36 @@ describe('**№168** — первый настоящий IR через адап�
     }
   }, 120_000);
 });
+
+// ── ЗВУК АССЕТА: частота проверяется ДО декода (`X-02`/`VID-02b`) ──────────────────────────
+
+describe('`X-02` — чужая частота звукового ассета: отказ с командой, а не тихий ресемпл', () => {
+  it('запись подложки на 48 000 при канале 24 000 роняет сборку с готовой командой ffmpeg', async () => {
+    // ПРОЕКТ — ПОЛНАЯ ФИКСТУРА: её режиссура вызывает `bed@1`, то есть звук ассета сборке
+    // нужен. Правится ОДНА величина — частота в ЗАПИСИ ассета, — и правится в копии проекта,
+    // а не в `fixtures/`.
+    const project = makeProject({ short: false });
+    writeGates(project.gatesDir, ['still@1', 'kenburns@1', 'flash@1', 'captionEmphasis@1'], ['final']);
+    const record = path.join(project.projectDir, 'assets/records', `${'0'.repeat(63)}4.json`);
+    const parsed = JSON.parse(readFileSync(record, 'utf8')) as { intrinsic: { sampleRate: number } };
+    parsed.intrinsic.sampleRate = 48000;
+    writeFileSync(record, `${JSON.stringify(parsed, null, 2)}\n`, 'utf8');
+
+    // ОТКАЗ БРОСКОМ, А НЕ КОДОМ ВОЗВРАТА: это `CliError` входа, и печатает его граница
+    // процесса (`bin/vpe.ts`) — ровно как всякий отказ чтения проекта.
+    const failure = await runBuild(project).then(
+      () => null,
+      (error: unknown) => error,
+    );
+    expect(failure).toBeInstanceOf(CliError);
+    const text = failure instanceof Error ? failure.message : '';
+    // ОТКАЗ НАЗЫВАЕТ ОБЕ ЧАСТОТЫ И КОМАНДУ: «перекодируйте» без команды — это совет, а не
+    // инструкция, и автор канала не обязан знать флаги ffmpeg наизусть.
+    expect(text).toContain('48000 Гц');
+    expect(text).toContain('24000 Гц');
+    expect(text).toContain('ffmpeg -i <файл> -ar 24000 -ac 1');
+    // И причина названа правилом, а не вкусом: ресемплинг живёт на ingest (ADR-0010 §9).
+    expect(text).toContain('ОДИН РАЗ');
+    expect(text).toContain('ADR-0010 §9');
+  });
+});

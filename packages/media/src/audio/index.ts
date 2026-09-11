@@ -32,6 +32,16 @@ export {
   writeWavFile,
 } from './wav.js';
 export { applyEdgeFade, scaleSample } from './fade.js';
+export { clipWindow, type ClipPause, type ClipWindowOptions } from './bed.js';
+export {
+  UNITY_GAIN,
+  applyDuck,
+  applyGain,
+  gainFromDb,
+  type DuckOptions,
+  type DuckWindow,
+  type Gain,
+} from './gain.js';
 export { mixSaturating, type MixResult } from './mix.js';
 export {
   DEFAULT_FFMPEG_PATH,
