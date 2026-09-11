@@ -258,3 +258,108 @@ describe('`TS-01` — геометрия `kenburns@1`: `NaN`/`Infinity`/`-0` о�
     expect(result.success).toBe(false);
   });
 });
+
+describe('`CAPTION-01` — границы и перекрёстные проверки `captionEmphasis@1`', () => {
+  const captions = registry.resolve('captionEmphasis@1');
+  const ok = (params: Record<string, unknown>): boolean => captions.paramsSchema.safeParse(params).success;
+  /** Путь первой проблемы — им и адресуется отказ в отчёте компилятора. */
+  const at = (params: Record<string, unknown>): string => {
+    const result = captions.paramsSchema.safeParse(params);
+    return result.success ? '' : (result.error.issues[0]?.path.join('.') ?? '<корень>');
+  };
+
+  it('ПУСТЫЕ `params` законны: не названная ручка берётся из умолчания канала', () => {
+    // Это не мягкость схемы, а её решение (см. шапку спека): `.default()` в схеме означал бы
+    // ВТОРОЙ комплект тех же чисел рядом с `BAND` в `runtime.js`.
+    expect(ok({})).toBe(true);
+  });
+
+  it('поле, которого нет в списке ручек, — отказ (`.strict()`)', () => {
+    // Прямой преемник прежнего `style: "bold"`: старая запись обязана краснеть ИМЕНЕМ ПОЛЯ,
+    // а не молча рисоваться умолчанием. Иначе миграция живых проектов была бы необнаружимой.
+    expect(ok({ style: 'bold' })).toBe(false);
+  });
+
+  it('кегль: 40 и 120 проходят, 39 и 121 — отказ; дробный — отказ', () => {
+    expect(ok({ sizePx: 40 })).toBe(true);
+    expect(ok({ sizePx: 120 })).toBe(true);
+    expect(ok({ sizePx: 39 })).toBe(false);
+    expect(ok({ sizePx: 121 })).toBe(false);
+    expect(ok({ sizePx: 68.5 })).toBe(false);
+  });
+
+  it('отступ: 0 и 600 проходят, 601 и отрицательный — отказ', () => {
+    expect(ok({ marginPx: 0 })).toBe(true);
+    expect(ok({ marginPx: 600 })).toBe(true);
+    expect(ok({ marginPx: 601 })).toBe(false);
+    expect(ok({ marginPx: -1 })).toBe(false);
+  });
+
+  it('ширина блока: 40 и 95 проходят, 39.9 и 95.1 — отказ', () => {
+    expect(ok({ widthPct: 40 })).toBe(true);
+    expect(ok({ widthPct: 95 })).toBe(true);
+    expect(ok({ widthPct: 39.9 })).toBe(false);
+    expect(ok({ widthPct: 95.1 })).toBe(false);
+  });
+
+  it('обводка: 0…8 проходят, 9 — отказ', () => {
+    expect(ok({ outline: { widthPx: 0, color: '#000000' } })).toBe(true);
+    expect(ok({ outline: { widthPx: 8, color: '#000000' } })).toBe(true);
+    expect(ok({ outline: { widthPx: 9, color: '#000000' } })).toBe(false);
+  });
+
+  it('цвет: только шесть СТРОЧНЫХ hex-цифр с решёткой', () => {
+    expect(ok({ textColor: '#ffb347' })).toBe(true);
+    // Прописные — отказ, и это не педантизм: один пиксель, два ключа кэша (`params.ts`).
+    expect(ok({ textColor: '#FFB347' })).toBe(false);
+    // Сокращённая форма — второе написание того же цвета.
+    expect(ok({ textColor: '#fb3' })).toBe(false);
+    // Именованный цвет CSS: его список знает браузер, а не мы.
+    expect(ok({ textColor: 'white' })).toBe(false);
+    // Альфа в цвет не зашивается — у прозрачности свои поля.
+    expect(ok({ textColor: '#ffb347cc' })).toBe(false);
+    expect(ok({ textColor: 'rgba(0,0,0,0.5)' })).toBe(false);
+  });
+
+  it('доли: `plateOpacity` и `shadow.opacity` — строго 0…1', () => {
+    expect(ok({ bg: 'translucent', plateOpacity: 0 })).toBe(true);
+    expect(ok({ bg: 'translucent', plateOpacity: 1 })).toBe(true);
+    expect(ok({ bg: 'translucent', plateOpacity: 1.2 })).toBe(false);
+    expect(ok({ bg: 'translucent', plateOpacity: -0.1 })).toBe(false);
+  });
+
+  it('**`.refine` 1** — `plateColor` при `bg: "none"` отвергается по СВОЕМУ адресу', () => {
+    expect(ok({ bg: 'none', plateColor: '#000000' })).toBe(false);
+    expect(at({ bg: 'none', plateColor: '#000000' })).toBe('plateColor');
+    // И обратная половина: при `plate`/`translucent` он законен.
+    expect(ok({ bg: 'plate', plateColor: '#05070c' })).toBe(true);
+    expect(ok({ bg: 'translucent', plateColor: '#000000', plateOpacity: 0.6 })).toBe(true);
+  });
+
+  it('**`.refine` 2** — `plateOpacity` осмысленна ТОЛЬКО при `translucent`', () => {
+    expect(ok({ bg: 'plate', plateColor: '#05070c', plateOpacity: 1 })).toBe(false);
+    expect(at({ bg: 'plate', plateColor: '#05070c', plateOpacity: 1 })).toBe('plateOpacity');
+    expect(ok({ plateOpacity: 0.5 })).toBe(false);
+    expect(ok({ bg: 'translucent', plateOpacity: 0.6 })).toBe(true);
+  });
+
+  it('**`.refine` 3** — `marginPx` при `position: "center"` отвергается: у центра нет края', () => {
+    expect(ok({ position: 'center', marginPx: 100 })).toBe(false);
+    expect(at({ position: 'center', marginPx: 100 })).toBe('marginPx');
+    expect(ok({ position: 'center' })).toBe(true);
+    expect(ok({ position: 'top', marginPx: 100 })).toBe(true);
+  });
+
+  it('роль шрифта — по грамматике имени, а не любая строка', () => {
+    expect(ok({ font: 'caption' })).toBe(true);
+    expect(ok({ font: 'subtitle-alt' })).toBe(true);
+    expect(ok({ font: 'Caption ' })).toBe(false);
+    expect(ok({ font: '' })).toBe(false);
+  });
+
+  it('закрытые списки: `bg`, `weight`, `position` — только названные значения', () => {
+    expect(ok({ bg: 'transparent' })).toBe(false);
+    expect(ok({ weight: 'black' })).toBe(false);
+    expect(ok({ position: 'middle' })).toBe(false);
+  });
+});

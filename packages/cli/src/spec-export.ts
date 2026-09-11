@@ -396,7 +396,13 @@ const EXAMPLES: readonly SpecExportExample[] = [
   {
     template: 'captionEmphasis@1',
     source: 'examples/vertical-v1/direction/01-archive.yaml, запись `9f31b204`',
-    note: 'Окно — сам scope-якорь сцены: `at` и `until` совпадают. По одному на сцену.',
+    note:
+      'Окно — сам scope-якорь сцены: `at` и `until` совпадают. По одному на сцену. ' +
+      'ВИД СУБТИТРОВ ВЫБИРАЕТСЯ ПРЕСЕТОМ, А НЕ ЧИСЛАМИ (`CAPTION-01`): `bottom-warm` — вид ' +
+      'канала, `clean-shorts` — шортсовый без плашки, `translucent-bottom` — ' +
+      'полупрозрачная плашка, `big-center` — крупно по центру. Числами пишется только то, ' +
+      'чего нет ни в одном пресете; ручка, которую вы не написали, берётся из умолчания ' +
+      'канала, а не из середины диапазона.',
     record: {
       recordId: '9f31b204',
       at: { kind: 'anchor', anchor: 'sc:street' },
@@ -404,7 +410,7 @@ const EXAMPLES: readonly SpecExportExample[] = [
       track: 'caption',
       z: 30,
       template: 'captionEmphasis@1',
-      params: { style: 'bold' },
+      preset: 'bottom-warm',
     },
   },
   {

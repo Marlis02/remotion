@@ -236,36 +236,157 @@
    * создаются тут же и порядок известен, но форма выбрана ОДНА на оба места: два разных
    * способа оформлять одну полосу — это два места, где живёт её вид.
    *
-   * ЧИСЛА — ПРЕДЛОЖЕНИЕ `H-07`, А НЕ УТВЕРЖДЁННАЯ ВЕЛИЧИНА (долг №188 остаётся открытым;
-   * кегль — №125). Выбраны по глазу под 9:16 и безопасные зоны Shorts: нижние ~15 % и правые
-   * ~12 % кадра заняты интерфейсом, поэтому низ полосы поднят на 500 px от края — строка
-   * садится в 68–74 % высоты. Решение — за владельцем, по кадрам.
+   * ═══ ЧИСЛА — УМОЛЧАНИЕ КАНАЛА, А НЕ ЕДИНСТВЕННОЕ ЗНАЧЕНИЕ (`CAPTION-01`, 2026-09-11) ═══
+   * ~~ЧИСЛА — ПРЕДЛОЖЕНИЕ `H-07`, А НЕ УТВЕРЖДЁННАЯ ВЕЛИЧИНА (долг №188 остаётся открытым;
+   * кегль — №125).~~ *(изменено: `CAPTION-01`, по разрешению владельца на закрытую зону от
+   * 2026-09-11.)* Числа ниже остались теми же до единицы и по-прежнему выбраны по глазу под
+   * 9:16 и безопасные зоны Shorts: нижние ~15 % и правые ~12 % кадра заняты интерфейсом,
+   * поэтому низ полосы поднят на 500 px от края — строка садится в 68–74 % высоты. Изменилось
+   * ОДНО: они больше не единственные. Клип `captionEmphasis@1`, если он в сегменте есть,
+   * кладёт свой набор в `window.__VPE_CAPTION_BAND` (его `mount` исполняется РАНЬШЕ этого
+   * кода — цикл клипов стоит выше), и `overlay` ниже накладывает поданное поверх умолчания.
+   *
+   * ПОЧЕМУ УМОЛЧАНИЕ ВООБЩЕ ОСТАЛОСЬ ЗДЕСЬ, А НЕ УЕХАЛО В `params`. Ровно по той причине, по
+   * которой раскладка сюда переезжала в `H-07`: полосу рисует ТРЕК `IR.captions`, а клип
+   * эмфазы есть в МЕНЬШИНСТВЕ сегментов. Сегмент без клипа обязан получить полосу на месте и
+   * в нужном кегле, иначе она рисуется браузерным умолчанием — мелко, чёрным, в левом верхнем
+   * углу. Отдать умолчание в `params` значило бы вернуть вид полосы на исключение.
+   *
+   * ЧЕГО ЗДЕСЬ НЕТ И ЭТО НАЗВАНО: скругление, поля, растушёвка и разлёт плашки
+   * (`plateRadiusPx`, `platePadding`, `plateFeatherPx`, `plateSpreadPx`) ручками НЕ стали —
+   * владелец их не называл, а каждая ручка стоит строки в `vpe spec export`, то есть места в
+   * задании для ИИ. Долг, а не умолчание.
    */
   var BAND = {
-    /** Ширина полосы и отступ слева: 920 при 1080 ⇒ поля по 80. */
-    widthPx: 920,
-    leftPx: 80,
+    /** Доля ШИРИНЫ кадра под блок субтитров: 85.185185 % от 1080 ⇒ 920 px, поля по 80. */
+    widthPct: 85.185185,
     /** Низ полосы над краем кадра: 500 при 1920 ⇒ строка в 68–74 % высоты. */
-    bottomPx: 500,
-    fontSizePx: 68,
+    position: 'bottom',
+    marginPx: 500,
+    sizePx: 68,
     lineHeight: 1.22,
     /** Базовое начертание слова. КЛЮЧЕВЫМ СЛОВОМ: числу gsap дописал бы единицу (`H-06`). */
     wordWeight: 'normal',
     textColor: '#ffffff',
     /** Мягкая тень под текстом: полоса читается и на светлом кадре. */
-    textShadow: '0 2px 10px rgba(0, 0, 0, 0.55)',
+    shadow: { dxPx: 0, dyPx: 2, blurPx: 10, color: '#000000', opacity: 0.55 },
+    /** Обводки у канального умолчания нет: под непрозрачной плашкой она — лишние пиксели. */
+    outline: { widthPx: 0, color: '#000000' },
     /**
      * Плашка НЕПРОЗРАЧНА (решение владельца `H-07`, вариант «б»): условие применимости
-     * **R13** («полоса лежит на непрозрачной плашке») остаётся в силе, и прибор `H-02` будет
-     * мерить смену строки, а не движущееся под ней фото. Мягкость края даётся скруглением и
-     * растушёвкой ТЕНЬЮ ТОГО ЖЕ ЦВЕТА, а не прозрачностью самой плашки.
+     * **R13** («полоса лежит на непрозрачной плашке») остаётся в силе У УМОЛЧАНИЯ, и прибор
+     * `H-02` будет мерить смену строки, а не движущееся под ней фото. Мягкость края даётся
+     * скруглением и растушёвкой ТЕНЬЮ ТОГО ЖЕ ЦВЕТА, а не прозрачностью самой плашки.
+     * *(`CAPTION-01`: автор вправе выбрать `bg: 'translucent'` или `bg: 'none'` — тогда
+     * условие применимости R13 не выполняется, и это записано в `note` таких пресетов.)*
      */
+    bg: 'plate',
     plateColor: '#05070c',
+    plateOpacity: 1,
     plateRadiusPx: 28,
     platePadding: '14px 32px',
     plateFeatherPx: 36,
     plateSpreadPx: 18,
   };
+
+  /**
+   * Наложение поданного клипом поверх умолчания — ПО ИЗВЕСТНЫМ ИМЕНАМ, а не копированием.
+   *
+   * Копирование всех ключей объекта пустило бы в раскладку любое поле, которое шаблон
+   * когда-нибудь положит рядом, — и опечатка в его коде молча завела бы поле, которого
+   * рантайм не знает. Здесь список имён закрыт, и он же есть ДОГОВОР между шаблоном и треком:
+   * вторая его половина — `CAPTION_BAND_KEYS` в реализации шаблона.
+   */
+  var overlay = window.__VPE_CAPTION_BAND;
+  if (overlay) {
+    var KEYS = [
+      'widthPct', 'position', 'marginPx', 'sizePx', 'textColor',
+      'shadow', 'outline', 'bg', 'plateColor', 'plateOpacity',
+    ];
+    for (var k = 0; k < KEYS.length; k++) {
+      if (overlay[KEYS[k]] !== undefined) BAND[KEYS[k]] = overlay[KEYS[k]];
+    }
+  }
+
+  /**
+   * Геометрия блока — В ЦЕЛЫХ ПИКСЕЛЯХ БАЗОВОГО КАДРА, а не в процентах CSS.
+   *
+   * `MANIFEST.baseWidth` — ширина ДО `scale` (слой объявлен базовой геометрией, а масштаб
+   * стоит на нём `zoom`-ом — `FIX-02`), поэтому числа здесь те же на обоих профилях.
+   * Проценты отдали бы округление браузеру и дали бы дробную ширину блока: 85.185185 % от
+   * 1080 — это 919.99998, и перенос строки на такой ширине от целых 920 отличаться ВПРАВЕ.
+   */
+  var bandWidthPx = Math.round((MANIFEST.baseWidth * BAND.widthPct) / 100);
+  var bandLeftPx = Math.round((MANIFEST.baseWidth - bandWidthPx) / 2);
+
+  /** `rgba(...)` из hex и доли. Альфа отдельным полем — разбор в схеме шаблона. */
+  var rgba = function (hex, opacity) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + String(r) + ', ' + String(g) + ', ' + String(b) + ', ' + String(opacity) + ')';
+  };
+
+  /**
+   * Вертикаль полосы. `bottom`/`top` — отступ от своего края; `center` — половина высоты
+   * блока вверх трансформой, потому что высота строки заранее неизвестна (её знает только
+   * браузер, разложив текст).
+   */
+  var verticalRules =
+    BAND.position === 'center'
+      ? ['  top: 50%;', '  transform: translateY(-50%);']
+      : BAND.position === 'top'
+        ? ['  top: ' + String(BAND.marginPx) + 'px;']
+        : ['  bottom: ' + String(BAND.marginPx) + 'px;'];
+
+  /**
+   * Тень текста и обводка — ОДНО свойство `text-shadow` и одно `-webkit-text-stroke`.
+   *
+   * `paint-order: stroke fill` обязателен рядом с обводкой: без него Chrome рисует контур
+   * ПОВЕРХ заливки, то есть съедает половину толщины внутрь буквы, и на 6 px текст
+   * становится нечитаемым ровно там, где обводку и ставят.
+   */
+  var textShadowCss =
+    BAND.shadow.blurPx === 0 && BAND.shadow.dxPx === 0 && BAND.shadow.dyPx === 0
+      ? 'none'
+      : String(BAND.shadow.dxPx) + 'px ' + String(BAND.shadow.dyPx) + 'px ' +
+        String(BAND.shadow.blurPx) + 'px ' + rgba(BAND.shadow.color, BAND.shadow.opacity);
+  var outlineRules =
+    BAND.outline.widthPx > 0
+      ? [
+          '  -webkit-text-stroke: ' + String(BAND.outline.widthPx) + 'px ' + BAND.outline.color + ';',
+          '  paint-order: stroke fill;',
+        ]
+      : [];
+
+  /**
+   * Плашка — ОТДЕЛЬНЫЙ УЗЕЛ, обнимающий текст, а не фон всей полосы: полоса шириной 920
+   * держала бы плашку под словом из трёх букв во весь свой размер.
+   *
+   * Три ветви фона, и третья — ОТСУТСТВИЕ узла-подложки, а не прозрачный цвет: при `none`
+   * не остаётся ни полей, ни скругления, ни растушёвки, потому что все три видны только
+   * вместе с фоном и на пустом месте дают лишний отступ вокруг строки.
+   */
+  var plateRules =
+    BAND.bg === 'none'
+      ? ['  display: inline-block;']
+      : [
+          '  display: inline-block;',
+          '  padding: ' + BAND.platePadding + ';',
+          '  border-radius: ' + String(BAND.plateRadiusPx) + 'px;',
+          BAND.bg === 'translucent'
+            ? '  background: ' + rgba(BAND.plateColor, BAND.plateOpacity) + ';'
+            : '  background: ' + BAND.plateColor + ';',
+        ].concat(
+          // Растушёвка тенью ТОГО ЖЕ ЦВЕТА мягчит край непрозрачной плашки. У полупрозрачной
+          // она дала бы второй слой альфы поверх первого — то есть край темнее середины.
+          BAND.bg === 'translucent'
+            ? []
+            : [
+                '  box-shadow: 0 0 ' + String(BAND.plateFeatherPx) + 'px ' +
+                  String(BAND.plateSpreadPx) + 'px ' + BAND.plateColor + ';',
+              ],
+        );
 
   /**
    * Имена канала эмфазы. ЗДЕСЬ — БАЗА, у шаблона — ПАЛИТРА, сцепка — наследование.
@@ -287,35 +408,34 @@
 
   var bandStyle = document.createElement('style');
   bandStyle.id = 'vpe-caption-track';
-  bandStyle.textContent = [
-    '#captions .caption-group {',
-    '  position: absolute;',
-    '  left: ' + String(BAND.leftPx) + 'px;',
-    '  width: ' + String(BAND.widthPx) + 'px;',
-    '  bottom: ' + String(BAND.bottomPx) + 'px;',
-    '  text-align: center;',
-    '  font-size: ' + String(BAND.fontSizePx) + 'px;',
-    '  line-height: ' + String(BAND.lineHeight) + ';',
-    '  color: ' + BAND.textColor + ';',
-    '  text-shadow: ' + BAND.textShadow + ';',
-    '}',
-    // Плашка — ОТДЕЛЬНЫЙ УЗЕЛ, обнимающий текст, а не фон всей полосы: полоса шириной 920
-    // держала бы плашку под словом из трёх букв во весь свой размер.
-    '#captions .caption-plate {',
-    '  display: inline-block;',
-    '  padding: ' + BAND.platePadding + ';',
-    '  border-radius: ' + String(BAND.plateRadiusPx) + 'px;',
-    '  background: ' + BAND.plateColor + ';',
-    '  box-shadow: 0 0 ' + String(BAND.plateFeatherPx) + 'px ' + String(BAND.plateSpreadPx) +
-      'px ' + BAND.plateColor + ';',
-    '}',
-    '#captions .caption-word {',
-    '  ' + WEIGHT_VAR + ': ' + BAND.wordWeight + ';',
-    '  ' + COLOR_VAR + ': ' + BAND.textColor + ';',
-    '  font-weight: var(' + WEIGHT_VAR + ', ' + BAND.wordWeight + ');',
-    '  color: var(' + COLOR_VAR + ', ' + BAND.textColor + ');',
-    '}',
-  ].join('\n');
+  bandStyle.textContent = []
+    .concat([
+      '#captions .caption-group {',
+      '  position: absolute;',
+      '  left: ' + String(bandLeftPx) + 'px;',
+      '  width: ' + String(bandWidthPx) + 'px;',
+    ])
+    .concat(verticalRules)
+    .concat([
+      '  text-align: center;',
+      '  font-size: ' + String(BAND.sizePx) + 'px;',
+      '  line-height: ' + String(BAND.lineHeight) + ';',
+      '  color: ' + BAND.textColor + ';',
+      '  text-shadow: ' + textShadowCss + ';',
+    ])
+    .concat(outlineRules)
+    .concat(['}', '#captions .caption-plate {'])
+    .concat(plateRules)
+    .concat([
+      '}',
+      '#captions .caption-word {',
+      '  ' + WEIGHT_VAR + ': ' + BAND.wordWeight + ';',
+      '  ' + COLOR_VAR + ': ' + BAND.textColor + ';',
+      '  font-weight: var(' + WEIGHT_VAR + ', ' + BAND.wordWeight + ');',
+      '  color: var(' + COLOR_VAR + ', ' + BAND.textColor + ');',
+      '}',
+    ])
+    .join('\n');
   document.head.appendChild(bandStyle);
 
   for (var g = 0; g < IR.captions.length; g++) {

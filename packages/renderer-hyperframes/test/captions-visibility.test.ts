@@ -95,6 +95,7 @@ import { describe, expect, it } from 'vitest';
 import { renderSegment } from '../src/run.js';
 import { rendererTemplates } from '../src/templates/index.js';
 import { decodeRgb, pngSize } from '../src/where.js';
+import { bandInk } from './band-ink.js';
 import { FIXTURE_PARAMS, makeTemplateFixture, readyRequest } from './fixture.js';
 
 const FRAMES = 12;
@@ -109,83 +110,6 @@ function framesOf(dir: string): Buffer[] {
     .filter((n) => n.endsWith('.png'))
     .sort()
     .map((n) => readFileSync(path.join(dir, n)));
-}
-
-/**
- * Прибор геометрии полосы: где в кадре лежит ПЛАШКА и есть ли на ней белый текст.
- *
- * **ПОЧЕМУ ИЩЕТСЯ ТЁМНОЕ, А НЕ ТЕКСТ.** Измерено этим же прибором на первом прогоне: фон
- * кадра БЕЛЫЙ (умолчание страницы; слоёв под субтитрами в этой пробе нет), и «белых
- * пикселей» в кадре 1 975 966 из 2 073 600 — то есть почти всё. Белый текст на белом фоне не
- * локализуется в принципе. Локализуется ПЛАШКА: она непрозрачна и тёмная (`BAND.plateColor`
- * = `#05070c`, решение владельца `H-07`, вариант «б»), и в этом кадре тёмное ровно одно.
- *
- * ЭТО НЕ ОБХОД, А ТОТ ЖЕ ПРЕДМЕТ С ПРАВИЛЬНОЙ СТОРОНЫ: вопрос «где полоса» и есть «где
- * плашка», а «текст на плашке» — условие применимости **R13**, и оно проверяется вторым
- * числом (`white` — белые пиксели ВНУТРИ рамки плашки).
- *
- * ПОРОГИ НАЗВАНЫ ЧИСЛАМИ. Тёмное — все три канала < 64 (плашка 5/7/12; растушёвка края даёт
- * промежуточные значения того же диапазона и считается плашкой — она ею и является). Белое —
- * все три канала ≥ 200: берёт и сглаженные края глифов.
- *
- * ВТОРОГО PNG-ДЕКОДЕРА НЕ ЗАВОДИТСЯ: `decodeRgb` — тот же, которым `where` считает PSNR.
- */
-export function bandInk(
-  rgb: Uint8Array,
-  width: number,
-  height: number,
-): {
-  dark: number;
-  cx: number;
-  cy: number;
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-  corner: number;
-  white: number;
-} {
-  let dark = 0;
-  let sx = 0;
-  let sy = 0;
-  let top = height;
-  let bottom = -1;
-  let left = width;
-  let right = -1;
-  let corner = 0;
-  const isDark = (i: number): boolean =>
-    (rgb[i] ?? 0) < 64 && (rgb[i + 1] ?? 0) < 64 && (rgb[i + 2] ?? 0) < 64;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (!isDark((y * width + x) * 3)) continue;
-      dark += 1;
-      sx += x;
-      sy += y;
-      if (y < top) top = y;
-      if (y > bottom) bottom = y;
-      if (x < left) left = x;
-      if (x > right) right = x;
-      if (y * 2 < height && x * 2 < width) corner += 1;
-    }
-  }
-  let white = 0;
-  for (let y = Math.max(top, 0); y <= bottom; y++) {
-    for (let x = Math.max(left, 0); x <= right; x++) {
-      const i = (y * width + x) * 3;
-      if ((rgb[i] ?? 0) >= 200 && (rgb[i + 1] ?? 0) >= 200 && (rgb[i + 2] ?? 0) >= 200) white += 1;
-    }
-  }
-  return {
-    dark,
-    cx: dark === 0 ? 0 : sx / dark,
-    cy: dark === 0 ? 0 : sy / dark,
-    top,
-    bottom,
-    left,
-    right,
-    corner,
-    white,
-  };
 }
 
 /**

@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { loadTemplateLibrary } from '@vpe/renderer-hyperframes';
 import {
   introspectParams,
+  presetsOf,
   EASING_REGISTRY,
   TEMPLATE_LIBRARY,
   type AnyTemplateSpec,
@@ -130,8 +131,19 @@ describe('`SPEC-01` — примеры вызовов проходят СВОИ 
   });
 
   for (const example of [...doc.examples]) {
-    it(`\`${example.template}\`: \`params\` примера принимает схема шаблона`, () => {
-      expect(() => specOf(example.template).paramsSchema.parse(example.record['params'])).not.toThrow();
+    it(`\`${example.template}\`: вызов примера принимает схема шаблона`, () => {
+      // ПРИМЕР ВПРАВЕ ЗВАТЬСЯ ПРЕСЕТОМ, А НЕ ЧИСЛАМИ (`CAPTION-01`), и тогда проверяется
+      // ровно то же — `params`, которые получит схема, — но взятые оттуда, откуда их возьмёт
+      // компилятор. Это СИЛЬНЕЕ прежнего утверждения: заодно доказано, что названный пресет
+      // вообще существует, а «пример зовёт имя, которого нет» было бы отказом сборки.
+      const spec = specOf(example.template);
+      const preset = example.record['preset'];
+      const params =
+        preset === undefined
+          ? example.record['params']
+          : presetsOf(spec).get(String(preset))?.params;
+      expect(params, `пример зовёт пресет \`${String(preset)}\`, которого у шаблона нет`).toBeDefined();
+      expect(() => spec.paramsSchema.parse(params)).not.toThrow();
     });
 
     it(`\`${example.template}\`: источник примера назван`, () => {

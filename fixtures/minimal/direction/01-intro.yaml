@@ -65,5 +65,22 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
+    # ЧИСЛАМИ, А НЕ `preset: bottom-warm`, И ЭТО РЕШЕНИЕ (`CAPTION-01`, 2026-09-11).
+    # Пресеты приклеивает ЗАГРУЗЧИК С ДИСКА (`renderer-hyperframes/src/library.ts`), а тесты
+    # компилятора строят реестр из `TEMPLATE_LIBRARY` — списка спеков В КОДЕ, у которого
+    # пресетов нет ни одного. Фикстура — вход ОХРАННИКОВ, и запись, компилируемая только
+    # через CLI, сделала бы половину из них незапускаемыми. Значения — ДОСЛОВНО пресет
+    # `bottom-warm`, то есть прежний вид полосы до единицы.
     params:
-      style: "bold"
+      font: "caption"
+      sizePx: 68
+      weight: "bold"
+      textColor: "#ffffff"
+      activeColor: "#ffb347"
+      bg: "plate"
+      plateColor: "#05070c"
+      outline: { widthPx: 0, color: "#000000" }
+      shadow: { dxPx: 0, dyPx: 2, blurPx: 10, color: "#000000", opacity: 0.55 }
+      position: "bottom"
+      marginPx: 500
+      widthPct: 85.185185

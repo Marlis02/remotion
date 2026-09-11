@@ -26,7 +26,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  preset: "bold"
+  preset: "bottom-warm"
 # Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
 # от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
 -
@@ -54,7 +54,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  preset: "bold"
+  preset: "bottom-warm"
 # Сцена road: портретный снимок — медленный наезд без горизонтального хода.
 # Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
 # ради которого написана сцена; until у flash@1 не нужен.
@@ -82,7 +82,7 @@ records:
   track: caption
   z: 30
   template: "captionEmphasis@1"
-  preset: "bold"
+  preset: "bottom-warm"
 -
   recordId: "48c0e9a7"
   at:

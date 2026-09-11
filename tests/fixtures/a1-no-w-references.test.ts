@@ -20,6 +20,7 @@ import {
   ROOT,
   formatWReferences,
   guardedFiles,
+  hasWReference,
   scanWReferences,
   withoutComments,
 } from './w-references';
@@ -67,7 +68,29 @@ describe('A1 — в `direction/**` и `overrides/**` нет ссылок на `w
       'utf8',
     );
     expect(text).toContain('w:');
-    expect(text.split('\n').map(withoutComments).join('\n')).not.toContain('w:');
+    // Утверждение идёт ЧЕРЕЗ `hasWReference`, а не через `includes('w:')` (`CAPTION-01`):
+    // после `CAPTION-01` в фикстуре есть поле `shadow:` — имя параметра, оканчивающееся на
+    // `w`. Оно не ссылка, и ровно это здесь и утверждается.
+    expect(text.split('\n').map(withoutComments).some(hasWReference)).toBe(false);
+  });
+
+  it('имя поля, оканчивающееся на `w`, ссылкой НЕ считается — и наоборот (`CAPTION-01`)', () => {
+    // Обе половины правила названы числом строк, а не описанием: без второй половины сужение
+    // было бы ослаблением, и проверить это можно только предъявив настоящую ссылку.
+    for (const notReference of [
+      'shadow: { dxPx: 0, dyPx: 2, blurPx: 10, color: "#000000", opacity: 0.55 }',
+      '    glow: 3',
+      '    flow: "down"',
+    ]) {
+      expect(hasWReference(notReference), notReference).toBe(false);
+    }
+    for (const reference of [
+      '    anchor: "w:7f2q9x1bdk3m4n5p"',
+      '    at: { kind: anchor, anchor: w:7f2q }',
+      'w:7f2q',
+    ]) {
+      expect(hasWReference(reference), reference).toBe(true);
+    }
   });
 
   it('хвостовой комментарий отрезается, а значение — нет', () => {

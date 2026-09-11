@@ -295,7 +295,8 @@ describe('**П1-а** — форма DOM, на которую опираются 
   it('**H-07** — раскладка полосы живёт в `runtime.js`, и это ПРАВИЛА, а не два места', () => {
     // Что обязано быть в правиле трека: позиция, ширина, кегль, межстрочный, цвет, тень и
     // НЕПРОЗРАЧНАЯ плашка (решение владельца `H-07`, вариант «б»: условие применимости
-    // **R13** остаётся в силе, мягкость края даётся скруглением и растушёвкой тенью).
+    // **R13** остаётся в силе У УМОЛЧАНИЯ КАНАЛА, мягкость края даётся скруглением и
+    // растушёвкой тенью).
     for (const rule of [
       "'#captions .caption-group {'",
       "'#captions .caption-plate {'",
@@ -305,15 +306,62 @@ describe('**П1-а** — форма DOM, на которую опираются 
     ]) {
       expect(RUNTIME_JS).toContain(rule);
     }
-    expect(RUNTIME_JS).toContain('BAND.fontSizePx');
+    expect(RUNTIME_JS).toContain('BAND.sizePx');
     expect(RUNTIME_JS).toContain('BAND.plateColor');
-    // Плашка НЕПРОЗРАЧНА: ни `rgba(`, ни `opacity` в её цвете. Прозрачность пустила бы под
-    // текст движущееся фото, и прибор **R13** (`H-02`) мерил бы фон вместо смены строки.
+    // УМОЛЧАНИЕ плашки НЕПРОЗРАЧНО: в самом `BAND` — шесть hex-цифр, а не `rgba(`. Автор
+    // вправе выбрать `bg: 'translucent'` (`CAPTION-01`), и тогда условие применимости **R13**
+    // на его записи не выполняется — но это его РЕШЕНИЕ, записанное в `note` пресета, а не
+    // умолчание, доставшееся молчанием.
     expect(RUNTIME_JS).toMatch(/plateColor: '#[0-9a-f]{6}'/u);
+    expect(RUNTIME_JS).toMatch(/bg: 'plate'/u);
+    expect(RUNTIME_JS).toMatch(/plateOpacity: 1/u);
     // И ни одного числа раскладки не осталось у шаблона: иначе их стало бы два комплекта.
+    // *(`CAPTION-01`: шаблон подаёт ЗНАЧЕНИЯ данными, но НЕ СТРОИТ правил — список ниже как
+    // раз и ловит попытку построить их у него.)*
     const captions = resolveTemplate(rendererTemplates, 'captionEmphasis@1', 'тест').mountSource;
     for (const gone of ['bottom:', 'font-size:', 'line-height:', 'background:', 'text-align:']) {
       expect(captions, `у шаблона осталась раскладка: ${gone}`).not.toContain(gone);
+    }
+  });
+
+  it('**CAPTION-01** — набор полосы едет ДАННЫМИ, и списки имён у обеих сторон совпадают', () => {
+    // ═══ ЗАЧЕМ ГРЕП ПО ДВУМ ФАЙЛАМ, А НЕ ОБЩАЯ КОНСТАНТА ═══
+    // Между ними ГРАНИЦА ПРОЦЕССА, а не импорта: `runtime.js` исполняется в браузере и
+    // собирается в `index.html` текстом, а `impl.ts` компилируется в Node. Общего модуля у
+    // них нет и быть не может (тот же довод, что у пары имён `--vpe-caption-*` ниже).
+    // Поэтому договор — ДВА СПИСКА, и охранник обязан сверить их буквально: имя, которого
+    // нет у трека, молча не подействует; имя, которого нет у шаблона, никогда не будет
+    // подано. Оба отказа тихие — ровно тот класс, который эта задача и закрывает.
+    const captions = resolveTemplate(rendererTemplates, 'captionEmphasis@1', 'тест').mountSource;
+    expect(captions).toContain('window.__VPE_CAPTION_BAND = band');
+    expect(RUNTIME_JS).toContain('window.__VPE_CAPTION_BAND');
+
+    const namesIn = (text: string, after: string): readonly string[] => {
+      const at = text.indexOf(after);
+      expect(at, `в тексте нет якоря \`${after}\``).toBeGreaterThan(-1);
+      const chunk = text.slice(at, text.indexOf(']', at) + 1);
+      return [...chunk.matchAll(/'([a-zA-Z]+)'/gu)].map((m) => m[1] as string).sort();
+    };
+    // У шаблона список вписан в `mountSource` канонической печатью — двойные кавычки.
+    const fromTemplate = [
+      ...(captions.slice(captions.indexOf('var keys = ['), captions.indexOf(']', captions.indexOf('var keys = ['))) )
+        .matchAll(/"([a-zA-Z]+)"/gu),
+    ]
+      .map((m) => m[1] as string)
+      .sort();
+    const fromRuntime = namesIn(RUNTIME_JS, 'var KEYS = [');
+
+    expect(fromTemplate.length, 'список имён у шаблона пуст — договора нет').toBeGreaterThan(5);
+    expect(
+      fromTemplate,
+      'списки имён полосы у шаблона и у трека разошлись: подаваемое и принимаемое — разное',
+    ).toEqual(fromRuntime);
+
+    // И три имени в списке ОТСУТСТВУЮТ намеренно: роль шрифта превращается в `font-family`
+    // у шаблона (у трека нет ссылки на шрифт), а палитра эмфазы едет ТАЙМЛАЙНОМ на окно
+    // клипа, а не правилом на весь сегмент.
+    for (const own of ['font', 'weight', 'activeColor']) {
+      expect(fromTemplate, `\`${own}\` не должен уезжать в набор полосы`).not.toContain(own);
     }
   });
 

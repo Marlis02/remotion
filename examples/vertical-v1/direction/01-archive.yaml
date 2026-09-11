@@ -43,7 +43,7 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"
 
   # ── сцена 2: механик 1920 ───────────────────────────────────────────────────
   - recordId: "4d8ea15b"
@@ -78,7 +78,7 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"
 
   # ── сцена 3: дорога 1936 ────────────────────────────────────────────────────
   - recordId: "6e05a7d1"
@@ -109,4 +109,4 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"

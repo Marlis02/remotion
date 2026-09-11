@@ -100,9 +100,25 @@ describe('`TS-01` — манифест ⊇ фактические роли на 
 describe('`TS-01` — вход R3: `requestFiles` — единственный источник списка файлов', () => {
   it('объединяет обе декларации и ничего сверх них', () => {
     const captions = registry.resolve('captionEmphasis@1');
-    expect(requestFiles(captions, { style: 'bold' })).toEqual({
+    // ПУСТЫЕ `params` ЗАКОННЫ (`CAPTION-01`): все ручки вида полосы необязательны, и не
+    // названная автором берётся из умолчания канала (`composition/runtime.js`), а не из
+    // второго комплекта чисел в спеке. Роль шрифта при этом объявляется ВСЕГДА — шаблон
+    // рисует текст на любых `params`.
+    expect(requestFiles(captions, {})).toEqual({
       assets: [],
       fonts: [{ role: 'caption' }],
+    });
+  });
+
+  it('роль шрифта берётся из `params.font`, а не зашита (`CAPTION-01`)', () => {
+    // Контроль осмысленности предыдущего утверждения: без него `declareFonts`, вернувший
+    // литерал `caption` при любом входе, был бы зелёным — а тогда поле `font` не действовало
+    // бы ни на один файл запроса (**R3**), то есть шрифта роли, которую просил автор, в
+    // композиции просто не оказалось бы.
+    const captions = registry.resolve('captionEmphasis@1');
+    expect(requestFiles(captions, { font: 'subtitle-alt' })).toEqual({
+      assets: [],
+      fonts: [{ role: 'subtitle-alt' }],
     });
   });
 

@@ -35,7 +35,7 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"
 
   # ── сцена 2: раскопки (Соммер, до 1914) ─────────────────────────────────────
   - recordId: "a4d970e1"
@@ -62,7 +62,7 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"
 
   # ── сцена 3: слепок (Соммер, отливки 1873) ──────────────────────────────────
   - recordId: "9d4a0f37"
@@ -95,4 +95,4 @@ records:
     track: caption
     z: 30
     template: "captionEmphasis@1"
-    preset: "bold"
+    preset: "bottom-warm"

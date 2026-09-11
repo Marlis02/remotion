@@ -1,11 +1,22 @@
 {
-  "note": "Единственный случай с субтитрами и единственный со шрифтом: полоса и есть предмет измерения.",
+  "note": "Единственный случай с субтитрами и единственный со шрифтом: полоса и есть предмет измерения. `params` — ДОСЛОВНО пресет `bottom-warm` (CAPTION-01): гейт обязан мерить тот вид, которым шаблон зовётся в канале, а не середину диапазонов.",
   "captions": true,
   "clips": [
     {
       "template": "captionEmphasis@1",
       "params": {
-        "style": "bold"
+        "font": "caption",
+        "sizePx": 68,
+        "weight": "bold",
+        "textColor": "#ffffff",
+        "activeColor": "#ffb347",
+        "bg": "plate",
+        "plateColor": "#05070c",
+        "outline": { "widthPx": 0, "color": "#000000" },
+        "shadow": { "dxPx": 0, "dyPx": 2, "blurPx": 10, "color": "#000000", "opacity": 0.55 },
+        "position": "bottom",
+        "marginPx": 500,
+        "widthPct": 85.185185
       },
       "z": 30,
       "withFont": true
