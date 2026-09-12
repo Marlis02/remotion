@@ -1,0 +1,19 @@
+{
+  "note": "ГОД НАБОРОМ, «2 → 20 → 200 → 2008»: символы появляются по одному, три кадра на символ. Берите на год, дату и код — там, где важен САМ ПРОЦЕСС набора, а не итог. Разделителя тысяч нет намеренно: год — это код, а не сумма, и «2 008» читалось бы как деньги. `enter: \"none\"` — набор и есть движение, второе движение поверх него было бы шумом.",
+  "params": {
+    "source": "literal",
+    "text": "2008",
+    "mode": "typewriter",
+    "charFrames": 3,
+    "font": "caption",
+    "sizePx": 200,
+    "weight": "bold",
+    "textColor": "#ffffff",
+    "outline": { "widthPx": 5, "color": "#000000" },
+    "shadow": { "dxPx": 0, "dyPx": 6, "blurPx": 18, "color": "#000000", "opacity": 0.55 },
+    "align": "center",
+    "position": "center",
+    "widthPct": 90,
+    "enter": "none"
+  }
+}

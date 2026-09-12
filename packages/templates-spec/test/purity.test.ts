@@ -3,6 +3,7 @@ import { parseDirection } from '@vpe/core-model';
 import { describe, expect, it } from 'vitest';
 
 import {
+  EASING_REGISTRY,
   TEMPLATE_LIBRARY,
   createRegistry,
   determinismClassOf,
@@ -77,12 +78,18 @@ describe('`TS-01` — манифест ⊇ фактические роли на 
     expect(kenburns.declareAssets(params)).toEqual([]);
   });
 
-  it('шрифт просит ровно один шаблон, и семейства он не называет (долг №13)', () => {
+  // *(изменено: `KT-01`, 2026-09-12 — шрифт просят ДВА шаблона.)* Второй — `kineticType@1`,
+  // и роль у него ТА ЖЕ `caption`: канал один, и второе имя роли означало бы, что автор
+  // заводит проекту вторую гарнитуру ради того же текста. Долг №13 при этом не сдвинулся ни
+  // на шаг: семейства по-прежнему не называет НИ ОДИН из двух — оба спрашивают роль.
+  it('шрифт просят ровно два шаблона, и семейства не называет ни один (долг №13)', () => {
     const withFonts = registry.specs.filter((s) => s.manifest.declaredFonts.length > 0);
-    expect(withFonts.map((s) => s.templateId)).toEqual(['captionEmphasis']);
-    const fonts = withFonts[0]?.declareFonts({ style: 'bold' });
-    expect(fonts).toEqual([{ role: 'caption' }]);
-    expect(fonts?.[0]?.family).toBeUndefined();
+    expect(withFonts.map((s) => s.templateId).sort()).toEqual(['captionEmphasis', 'kineticType']);
+    for (const spec of withFonts) {
+      const fonts = spec.declareFonts({ style: 'bold' });
+      expect(fonts, spec.templateId).toEqual([{ role: 'caption' }]);
+      expect(fonts?.[0]?.family, spec.templateId).toBeUndefined();
+    }
   });
 
   it('`bed@1` объявляет ОДИН ассет, хотя alias встречается в `params` дважды', () => {
@@ -174,11 +181,17 @@ describe('`TS-01` — состояние пяти шаблонов фиксту�
   // отличать имя кривой в тюне от имени кривой в анимации; разбирать намерение по тексту
   // было бы хуже, чем объявить одно имя. Правило «объявляет тот, кто использует» соблюдено
   // буквально: имя в исходнике есть.
-  it('кривые объявляют ровно четыре шаблона', () => {
+  // *(дополнено: `KT-01`, 2026-09-12 — ПЯТЬ.)* `kineticType@1` объявляет ВЕСЬ реестр, и это
+  // единственный такой шаблон в библиотеке. Причина названа его манифестом: кривую входа
+  // выбирает АВТОР (`params.easing`), а не шаблон, — «мягко» у объяснялки и «ударом» у
+  // шортса суть разные замыслы. Объявить подмножество значило бы завести второй, более
+  // узкий реестр рядом с **D5** и объяснять, почему в нём нет `sine.inOut`.
+  it('кривые объявляют ровно пять шаблонов', () => {
     const withEasing = registry.specs.filter((s) => s.manifest.easingIds.length > 0);
     expect(withEasing.map((s) => s.templateId).sort()).toEqual([
       'flash',
       'kenburns',
+      'kineticType',
       'parallax25',
       'video',
     ]);
@@ -187,6 +200,7 @@ describe('`TS-01` — состояние пяти шаблонов фиксту�
     expect(byId.get('flash')).toEqual(['power3.out']);
     expect(byId.get('parallax25')).toEqual(['power2.inOut', 'none']);
     expect(byId.get('video')).toEqual(['none']);
+    expect(byId.get('kineticType')).toEqual([...EASING_REGISTRY]);
     // Членство в реестре — не пересказ, а проверка: список D5 закрыт, седьмой кривой нет.
     for (const [id, ids] of byId) {
       for (const easing of ids) expect(isEasingId(easing), `${id}: ${easing}`).toBe(true);

@@ -544,4 +544,48 @@ describe('**№272: правка `zoom.to` у `video@1` промахиваетс
     };
     expect(keyOf(withMove('full'))).not.toBe(keyOf(withMove('corner')));
   });
+
+  // ═══ **ОХРАННИК 6 `KT-01`**: ПРАВКА `sizePx` У `kineticType@1` — ПРОМАХ РОВНО СВОЕГО ═══
+  // Вопрос тот же, что у `zoom.to` выше, но про НОВЫЙ шаблон, и задавать его надо отдельно:
+  // ключ считается по `segmentIrHash`, то есть по КАНОНИЧЕСКОМУ JSON всего сегмента, и
+  // «`params` нового шаблона входят в ключ» — утверждение, которое до первой проверки просто
+  // предполагается. Цена ошибки названа: кегль, не входящий в ключ, означал бы, что правка
+  // вида живого текста НЕ пересчитывает сегмент, — то есть автор видит старую картинку и не
+  // знает почему (ровно класс отказа `K3`, из-за которого заводился `CACHE-02`).
+  const kinetic = (id: string, sizePx: number): Parameters<typeof segmentCacheKey>[0]['ir'] =>
+    ({
+      segmentId: id,
+      segmentDurationInFrames: 30,
+      assets: [],
+      fonts: [{ sha256: 'f'.repeat(64), role: 'caption' }],
+      captions: [],
+      clips: [
+        {
+          clipId: `r:${id}`,
+          track: 'visual',
+          z: 20,
+          frames: { frameStart: 0, frameEnd: 30 },
+          template: 'kineticType@1',
+          params: { source: 'window', mode: 'words', sizePx, textColor: '#ffffff' },
+          assets: [],
+          fonts: [{ sha256: 'f'.repeat(64), role: 'caption' }],
+          seeds: {},
+        },
+      ],
+    }) as never;
+
+  it('правка `sizePx` у `kineticType@1` меняет ключ СВОЕГО сегмента', () => {
+    expect(keyOf(kinetic('seg:one', 120))).not.toBe(keyOf(kinetic('seg:one', 121)));
+  });
+
+  it('и не трогает ключи СОСЕДНИХ — промах ровно один', () => {
+    const before = ['seg:one', 'seg:two', 'seg:three'].map((id) => keyOf(kinetic(id, 120)));
+    const after = [
+      keyOf(kinetic('seg:one', 121)),
+      ...['seg:two', 'seg:three'].map((id) => keyOf(kinetic(id, 120))),
+    ];
+    const moved = before.filter((key, i) => key !== after[i]);
+    expect(moved).toHaveLength(1);
+    expect(moved[0]).toBe(before[0]);
+  });
 });

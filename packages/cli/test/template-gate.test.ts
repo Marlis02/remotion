@@ -258,7 +258,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
     // `grade@1`; `E-02`, 2026-08-31 — семью: `parallax25@1`.)* Знаменатель здесь и есть
     // «сколько шаблонов знает каталог», то есть тот самый счёт, который владелец видит
     // командой `vpe template list` при приёмке.
-    expect(listed.out).toMatch(/записей гейта: 1 из 8 шаблонов/u);
+    expect(listed.out).toMatch(/записей гейта: 1 из 9 шаблонов/u);
   });
 
   it('**FAIL записи НЕ создаёт**, код 4, и «не создана» напечатано словами', async () => {
@@ -349,7 +349,7 @@ describe('`vpe template gate` — запись создаёт ТОЛЬКО PASS'
 });
 
 describe('`vpe template list` — таблица каталога', () => {
-  it('шесть колонок, шесть шаблонов, `UNGATED` названо словами', async () => {
+  it('шесть колонок, все шаблоны каталога, `UNGATED` названо словами', async () => {
     const result = await run(['template', 'list', '--gates-dir', tempDir('empty')]);
     expect(result.code).toBe(EXIT.pass);
     expect(result.out).toMatch(/шаблон\s+\|\s+версия\s+\|\s+гейт\s+\|\s+бюджет мс\/кадр\s+\|\s+класс детерминизма\s+\|\s+easing/u);

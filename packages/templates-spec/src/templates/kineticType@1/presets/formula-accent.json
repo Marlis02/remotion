@@ -1,0 +1,23 @@
+{
+  "note": "ОБЪЯСНЯЛКА, «2 + 2 = 4»: короткая формула, ответ выделен цветом. Берите там, где текста в речи НЕТ вовсе, а показать надо (`source: \"literal\"`). Акцент назначается СПИСКОМ СЛОВ (`accentWords`), а не маркером `[emph]`: маркера в RenderIR нет — он живёт в Timeline и до кадров не доезжает. Слова делятся по пробелам, поэтому «2 + 2 = 4» — это пять кусков, и акцент ставится на последний. Вход мягкий (`blur`, 8 кадров): объяснение, а не удар.",
+  "params": {
+    "source": "literal",
+    "text": "2 + 2 = 4",
+    "mode": "words",
+    "stack": true,
+    "font": "caption",
+    "sizePx": 170,
+    "weight": "bold",
+    "textColor": "#ffffff",
+    "accentColor": "#ffb347",
+    "accentWords": ["4"],
+    "outline": { "widthPx": 4, "color": "#000000" },
+    "shadow": { "dxPx": 0, "dyPx": 5, "blurPx": 16, "color": "#000000", "opacity": 0.5 },
+    "align": "center",
+    "position": "center",
+    "widthPct": 90,
+    "enter": "blur",
+    "enterFrames": 8,
+    "easing": "sine.inOut"
+  }
+}

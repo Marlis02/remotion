@@ -1,0 +1,47 @@
+{
+  "note": "`source: \"literal\"` — намеренно, и это не обход окна слов. Гейт мерит ПИКСЕЛИ, а самый богатый пиксельный случай шаблона — набор слов с обводкой, тенью и объёмом; окно слов даёт ту же графику, но его форма зависела бы от фикстуры субтитров (у неё ровно один токен с непустым `highlight`), то есть гейт мерил бы фикстуру, а не шаблон. Захват окна проверяют браузерные охранники `kinetic-timing.test.ts` и живая сборка `work/ct-test-1`. `params` — пресет `stack-caps-bold` дословно плюс `extrude`: гейт обязан мерить тот вид, которым шаблон зовут в канале.",
+  "captions": false,
+  "clips": [
+    {
+      "template": "kineticType@1",
+      "params": {
+        "source": "literal",
+        "text": "then the whole country",
+        "mode": "words",
+        "stack": true,
+        "font": "caption",
+        "sizePx": 120,
+        "weight": "bold",
+        "textColor": "#ffffff",
+        "accentColor": "#ffb347",
+        "accentWords": [
+          "country"
+        ],
+        "outline": {
+          "widthPx": 5,
+          "color": "#000000"
+        },
+        "shadow": {
+          "dxPx": 0,
+          "dyPx": 6,
+          "blurPx": 18,
+          "color": "#000000",
+          "opacity": 0.55
+        },
+        "extrude": {
+          "depthPx": 6,
+          "color": "#05070c"
+        },
+        "align": "center",
+        "position": "center",
+        "widthPct": 88,
+        "caps": true,
+        "enter": "pop",
+        "enterFrames": 6,
+        "easing": "back.out(1.7)"
+      },
+      "z": 20,
+      "withFont": true
+    }
+  ]
+}

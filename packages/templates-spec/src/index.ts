@@ -187,6 +187,7 @@ export type { AudioContribution, AudioInPoint, AudioPause } from './audio.js';
 export { captionEmphasis1, type CaptionEmphasisParams } from './templates/captionEmphasis@1/spec.js';
 export { flash1, type FlashParams } from './templates/flash@1/spec.js';
 export { kenburns1, type KenburnsParams } from './templates/kenburns@1/spec.js';
+export { kineticType1, type KineticTypeParams } from './templates/kineticType@1/spec.js';
 export {
   parallax251,
   layerRole,

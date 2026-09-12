@@ -414,6 +414,29 @@ const EXAMPLES: readonly SpecExportExample[] = [
     },
   },
   {
+    template: 'kineticType@1',
+    source: 'work/ct-test-1/direction/01-cellars.yaml, запись `2c4b8e19` (живая проверка `KT-01`)',
+    note:
+      'ЖИВОЙ ТЕКСТ — ГРАФИКА, А НЕ СУБТИТР: дорожка `visual`, не `caption`. ГЛАВНОЕ ПРАВИЛО: ' +
+      'ОДНА МЫСЛЬ — ОДИН `kineticType`; не дублируйте субтитр слово в слово, если субтитр ' +
+      'включён, — это две одинаковых надписи в кадре. ВРЕМЯ БЕРЁТСЯ ИЗ ГОЛОСА: при ' +
+      '`source: "window"` слово появляется РОВНО на кадре, куда алигнер поставил его начало ' +
+      'в дубле, и писать тайминги не нужно ничем. ОКНО РЕШАЕТ ВСЁ: накопление ' +
+      '(`stack-caps-bold`) ставьте на БИТ, а не на сцену — на окне целой сцены оно накопит ' +
+      'всю её речь и вылезет за кадр; шаблон кегль под длину фразы НЕ подбирает. ' +
+      '`z` ОБЯЗАН БЫТЬ ВЫШЕ ВИДЕО: под `video@1` (в канале `z: 25`) текст срезается окном ' +
+      'видео и не появляется вовсе. Плашки у шаблона нет — читаемость держат обводка и тень.',
+    record: {
+      recordId: '2c4b8e19',
+      at: { kind: 'anchor', anchor: 'b:evict' },
+      until: { kind: 'anchor', anchor: 'sc:road' },
+      track: 'visual',
+      z: 30,
+      template: 'kineticType@1',
+      preset: 'stack-caps-bold',
+    },
+  },
+  {
     template: 'flash@1',
     source: 'examples/vertical-v1/direction/01-archive.yaml, запись `b8340c6a`',
     note:

@@ -1,0 +1,105 @@
+{
+  "title": "kineticType@1 — шесть приёмов живого текста подряд",
+  "note": "Шесть пресетов одной лентой, по сцене на каждый: stack-caps-bold (фраза набирается словом за словом в такт голосу — приём Баффета), punch-word (одно огромное слово, следующее его сменяет — приём NVIDIA), counter-money (число бежит 300 → 381 и на последнем кадре стоит ровно на цели), year-typewriter (год 2008 набирается по символу, три кадра на символ), formula-accent (текста в речи нет вовсе — «2 + 2 = 4» с акцентом на ответе, приём объяснялок) и caption-kinetic-clean (нейтральный вид). ТЕКСТ ДЕМО — НА РУССКОМ, и это осознанно: язык КОНТЕНТА канала — английский (Charter rev3), но живой текст обязан быть проверен на кириллице, потому что ширина строки и перенос по словам считаются браузером по глифам (долг №258). Первые две сцены и последняя берут слова ИЗ СУБТИТРОВ окна, остальные — свои. ПРОЗА ДЕМО КОРОТКАЯ НАМЕРЕННО, и это первое, что демо показывает про сам шаблон: кегль он под длину фразы НЕ подбирает (кроп и автоуменьшение — решения, которых никто не принимал, долг), поэтому длинная фраза на кегле 120 вылезет за кадр. Измерено на первом прогоне этого демо: четырнадцать слов на 150 px ушли и вправо за край, и вверх за край. Голос — `tts:mock@1`, денег демо не стоит. ОДНО ПРЕДЛОЖЕНИЕ ЗДЕСЬ ДЛИННЕЕ, ЧЕМ ХОТЕЛОСЬ БЫ, И ЭТО ОБХОД ДОЛГА №274: первая редакция сцены `money` легла речью РОВНО на сетку кадров, поправка границы вышла нулевой длины, и сборка упала отказом `ADR-0003 T5` — про внутренность движка, а не про запись автора. Тот же обход применяла первая редакция демо `captionEmphasis@1`.",
+  "text": "# chapter: main\n\n## scene: stack\n\n[img: pattern] Слово за словом.\n\n## scene: punch\n\n[img: pattern] В кадре одно [emph] слово.\n\n## scene: money\n\n[img: pattern] Счёт добегает до [say: 381 | three hundred eighty one] и встаёт ровно на цели.\n\n## scene: year\n\n[img: pattern] Год встаёт не сразу.\n\n## scene: formula\n\n[img: pattern] Этой формулы в речи нет, она живёт только в кадре.\n\n## scene: clean\n\n[img: pattern] Нейтральный вид.\n",
+  "assets": [
+    {
+      "alias": "pattern",
+      "file": "../../still@1/gate-requests/assets/pattern-32.png",
+      "kind": "image",
+      "intrinsic": {
+        "width": 32,
+        "height": 32
+      }
+    }
+  ],
+  "fonts": [
+    {
+      "file": "../../captionEmphasis@1/gate-requests/assets/DejaVuSans-Bold.ttf",
+      "family": "DejaVu Sans",
+      "subfamily": "Bold",
+      "format": "ttf",
+      "fsType": 0
+    }
+  ],
+  "records": [
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:stack"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:stack"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "stack-caps-bold"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:punch"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:punch"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "punch-word"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:money"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:money"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "counter-money"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:year"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:year"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "year-typewriter"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:formula"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:formula"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "formula-accent"
+    },
+    {
+      "at": {
+        "kind": "anchor",
+        "anchor": "sc:clean"
+      },
+      "until": {
+        "kind": "anchor",
+        "anchor": "sc:clean"
+      },
+      "track": "visual",
+      "z": 20,
+      "preset": "caption-kinetic-clean"
+    }
+  ]
+}

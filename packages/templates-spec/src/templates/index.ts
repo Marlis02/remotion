@@ -42,12 +42,13 @@ import { captionEmphasis1 } from './captionEmphasis@1/spec.js';
 import { flash1 } from './flash@1/spec.js';
 import { grade1 } from './grade@1/spec.js';
 import { kenburns1 } from './kenburns@1/spec.js';
+import { kineticType1 } from './kineticType@1/spec.js';
 import { parallax251 } from './parallax25@1/spec.js';
 import { still1 } from './still@1/spec.js';
 import { video1 } from './video@1/spec.js';
 
 /**
- * Библиотека шаблонов — 8 версионированных единиц каталога. Вход `createRegistry` и
+ * Библиотека шаблонов — 9 версионированных единиц каталога. Вход `createRegistry` и
  * `attachGates`: прод-реестр собирается ИЗ НЕЁ (`E-00`), а `bin/render-segment` и
  * `vpe template gate` берут его отсюда, а не из своих списков.
  *
@@ -63,6 +64,7 @@ export const TEMPLATE_LIBRARY: readonly AnyTemplateSpec[] = [
   flash1,
   grade1,
   kenburns1,
+  kineticType1,
   parallax251,
   still1,
   video1,

@@ -1,0 +1,19 @@
+{
+  "note": "СЧЁТЧИК ДЕНЕГ, «300 → 381»: число бежит от и до за окно клипа и на ПОСЛЕДНЕМ кадре стоит ровно на цели. Берите на деньги, проценты и счёт. Числа `from`/`to` меняйте под свою сцену — здесь они из референса. Разделитель тысяч — ПРОБЕЛ строкой, а не локалью машины (**D4**): «300 381» и «300,381» — разные числа для читателя, и выбирать за него окружением нельзя.",
+  "params": {
+    "source": "literal",
+    "mode": "counter",
+    "counter": { "from": 300, "to": 381, "groupSeparator": " ", "suffix": "" },
+    "font": "caption",
+    "sizePx": 190,
+    "weight": "bold",
+    "textColor": "#ffb347",
+    "outline": { "widthPx": 5, "color": "#000000" },
+    "shadow": { "dxPx": 0, "dyPx": 6, "blurPx": 18, "color": "#000000", "opacity": 0.55 },
+    "extrude": { "depthPx": 5, "color": "#05070c" },
+    "align": "center",
+    "position": "center",
+    "widthPct": 90,
+    "enter": "none"
+  }
+}
