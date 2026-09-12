@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 import { canonicalJson } from '@vpe/core-model';
 
-import type { SegmentRenderRequest } from './contract.js';
+import type { SegmentRenderRequest, VideoHolePlanInput } from './contract.js';
 import { RenderAdapterError } from './errors.js';
 import { extensionOf } from './magic.js';
 import { resolveTemplate, type RendererTemplateRegistry } from './templates/index.js';
@@ -281,6 +281,25 @@ export function materializeComposition(
     baseHeight: request.compileProfile.height,
     assets: assetUrls,
     fonts: fontEntries,
+    // ПЛАНЫ ДЫР `video@1` (`VID-02c`) — ПЕРЕЕЗЖАЮТ ИЗ ЗАПРОСА В МАНИФЕСТ КАК ЕСТЬ.
+    //
+    // Через манифест, а не через `ir.json`, по той же причине, по какой через него едут
+    // `baseWidth`/`scale`: IR — это то, что посчитал КОМПИЛЯТОР, и адаптер не вправе ничего
+    // туда дописывать (**R4**, круговой JSON). Манифест же есть собственный словарь адаптера.
+    //
+    // **ПРОПУСК ПОЛЯ, А НЕ ПУСТОЙ МАССИВ, И ЭТО ИСПРАВЛЕНИЕ ИЗМЕРЕННОГО ПОБОЧНОГО ЭФФЕКТА.**
+    // Первая версия писала `videoHoles: []` ВСЕГДА — «чтобы шаблон читал поле без проверки».
+    // Цена оказалась не нулевой: поле попадало в `manifest.json` и в `index.html` КАЖДОЙ
+    // композиции, значит `compositionHash` сдвигался у ВСЕХ шаблонов, а не только у видео, —
+    // и записи гейта шести шаблонов, к которым эта задача не притрагивалась, стали бы
+    // «снятыми на другой композиции». Измерено `git diff` по `gate-requests/*.json`: шесть
+    // пар файлов разошлись одним лишь `bundle.hash`.
+    //
+    // Теперь сегмент без `video@1` даёт композицию, побайтово равную прежней. Читатель поля
+    // на той стороне и так защищён (`window.__VPE_MANIFEST.videoHoles || []`).
+    ...(request.videoHoles === undefined || request.videoHoles.length === 0
+      ? {}
+      : { videoHoles: request.videoHoles }),
   };
   const manifestJson = canonicalJson(manifest);
   writeFileSync(path.join(dir, 'manifest.json'), manifestJson + '\n');
@@ -322,6 +341,7 @@ interface CompositionManifest {
   readonly height: number;
   readonly baseWidth: number;
   readonly baseHeight: number;
+  readonly videoHoles?: readonly VideoHolePlanInput[];
   readonly scale: number;
   readonly durationSeconds: number;
   readonly fonts: Record<string, { url: string; family: string }>;

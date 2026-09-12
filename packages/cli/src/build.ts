@@ -270,10 +270,23 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     [...project.catalog.records]
       .filter(([, record]) => record.kind === 'video')
       .map(([sha, record]) => {
-        const intrinsic = record.intrinsic as { fps?: { num: number; den: number }; frames?: number };
+        const intrinsic = record.intrinsic as {
+          fps?: { num: number; den: number };
+          frames?: number;
+          width?: number;
+          height?: number;
+        };
         return [
           String(sha),
-          { fps: intrinsic.fps ?? { num: 30, den: 1 }, frames: intrinsic.frames ?? 1 },
+          {
+            fps: intrinsic.fps ?? { num: 30, den: 1 },
+            frames: intrinsic.frames ?? 1,
+            // ОТОБРАЖАЕМАЯ геометрия — та, что нужна пропорции окна (`VID-02c`). Умолчания
+            // квадрата здесь нет и быть не может: запись вида `video` несёт обе стороны
+            // всегда (`VID-01`), а единица вместо пропущенного числа хотя бы не делит на ноль.
+            width: intrinsic.width ?? 1,
+            height: intrinsic.height ?? 1,
+          },
         ] as const;
       }),
   );

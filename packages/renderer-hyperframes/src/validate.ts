@@ -276,6 +276,52 @@ export function validateRequest(input: unknown): SegmentRenderRequest {
     }
   }
 
+  // ── планы дыр `video@1` (`VID-02c`) ───────────────────────────────────────
+  // ФОРМА ПРОВЕРЯЕТСЯ ЗДЕСЬ, А СМЫСЛ — НЕТ, И ЭТО ГРАНИЦА. Адаптер не знает ни одного
+  // шаблона (**M6** на своей стороне): что дыра принадлежит `video@1`, известно тому, кто её
+  // посчитал. Здесь проверяется единственное — что это числа, а не намерение: иначе они
+  // доехали бы до CSS `path()` строкой `undefined` и дали бы слой без картинки вместо отказа.
+  const holes = input['videoHoles'];
+  if (holes !== undefined) {
+    if (!Array.isArray(holes)) {
+      p.add('ADR-0008 форма', 'videoHoles', `ожидался массив, пришло ${describe(holes)}`);
+    } else {
+      holes.forEach((hole, i) => {
+        const where = `videoHoles[${String(i)}]`;
+        if (!isObject(hole)) {
+          p.add('ADR-0008 форма', where, `ожидался объект, пришло ${describe(hole)}`);
+          return;
+        }
+        p.str(hole['clipId'], `${where}.clipId`);
+        p.int(hole['frameStart'], `${where}.frameStart`, 0);
+        p.int(hole['frameEnd'], `${where}.frameEnd`, 1);
+        p.int(hole['radiusPx'], `${where}.radiusPx`, 0);
+        const steps = hole['steps'];
+        if (!Array.isArray(steps) || steps.length === 0) {
+          p.add(
+            'ADR-0008 форма',
+            `${where}.steps`,
+            `ожидался НЕПУСТОЙ массив ступеней, пришло ${describe(steps)}. Пустая таблица ` +
+              'означала бы «дыра есть, а где — неизвестно»: это отказ, а не слой без дыры',
+          );
+          return;
+        }
+        steps.forEach((step, j) => {
+          const at = `${where}.steps[${String(j)}]`;
+          if (!isObject(step)) {
+            p.add('ADR-0008 форма', at, `ожидался объект, пришло ${describe(step)}`);
+            return;
+          }
+          p.int(step['frame'], `${at}.frame`, 0);
+          p.int(step['x'], `${at}.x`, 0);
+          p.int(step['y'], `${at}.y`, 0);
+          p.int(step['width'], `${at}.width`, 1);
+          p.int(step['height'], `${at}.height`, 1);
+        });
+      });
+    }
+  }
+
   if (p.list.length > 0) {
     throw new RenderAdapterError(
       'ADR-0008 форма',

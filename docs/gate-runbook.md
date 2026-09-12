@@ -158,6 +158,10 @@ node packages/cli/dist/bin/vpe.js template gate grade@1 --profile draftHalf \
 node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile draftHalf \
   --request packages/templates-spec/src/templates/parallax25@1/gate-requests/draftHalf.json \
   --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
+
+node packages/cli/dist/bin/vpe.js template gate video@1 --profile draftHalf \
+  --request packages/templates-spec/src/templates/video@1/gate-requests/draftHalf.json \
+  --render-profile packages/renderer-hyperframes/gate-profiles/draftHalf.yaml
 ```
 
 ### `final` (N = 10, ≈30–60 с каждая)
@@ -185,6 +189,10 @@ node packages/cli/dist/bin/vpe.js template gate grade@1 --profile final \
 
 node packages/cli/dist/bin/vpe.js template gate parallax25@1 --profile final \
   --request packages/templates-spec/src/templates/parallax25@1/gate-requests/final.json \
+  --render-profile fixtures/minimal/profiles/render.final.yaml
+
+node packages/cli/dist/bin/vpe.js template gate video@1 --profile final \
+  --request packages/templates-spec/src/templates/video@1/gate-requests/final.json \
   --render-profile fixtures/minimal/profiles/render.final.yaml
 ```
 

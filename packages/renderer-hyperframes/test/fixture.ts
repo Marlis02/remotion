@@ -18,7 +18,7 @@ import {
   parseTemplateDirName,
 } from '@vpe/templates-spec';
 
-import type { SegmentRenderRequest } from '../src/contract.js';
+import type { SegmentRenderRequest, VideoHolePlanInput } from '../src/contract.js';
 import {
   templateDirs,
   templateGateCaseFile,
@@ -418,6 +418,14 @@ export interface TemplateFixtureOptions {
   readonly withCaptions?: boolean;
   /** Своя раскладка групп: `[кадр начала, кадр конца]` на группу. */
   readonly captionWindows?: readonly (readonly [number, number])[];
+  /**
+   * Планы дыр `video@1` (`VID-02c`) — то, что в сборке считает `videoHolesOf` разворота плана.
+   *
+   * Здесь они подаются РУКАМИ, и это не обход: фикстура рендерера не знает ни про каталог
+   * ассетов, ни про пропорцию видео (её негде взять — паспорта в IR нет). Вход адаптера —
+   * числа, и тест подаёт числа.
+   */
+  readonly videoHoles?: readonly VideoHolePlanInput[];
 }
 
 /** `params` пяти шаблонов — ДОСЛОВНО из `fixtures/minimal/direction/01-intro.yaml`. */
@@ -554,6 +562,7 @@ export function makeTemplateFixture(
 
   const raw = {
     requestVersion: 1,
+    ...(options.videoHoles === undefined ? {} : { videoHoles: options.videoHoles }),
     ir: {
       segmentId: 'seg:h06',
       segmentDurationInFrames: frames,
@@ -696,6 +705,16 @@ interface GateCaseFile {
   readonly note: string;
   readonly captions: boolean;
   readonly clips: readonly TemplateClip[];
+  /**
+   * Окно дыры `video@1` в БАЗОВЫХ координатах композиции (`VID-02c`) — только у `video@1`.
+   *
+   * **ПОЧЕМУ ЧИСЛАМИ, А НЕ СЧЁТОМ ИЗ `params`.** Прямоугольник считает разворот плана в
+   * `@vpe/cli` по пропорции ВИДЕО из записи ассета; ни того, ни другого у фикстуры рендерера
+   * нет и быть не должно (адаптер шаблонов не знает — **M6**). Числа записаны в случае гейта
+   * рядом с `params`, из которых они получаются, и совпадение их с разворотом плана проверяет
+   * `cli/test/video-plan.test.ts` — на тех же `params` и той же пропорции 16:9.
+   */
+  readonly videoHole?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number; readonly radiusPx: number };
 }
 
 /**
@@ -716,7 +735,12 @@ function readGateCases(dir: string = templateLibraryDir()): readonly GateRequest
     const file = templateGateCaseFile(call, dir);
     if (!existsSync(file)) continue;
     const body = JSON.parse(readFileSync(file, 'utf8')) as GateCaseFile;
-    out.push({ call, clips: body.clips, captions: body.captions });
+    out.push({
+      call,
+      clips: body.clips,
+      captions: body.captions,
+      ...(body.videoHole === undefined ? {} : { videoHole: body.videoHole }),
+    });
   }
   return out;
 }
@@ -726,6 +750,8 @@ export interface GateRequestCase {
   /** Имя вызова, по которому пишется запись гейта. */
   readonly call: string;
   readonly clips: readonly TemplateClip[];
+  /** Окно дыры `video@1` — см. `GateCaseFile.videoHole`. */
+  readonly videoHole?: GateCaseFile['videoHole'];
   readonly captions: boolean;
 }
 
@@ -868,6 +894,29 @@ export async function buildGateRequestFile(
     scale: profile.scale,
     workers: profile.workers,
     withCaptions: kase.captions,
+    // Окно клипа гейта — весь сегмент, поэтому таблица дыры ровно из одной ступени, а её
+    // границы совпадают с границами сегмента профиля.
+    ...(kase.videoHole === undefined
+      ? {}
+      : {
+          videoHoles: [
+            {
+              clipId: `r:h060${String(kase.clips.findIndex((c) => c.template === kase.call) + 1).padStart(3, '0')}`,
+              frameStart: 0,
+              frameEnd: profile.frames,
+              radiusPx: kase.videoHole.radiusPx,
+              steps: [
+                {
+                  frame: 0,
+                  x: kase.videoHole.x,
+                  y: kase.videoHole.y,
+                  width: kase.videoHole.width,
+                  height: kase.videoHole.height,
+                },
+              ],
+            },
+          ],
+        }),
   });
   const request = await readyRequest(fixture.request);
   const file = {

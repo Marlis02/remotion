@@ -28,6 +28,10 @@ import {
 } from '@vpe/renderer-hyperframes';
 
 import { build, type BuildDeps } from '../src/build.js';
+import { CompileProfileSchema, readFamily } from '@vpe/schema';
+
+import { readProject, readRenderProfile } from '../src/build-stages/inputs.js';
+import { segmentCacheKey } from '../src/build-stages/render.js';
 import type { BuildArgs, VerifyAc4Args } from '../src/argv.js';
 import { CliError } from '../src/errors.js';
 import type { BuildRecord } from '../src/build-stages/record.js';
@@ -450,5 +454,93 @@ describe('манифест кэша — что в нём лежит рядом �
     expect([...manifest.entries.map((entry) => entry.segmentId)].sort()).toEqual(
       [...cold.record.segments.map((row) => row.segmentId)].sort(),
     );
+  });
+});
+
+describe('**№272: правка `zoom.to` у `video@1` промахивается РОВНО своим сегментом**', () => {
+  // ═══ ЧТО ЗДЕСЬ ЗА ПРИБОР И ПОЧЕМУ НЕ СБОРКА ═══
+  // Долг №272 просил охранника на СБОРКЕ, как **K9** у `kenburns@1`. Сборка с `video@1`
+  // потребовала бы видео-ассета с паспортом И НАСТОЯЩЕГО прогона стадии ffmpeg на каждом
+  // сегменте — то есть минуты на прибор, который меряет ХЭШ КЛЮЧА. Ключ же есть чистая
+  // функция, и правка `params` попадает в него ДО всякого рендера: `segmentIrHash` берёт IR
+  // сегмента целиком. Поэтому прибор стоит там, где живёт свойство, — на `segmentCacheKey`.
+  //
+  // ЭТО НЕ ТАВТОЛОГИЯ. Проверяются ровно две вещи, которые могли бы быть неверны: (1) `params`
+  // видео вообще входят в хэшируемый вход (а не выброшены как «не рисующий шаблон» — соблазн
+  // тем больший, что браузерная половина `video@1` действительно ничего не рисует);
+  // (2) ключи ДРУГИХ сегментов от этой правки не шевелятся.
+  // Профиль читается НАСТОЯЩИЙ, а не собирается литералом: `views/segment.json` называет
+  // девятнадцать полей, и литерал из трёх падал бы на **K2** — «вид ключа называет путь,
+  // которого во входах нет». Тот же приём, что в `blast-radius.test.ts`.
+  const PROFILE = CompileProfileSchema.parse(
+    readFamily(path.join(process.cwd(), 'fixtures/minimal', 'profiles/compile.yaml'), {
+      expectFamily: 'compile-profile',
+    }).value,
+  ) as unknown as Parameters<typeof segmentCacheKey>[0]['compileProfile'];
+  const FIXTURE = path.join(process.cwd(), 'fixtures/minimal');
+  const READ = readProject({ projectDir: FIXTURE, buildDir: null, takesRoot: null, storeDir: null });
+  const PIXELS = readRenderProfile(READ.layout.projectRoot, READ.project, 'final', []).pixelProfile;
+
+  const segment = (id: string, zoomTo: number): Parameters<typeof segmentCacheKey>[0]['ir'] =>
+    ({
+      segmentId: id,
+      segmentDurationInFrames: 30,
+      assets: [{ sha256: 'a'.repeat(64), role: 'video' }],
+      fonts: [],
+      captions: [],
+      clips: [
+        {
+          clipId: `r:${id}`,
+          track: 'visual',
+          z: 20,
+          frames: { frameStart: 0, frameEnd: 30 },
+          template: 'video@1',
+          params: {
+            asset: 'clip',
+            zooms: [
+              { startFrame: 0, durationFrames: 24, from: 1, to: zoomTo, center: { x: 0.5, y: 0.5 } },
+            ],
+          },
+          assets: [{ sha256: 'a'.repeat(64), role: 'video' }],
+          fonts: [],
+          seeds: {},
+        },
+      ],
+    }) as never;
+
+  const keyOf = (ir: Parameters<typeof segmentCacheKey>[0]['ir']): string =>
+    segmentCacheKey({
+      ir,
+      bundleHash: 'b'.repeat(64),
+      compileProfile: PROFILE,
+      pixelProfile: PIXELS,
+      engineFingerprint: TEST_FINGERPRINT,
+    });
+
+  it('правка `zoom.to` меняет ключ СВОЕГО сегмента', () => {
+    expect(keyOf(segment('seg:one', 1.8))).not.toBe(keyOf(segment('seg:one', 1.9)));
+  });
+
+  it('и не меняет ключи СОСЕДНИХ сегментов — промах ровно один', () => {
+    const before = ['seg:one', 'seg:two', 'seg:three'].map((id) => keyOf(segment(id, 1.8)));
+    const after = [keyOf(segment('seg:one', 1.9)), ...['seg:two', 'seg:three'].map((id) => keyOf(segment(id, 1.8)))];
+    const moved = before.filter((key, i) => key !== after[i]);
+    expect(moved).toHaveLength(1);
+    expect(moved[0]).toBe(before[0]);
+  });
+
+  it('правка `move.to` — тот же промах: переезд входит в ключ наравне с наездом', () => {
+    const withMove = (frame: string): Parameters<typeof segmentCacheKey>[0]['ir'] => {
+      const ir = segment('seg:one', 1.8) as unknown as {
+        clips: { params: Record<string, unknown> }[];
+      };
+      ir.clips[0]!.params = {
+        asset: 'clip',
+        frame: 'corner',
+        move: { startFrame: 4, durationFrames: 12, to: { frame } },
+      };
+      return ir as never;
+    };
+    expect(keyOf(withMove('full'))).not.toBe(keyOf(withMove('corner')));
   });
 });

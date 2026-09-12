@@ -61,6 +61,9 @@ const PLAN: VideoUnderlayPlan = {
   frameStart: 0,
   frameEnd: FRAMES,
   rect: { x: 180, y: 60, width: 300, height: 500 },
+  move: null,
+  radiusPx: 0,
+  loop: false,
   fit: 'cover',
   background: '#000000',
   // Паузу и наезд проба берёт НАМЕРЕННО: именно они несут `loop`, перенумерацию времён и

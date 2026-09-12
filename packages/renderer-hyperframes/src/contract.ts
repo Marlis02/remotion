@@ -108,6 +108,39 @@ export interface RequestFont {
  * **Гарантии входа (ADR-0008):** всё по значению или по локальному пути; никаких URL; никаких
  * `Map`/`Set` — запрос обязан пережить JSON round-trip (**R4**, `test/contract.test.ts`).
  */
+/** Одна ступень таблицы дыры: с кадра `frame` окно `video@1` стоит здесь (БАЗОВЫЕ пиксели). */
+export interface VideoHoleStepInput {
+  readonly frame: number;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * ДЫРА ОДНОГО КЛИПА `video@1` — ГОТОВЫЕ ЧИСЛА, А НЕ ФОРМУЛА (`VID-02c`, 2026-09-12).
+ *
+ * **ПОЧЕМУ ЭТО ВХОД ЗАПРОСА, А НЕ ВЫВОД БРАУЗЕРА.** Окно врезки держит пропорцию ВИДЕО, а
+ * пропорция видео живёт в записи ассета (`intrinsic.width/height`, снято декодом `VID-01`) и
+ * в IR не входит намеренно: «IR адресует байты, а не описывает их». Значит браузер вывести
+ * высоту окна не может физически, и единственная честная форма — прислать ему прямоугольники
+ * посчитанными. Побочно это снимает и вопрос о втором экземпляре формулы: его нет.
+ *
+ * **ПОЛЕ НЕОБЯЗАТЕЛЬНО, И `requestVersion` ОСТАЁТСЯ `1`.** Запрос без него — это сегмент без
+ * `video@1` либо запрос, собранный до этой задачи: дыра тогда не ставится вовсе, то есть
+ * поведение ровно то, что было (слои ниже целы). Отсутствие поля НЕ означает «дыра во весь
+ * сегмент»: именно это и было дефектом №271.
+ */
+export interface VideoHolePlanInput {
+  readonly clipId: string;
+  /** Окно клипа в кадрах сегмента: `[frameStart, frameEnd)`. Вне него дыры нет. */
+  readonly frameStart: number;
+  readonly frameEnd: number;
+  /** Скругление углов окна в БАЗОВЫХ пикселях; 0 — прямые углы. */
+  readonly radiusPx: number;
+  readonly steps: readonly VideoHoleStepInput[];
+}
+
 export interface SegmentRenderRequest {
   readonly requestVersion: 1;
   readonly ir: RenderIrSegment;
@@ -123,6 +156,8 @@ export interface SegmentRenderRequest {
   readonly fonts: readonly RequestFont[];
   readonly outputPath: string;
   readonly tmpDir: string;
+  /** Планы дыр `video@1` (`VID-02c`). Нет поля — нет дыр; см. `VideoHolePlanInput`. */
+  readonly videoHoles?: readonly VideoHolePlanInput[];
 }
 
 /**

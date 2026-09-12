@@ -25,5 +25,12 @@
       "z": 20,
       "withVideo": true
     }
-  ]
+  ],
+  "videoHole": {
+    "x": 659,
+    "y": 54,
+    "width": 367,
+    "height": 206,
+    "radiusPx": 0
+  }
 }

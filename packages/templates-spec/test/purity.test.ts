@@ -166,13 +166,27 @@ describe('`TS-01` — состояние пяти шаблонов фиксту�
   // первый шаблон с непустым выбором у автора: `power2.inOut` — ход с плавными концами,
   // `none` — линейный проход. Правило не изменилось ни на букву: объявляет кривую только
   // тот, кто её использует, и только из закрытого реестра **D5**.
-  it('кривые объявляют ровно три шаблона — `kenburns@1`, `flash@1`, `parallax25@1`', () => {
+  //
+  // *(дополнено: `VID-02c`, 2026-09-12 — ЧЕТЫРЕ, и четвёртый случай ДРУГОЙ.)* `video@1`
+  // объявляет `none`, но кривой ДВИЖЕНИЯ у него нет ни одной: его твин существует ради
+  // `onUpdate` — покадрового пересчёта дыры, — а `none` там означает «время идёт ровно».
+  // Объявлено оно потому, что охранник **Н1** читает `mountSource` ГРЕПОМ и не умеет
+  // отличать имя кривой в тюне от имени кривой в анимации; разбирать намерение по тексту
+  // было бы хуже, чем объявить одно имя. Правило «объявляет тот, кто использует» соблюдено
+  // буквально: имя в исходнике есть.
+  it('кривые объявляют ровно четыре шаблона', () => {
     const withEasing = registry.specs.filter((s) => s.manifest.easingIds.length > 0);
-    expect(withEasing.map((s) => s.templateId).sort()).toEqual(['flash', 'kenburns', 'parallax25']);
+    expect(withEasing.map((s) => s.templateId).sort()).toEqual([
+      'flash',
+      'kenburns',
+      'parallax25',
+      'video',
+    ]);
     const byId = new Map(withEasing.map((s) => [s.templateId, s.manifest.easingIds]));
     expect(byId.get('kenburns')).toEqual(['power2.inOut']);
     expect(byId.get('flash')).toEqual(['power3.out']);
     expect(byId.get('parallax25')).toEqual(['power2.inOut', 'none']);
+    expect(byId.get('video')).toEqual(['none']);
     // Членство в реестре — не пересказ, а проверка: список D5 закрыт, седьмой кривой нет.
     for (const [id, ids] of byId) {
       for (const easing of ids) expect(isEasingId(easing), `${id}: ${easing}`).toBe(true);

@@ -74,6 +74,13 @@ export interface VideoZoom {
   readonly centerY: number;
 }
 
+/** Переезд окна: куда и когда. Кадры — СЕГМЕНТА, прямоугольник — в пикселях кадра стадии. */
+export interface VideoMove {
+  readonly startFrame: number;
+  readonly durationFrames: number;
+  readonly to: VideoRect;
+}
+
 /** План нижнего слоя одного сегмента. Всё — числа: ни одного поля шаблона. */
 export interface VideoUnderlayPlan {
   /** Геометрия ВЫХОДНОГО кадра — та же, что у кадров браузера. */
@@ -95,6 +102,12 @@ export interface VideoUnderlayPlan {
   readonly frameStart: number;
   readonly frameEnd: number;
   readonly rect: VideoRect;
+  /** Переезд окна (`VID-02c`) либо `null` — окно неподвижно, и граф остаётся прежним. */
+  readonly move: VideoMove | null;
+  /** Скругление углов окна в пикселях кадра стадии; 0 — прямые углы. */
+  readonly radiusPx: number;
+  /** Кончилось видео раньше окна — начать сначала (`true`) или держать последний кадр. */
+  readonly loop: boolean;
   readonly fit: 'cover' | 'contain';
   /** Цвет полей при `contain` — строка CSS-вида `#000000`. */
   readonly background: string;
@@ -113,9 +126,10 @@ export interface VideoUnderlayPlan {
  * кадры, которых в исходнике не было, — то есть картинку, за которую никто не отвечает, и
  * цену в разы; повтор — это то, что делает любой плеер.
  *
- * **КОНЕЦ ВИДЕО РАНЬШЕ КОНЦА ОКНА — ДЕРЖИМ ПОСЛЕДНИЙ КАДР**, а не зацикливаем. Зацикливание
- * (`loop`) — отдельная ручка, которой в этой версии нет (долг): «показать ещё раз» и
- * «показать конец» — разные намерения, и молча выбирать одно из них нельзя.
+ * **КОНЕЦ ВИДЕО РАНЬШЕ КОНЦА ОКНА — ДЕРЖИМ ПОСЛЕДНИЙ КАДР ЛИБО НАЧИНАЕМ СНАЧАЛА**, и выбирает
+ * это автор ручкой `loop` *(добавлено: `VID-02c`, 2026-09-12; до этого удержание было
+ * единственным поведением)*. Умолчание не менялось — `loop: false`: «показать ещё раз» и
+ * «показать конец» разные намерения, и молча выбирать между ними шаблон по-прежнему не вправе.
  *
  * Функция ЧИСТАЯ и покрыта табличным тестом: ожидаемые индексы перечислены руками.
  */
@@ -150,10 +164,18 @@ function holdStartLocalOf(plan: VideoUnderlayPlan, hold: VideoHold, consumed: nu
   return local + consumed;
 }
 
-/** Удержание последнего кадра: индекс за пределами файла — это последний кадр, а не отказ. */
+/**
+ * Конец файла: держим последний кадр либо начинаем сначала (`loop`, `VID-02c`).
+ *
+ * **`loop` СЧИТАЕТСЯ ОТ НУЛЯ ФАЙЛА, А НЕ ОТ `inPointFrame`.** Повтор — это «показать видео
+ * ещё раз», то есть весь файл; начинать второй проход с точки входа значило бы выдумать
+ * монтажное решение, которого автор не принимал. Формула ровно `n mod frames`, и её
+ * проверяет табличный тест.
+ */
 function clampToVideo(plan: VideoUnderlayPlan, frame: number): number {
   if (frame < 0) return 0;
-  return frame >= plan.videoFrames ? plan.videoFrames - 1 : frame;
+  if (frame < plan.videoFrames) return frame;
+  return plan.loop ? frame % plan.videoFrames : plan.videoFrames - 1;
 }
 
 /** Таблица «кадр сегмента → кадр видео» целиком. Ею же проверяется граф ffmpeg. */
@@ -178,6 +200,39 @@ export function zoomAt(plan: VideoUnderlayPlan, segmentFrame: number): number {
     factor = zoom.from + (zoom.to - zoom.from) * t;
   }
   return factor;
+}
+
+/**
+ * ПРЯМОУГОЛЬНИК ОКНА НА КАДРЕ `n` — та же формула, что у `videoRectAt` разворота плана.
+ *
+ * **ЗДЕСЬ ОНА ЖИВЁТ ВТОРЫМ ЭКЗЕМПЛЯРОМ ПОТОМУ, ЧТО ГРАНИЦА ПАКЕТОВ ЗАПРЕЩАЕТ ПЕРВЫЙ.**
+ * `@vpe/media` не импортирует `@vpe/cli` (стрелки ADR-0009 идут вниз), а разворот `params`
+ * живёт в `cli`. Два экземпляра четырёх строк линейной интерполяции сверяет ТЕСТ, называющий
+ * оба адреса (`video-underlay.test.ts`, «стадия == рантайм»), — тот же приём, каким по обе
+ * стороны границы браузера живёт `toSeconds` (**R13**).
+ *
+ * Стадия зовёт эту функцию ради ТАБЛИЦЫ (тесты и `framemd5`), а сам граф ffmpeg получает её
+ * же в виде выражения `eval=frame`: `moveExprOf` ниже — то же `from + (to−from)·t`, записанное
+ * синтаксисом фильтров, и равенство двух записей проверяется покадрово.
+ */
+export function videoRectAtFrame(plan: VideoUnderlayPlan, segmentFrame: number): VideoRect {
+  const move = plan.move;
+  if (move === null) return plan.rect;
+  const local = segmentFrame - move.startFrame;
+  if (local <= 0) return plan.rect;
+  const t = local >= move.durationFrames ? 1 : local / move.durationFrames;
+  const lerp = (a: number, b: number): number => Math.round(a + (b - a) * t);
+  return {
+    x: lerp(plan.rect.x, move.to.x),
+    y: lerp(plan.rect.y, move.to.y),
+    width: lerp(plan.rect.width, move.to.width),
+    height: lerp(plan.rect.height, move.to.height),
+  };
+}
+
+/** Таблица прямоугольников окна по кадрам сегмента — ею сверяется выражение `eval=frame`. */
+export function videoRectTable(plan: VideoUnderlayPlan): readonly VideoRect[] {
+  return Array.from({ length: plan.frameCount }, (_, n) => videoRectAtFrame(plan, n));
 }
 
 /** Имя PNG по номеру — тот же шаблон, что отдаёт рендерер. */
@@ -260,28 +315,66 @@ export function videoUnderlayArgs(options: CompositeVideoUnderlayOptions): strin
   // делает поток заведомо длиннее, `trim` режет его ровно по плану — и обе половины
   // проверяются `R8` на каждом сегменте.
   chain.push(`trim=end_frame=${String(plan.frameCount)}`, 'setpts=PTS-STARTPTS');
-  chain.push(
-    plan.fit === 'cover'
-      ? `scale=${String(innerW)}:${String(innerH)}:force_original_aspect_ratio=increase,crop=${String(innerW)}:${String(innerH)}`
-      : `scale=${String(innerW)}:${String(innerH)}:force_original_aspect_ratio=decrease,` +
-        `pad=${String(innerW)}:${String(innerH)}:(ow-iw)/2:(oh-ih)/2:${plan.background}`,
-  );
-  if (zoomed) chain.push(zoomFilterOf(plan, innerW, innerH));
-  if (superSample !== 1) chain.push(`scale=${String(rect.width)}:${String(rect.height)}`);
+  if (plan.move === null) {
+    chain.push(
+      plan.fit === 'cover'
+        ? `scale=${String(innerW)}:${String(innerH)}:force_original_aspect_ratio=increase,crop=${String(innerW)}:${String(innerH)}`
+        : `scale=${String(innerW)}:${String(innerH)}:force_original_aspect_ratio=decrease,` +
+          `pad=${String(innerW)}:${String(innerH)}:(ow-iw)/2:(oh-ih)/2:${plan.background}`,
+    );
+    if (zoomed) chain.push(zoomFilterOf(plan, innerW, innerH));
+    if (superSample !== 1) chain.push(`scale=${String(rect.width)}:${String(rect.height)}`);
+  } else {
+    // **ПЕРЕЕЗД: РАЗМЕР ОКНА — ВЫРАЖЕНИЕ, А `crop` ИЗ ГРАФА УБРАН** (`VID-02c`).
+    //
+    // Первая попытка ставила `scale`+`crop` с выражениями по обе стороны и была ОТВЕРГНУТА
+    // ИЗМЕРЕНИЕМ: у `crop` покадрово вычисляются только `x`/`y`, а `w`/`h` — один раз при
+    // настройке ссылки. Врезка честно ехала, но не росла: 24 кадра подряд 120×68 при плане
+    // до 320×480 (протокол — `docs/impl/VID-02c/report.md`).
+    //
+    // Что стоит вместо него: видео масштабируется до размера, ПОКРЫВАЮЩЕГО окно кадра
+    // (`scale` выражения `w`/`h` принимает и пересчитывает на каждом кадре), кладётся со
+    // смещением, центрирующим покрытие, а лишнее срезает МАСКА АЛЬФЫ — та же `geq`, что
+    // делает скругление. Одна операция вместо двух, и обе стороны окна на ней покадровые.
+    const w = moveExprOf(plan, 'width');
+    const h = moveExprOf(plan, 'height');
+    chain.push(
+      `scale=w='max(${w},(${h})*iw/ih)':h='max(${h},(${w})*ih/iw)':eval=frame`,
+    );
+  }
   chain.push('format=rgba');
-  // **ВИДЕО КЛАДЁТСЯ НА ПРОЗРАЧНЫЙ ХОЛСТ КАДРА `pad`'ОМ, А НЕ СМЕЩЕНИЕМ В `overlay`.**
-  // Причина — размер выхода: у `overlay` он равен размеру ГЛАВНОГО входа, а главным здесь
-  // обязано быть видео (графика ложится ПОВЕРХ него). Врезка 367×652 главным входом дала бы
-  // кадр 367×652 — и энкодер отказал бы на нечётной ширине, что и случилось на первой живой
-  // сборке. `pad` доводит нижний слой до полного кадра ДО наложения, и смещение врезки живёт
-  // ровно в одном месте.
-  chain.push(
-    `pad=${String(plan.width)}:${String(plan.height)}:${String(rect.x)}:${String(rect.y)}:color=0x00000000`,
-  );
+  // МАСКА НЕПОДВИЖНОГО ОКНА ставится ЗДЕСЬ, на маленькой врезке, — она дешевле, чем та же
+  // маска на полном кадре. У едущего окна так нельзя: размер кадра фильтра там уже не равен
+  // размеру окна, и маска считается ПОСЛЕ укладки (ниже).
+  if (plan.move === null && plan.radiusPx > 0) chain.push(cornerMaskOf(plan));
+  if (plan.move === null) {
+    // **ВИДЕО КЛАДЁТСЯ НА ПРОЗРАЧНЫЙ ХОЛСТ КАДРА `pad`'ОМ, А НЕ СМЕЩЕНИЕМ В `overlay`.**
+    // Причина — размер выхода: у `overlay` он равен размеру ГЛАВНОГО входа, а главным здесь
+    // обязано быть видео (графика ложится ПОВЕРХ него). Врезка 367×652 главным входом дала бы
+    // кадр 367×652 — и энкодер отказал бы на нечётной ширине, что и случилось на первой живой
+    // сборке. `pad` доводит нижний слой до полного кадра ДО наложения, и смещение врезки живёт
+    // ровно в одном месте.
+    chain.push(
+      `pad=${String(plan.width)}:${String(plan.height)}:${String(rect.x)}:${String(rect.y)}:color=0x00000000`,
+    );
+  }
 
+  // **У ПЕРЕЕЗДА `pad` НЕ РАБОТАЕТ, И ЭТО СВОЙСТВО ФИЛЬТРА, А НЕ НАШЕГО ГРАФА:** смещение `pad`
+  // вычисляется ОДИН раз при настройке ссылки, выражения с `n` он не принимает. Поэтому едущее
+  // окно кладётся `overlay`'ем на прозрачный холст полного кадра — у `overlay` смещения
+  // пересчитываются покадрово (`eval=frame`). Холст рождается `color`'ом, то есть источником с
+  // пришпиленным размером и цветом; бесконечность его потока гасит `shortest=1`, тот же, что
+  // защищает второе наложение.
   const filter =
-    `[1:v]${chain.join(',')}[vid];` +
-    `[vid][0:v]overlay=x=0:y=0:format=auto:shortest=1[out]`;
+    plan.move === null
+      ? `[1:v]${chain.join(',')}[vid];[vid][0:v]overlay=x=0:y=0:format=auto:shortest=1[out]`
+      : `color=c=0x00000000:s=${String(plan.width)}x${String(plan.height)}:` +
+        `r=${String(plan.fps.num)}/${String(plan.fps.den)},format=rgba[base];` +
+        `[1:v]${chain.join(',')}[vid];` +
+        `[base][vid]overlay=x='${coverOffsetExprOf(plan, 'x')}':` +
+        `y='${coverOffsetExprOf(plan, 'y')}':eval=frame:format=auto:shortest=1[laid];` +
+        `[laid]${windowMaskOf(plan)}[under];` +
+        `[under][0:v]overlay=x=0:y=0:format=auto:shortest=1[out]`;
 
   return [
     '-hide_banner',
@@ -301,6 +394,15 @@ export function videoUnderlayArgs(options: CompositeVideoUnderlayOptions): strin
     '-i',
     path.join(options.framesDirIn, options.pattern),
     // Вход 1 — файл видео. Никакого `-ss`: точка входа берётся `trim=start_frame`.
+    //
+    // **`loop` ЖИВЁТ НА ВХОДЕ, А НЕ ФИЛЬТРОМ, И ЭТО ПАМЯТЬ, А НЕ ВКУС.** Фильтр `loop` держит
+    // в ОЗУ весь буфер повтора (`size` кадров): тридцатисекундный клип 1080p — это гигабайты,
+    // и то же измерение уже однажды выгнало `split`+`concat` из пауз (`SP-VID`: 743 МБ RSS).
+    // `-stream_loop -1` переоткрывает демуксер, то есть платит диском, а не памятью, и
+    // сохраняет порядок кадров: первый проход идёт с `inPointFrame`, каждый следующий — с
+    // нуля файла. Это ДОСЛОВНО то, что считает `videoFrameOf` при `loop: true`
+    // (`raw % videoFrames`), и совпадение проверяется живым прогоном.
+    ...(plan.loop ? ['-stream_loop', '-1'] : []),
     '-i',
     plan.videoPath,
     '-filter_complex',
@@ -355,6 +457,134 @@ function zoomFilterOf(plan: VideoUnderlayPlan, innerW: number, innerH: number): 
   );
 }
 
+/**
+ * Одна координата едущего окна выражением ffmpeg — **ТА ЖЕ формула, что у `videoRectAtFrame`**.
+ *
+ * `round(from + (to − from)·t)`, где `t = min(1, max(0, (n − start)/duration))`. Сверяется не
+ * чтением, а ЖИВЫМ ИЗМЕРЕНИЕМ: тест `video-underlay.test.ts` рендерит переезд и читает
+ * границы непрозрачной области на пяти кадрах, сравнивая их с таблицей `videoRectTable`.
+ */
+export function moveExprOf(
+  plan: VideoUnderlayPlan,
+  field: 'x' | 'y' | 'width' | 'height',
+  frameVar = 'n',
+): string {
+  const move = plan.move;
+  if (move === null) return String(plan.rect[field]);
+  const from = plan.rect[field];
+  const to = move.to[field];
+  // ИМЯ ПЕРЕМЕННОЙ КАДРА У ФИЛЬТРОВ РАЗНОЕ, И ЭТО НЕ ОПЕЧАТКА В ДОКУМЕНТАЦИИ ffmpeg:
+  // `scale`, `crop` и `overlay` зовут её `n`, а `geq` — `N`. Подставленное не то имя даёт не
+  // ошибку значения, а «Undefined constant» при СБОРКЕ графа — измерено на первом же прогоне.
+  const t =
+    `min(1,max(0,(${frameVar}-${String(move.startFrame)})/${String(Math.max(1, move.durationFrames))}))`;
+  return `round(${String(from)}+(${String(to - from)})*${t})`;
+}
+
+/**
+ * **НОМЕР КАДРА У `overlay` ОПЕРЕЖАЕТ ВЫХОДНОЙ НА ЕДИНИЦУ — ЭТО ИЗМЕРЕНО, А НЕ ПРОЧИТАНО.**
+ *
+ * Протокол (`VID-02c`, переезд 120×68 → 320×480 с четвёртого кадра за двенадцать): на выходном
+ * кадре 4 измеренное смещение окна равнялось значению плана для кадра 5, и так на всех кадрах
+ * переезда. Документация ffmpeg называет `n` у `overlay` «номером входного кадра начиная с
+ * нуля»; на нашем графе (источник `color` главным входом, `shortest=1`) он на единицу больше
+ * номера кадра, который ложится в PNG. Поправка стоит ОДНИМ числом и с адресом измерения,
+ * а не «подгонкой на глаз»; сторожит её живой тест `video-underlay-move.test.ts`, который
+ * сравнивает границы непрозрачной области с таблицей. Сменится поведение фильтра — покраснеет
+ * он, а не ролик.
+ *
+ * У `geq` своя переменная (`N`) и своя нумерация, поэтому поправка у каждого потребителя своя.
+ */
+export const OVERLAY_FRAME_LEAD = 1;
+
+/** Номер кадра плана глазами конкретного фильтра — одно место, где живут поправки. */
+function frameVarOf(filter: 'overlay' | 'scale' | 'geq'): string {
+  if (filter === 'overlay') return `(n-${String(OVERLAY_FRAME_LEAD)})`;
+  return filter === 'geq' ? 'N' : 'n';
+}
+
+/**
+ * Смещение УЛОЖЕННОГО видео: окно минус половина того, что покрытие переросло окно.
+ *
+ * Видео масштабируется так, чтобы ПОКРЫТЬ окно (`cover`), то есть по одной оси оно шире окна.
+ * Центрирование этого излишка — то же `(ow-iw)/2`, что делал `crop`, только записанное в
+ * координатах холста. Лишнее срезает маска окна, а не `crop` (см. шапку графа).
+ */
+export function coverOffsetExprOf(plan: VideoUnderlayPlan, axis: 'x' | 'y'): string {
+  const v = frameVarOf('overlay');
+  const pos = moveExprOf(plan, axis, v);
+  const side = axis === 'x' ? 'width' : 'height';
+  const other = axis === 'x' ? 'height' : 'width';
+  const w = moveExprOf(plan, side, v);
+  const h = moveExprOf(plan, other, v);
+  // Размер покрытия по этой оси: `max(своя сторона, чужая сторона · пропорция видео)`. Та же
+  // формула, что в `scale` выше, и записана она один раз на обе — здесь читается `iw`/`ih`
+  // главного входа `overlay`, то есть ХОЛСТА, поэтому пропорция берётся у наложения (`w`/`h`
+  // самого видео у `overlay` зовутся `overlay_w`/`overlay_h`).
+  const covered = axis === 'x' ? 'overlay_w' : 'overlay_h';
+  void h;
+  return `round((${pos})-((${covered})-(${w}))/2)`;
+}
+
+/**
+ * МАСКА ОКНА НА ХОЛСТЕ: всё вне прямоугольника кадра прозрачно, углы скруглены.
+ *
+ * Делает разом две работы, и обе покадрово: срезает то, что видео переросло окно (у `crop`
+ * стороны покадровыми не бывают — ИЗМЕРЕНО: окно ехало, но не росло), и скругляет углы.
+ *
+ * **ЦЕНА НАЗВАНА ЧИСЛОМ, А НЕ СЛОВОМ «ДОРОГО».** Переезд 367×206 → 1080×1920 на 60 кадрах,
+ * медиана трёх прогонов: без переезда стадия 651 мс, с переездом — **13 807 мс** (×21.2).
+ * Платит за это `geq`: он вычисляет выражение В КАЖДОМ ПИКСЕЛЕ полного кадра. Дешёвая замена
+ * ДЛЯ ПРЯМЫХ УГЛОВ известна и измерена — четыре `drawbox=…:replace=1` по краям окна дают те
+ * же 713 мс (×19.4 дешевле), — но в этой сессии она не заработала: полосы по горизонтали
+ * стирали не всё (протокол — `docs/impl/VID-02c/report.md`), и разбираться дальше значило бы
+ * держать в дереве непроверенную оптимизацию вместо проверенной правильности. Долг с ценой.
+ */
+export function windowMaskOf(plan: VideoUnderlayPlan): string {
+  const v = frameVarOf('geq');
+  const x = moveExprOf(plan, 'x', v);
+  const y = moveExprOf(plan, 'y', v);
+  const w = moveExprOf(plan, 'width', v);
+  const h = moveExprOf(plan, 'height', v);
+  const r = plan.radiusPx;
+  // Отступ ВНУТРЬ от каждой стороны окна; отрицательный — пиксель снаружи окна.
+  const inx = `min(X-(${x}),(${x})+(${w})-1-X)`;
+  const iny = `min(Y-(${y}),(${y})+(${h})-1-Y)`;
+  const inside = `gte(min(${inx},${iny}),0)`;
+  if (r <= 0) return `geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='alpha(X,Y)*${inside}'`;
+  const dx = `max(${String(r)}-(${inx}),0)`;
+  const dy = `max(${String(r)}-(${iny}),0)`;
+  const arc = `if(gt(min(${dx},${dy}),0),clip(${String(r)}+0.5-hypot(${dx},${dy}),0,1),1)`;
+  return `geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='alpha(X,Y)*${inside}*${arc}'`;
+}
+
+/**
+ * СКРУГЛЕНИЕ УГЛОВ — маска альфы `geq`, и выбор измерен, а не взят по привычке (`VID-02c`).
+ *
+ * Что считает выражение: расстояние от пикселя до ближайшего ЦЕНТРА скругления по каждой оси
+ * (`dx`, `dy` равны нулю всюду, кроме четырёх угловых квадратов радиуса `R`), и альфа
+ * умножается на `clip(R + 0.5 − hypot(dx, dy), 0, 1)`. Половина пикселя даёт сглаженный край
+ * вместо лесенки; `clip` ограничивает его одним пикселем ширины.
+ *
+ * **ПОЧЕМУ МАСКА ЖИВЁТ И В ffmpeg, ХОТЯ ДЫРА В БРАУЗЕРЕ УЖЕ СКРУГЛЕНА.** Дыра скругляет то,
+ * что ЛЕЖИТ НАД видео; там, где над ним не лежит ничего (видео на `z: 0`, под ним фон
+ * композиции), углы остались бы прямыми — и скругление, объявленное автором, зависело бы от
+ * того, есть ли под видео фотография. Две записи одного числа сверяет тест на обоих слоях.
+ */
+export function cornerMaskOf(plan: VideoUnderlayPlan): string {
+  const r = plan.radiusPx;
+  const w = plan.move === null ? String(plan.rect.width) : `(${moveExprOf(plan, 'width', 'N')})`;
+  const h = plan.move === null ? String(plan.rect.height) : `(${moveExprOf(plan, 'height', 'N')})`;
+  const dx = `max(max(${String(r)}-X,X-(${w}-1-${String(r)})),0)`;
+  const dy = `max(max(${String(r)}-Y,Y-(${h}-1-${String(r)})),0)`;
+  // **ДУГА ПРОВЕРЯЕТСЯ ТОЛЬКО В УГЛОВОМ КВАДРАТЕ** — там, где ОБА отступа положительны. Без
+  // этого условия середина верхней стороны попадала бы на саму окружность (`dx = 0`,
+  // `dy = R`), и весь прямой край выходил бы полупрозрачным: ИЗМЕРЕНО, альфа 127 вместо 255.
+  const factor =
+    `if(gt(min(${dx},${dy}),0),clip(${String(r)}+0.5-hypot(${dx},${dy}),0,1),1)`;
+  return `geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='alpha(X,Y)*${factor}'`;
+}
+
 function assertPlan(plan: VideoUnderlayPlan): void {
   const bad = (what: string): never => {
     throw new AssembleError('VID-02a форма плана', `${what}. План стадии строит вызывающий, и он обязан быть числами, а не намерением`);
@@ -365,6 +595,31 @@ function assertPlan(plan: VideoUnderlayPlan): void {
   if (!Number.isSafeInteger(plan.videoFrames) || plan.videoFrames <= 0) bad(`\`videoFrames\` = ${String(plan.videoFrames)}: ожидалось целое > 0`);
   if (plan.rect.width <= 0 || plan.rect.height <= 0) bad('прямоугольник видео пуст');
   if (!/^#[0-9a-f]{6}$/u.test(plan.background)) bad(`\`background\` = \`${plan.background}\`: ожидалось \`#rrggbb\` строчными`);
+  if (plan.move !== null) {
+    // ДВА ДВИЖЕНИЯ ОДНОГО ПРЯМОУГОЛЬНИКА — ОТКАЗ, А НЕ ПОРЯДОК ПРИМЕНЕНИЯ. `zooms` наезжает
+    // ВНУТРИ окна, `move` двигает само окно; что из них применяется первым и как складываются
+    // их центры — решение, которого никто не принимал. Долг с ценой.
+    if (plan.zooms.length > 0) {
+      bad(
+        'заданы и `move`, и `zooms`: переезд двигает САМО окно, наезд двигает картинку ВНУТРИ ' +
+          'окна, и порядок их сложения — решение, которого никто не принимал. Оставьте одно ' +
+          'из двух либо разнесите их по разным клипам',
+      );
+    }
+    // `contain` У ПЕРЕЕЗДА — ОТКАЗ ПО ТОЙ ЖЕ ПРИЧИНЕ, ЧТО И `pad` ВЫШЕ: поля цвета `bg`
+    // ставит `pad`, а он выражений с `n` не принимает. Рисовать поля отдельной коробкой
+    // значило бы завести ВТОРОЙ прямоугольник, способный разъехаться с окном. Долг с ценой.
+    if (plan.fit === 'contain') {
+      bad(
+        'задан `move` при `fit: "contain"`: поля вокруг вписанного кадра ставит фильтр `pad`, ' +
+          'а его размеры вычисляются один раз и выражений с номером кадра не принимают. ' +
+          'Возьмите `fit: "cover"` — у окна, держащего пропорцию видео, он не кадрирует ничего',
+      );
+    }
+    if (plan.move.durationFrames <= 0) bad('`move.durationFrames` — не положительное целое');
+    if (plan.move.to.width <= 0 || plan.move.to.height <= 0) bad('прямоугольник `move.to` пуст');
+  }
+  if (!Number.isSafeInteger(plan.radiusPx) || plan.radiusPx < 0) bad(`\`radiusPx\` = ${String(plan.radiusPx)}: ожидалось целое >= 0`);
 }
 
 /**

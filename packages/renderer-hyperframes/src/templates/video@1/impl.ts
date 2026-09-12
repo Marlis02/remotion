@@ -39,80 +39,146 @@
 // закрыт для правок этой задачей, а `data-clip-id` на `host` — публичная часть его
 // контракта, которую уже читает охранник видимости субтитров.
 //
-// **ДЫРА СТАТИЧНА, И ЭТО ГРАНИЦА ВЕРСИИ.** Правило CSS ставится один раз на монтировании;
-// прямоугольник не двигается. Отсюда отсутствие ручки `move` в спеке: едущее окно требовало
-// бы пересчёта `clip-path` на каждом кадре, то есть колбэка в композиции — а его детерминизм
-// не измерен, и вводить его наугад в рендер-путь нельзя (**D4**).
+// **ДЫРА СЧИТАЕТСЯ НА КАЖДОМ КАДРЕ** *(изменено: `VID-02c`, 2026-09-12; до этого правило CSS
+// ставилось один раз на монтировании и жило весь сегмент)*. Одна правка закрыла три долга
+// сразу, и это не совпадение: №271 (дыра вне окна клипа), №268 (`move`) и №269 (`radius`)
+// были одним и тем же дефектом — статическим прямоугольником там, где прямоугольник есть
+// функция кадра.
 //
-// **ОКНО ВО ВРЕМЕНИ УЧТЕНО, А ДЫРА — НЕТ, И ЭТО НАЗВАНО ДОЛГОМ.** Клип видит своё окно
-// (`ctx.frames`), но правило CSS живёт весь сегмент: если `video@1` занимает не весь сегмент,
-// дыра стоит и вне его окна. Сегодня это не наблюдаемо — стадия ffmpeg кладёт видео ровно в
-// окно, а вне окна в дыре видно чёрный фон композиции, — но на сегменте, где под видео едет
-// фотография, это будет видно. Долг.
+// **ЧЕМ ИМЕННО КОЛБЭК ЗАКОНЕН.** `ctx.timeline` приходит ОБЁРНУТЫМ (`guardedTimeline` в
+// `runtime.js`): функции внутри переданных ему объектов подменяются на взведённые окном
+// `__VPE_FREEZE`. То есть `onUpdate` этого шаблона исполняется ПОД охраной **D4** ровно так
+// же, как его `mount`, — и шапка самого рантайма называет этот приём «законным способом
+// шаблона получить код, исполняемый на КАЖДОМ кадре». Ничего наугад здесь не вводится.
+//
+// **НОМЕР КАДРА БЕРЁТСЯ ИЗ ВРЕМЕНИ ТАЙМЛАЙНА, А НЕ СЧИТАЕТСЯ ТИКАМИ.** `Math.round(t·fps)` от
+// `timeline.time()` — то же `n/fps` задом наперёд (**R13**), и при покадровом захвате оно
+// точно: рендерер ставит таймлайн ровно на `n/fps`. Счётчик вызовов был бы неверен по
+// построению — GSAP не обязан звать `onUpdate` по разу на кадр.
+//
+// **ПРЯМОУГОЛЬНИК НЕ ВЫЧИСЛЯЕТСЯ ЗДЕСЬ, А ЧИТАЕТСЯ.** Он приезжает готовой таблицей ступеней
+// в `__VPE_MANIFEST.videoHoles` (посчитал `cli/src/build-stages/video-plan.ts`, форма —
+// `contract.ts`). Причина не в удобстве: с `VID-02c` окно врезки держит пропорцию ВИДЕО, а
+// пропорция видео живёт в записи ассета и в IR не входит — вывести высоту окна браузер не
+// может физически. Побочное следствие важнее причины: формула прямоугольника существует в
+// ОДНОМ экземпляре, и расходиться ей не с чем.
 //
 // D4 ДЕЙСТВУЕТ: ни `Date`, ни `Math.random`, ни `Intl` здесь нет — правило строится из чисел
 // плана и номеров `z`.
 
-import { canonicalJson } from '@vpe/core-model';
-
 import type { RendererTemplate } from '../index.js';
 
-// **УМОЛЧАНИЯ ЖИВУТ ЗДЕСЬ, А НЕ В СХЕМЕ** — правило `still@1` дословно: «умолчание в схеме
-// — это число, которое видит валидатор и не видит автор».
-//
-// **`fit` СРЕДИ НИХ НЕТ, И ЭТО НЕ ПРОПУСК.** `cover`/`contain` исполняет НЕ браузер, а стадия
-// ffmpeg (`scale`+`crop` против `scale`+`pad`), и её умолчание живёт там же, где её код, —
-// в развороте `params` в план (`cli/src/build-stages/video-plan.ts`). Дубль константы здесь
-// был бы вторым источником одного умолчания, и разъехались бы они на первой правке.
-const DEFAULT_FRAME = 'full';
-const DEFAULT_CORNER = 'tr';
-const DEFAULT_SIZE = 0.34;
-const DEFAULT_MARGIN = 0.05;
+// **УМОЛЧАНИЙ ГЕОМЕТРИИ ЗДЕСЬ БОЛЬШЕ НЕТ** *(изменено: `VID-02c`, 2026-09-12)*. До этой правки
+// `frame`/`corner`/`size`/`margin` были объявлены ДВАЖДЫ — здесь и в развороте `params` в план
+// (`cli/src/build-stages/video-plan.ts`), — и тест сверял их текстом, потому что сверить иначе
+// было нечем. Теперь прямоугольник целиком считает разворот плана и присылает готовым: у
+// умолчаний остался ОДИН адрес, и разъезжаться им не с чем. Тест совпадения умолчаний за
+// ненадобностью снят, а на его место встал тест равенства прямоугольников по обе стороны.
 
 const VIDEO_MOUNT = `function (host, ctx) {
         var W = window.__VPE_MANIFEST.baseWidth;
         var H = window.__VPE_MANIFEST.baseHeight;
-        var p = ctx.params;
-        var frame = p.frame === undefined ? ${canonicalJson(DEFAULT_FRAME)} : String(p.frame);
-        var size = p.size === undefined ? ${String(DEFAULT_SIZE)} : Number(p.size);
-        var margin = p.margin === undefined ? ${String(DEFAULT_MARGIN)} : Number(p.margin);
-        var corner = p.corner === undefined ? ${canonicalJson(DEFAULT_CORNER)} : String(p.corner);
+        var clipId = String(host.getAttribute('data-clip-id'));
 
-        var rect;
-        if (frame === 'corner') {
-          var w = Math.round(W * size);
-          var h = Math.round(w * H / W);
-          var m = Math.round(W * margin);
-          var left = (corner === 'tl' || corner === 'bl') ? m : W - w - m;
-          var top = (corner === 'tl' || corner === 'tr') ? m : H - h - m;
-          rect = { x: left, y: top, w: w, h: h };
-        } else {
-          rect = { x: 0, y: 0, w: W, h: H };
+        // ПЛАН ДЫРЫ — ТОЛЬКО СВОЙ. Совпадение по «clipId», а не «первый попавшийся»: сегмент
+        // с двумя клипами видео стадия ffmpeg отвергает, но отвергает ПОЗЖЕ, и дыра не того
+        // клипа была бы уже нарисована.
+        var holes = window.__VPE_MANIFEST.videoHoles || [];
+        var plan = null;
+        for (var q = 0; q < holes.length; q++) {
+          if (holes[q].clipId === clipId) plan = holes[q];
         }
-        host.setAttribute('data-video-rect', rect.x + ',' + rect.y + ',' + rect.w + ',' + rect.h);
+        if (plan === null) return;
+        host.setAttribute(
+          'data-video-rect',
+          plan.steps[0].x + ',' + plan.steps[0].y + ',' + plan.steps[0].width + ',' + plan.steps[0].height
+        );
 
         // Слои НИЖЕ нашего по z — свой z с СВОЕГО узла, чужие из IR (см. шапку).
         var myZ = Number(host.getAttribute('data-z'));
-        var clipId = String(host.getAttribute('data-clip-id'));
         var clips = window.__VPE_IR.clips;
         var below = [];
         for (var j = 0; j < clips.length; j++) {
           if (clips[j].z < myZ && below.indexOf(clips[j].z) === -1) below.push(clips[j].z);
         }
         below.sort(function (a, b) { return a - b; });
+        if (below.length === 0) return;
 
-        if (below.length > 0) {
-          var d =
-            'M0,0 H' + W + ' V' + H + ' H0 Z ' +
-            'M' + rect.x + ',' + rect.y + ' H' + (rect.x + rect.w) +
-            ' V' + (rect.y + rect.h) + ' H' + rect.x + ' Z';
-          var sel = [];
-          for (var k = 0; k < below.length; k++) sel.push('#root > .layer[data-z="' + below[k] + '"]');
-          var st = document.createElement('style');
-          st.id = 'vpe-video-hole-' + clipId;
-          st.textContent = sel.join(', ') + ' { clip-path: path(evenodd, "' + d + '"); }';
-          document.head.appendChild(st);
-        }
+        var sel = [];
+        for (var k = 0; k < below.length; k++) sel.push('#root > .layer[data-z="' + below[k] + '"]');
+        var st = document.createElement('style');
+        st.id = 'vpe-video-hole-' + clipId;
+        document.head.appendChild(st);
+
+        // КОНТУР ОКНА: внешний прямоугольник кадра плюс внутренний контур окна, правило
+        // чётности («evenodd») делает внутренний дырой. Скруглённые углы — четыре дуги
+        // «A»; радиус ужимается до половины меньшей стороны, иначе дуги пересекаются и
+        // браузер рисует бабочку вместо окна.
+        var pathOf = function (r, radius) {
+          var rr = Math.min(radius, Math.floor(Math.min(r.width, r.height) / 2));
+          var x2 = r.x + r.width;
+          var y2 = r.y + r.height;
+          var outer = 'M0,0 H' + W + ' V' + H + ' H0 Z ';
+          if (rr <= 0) {
+            return outer + 'M' + r.x + ',' + r.y + ' H' + x2 + ' V' + y2 + ' H' + r.x + ' Z';
+          }
+          return outer +
+            'M' + (r.x + rr) + ',' + r.y +
+            ' H' + (x2 - rr) + ' A' + rr + ',' + rr + ' 0 0 1 ' + x2 + ',' + (r.y + rr) +
+            ' V' + (y2 - rr) + ' A' + rr + ',' + rr + ' 0 0 1 ' + (x2 - rr) + ',' + y2 +
+            ' H' + (r.x + rr) + ' A' + rr + ',' + rr + ' 0 0 1 ' + r.x + ',' + (y2 - rr) +
+            ' V' + (r.y + rr) + ' A' + rr + ',' + rr + ' 0 0 1 ' + (r.x + rr) + ',' + r.y + ' Z';
+        };
+
+        // Ступень таблицы для кадра: последняя, чей «frame» не больше n. Таблица короткая
+        // (одна ступень у неподвижного окна), и линейный поиск дешевле разговоров о нём.
+        var stepAt = function (n) {
+          var found = plan.steps[0];
+          for (var i = 0; i < plan.steps.length; i++) {
+            if (plan.steps[i].frame <= n) found = plan.steps[i];
+          }
+          return found;
+        };
+
+        var fps = window.__VPE_MANIFEST.fps;
+        var written = null;
+        var apply = function (n) {
+          // ВНЕ ОКНА КЛИПА ДЫРЫ НЕТ ВОВСЕ (долг №271): правило снимается пустой строкой, и
+          // слои ниже становятся целыми. Именно это, а не «дыра в чёрный фон», обязан видеть
+          // сегмент, где под видео едет фотография.
+          var text = '';
+          if (n >= plan.frameStart && n < plan.frameEnd) {
+            text = sel.join(', ') + ' { clip-path: path(evenodd, "' +
+              pathOf(stepAt(n), plan.radiusPx) + '"); }';
+          }
+          // Запись в DOM только при СМЕНЕ текста: у неподвижного окна это ровно одна запись
+          // на весь сегмент, то есть цена покадровой дыры равна прежней статической.
+          if (text === written) return;
+          written = text;
+          st.textContent = text;
+        };
+        // ПЕРВЫЙ КАДР СЕГМЕНТА, А НЕ ПЕРВЫЙ КАДР ОКНА: до первого тика таймлайна в документе
+        // стоит то, что поставлено здесь, и «дыра, поставленная на всякий случай» была бы
+        // ровно дефектом №271 на нулевом кадре.
+        apply(0);
+
+        // ТВИН НАКРЫВАЕТ ВЕСЬ СЕГМЕНТ, А НЕ ОКНО КЛИПА, И ЭТО НЕ ЗАПАС. Колбэк обязан
+        // отработать и ВНЕ окна — там он СНИМАЕТ правило; твин длиной в окно не вызывался бы
+        // на кадрах до и после него, и дыра, поставленная на последнем кадре окна, осталась
+        // бы стоять до конца сегмента. ИЗМЕРЕНО на первом же прогоне охранника
+        // («video-hole.test.ts»): кадр 0 приходил с альфой 0 при окне клипа [20, 40).
+        ctx.timeline.to(
+          { v: 0 },
+          {
+            v: 1,
+            duration: ctx.toSeconds(window.__VPE_IR.segmentDurationInFrames),
+            ease: 'none',
+            onUpdate: function () {
+              apply(Math.round((ctx.timeline.time() * fps.num) / fps.den));
+            }
+          },
+          0
+        );
 
         // Собственной картинки у слоя нет — он прозрачен весь сегмент. Прозрачности на
         // границах окна тоже нет и быть не должно: гасить нечего, а лишняя простановка

@@ -52,7 +52,12 @@ import type { TemplateRegistry } from '@vpe/templates-spec';
 
 import { AC4_GATE_SKIP_WHY, isGateProfile, type BuildProfileId } from '../ac4.js';
 import { CliError, EXIT } from '../errors.js';
-import { videoPlanOf, type VideoIntrinsicInput, type VideoPlanInput } from './video-plan.js';
+import {
+  videoHolesOf,
+  videoPlanOf,
+  type VideoIntrinsicInput,
+  type VideoPlanInput,
+} from './video-plan.js';
 
 /** Подмена рендера — ТОЛЬКО тесты: браузера у них нет. Форма — сигнатура адаптера. */
 export type RenderFn = (
@@ -240,6 +245,28 @@ export async function buildRequest(input: BuildRequestInput): Promise<SegmentRen
     },
     assets,
     fonts,
+    // ПЛАНЫ ДЫР `video@1` (`VID-02c`) — СЧИТАЮТСЯ ДО РЕНДЕРА, а не после, и это не порядок
+    // строк, а необходимость: дыру пробивает БРАУЗЕР, то есть числа обязаны лежать в
+    // композиции ДО того, как она соберётся, и войти в `bundle.hash`. Стадия ffmpeg зовёт ТУ
+    // ЖЕ функцию геометрии позже, на готовых кадрах, — расхождения нет по построению.
+    //
+    // Прямоугольники здесь в БАЗОВЫХ координатах (без `scale` профиля): дыру уменьшает
+    // единственный CSS-масштаб на слое (`FIX-02`), и вторая простановка масштаба дала бы
+    // `scale` в квадрате — ровно долг №182, уже однажды оплаченный.
+    videoHoles: videoHolesOf({
+      ir: input.ir,
+      width: input.compileProfile.width,
+      height: input.compileProfile.height,
+      scale: 1,
+      fps: input.compileProfile.fps,
+      videoOf: (sha256) => {
+        const asset = assets.find((a) => a.sha256 === sha256);
+        const intrinsic = VIDEO_INTRINSICS.get(sha256);
+        return asset === undefined || intrinsic === undefined
+          ? undefined
+          : { path: asset.path, intrinsic };
+      },
+    }),
     // ВНЕ `tmpDir` — этого требует **R2**: адаптер чистит свой временный каталог.
     outputPath: path.join(
       input.layout.segmentsDir,
