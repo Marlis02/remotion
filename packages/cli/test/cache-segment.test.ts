@@ -169,6 +169,7 @@ async function runBuild(made: TestProject, options: RunOptions): Promise<Ran> {
     storeDir: made.storeDir,
     gatesDir: made.gatesDir,
     noCache: options.noCache ?? false,
+    keepFrames: false,
   };
   const deps: BuildDeps = {
     now: () => '2026-09-09T00:00:00.000Z',

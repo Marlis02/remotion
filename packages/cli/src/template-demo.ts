@@ -346,6 +346,10 @@ async function runOne(
         storeDir: project.storeDir,
         gatesDir: args.gatesDir,
         noCache: args.noCache,
+        // `--keep-tmp` демо оставляет ВЕСЬ временный проект, а значит и его кадры: отладка
+        // несобравшегося демо начинается ровно с них (долг №288). Без флага — как у сборки,
+        // то есть кадров после энкода нет.
+        keepFrames: args.keepTmp,
       },
       deps,
     );

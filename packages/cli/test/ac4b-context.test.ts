@@ -184,6 +184,7 @@ describe('**D12** — сегмент не зависит от соседей', (
         storeDir: project.storeDir,
         gatesDir: null,
         noCache: false,
+        keepFrames: false,
       };
       expect(await build(args, deps), out).toBe(0);
 

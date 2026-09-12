@@ -312,6 +312,9 @@ export async function build(args: BuildArgs, deps: BuildDeps): Promise<number> {
     // `fixtures/minimal` не имеет права положить туда ни байта.
     cacheRoot: project.layout.takesRoot,
     noCache: args.noCache,
+    // Кадры сегмента — производное, которое после энкода не читает никто (долг №288).
+    // Умолчание — удалять; `--keep-frames` оставляет.
+    keepFrames: args.keepFrames,
     deps,
     out: deps.out,
   });

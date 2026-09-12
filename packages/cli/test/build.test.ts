@@ -74,6 +74,14 @@ interface RunOptions {
   readonly fingerprint?: string;
   readonly speech?: BuildDeps['speech'];
   readonly env?: NodeJS.ProcessEnv;
+  /**
+   * `--keep-frames`: не сносить `build/tmp/segments/*` после энкода (долг №288).
+   *
+   * Нужен РОВНО тем прогонам, которые читают каталог сегмента ПОСЛЕ сборки, — а таких здесь
+   * один: «в каталоге композиции окна клипов лежат парой». Умолчание `false` = поведение
+   * сборки, и оно же делает остальные прогоны охранниками уборки задаром.
+   */
+  readonly keepFrames?: boolean;
 }
 
 interface Ran {
@@ -98,6 +106,7 @@ async function runBuild(project: TestProject, options: RunOptions = {}): Promise
     storeDir: project.storeDir,
     gatesDir: options.gatesDir ?? project.gatesDir,
     noCache: options.noCache ?? false,
+    keepFrames: options.keepFrames ?? false,
   };
   const deps: BuildDeps = {
     now: () => '2026-08-30T99:99:99Z',
@@ -280,7 +289,10 @@ describe('**№168** — первый настоящий IR через адап�
   it('в каталоге композиции окна клипов лежат парой `frameStart`/`frameEnd`, и `NaN` в нём нет', async () => {
     const project = makeProject();
     writeGates(project.gatesDir, USED, ['final']);
-    await runBuild(project);
+    // `keepFrames` — потому что предмет теста лежит ВНУТРИ `build/tmp/segments/*`, а сборка
+    // с умолчанием сносит этот каталог сразу после энкода (долг №288). Флаг здесь читается
+    // как «этот прогон смотрит на производное», и это ровно то, для чего он заведён.
+    await runBuild(project, { keepFrames: true });
 
     const tmp = path.join(project.buildDir, 'tmp', 'segments');
     const segments = readdirSync(tmp).sort();

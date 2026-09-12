@@ -107,6 +107,17 @@ export interface BuildArgs {
    * не рендерер; первый — ради симметрии, чтобы сравнивались два одинаковых пути).
    */
   readonly noCache: boolean;
+  /**
+   * `--keep-frames`: оставить кадры сегментов в `build/tmp/` после энкода (долг №288).
+   *
+   * УМОЛЧАНИЕ — УДАЛЯТЬ, и это измерение, а не вкус: десятиминутный черновик оставлял **12 ГБ**
+   * кадров, двадцатиминутный финал оставил бы около 96 ГБ (`SP-VID-DUR`). Разбор — у поля
+   * `keepFrames` в [`build-stages/render.ts`](build-stages/render.ts).
+   *
+   * ФЛАГ БЕЗ ЗНАЧЕНИЯ — как `--no-cache` и `--allow-tts`. Он для отладки («покажи кадр,
+   * который вышел чёрным») и для прогонов, которые кадры ЧИТАЮТ после сборки.
+   */
+  readonly keepFrames: boolean;
 }
 
 /**
@@ -330,6 +341,7 @@ export type CliCommand =
 export const USAGE = [
   'vpe build --project <кат> --profile final|draftHalf [--allow-tts] [--now <ISO>] [--no-cache]',
   '          [--build-dir <кат>] [--write-root <кат>] [--store-dir <кат>] [--gates-dir <кат>]',
+  '          [--keep-frames]',
   'vpe render-segment [--gate-skip <причина>] [--gate-profile final|draftHalf]   (запрос — на stdin)',
   'vpe store verify --project <кат> [--store-dir <кат>] [--write-verified] [--now <ISO>]',
   'vpe store fetch  --project <кат> --from <кат> [--store-dir <кат>]',
@@ -506,6 +518,7 @@ function parseBuild(rest: readonly string[]): BuildArgs {
   let storeDir: string | null = null;
   let gatesDir: string | null = null;
   let noCache = false;
+  let keepFrames = false;
 
   for (let i = 0; i < rest.length; i += 1) {
     const arg = rest[i] ?? '';
@@ -546,6 +559,9 @@ function parseBuild(rest: readonly string[]): BuildArgs {
       case '--no-cache':
         noCache = true;
         break;
+      case '--keep-frames':
+        keepFrames = true;
+        break;
       default:
         throw new CliError(
           'argv',
@@ -583,6 +599,7 @@ function parseBuild(rest: readonly string[]): BuildArgs {
     storeDir,
     gatesDir,
     noCache,
+    keepFrames,
   };
 }
 

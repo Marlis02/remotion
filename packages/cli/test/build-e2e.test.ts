@@ -65,6 +65,7 @@ describe('`vpe build` — живая сборка `fixtures/minimal` на `final
         // записями, тест обязан покраснеть — это и есть **R12** на живом прогоне.
         gatesDir: null,
         noCache: false,
+        keepFrames: false,
       };
       const deps: BuildDeps = {
         now: () => '2026-08-30T12:00:00.000Z',

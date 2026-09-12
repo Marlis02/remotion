@@ -98,6 +98,10 @@ export function ac4BuildArgs(args: VerifyAc4Args, buildDir: string, now: string)
     storeDir: args.storeDir,
     gatesDir: null,
     noCache: true,
+    // AC4 меряет РАВЕНСТВО БАЙТОВ двух прогонов, а не картинку: кадры ему не нужны ни в
+    // одном из двух, и сохранять их значило бы держать на диске две копии производного
+    // выпускной проверки (долг №288).
+    keepFrames: false,
   };
 }
 
