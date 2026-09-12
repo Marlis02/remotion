@@ -1,0 +1,1601 @@
+schema: direction/1
+records:
+-
+  recordId: "ec76446f"
+  at:
+    kind: anchor
+    anchor: "b:img-street-1"
+  until:
+    kind: anchor
+    anchor: "sc:street-01"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "7e9b649c"
+  at:
+    kind: anchor
+    anchor: "sc:street-01"
+  until:
+    kind: anchor
+    anchor: "sc:street-01"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "fa8e5065"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-1"
+  until:
+    kind: anchor
+    anchor: "sc:work-01"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "8c6f789d"
+  at:
+    kind: anchor
+    anchor: "sc:work-01"
+  until:
+    kind: anchor
+    anchor: "sc:work-01"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "ba53a8eb"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-1"
+  until:
+    kind: anchor
+    anchor: "sc:road-01"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "77db729e"
+  at:
+    kind: anchor
+    anchor: "sc:road-01"
+  until:
+    kind: anchor
+    anchor: "sc:road-01"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "ea46ea3f"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "416ff8cd"
+  at:
+    kind: anchor
+    anchor: "b:img-street-2"
+  until:
+    kind: anchor
+    anchor: "sc:street-02"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "7839e808"
+  at:
+    kind: anchor
+    anchor: "sc:street-02"
+  until:
+    kind: anchor
+    anchor: "sc:street-02"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "922f1686"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-2"
+  until:
+    kind: anchor
+    anchor: "sc:work-02"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "f4f50902"
+  at:
+    kind: anchor
+    anchor: "sc:work-02"
+  until:
+    kind: anchor
+    anchor: "sc:work-02"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "e24f28e1"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-2"
+  until:
+    kind: anchor
+    anchor: "sc:road-02"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "dc08cbae"
+  at:
+    kind: anchor
+    anchor: "sc:road-02"
+  until:
+    kind: anchor
+    anchor: "sc:road-02"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "24d47fbc"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "869a8425"
+  at:
+    kind: anchor
+    anchor: "b:img-street-3"
+  until:
+    kind: anchor
+    anchor: "sc:street-03"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "26694915"
+  at:
+    kind: anchor
+    anchor: "sc:street-03"
+  until:
+    kind: anchor
+    anchor: "sc:street-03"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "23e149f8"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-3"
+  until:
+    kind: anchor
+    anchor: "sc:work-03"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "db43d56f"
+  at:
+    kind: anchor
+    anchor: "sc:work-03"
+  until:
+    kind: anchor
+    anchor: "sc:work-03"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "ac483fd7"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-3"
+  until:
+    kind: anchor
+    anchor: "sc:road-03"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "e573b36d"
+  at:
+    kind: anchor
+    anchor: "sc:road-03"
+  until:
+    kind: anchor
+    anchor: "sc:road-03"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "c83f701b"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "c6bfa964"
+  at:
+    kind: anchor
+    anchor: "b:img-street-4"
+  until:
+    kind: anchor
+    anchor: "sc:street-04"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "4847ce80"
+  at:
+    kind: anchor
+    anchor: "sc:street-04"
+  until:
+    kind: anchor
+    anchor: "sc:street-04"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "5633de88"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-4"
+  until:
+    kind: anchor
+    anchor: "sc:work-04"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "9d5240dd"
+  at:
+    kind: anchor
+    anchor: "sc:work-04"
+  until:
+    kind: anchor
+    anchor: "sc:work-04"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "fba4148a"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-4"
+  until:
+    kind: anchor
+    anchor: "sc:road-04"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "ba43cbf4"
+  at:
+    kind: anchor
+    anchor: "sc:road-04"
+  until:
+    kind: anchor
+    anchor: "sc:road-04"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "765d25f8"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "c8c58026"
+  at:
+    kind: anchor
+    anchor: "b:img-street-5"
+  until:
+    kind: anchor
+    anchor: "sc:street-05"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "13396367"
+  at:
+    kind: anchor
+    anchor: "sc:street-05"
+  until:
+    kind: anchor
+    anchor: "sc:street-05"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "b02198a2"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-5"
+  until:
+    kind: anchor
+    anchor: "sc:work-05"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "cf6638e3"
+  at:
+    kind: anchor
+    anchor: "sc:work-05"
+  until:
+    kind: anchor
+    anchor: "sc:work-05"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "a9512a8f"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-5"
+  until:
+    kind: anchor
+    anchor: "sc:road-05"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "abd77253"
+  at:
+    kind: anchor
+    anchor: "sc:road-05"
+  until:
+    kind: anchor
+    anchor: "sc:road-05"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "cdc92ef0"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "75b90688"
+  at:
+    kind: anchor
+    anchor: "b:img-street-6"
+  until:
+    kind: anchor
+    anchor: "sc:street-06"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "10835750"
+  at:
+    kind: anchor
+    anchor: "sc:street-06"
+  until:
+    kind: anchor
+    anchor: "sc:street-06"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "27eed2de"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-6"
+  until:
+    kind: anchor
+    anchor: "sc:work-06"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "3e6f51cd"
+  at:
+    kind: anchor
+    anchor: "sc:work-06"
+  until:
+    kind: anchor
+    anchor: "sc:work-06"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "f614c427"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-6"
+  until:
+    kind: anchor
+    anchor: "sc:road-06"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "a8c5b7c6"
+  at:
+    kind: anchor
+    anchor: "sc:road-06"
+  until:
+    kind: anchor
+    anchor: "sc:road-06"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "15d48366"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "8b949ccf"
+  at:
+    kind: anchor
+    anchor: "b:img-street-7"
+  until:
+    kind: anchor
+    anchor: "sc:street-07"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "68d74fac"
+  at:
+    kind: anchor
+    anchor: "sc:street-07"
+  until:
+    kind: anchor
+    anchor: "sc:street-07"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "1f4a1c39"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-7"
+  until:
+    kind: anchor
+    anchor: "sc:work-07"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "41d9c0e7"
+  at:
+    kind: anchor
+    anchor: "sc:work-07"
+  until:
+    kind: anchor
+    anchor: "sc:work-07"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "efa9e7d3"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-7"
+  until:
+    kind: anchor
+    anchor: "sc:road-07"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "06f8afe2"
+  at:
+    kind: anchor
+    anchor: "sc:road-07"
+  until:
+    kind: anchor
+    anchor: "sc:road-07"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "a646b637"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "2323181a"
+  at:
+    kind: anchor
+    anchor: "b:img-street-8"
+  until:
+    kind: anchor
+    anchor: "sc:street-08"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "diagonal-close"
+
+-
+  recordId: "3caa1793"
+  at:
+    kind: anchor
+    anchor: "sc:street-08"
+  until:
+    kind: anchor
+    anchor: "sc:street-08"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "0b4fa408"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-8"
+  until:
+    kind: anchor
+    anchor: "sc:work-08"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "63d8c8b7"
+  at:
+    kind: anchor
+    anchor: "sc:work-08"
+  until:
+    kind: anchor
+    anchor: "sc:work-08"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "4749e797"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-8"
+  until:
+    kind: anchor
+    anchor: "sc:road-08"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "c6dc92ed"
+  at:
+    kind: anchor
+    anchor: "sc:road-08"
+  until:
+    kind: anchor
+    anchor: "sc:road-08"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "249abbd2"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "2ffc24fc"
+  at:
+    kind: anchor
+    anchor: "b:img-street-9"
+  until:
+    kind: anchor
+    anchor: "sc:street-09"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "8c175095"
+  at:
+    kind: anchor
+    anchor: "sc:street-09"
+  until:
+    kind: anchor
+    anchor: "sc:street-09"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "9c6bc00e"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-9"
+  until:
+    kind: anchor
+    anchor: "sc:work-09"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "293087c9"
+  at:
+    kind: anchor
+    anchor: "sc:work-09"
+  until:
+    kind: anchor
+    anchor: "sc:work-09"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "b1163231"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-9"
+  until:
+    kind: anchor
+    anchor: "sc:road-09"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "f7e3d06f"
+  at:
+    kind: anchor
+    anchor: "sc:road-09"
+  until:
+    kind: anchor
+    anchor: "sc:road-09"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "33b6800b"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "cb5a4348"
+  at:
+    kind: anchor
+    anchor: "b:img-street-10"
+  until:
+    kind: anchor
+    anchor: "sc:street-10"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "6073e4a7"
+  at:
+    kind: anchor
+    anchor: "sc:street-10"
+  until:
+    kind: anchor
+    anchor: "sc:street-10"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "1b0c6255"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-10"
+  until:
+    kind: anchor
+    anchor: "sc:work-10"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "4b48721d"
+  at:
+    kind: anchor
+    anchor: "sc:work-10"
+  until:
+    kind: anchor
+    anchor: "sc:work-10"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "b19c11a1"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-10"
+  until:
+    kind: anchor
+    anchor: "sc:road-10"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "b1f841f6"
+  at:
+    kind: anchor
+    anchor: "sc:road-10"
+  until:
+    kind: anchor
+    anchor: "sc:road-10"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "2a0ced44"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "23a9b553"
+  at:
+    kind: anchor
+    anchor: "b:img-street-11"
+  until:
+    kind: anchor
+    anchor: "sc:street-11"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "e0fd85f1"
+  at:
+    kind: anchor
+    anchor: "sc:street-11"
+  until:
+    kind: anchor
+    anchor: "sc:street-11"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "73be122f"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-11"
+  until:
+    kind: anchor
+    anchor: "sc:work-11"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "75ace235"
+  at:
+    kind: anchor
+    anchor: "sc:work-11"
+  until:
+    kind: anchor
+    anchor: "sc:work-11"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "bd912f0b"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-11"
+  until:
+    kind: anchor
+    anchor: "sc:road-11"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "ffab34d0"
+  at:
+    kind: anchor
+    anchor: "sc:road-11"
+  until:
+    kind: anchor
+    anchor: "sc:road-11"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "180b3bdf"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "f1984d3e"
+  at:
+    kind: anchor
+    anchor: "b:img-street-12"
+  until:
+    kind: anchor
+    anchor: "sc:street-12"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "9786dbfb"
+  at:
+    kind: anchor
+    anchor: "sc:street-12"
+  until:
+    kind: anchor
+    anchor: "sc:street-12"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "8cb624ce"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-12"
+  until:
+    kind: anchor
+    anchor: "sc:work-12"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "2e2ef71d"
+  at:
+    kind: anchor
+    anchor: "sc:work-12"
+  until:
+    kind: anchor
+    anchor: "sc:work-12"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "97b1d97f"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-12"
+  until:
+    kind: anchor
+    anchor: "sc:road-12"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "61ae42cb"
+  at:
+    kind: anchor
+    anchor: "sc:road-12"
+  until:
+    kind: anchor
+    anchor: "sc:road-12"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "2e73e316"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "05b1b786"
+  at:
+    kind: anchor
+    anchor: "b:img-street-13"
+  until:
+    kind: anchor
+    anchor: "sc:street-13"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "0c3d7157"
+  at:
+    kind: anchor
+    anchor: "sc:street-13"
+  until:
+    kind: anchor
+    anchor: "sc:street-13"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "0fae9aae"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-13"
+  until:
+    kind: anchor
+    anchor: "sc:work-13"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "92131a97"
+  at:
+    kind: anchor
+    anchor: "sc:work-13"
+  until:
+    kind: anchor
+    anchor: "sc:work-13"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "f8159a24"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-13"
+  until:
+    kind: anchor
+    anchor: "sc:road-13"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "e058584c"
+  at:
+    kind: anchor
+    anchor: "sc:road-13"
+  until:
+    kind: anchor
+    anchor: "sc:road-13"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "3d9c8061"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "7b579523"
+  at:
+    kind: anchor
+    anchor: "b:img-street-14"
+  until:
+    kind: anchor
+    anchor: "sc:street-14"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "0156e332"
+  at:
+    kind: anchor
+    anchor: "sc:street-14"
+  until:
+    kind: anchor
+    anchor: "sc:street-14"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "47d438e8"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-14"
+  until:
+    kind: anchor
+    anchor: "sc:work-14"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "535ff1e5"
+  at:
+    kind: anchor
+    anchor: "sc:work-14"
+  until:
+    kind: anchor
+    anchor: "sc:work-14"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "8a9be425"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-14"
+  until:
+    kind: anchor
+    anchor: "sc:road-14"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "e31173c3"
+  at:
+    kind: anchor
+    anchor: "sc:road-14"
+  until:
+    kind: anchor
+    anchor: "sc:road-14"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "a493752a"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "a1fdcf53"
+  at:
+    kind: anchor
+    anchor: "b:img-street-15"
+  until:
+    kind: anchor
+    anchor: "sc:street-15"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "05cc51ad"
+  at:
+    kind: anchor
+    anchor: "sc:street-15"
+  until:
+    kind: anchor
+    anchor: "sc:street-15"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "aa54dafd"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-15"
+  until:
+    kind: anchor
+    anchor: "sc:work-15"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "f19c6d8a"
+  at:
+    kind: anchor
+    anchor: "sc:work-15"
+  until:
+    kind: anchor
+    anchor: "sc:work-15"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "89f2b859"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-15"
+  until:
+    kind: anchor
+    anchor: "sc:road-15"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "52a5f98d"
+  at:
+    kind: anchor
+    anchor: "sc:road-15"
+  until:
+    kind: anchor
+    anchor: "sc:road-15"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "1119fa3c"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
+
+-
+  recordId: "f225c4a7"
+  at:
+    kind: anchor
+    anchor: "b:img-street-16"
+  until:
+    kind: anchor
+    anchor: "sc:street-16"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Те же шесть чисел, что стояли здесь до `TPL-01b`, — теперь под именем (`presets/drift-right.json`).
+  preset: "drift-right"
+
+-
+  recordId: "b5eaf8eb"
+  at:
+    kind: anchor
+    anchor: "sc:street-16"
+  until:
+    kind: anchor
+    anchor: "sc:street-16"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена work: одна выделенная фигура — настоящий параллакс на двух слоях,
+# от дальнего (оригинал) к ближнему (вырезка). Окно = окно [img: mechanic].
+
+-
+  recordId: "519d1412"
+  at:
+    kind: anchor
+    anchor: "b:img-mechanic-16"
+  until:
+    kind: anchor
+    anchor: "sc:work-16"
+  track: visual
+  z: 10
+  template: "parallax25@1"
+  # Ход и глубина — из пресета; alias'ы слоёв у пресета взяты из ЭТОГО проекта, поэтому
+  # перекрывать их нечем и не нужно (`presets/figure-soft.json`).
+  preset: "figure-soft"
+
+-
+  recordId: "0102d563"
+  at:
+    kind: anchor
+    anchor: "sc:work-16"
+  until:
+    kind: anchor
+    anchor: "sc:work-16"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+# Сцена road: портретный снимок — медленный наезд без горизонтального хода.
+# Окно = окно [img: mother]. Вспышка одна на ролик — на слове «nobody»,
+# ради которого написана сцена; until у flash@1 не нужен.
+
+-
+  recordId: "41184316"
+  at:
+    kind: anchor
+    anchor: "b:img-mother-16"
+  until:
+    kind: anchor
+    anchor: "sc:road-16"
+  track: visual
+  z: 10
+  template: "kenburns@1"
+  # Портретный снимок: только вертикаль (`presets/portrait-push-up.json`).
+  preset: "portrait-push-up"
+
+-
+  recordId: "aef3f625"
+  at:
+    kind: anchor
+    anchor: "sc:road-16"
+  until:
+    kind: anchor
+    anchor: "sc:road-16"
+  track: caption
+  z: 30
+  template: "captionEmphasis@1"
+  preset: "bottom-warm"
+
+-
+  recordId: "b00533be"
+  at:
+    kind: anchor
+    anchor: "b:evict01"
+  track: effect
+  z: 20
+  template: "flash@1"
+  # 22 % и 150 мс — те же (`presets/soft-accent.json`).
+  preset: "soft-accent"
+# bed@1 не вызван: аудио-alias в списке владельца нет, выдумывать нельзя.
+# grade@1 не вызван: в канале выключен (ENV-01).
